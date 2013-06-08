@@ -15,7 +15,7 @@ setup(
     keywords = "qubole sdk api",
     url = "http://packages.python.org/qds_sdk",
     packages=['qds_sdk'],
-    scripts=['examples/qds.py'],
+    scripts=['bin/qds.py'],
     install_requires=INSTALL_REQUIRES,
     long_description=read('README.md')
     )

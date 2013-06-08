@@ -81,18 +81,21 @@ def main():
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token", 
                          default=os.getenv('QDS_API_TOKEN'),
-                         help="api token for accessing Qubole")
+                         help="api token for accessing Qubole. must be specified via command line or passed in via environment variable QDS_API_TOKEN")
+
     optparser.add_option("--url", dest="api_url", 
                          default=os.getenv('QDS_API_URL'),
-                         help="base url for QDS REST API")
+                         help="base url for QDS REST API. defaults to https://api.qubole.com/api ")
+
     optparser.add_option("--version", dest="api_version", 
                          default=os.getenv('QDS_API_VERSION'),
-                         help="version of REST API to access")
+                         help="version of REST API to access. defaults to v1.2")
+
     optparser.add_option("--poll_interval", dest="poll_interval", 
                          default=os.getenv('QDS_POLL_INTERVAL'),
-                         help="interval for polling API for completion and other events")
+                         help="interval for polling API for completion and other events. defaults to 5s")
 
-    optparser.add_option("-v", "--v", dest="verbose", action="store_true",
+    optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
                          help="verbose mode - info level logging")
 
@@ -152,8 +155,9 @@ if __name__ == '__main__':
     try:
         sys.exit(main())
     except qds_sdk.exception.Error as e:
-        sys.stderr.write("Error: Status code %s from url %s\n" % 
-                         (e.request.status_code, e.request.url))
+        sys.stderr.write("Error: Status code %s (%s) from url %s\n" % 
+                         (e.request.status_code, e.__class__.__name__,
+                          e.request.url))
         sys.exit(1)
     except qds_sdk.exception.ParseError as e:
         sys.stderr.write("Error: %s\n" % str(e))

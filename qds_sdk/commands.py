@@ -44,6 +44,7 @@ class Command(Resource):
     def create(cls, **kwargs):
         """
         Create a command object by issuing a POST request to the /command endpoint
+        Note - this does not wait for the command to complete
 
         Args:
             `\**kwargs` - keyword arguments specific to command type

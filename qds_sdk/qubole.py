@@ -11,6 +11,10 @@ class QuboleAuth(requests.auth.AuthBase):
         return r
 
 class Qubole:
+    """
+    Singleton for storing authorization credentials and other
+    configuration parameters for QDS.
+    """
 
     _auth=None
     api_token=None
@@ -21,6 +25,14 @@ class Qubole:
     def configure(cls, api_token, 
                   api_url="https://api.qubole.com/api/", version="v1.2", 
                   poll_interval=5):
+        """
+        Set parameters governing interaction with QDS
+        Args:
+            ``api_token``: authorization token for QDS. required
+            ``api_url``: the base URL for QDS API. configurable for testing only
+            ``version``: QDS REST api version
+            ``poll_interval``: interval in secs when polling QDS for events
+        """
         cls._auth=QuboleAuth(api_token)
         cls.api_token=api_token
         cls.base_url=os.path.join(api_url, version)
@@ -28,4 +40,8 @@ class Qubole:
 
     @classmethod
     def agent(cls):
+        """
+        Returns:
+           a connection object to make REST calls to QDS
+        """
         return Connection(cls._auth, cls.base_url)
