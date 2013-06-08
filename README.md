@@ -7,13 +7,15 @@ A Python module that provides the tools you need to authenticate with, and use t
 Installation
 ------------
 
-$ python setup.py install # may need to do this as root
+Run the following command (may need to do this as root):
+
+        $ python setup.py install
 
 
 This should place a command line utility 'qds.py' somewhere in your path
 
-$ which qds.py
-/usr/bin/qds.py 
+        $ which qds.py
+        /usr/bin/qds.py 
 
 
 CLI
@@ -21,7 +23,7 @@ CLI
 
 qds.py allows running Hive, Hadoop and Pig commands against QDS. Users can run commands synchronously - or submit a command and check it's status.
 
-$ qds.py -h # will print detailed usage
+        $ qds.py -h # will print detailed usage
 
 Examples:
 
