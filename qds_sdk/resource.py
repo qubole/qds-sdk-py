@@ -1,4 +1,10 @@
+"""
+qds_sdk.Resource represents a REST based resource with standard methods like
+create/find etc.
+"""
+
 import util
+import cjson
 from qubole import Qubole
 
 class ResourceMeta(type):
@@ -67,3 +73,7 @@ class Resource(object):
         if value is not None:
             return value
         raise AttributeError(name)
+
+
+    def __str__(self):
+        return cjson.encode(self.attributes)

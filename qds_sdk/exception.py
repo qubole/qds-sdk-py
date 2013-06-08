@@ -1,10 +1,15 @@
+class ParseError(Exception):
+    def __init__(self, message, usage):
+        Exception.__init__(self, message)
+        self.usage = usage
+    
+
 class Error(Exception):
     """A general error derived from Exception."""
 
     def __init__(self, request):
         Exception.__init__(self, request.text)
-        self.url = request.url
-        self.status_code = request.status_code
+        self.request = request
 
 
 class ServerError(Error):
