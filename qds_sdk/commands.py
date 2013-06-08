@@ -63,3 +63,6 @@ class HadoopCommand(Command):
 
 class PigCommand(Command):
     pass
+
+class DbImportCommand(Command):
+    pass
