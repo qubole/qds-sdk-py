@@ -25,16 +25,16 @@ $ qds.py -h # will print detailed usage
 
 Examples:
 
-# run a hive query and print the results
+// run a hive query and print the results
 $ qds.py --token 'xxyyzz' hivecmd run --query "show tables"
 
-# pass in api token from bash var 
+// pass in api token from bash var 
 $ export QDS_API_TOKEN=xxyyzz
 
-# run the example hadoop command
+// run the example hadoop command
 $ qds.py hadoopcmd run jar 's3://paid-qubole/HadoopAPIExamples/jars/hadoop-0.20.1-dev-streaming.jar' -files 's3n://paid-qubole/HadoopAPIExamples/WordCountPython/mapper.py,s3n://paid-qubole/HadoopAPIExamples/WordCountPython/reducer.py' -mapper mapper.py -reducer reducer.py -numReduceTasks 1 -input 's3n://paid-qubole/default-datasets/gutenberg' -output 's3n://example.bucket.com/wcout'
 
-# check the status of command # 12345678
+// check the status of command # 12345678
 $ qds.py hivecmd check 12345678
 {"status": "done", ... }
 
