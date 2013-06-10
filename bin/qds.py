@@ -18,7 +18,9 @@ usage_str = ("Usage: \n"
              "\tsubmit [cmd-specific-args .. ] : submit cmd & print id \n"
              "\trun [cmd-specific-args .. ] : submit cmd & wait. print results \n"
              "\tcheck <id> : print the cmd object for this Id\n"
-             "\tcancel <id> : cancels the cmd with this Id\n")
+             "\tcancel <id> : cancels the cmd with this Id\n"
+             "\tgetresult <id> : get the results for the cmd with this Id\n"
+             "\tgetlog <id> : get the logs for the cmd with this Id\n")
 
 def usage():
     sys.stderr.write(usage_str)
@@ -56,13 +58,26 @@ def cancelaction(cmdclass, args):
     cmdclass.cancel_id(args.pop(0))
     return 0
 
+def getresultaction(cmdclass, args):
+    checkargs_id(args)
+    o = cmdclass.find(args.pop(0))
+    print o.get_results()
+    return 0
+
+def getlogaction(cmdclass, args):
+    checkargs_id(args)
+    o = cmdclass.find(args.pop(0))
+    print o.get_log()
+    return 0
+
+
 
 def cmdmain(cmd, args):
     cmdclassname = cmd[0].upper() + cmd[1:] + "Command"
     cmdclass = globals()[cmdclassname]
 
 
-    actionset = set(["submit", "run", "check", "cancel"])
+    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
