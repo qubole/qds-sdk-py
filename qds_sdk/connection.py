@@ -32,7 +32,6 @@ class Connection:
         kwargs = {'headers': self._headers, 'auth': self.auth}
         if data:
             kwargs['data'] = cjson.encode(data)
-
         log.info("[%s] %s" % (req_type, url))
         if req_type == 'GET':
             r = requests.get(url, **kwargs)
@@ -44,6 +43,7 @@ class Connection:
             raise NotImplemented
 
         self._handle_error(r)
+        
         return r
 
     def _api_call(self, req_type, path, data=None):
