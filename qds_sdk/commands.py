@@ -13,6 +13,7 @@ from qds_sdk.util import OptionParsingExit
 
 import time
 import logging
+import os
 import sys
 
 log = logging.getLogger("qds_commands")
@@ -56,7 +57,6 @@ class Command(Resource):
         conn=Qubole.agent()
         if kwargs.get('command_type') is None:
             kwargs['command_type'] = cls.__name__
-
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
 
 
@@ -73,11 +73,7 @@ class Command(Resource):
             Command object
         """
         cmd = cls.create(**kwargs)
-        while not Command.is_done(cmd.status):
-            time.sleep(Qubole.poll_interval)
-            cmd = cls.find(cmd.id)
-
-        return cmd
+        self.run_until_completion(cmd)
 
     @classmethod
     def cancel_id(cls, id):
@@ -125,7 +121,76 @@ class Command(Resource):
             return r['results'] 
         else:
             # TODO - this will be implemented in future
+            print r.get('result_location')
             log.error("Unable to download results, please fetch from S3")
+
+    def run_until_completion(cls, cmd):
+        """
+        Given a command, waits until the command is complete. Repeatedly polls to check status.
+
+        Args:
+            cmd - the command being run
+
+        Returns:
+            Command object
+        """
+        while not Command.is_done(cmd.status):
+            time.sleep(Qubole.poll_interval)
+            cmd = cls.find(cmd.id)
+
+        return cmd
+
+    def save_results_locally(self, local_file_location, boto_client=None):
+        """
+        Saves the results to the passed in file_location
+
+        Args:
+            local_file_location: the place locally where you want to store the file
+            boto_client: the boto client to use if we're fetching results from s3.
+
+        Returns:
+            dictionary of:
+             'file_location' : <file path + file name>
+             'size' : <file size>
+             'success' : True or False
+             'error' : error message if there was any
+        """
+        result_path = self.meta_data['results_resource']
+        conn=Qubole.agent()
+        r = conn.get(result_path)
+        if r.get('inline'):
+            error = ''
+            success = True
+            try:
+                f = open(local_file_location, 'w')
+                f.write(r['results'])
+                f.close()
+            except Exception as e:
+                error = e
+                success = False
+            result = {
+                'file_location': local_file_location,
+                'size': os.path.getsize(local_file_location),
+                'success': success,
+                'error': error
+            }
+            return result
+        else:
+            # TODO:finish
+            s3_locations = r.get('result_location')
+            if not boto_client:
+                log.error("Unable to download results, no boto client provided.\
+                           Please fetch from S3: %s" % s3_locations)    
+                return {'success':False, 'error': 'Not boto client'}
+            print s3_locations
+            result = {
+                'file_location': local_file_location,
+                'size': 0, #os.path.getsize(local_file_location),
+                'success': False,
+                'error': 'Not implemented'
+            }
+            return result
+
 
 
 class HiveCommand(Command):
