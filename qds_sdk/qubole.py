@@ -2,6 +2,7 @@ import os
 import requests
 import cjson
 from connection import Connection
+from account import Account
 
 class QuboleAuth(requests.auth.AuthBase):
     def __init__(self, token):
@@ -20,7 +21,9 @@ class Qubole:
     api_token=None
     base_url=None
     poll_interval=None
-
+    
+    account_cache = None
+    
     @classmethod
     def configure(cls, api_token, 
                   api_url="https://api.qubole.com/api/", version="v1.2", 
@@ -45,3 +48,14 @@ class Qubole:
            a connection object to make REST calls to QDS
         """
         return Connection(cls._auth, cls.base_url)
+        
+    @classmethod
+    def get_Account(cls):
+        """
+        Returns:
+           a account object to make REST calls to QDS
+        """
+        if Qubole.account_cache is None:
+            account_cache = Account(Connection(cls._auth, cls.base_url))
+        
+        return account_cache
