@@ -50,7 +50,7 @@ class Qubole:
         return Connection(cls._auth, cls.base_url)
         
     @classmethod
-    def get_Account(cls):
+    def get_account(cls):
         """
         Returns:
            a account object to make REST calls to QDS
