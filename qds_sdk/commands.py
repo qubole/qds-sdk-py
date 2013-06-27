@@ -13,7 +13,7 @@ from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 
 import boto
-import boto.s3.connection
+#import boto.s3.connection
 
 import time
 import logging
@@ -138,15 +138,13 @@ class Command(Resource):
         else:    
             accnt_obj = Qubole.get_account()
             
-            acc_key = accnt_obj.get_access_key()
-            secret_key = accnt_obj.get_secret_key()
+            acc_key = accnt_obj.get_storage_access_key()
+            secret_key = accnt_obj.get_storage_secret_key()
             
             # Establish connection to s3    
-            conn = boto.connect_s3(
+            boto_conn = boto.connect_s3(
                 aws_access_key_id=acc_key,
                 aws_secret_access_key=secret_key,
-                #is_secure=False,               # uncomment if you are not using ssl
-                #calling_format = boto.s3.connection.OrdinaryCallingFormat(),
                 )
             
             # Limit on the total size of download
@@ -157,13 +155,13 @@ class Command(Resource):
             actual_download_size = 0
             
             for s3_path in  r['result_location']:
-                actual_download_size += _calculate_download_size(conn, s3_path)
+                actual_download_size += _calculate_download_size(boto_conn, s3_path)
             
             if actual_download_size > max_download_size:
                 # Do we need to display the s3 paths from which results are to downloaded?
                  
                 log.info("Files to be fetched from s3 location")    
-                return "\nPlease fetch all the results from s3 as "
+                return "\nPlease fetch all the results from s3 as download size exceeds 1GB"
             
             # Making default path /tmp/Downloads/<query-id>.
             # An option must be provided for the user to enter the path
@@ -173,18 +171,18 @@ class Command(Resource):
                 os.makedirs(my_path)
                     
             for s3_path in  r['result_location']:
-                _download_to_local(conn, s3_path, my_path)
+                _download_to_local(boto_conn, s3_path, my_path)
              
             log.info("Files successfully downloaded to %s path" % my_path)    
             return "\nFind all the downloaded files in %s location" % (my_path)
 
-def _calculate_download_size(conn, s3_path):
+def _calculate_download_size(boto_conn, s3_path):
     '''
     Calculates the size of all objects in s3_path
     Returns size in MB
     
-    @param conn: S3 connection object for path from where the file is to be retrieved
-    @type conn: S3 Connection object
+    @param boto_conn: S3 connection object for path from where the file is to be retrieved
+    @type boto_conn: S3 Connection object
     @param s3_path: The path from where the file is to be downloaded or directory name
     @type s3_path: String
     
@@ -192,7 +190,7 @@ def _calculate_download_size(conn, s3_path):
     m = _URI_RE.match(s3_path)     
     #It is assumed the s3 path is always valid.
     bucket_name = m.group(1)
-    bucket = conn.get_bucket(bucket_name)
+    bucket = boto_conn.get_bucket(bucket_name)
         
     if s3_path.endswith('/') is False:
         #It is a file
@@ -217,19 +215,19 @@ def _calculate_download_size(conn, s3_path):
         
         return ((float(total_size_in_path)/1024)/1024)
                 
-def _download_to_local(conn, s3_path, my_path):
+def _download_to_local(boto_conn, s3_path, my_path):
     '''
     Downloads the contents of all objects in s3_path into my_path
     
-    @param conn: S3 connection object for path from where the file is to be retrieved
-    @type conn: S3 Connection object
+    @param boto_conn: S3 connection object for path from where the file is to be retrieved
+    @type boto_conn: S3 Connection object
     @param s3_path: The path from where the file is to be downloaded or directory name
     @type s3_path: String
     @param my_path: The path where the file is to be downloaded (directory)
     @type my_path: String
     
     '''
-    #Do we need to display a progress bar?
+    #Progress bar to display download progress
     def _callback(downloaded,  total):
         '''
         Call function for upload.
@@ -248,7 +246,7 @@ def _download_to_local(conn, s3_path, my_path):
     m = _URI_RE.match(s3_path)     
     #It is assumed the s3 path is always valid.
     bucket_name = m.group(1)
-    bucket = conn.get_bucket(bucket_name)
+    bucket = boto_conn.get_bucket(bucket_name)
         
     if s3_path.endswith('/') is False:
         #It is a file
@@ -258,7 +256,9 @@ def _download_to_local(conn, s3_path, my_path):
         tmp_file_name = key_name[key_name.rfind('/')+1:]
         fp = open(my_path + '/' + tmp_file_name, "w+")
         
+        print "\nDownloading file from %s to %s" % (s3_path,fp.name)
         key_instance.get_contents_to_file(fp, None, _callback)
+        print '\n'
         fp.close()
         
     else:
@@ -282,8 +282,10 @@ def _download_to_local(conn, s3_path, my_path):
             if not os.path.exists(tmp_dir_name):
                 os.makedirs(tmp_dir_name)  
             fp = open(tmp_dir_name + '/' + tmp_file_name, "w+")
-        
+            
+            print "\nDownloading file from %s to %s" % (s3_path,fp.name)
             each_file.get_contents_to_file(fp, None, _callback)
+            print '\n'
             fp.close()
 
 class HiveCommand(Command):
