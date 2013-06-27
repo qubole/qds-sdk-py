@@ -35,9 +35,9 @@ class Account:
         
         self.results = conn_obj.get(Account.rest_entity_path)
         
-    def get_access_key(self):
+    def get_storage_access_key(self):
         return self.results['acc_key']
         
-    def get_secret_key(self):
+    def get_storage_secret_key(self):
         return self.results['secret']
 
