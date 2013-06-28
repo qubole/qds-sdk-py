@@ -7,15 +7,24 @@ the specific commands
 from qubole import Qubole
 from resource import Resource
 from exception import ParseError
+from account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 
+import boto
+import boto.s3.connection
+
 import time
 import logging
 import sys
+import re
+import os
 
 log = logging.getLogger("qds_commands")
+
+#Pattern matcher for s3 patho
+_URI_RE = re.compile(r's3://([^/]+)/?(.*)')
 
 class Command(Resource):
 
@@ -119,14 +128,163 @@ class Command(Resource):
             The result as a string
         """
         result_path = self.meta_data['results_resource']
+        
         conn=Qubole.agent()
-        r = conn.get(result_path)
+        
+        # Explicitly passing inline = False, always
+        r = conn.get(result_path , {'inline': False})
         if r.get('inline'):
             return r['results'] 
-        else:
-            # TODO - this will be implemented in future
-            log.error("Unable to download results, please fetch from S3")
+        else:    
+            accnt_obj = Qubole.get_account()
+            
+            acc_key = accnt_obj.get_access_key()
+            secret_key = accnt_obj.get_secret_key()
+            
+            # Establish connection to s3    
+            conn = boto.connect_s3(
+                aws_access_key_id=acc_key,
+                aws_secret_access_key=secret_key,
+                #is_secure=False,               # uncomment if you are not using ssl
+                #calling_format = boto.s3.connection.OrdinaryCallingFormat(),
+                )
+            
+            # Limit on the total size of download
+            # Defaulting to 1024 MB.
+            # An option must be provided for the user to enter this size
+            
+            max_download_size = 1024
+            actual_download_size = 0
+            
+            for s3_path in  r['result_location']:
+                actual_download_size += _calculate_download_size(conn, s3_path)
+            
+            if actual_download_size > max_download_size:
+                # Do we need to display the s3 paths from which results are to downloaded?
+                 
+                log.info("Files to be fetched from s3 location")    
+                return "\nPlease fetch all the results from s3 as "
+            
+            # Making default path /tmp/Downloads/<query-id>.
+            # An option must be provided for the user to enter the path
+            my_path = "/tmp/Downloads/"+str(self.id)
+            
+            if not os.path.exists(my_path):
+                os.makedirs(my_path)
+                    
+            for s3_path in  r['result_location']:
+                _download_to_local(conn, s3_path, my_path)
+             
+            log.info("Files successfully downloaded to %s path" % my_path)    
+            return "\nFind all the downloaded files in %s location" % (my_path)
 
+def _calculate_download_size(conn, s3_path):
+    '''
+    Calculates the size of all objects in s3_path
+    Returns size in MB
+    
+    @param conn: S3 connection object for path from where the file is to be retrieved
+    @type conn: S3 Connection object
+    @param s3_path: The path from where the file is to be downloaded or directory name
+    @type s3_path: String
+    
+    '''
+    m = _URI_RE.match(s3_path)     
+    #It is assumed the s3 path is always valid.
+    bucket_name = m.group(1)
+    bucket = conn.get_bucket(bucket_name)
+        
+    if s3_path.endswith('/') is False:
+        #It is a file
+        key_name = m.group(2)  
+        key_instance = bucket.get_key(key_name)
+        
+        return ((float(key_instance.size)/1024)/1024)
+          
+    else:
+        #It is a folder
+        total_size_in_path = 0
+        
+        key_prefix = m.group(2)
+        bucket_paths = bucket.list(key_prefix)
+        
+        for each_file in bucket_paths:
+            #Eliminate _tmp_ files which ends with $folder$
+            if (each_file.name).endswith('$folder$'):
+                continue
+                
+            total_size_in_path += each_file.size
+        
+        return ((float(total_size_in_path)/1024)/1024)
+                
+def _download_to_local(conn, s3_path, my_path):
+    '''
+    Downloads the contents of all objects in s3_path into my_path
+    
+    @param conn: S3 connection object for path from where the file is to be retrieved
+    @type conn: S3 Connection object
+    @param s3_path: The path from where the file is to be downloaded or directory name
+    @type s3_path: String
+    @param my_path: The path where the file is to be downloaded (directory)
+    @type my_path: String
+    
+    '''
+    #Do we need to display a progress bar?
+    def _callback(downloaded,  total):
+        '''
+        Call function for upload.
+        @param key_name: File size already downloaded
+        @type key_name: int
+        @param key_prefix: Total file size to be downloaded
+        @type key_prefix: int
+        '''
+        if total is 0:
+            return
+        progress = downloaded*100/total
+        print ('\r[{0}] {1}%'.format('#'*progress, progress)),
+        sys.stdout.flush()
+        
+    
+    m = _URI_RE.match(s3_path)     
+    #It is assumed the s3 path is always valid.
+    bucket_name = m.group(1)
+    bucket = conn.get_bucket(bucket_name)
+        
+    if s3_path.endswith('/') is False:
+        #It is a file
+        key_name = m.group(2)  
+        key_instance = bucket.get_key(key_name)
+        
+        tmp_file_name = key_name[key_name.rfind('/')+1:]
+        fp = open(my_path + '/' + tmp_file_name, "w+")
+        
+        key_instance.get_contents_to_file(fp, None, _callback)
+        fp.close()
+        
+    else:
+        #It is a folder
+        key_prefix = m.group(2)
+        bucket_paths = bucket.list(key_prefix)
+        
+        for each_file in bucket_paths:
+            each_file_name = each_file.name
+            
+            #Eliminate _tmp_ files which ends with $folder$
+            if each_file_name.endswith('$folder$'):
+                continue
+                
+            #Strip the prefix from each_file_name
+            tmp_file_name_with_path = each_file_name[len(key_prefix):]
+            tmp_file_name = tmp_file_name_with_path[tmp_file_name_with_path.rfind('/')+1:]
+            tmp_dir_name = tmp_file_name_with_path[:tmp_file_name_with_path.rfind('/')]
+            tmp_dir_name = my_path + '/' + tmp_dir_name
+            
+            if not os.path.exists(tmp_dir_name):
+                os.makedirs(tmp_dir_name)  
+            fp = open(tmp_dir_name + '/' + tmp_file_name, "w+")
+        
+            each_file.get_contents_to_file(fp, None, _callback)
+            fp.close()
 
 class HiveCommand(Command):
 

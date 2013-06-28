@@ -1,7 +1,7 @@
 import os
 from setuptools import setup
 
-INSTALL_REQUIRES = ['python_cjson', 'requests']
+INSTALL_REQUIRES = ['python_cjson', 'requests', 'boto']
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -15,7 +15,7 @@ setup(
     keywords = "qubole sdk api",
     url = "http://packages.python.org/qds_sdk",
     packages=['qds_sdk'],
-    scripts=['bin/qds.py'],
+    scripts=['bin/qds.py','bin/sched_qds.py'],
     install_requires=INSTALL_REQUIRES,
     long_description=read('README')
     )
