@@ -32,7 +32,7 @@ class Schedule(Resource):
     optparser.add_option("--scheduler-id", dest="schid", help="Scheduler id")
 
     optparser.add_option("--instance-id", dest="instid", 
-                         help="Sequence id")
+                         help="Instance id")
 
     def parse(self, args):
         """
