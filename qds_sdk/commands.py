@@ -7,15 +7,23 @@ the specific commands
 from qubole import Qubole
 from resource import Resource
 from exception import ParseError
+from account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 
+import boto
+
 import time
 import logging
 import sys
+import re
+import os
 
 log = logging.getLogger("qds_commands")
+
+# Pattern matcher for s3 path
+_URI_RE = re.compile(r's3://([^/]+)/?(.*)')
 
 class Command(Resource):
 
@@ -38,8 +46,11 @@ class Command(Resource):
             True/False
         """
         return (status == "cancelled" or status == "done" or status == "error")
-    
 
+    @staticmethod
+    def is_success(status):
+        return (status == "done")
+    
     @classmethod
     def create(cls, **kwargs):
         """
@@ -111,21 +122,26 @@ class Command(Resource):
         r=conn.get_raw(log_path)
         return r.text
 
-    def get_results(self):
+    def get_results(self, fp, inline=True):
         """
         Fetches the result for the command represented by this object
 
-        Returns:
-            The result as a string
+        @param fp: a file object to write the results to directly
         """
         result_path = self.meta_data['results_resource']
+        
         conn=Qubole.agent()
-        r = conn.get(result_path)
+        
+        r = conn.get(result_path , {'inline': inline})
         if r.get('inline'):
-            return r['results'] 
-        else:
-            # TODO - this will be implemented in future
-            log.error("Unable to download results, please fetch from S3")
+            fp.write(r['results'])
+        else:    
+            acc = Account.find()
+            boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
+                                        aws_secret_access_key=acc.storage_secret_key)
+            
+            for s3_path in r['result_location']:
+                _download_to_local(boto_conn, s3_path, fp)
 
 
 class HiveCommand(Command):
@@ -227,3 +243,56 @@ class DbImportCommand(Command):
     def parse(cls, args):
         raise ParseError("dbimport command not implemented yet", "")
     pass
+
+
+def _download_to_local(boto_conn, s3_path, fp):
+    '''
+    Downloads the contents of all objects in s3_path into fp
+    
+    @param boto_conn: S3 connection object
+    @param s3_path: S3 path to be downloaded
+    @param fp: The file object where data is to be downloaded
+    
+    '''
+    #Progress bar to display download progress
+    def _callback(downloaded,  total):
+        '''
+        Call function for upload.
+        @param key_name: File size already downloaded
+        @type key_name: int
+        @param key_prefix: Total file size to be downloaded
+        @type key_prefix: int
+        '''
+        if ((total is 0) or (downloaded == total)):
+            return
+        progress = downloaded*100/total
+        sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
+        sys.stderr.flush()
+        
+    
+    m = _URI_RE.match(s3_path)     
+    bucket_name = m.group(1)
+    bucket = boto_conn.get_bucket(bucket_name)
+        
+    if s3_path.endswith('/') is False:
+        #It is a file
+        key_name = m.group(2)  
+        key_instance = bucket.get_key(key_name)
+        
+        log.info("Downloading file from %s" % s3_path)
+        key_instance.get_contents_to_file(fp) #cb=_callback
+        
+    else:
+        #It is a folder
+        key_prefix = m.group(2)
+        bucket_paths = bucket.list(key_prefix)
+        
+        for one_path in bucket_paths:
+            name = one_path.name
+            
+            # Eliminate _tmp_ files which ends with $folder$
+            if name.endswith('$folder$'):
+                continue
+                
+            log.info("Downloading file from %s" % s3_path)
+            one_path.get_contents_to_file(fp) #cb=_callback

@@ -41,13 +41,20 @@ def submitaction(cmdclass, args):
         cmd = cmdclass.create(**args)
         print "Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id)
 
-
+def _getresult(cmdclass, cmd):
+    if (Command.is_success(cmd.status)):
+        log.info("Fetching results for %s, Id: %s" % (cmdclass.__name__, cmd.id))
+        cmd.get_results(sys.stdout)
+        return 0
+    else:
+        log.error("Cannot fetch results - command Id: %s failed with status: %s" % (cmd.id, cmd.status))
+        return 1
+    
 def runaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
         cmd = cmdclass.run(**args)
-        log.info("Fetching results for %s, Id: %s" % (cmdclass.__name__, cmd.id))
-        print cmd.get_results()
+        return _getresult(cmdclass, cmd)
 
 
 def checkaction(cmdclass, args):
@@ -63,9 +70,8 @@ def cancelaction(cmdclass, args):
 
 def getresultaction(cmdclass, args):
     checkargs_id(args)
-    o = cmdclass.find(args.pop(0))
-    print o.get_results()
-    return 0
+    cmd = cmdclass.find(args.pop(0))
+    return _getresult(cmdclass, cmd)
 
 def getlogaction(cmdclass, args):
     checkargs_id(args)
@@ -130,7 +136,7 @@ def main():
     elif options.verbose:
         logging.basicConfig(level=logging.INFO)
     else:
-        # whatever is dictated by logging config
+        logging.basicConfig(level=logging.WARN)
         pass
 
     if options.api_token is None:
