@@ -22,8 +22,11 @@ usage_str = ("Usage: \n"
              "\tgetresult <id> : get the results for the cmd with this Id\n"
              "\tgetlog <id> : get the logs for the cmd with this Id\n")
 
-def usage():
-    sys.stderr.write(usage_str)
+def usage(parser):
+    if parser is None:
+        sys.stderr.write(usage_str)
+    else:
+        parser.print_help()
     sys.exit(1)
 
 def checkargs_id(args):
@@ -131,7 +134,8 @@ def main():
         pass
 
     if options.api_token is None:
-        raise Exception("No API Token provided")
+        sys.stderr.write("No API Token provided\n")
+        usage(optparser)
 
     if options.api_url is None:
         options.api_url = "https://api.qubole.com/api/";
