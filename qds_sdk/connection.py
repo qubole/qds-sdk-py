@@ -10,10 +10,14 @@ log = logging.getLogger("qds_connection")
 
 class Connection:
 
-    def __init__ (self, auth, base_url):
+    def __init__ (self, auth, base_url, reuse=True):
         self.auth=auth
         self.base_url=base_url
         self._headers = {'Content-Type': 'application/json'}
+
+        self.reuse = reuse
+        if reuse:
+            self.session = requests.Session()
 
     def get_raw(self, path, data=None):
         return self._api_call_raw("GET", path, data);
@@ -29,17 +33,24 @@ class Connection:
 
     def _api_call_raw(self, req_type, path, data=None):
         url = os.path.join(self.base_url, path)
+        
+        if self.reuse:
+            x = self.session
+        else:
+            x = requests
+            
         kwargs = {'headers': self._headers, 'auth': self.auth}
         if data:
             kwargs['data'] = cjson.encode(data)
 
         log.info("[%s] %s" % (req_type, url))
+
         if req_type == 'GET':
-            r = requests.get(url, **kwargs)
+            r = x.get(url, **kwargs)
         elif req_type == 'POST':
-            r = requests.post(url, **kwargs)
+            r = x.post(url, **kwargs)
         elif req_type == 'PUT':
-            r = requests.put(url, **kwargs)
+            r = x.put(url, **kwargs)
         else:
             raise NotImplemented
 

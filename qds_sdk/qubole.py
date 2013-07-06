@@ -38,10 +38,16 @@ class Qubole:
         cls.base_url=os.path.join(api_url, version)
         cls.poll_interval=poll_interval
 
+
+    cached_agent = None
+
     @classmethod
     def agent(cls):
         """
         Returns:
            a connection object to make REST calls to QDS
         """
-        return Connection(cls._auth, cls.base_url)
+        if cls.cached_agent is None:
+            cls.cached_agent = Connection(cls._auth, cls.base_url)
+
+        return cls.cached_agent
