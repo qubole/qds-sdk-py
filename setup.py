@@ -8,7 +8,7 @@ def read(fname):
 
 setup(
     name = "qds_sdk",
-    version = "1.0.1-beta",
+    version = "1.0.2-beta",
     author = "Qubole",
     author_email = "dev@qubole.com",
     description = ("Python SDK for coding to the Qubole Data Service API"),
@@ -17,5 +17,5 @@ setup(
     packages=['qds_sdk'],
     scripts=['bin/qds.py'],
     install_requires=INSTALL_REQUIRES,
-    long_description=read('README')
+    long_description="[Please visit the project page at https://github.com/qubole/qds-sdk-py]\n\n" + read('README')
     )
