@@ -139,7 +139,9 @@ class Command(Resource):
             acc = Account.find()
             boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
                                         aws_secret_access_key=acc.storage_secret_key)
-            
+
+            log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
+
             for s3_path in r['result_location']:
                 _download_to_local(boto_conn, s3_path, fp)
 
@@ -294,5 +296,5 @@ def _download_to_local(boto_conn, s3_path, fp):
             if name.endswith('$folder$'):
                 continue
                 
-            log.info("Downloading file from %s" % s3_path)
+            log.info("Downloading file from %s" % name)
             one_path.get_contents_to_file(fp) #cb=_callback
