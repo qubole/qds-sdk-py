@@ -2,6 +2,7 @@ import os
 import requests
 import cjson
 from connection import Connection
+from exception import ConfigError
 
 class QuboleAuth(requests.auth.AuthBase):
     def __init__(self, token):
@@ -47,6 +48,10 @@ class Qubole:
         Returns:
            a connection object to make REST calls to QDS
         """
+        if cls.api_token is None:
+            raise ConfigError("No API Token specified - please supply one via Qubole.configure()")
+
+
         if cls.cached_agent is None:
             cls.cached_agent = Connection(cls._auth, cls.base_url)
 

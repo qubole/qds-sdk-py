@@ -1,3 +1,6 @@
+class ConfigError(Exception):
+    pass
+
 class ParseError(Exception):
     def __init__(self, message, usage):
         Exception.__init__(self, message)
