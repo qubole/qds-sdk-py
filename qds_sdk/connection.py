@@ -2,11 +2,25 @@ import os
 import requests
 import cjson
 import logging
+import ssl
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.poolmanager import PoolManager
 
 from exception import *
 
 
 log = logging.getLogger("qds_connection")
+
+"""
+see http://stackoverflow.com/questions/14102416/python-requests-requests-exceptions-sslerror-errno-8-ssl-c504-eof-occurred
+"""
+class MyAdapter(HTTPAdapter):
+    def init_poolmanager(self, connections, maxsize, 
+                         block=requests.adapters.DEFAULT_POOLBLOCK):
+        self.poolmanager = PoolManager(num_pools=connections,
+                                       maxsize=maxsize, 
+                                       block=block,
+                                       ssl_version=ssl.PROTOCOL_TLSv1)
 
 class Connection:
 
@@ -18,6 +32,7 @@ class Connection:
         self.reuse = reuse
         if reuse:
             self.session = requests.Session()
+            self.session.mount('https://', MyAdapter())
 
     def get_raw(self, path, data=None):
         return self._api_call_raw("GET", path, data);
