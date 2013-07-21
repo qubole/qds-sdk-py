@@ -22,7 +22,7 @@ usage_str = ("Usage: \n"
              "\tgetresult <id> : get the results for the cmd with this Id\n"
              "\tgetlog <id> : get the logs for the cmd with this Id\n")
 
-def usage(parser):
+def usage(parser=None):
     if parser is None:
         sys.stderr.write(usage_str)
     else:

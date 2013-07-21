@@ -30,6 +30,8 @@ Examples:
 1.  run a hive query and print the results
 
         $ qds.py --token 'xxyyzz' hivecmd run --query "show tables"
+        $ qds.py --token 'xxyyzz' hivecmd run --script_location /tmp/myquery
+        $ qds.py --token 'xxyyzz' hivecmd run --script_location s3://my-qubole-location/myquery
 
 2.  pass in api token from bash environment variable
 
@@ -37,7 +39,7 @@ Examples:
 
 3.  run the example hadoop command
 
-        $ qds.py hadoopcmd run jar 's3://paid-qubole/HadoopAPIExamples/jars/hadoop-0.20.1-dev-streaming.jar' -files 's3n://paid-qubole/HadoopAPIExamples/WordCountPython/mapper.py,s3n://paid-qubole/HadoopAPIExamples/WordCountPython/reducer.py' -mapper mapper.py -reducer reducer.py -numReduceTasks 1 -input 's3n://paid-qubole/default-datasets/gutenberg' -output 's3n://example.bucket.com/wcout'
+        $ qds.py hadoopcmd run streaming -files 's3n://paid-qubole/HadoopAPIExamples/WordCountPython/mapper.py,s3n://paid-qubole/HadoopAPIExamples/WordCountPython/reducer.py' -mapper mapper.py -reducer reducer.py -numReduceTasks 1 -input 's3n://paid-qubole/default-datasets/gutenberg' -output 's3n://example.bucket.com/wcout'
 
 4.  check the status of command # 12345678
 
@@ -62,3 +64,5 @@ An example Python application needs to do the following:
 
         hc=HiveCommand.create(query='show tables')
         print "Id: %s, Status: %s" % (str(hc.id), hc.status)
+
+example/mr_1.py contains a Hadoop Streaming example
