@@ -122,7 +122,7 @@ class Command(Resource):
         r=conn.get_raw(log_path)
         return r.text
 
-    def get_results(self, fp, inline=True):
+    def get_results(self, fp=sys.stdout, inline=True):
         """
         Fetches the result for the command represented by this object
 
