@@ -54,13 +54,13 @@ An example Python application needs to do the following:
 
 1.  Set the api_token:
 
-        from qubole import Qubole
+        from qds_sdk.qubole import Qubole
 
         Qubole.configure(api_token='ksbdvcwdkjn123423')
 
 2.  Use the Command classes defined in commands.py to execute commands. To run Hive Command:
 
-        from commands import *
+        from qds_sdk.commands import *
 
         hc=HiveCommand.create(query='show tables')
         print "Id: %s, Status: %s" % (str(hc.id), hc.status)
