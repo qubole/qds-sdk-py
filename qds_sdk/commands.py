@@ -134,7 +134,7 @@ class Command(Resource):
         
         r = conn.get(result_path , {'inline': inline})
         if r.get('inline'):
-            fp.write(r['results'])
+            fp.write(r['results'].encode('utf8'))
         else:    
             acc = Account.find()
             boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
