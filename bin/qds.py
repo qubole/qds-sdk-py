@@ -14,7 +14,7 @@ log = logging.getLogger("qds")
 
 usage_str = ("Usage: \n"
              "qds [options] "
-             "<hivecmd|hadoopcmd|pigcmd> <submit|run|check|cancel> [args .. ]\n"
+             "<hivecmd|hadoopcmd|pigcmd|shellcmd> <submit|run|check|cancel> [args .. ]\n"
              "\tsubmit [cmd-specific-args .. ] : submit cmd & print id \n"
              "\trun [cmd-specific-args .. ] : submit cmd & wait. print results \n"
              "\tcheck <id> : print the cmd object for this Id\n"
@@ -163,7 +163,7 @@ def main():
         sys.stderr.write("Missing first argument containing command type\n")
         usage()
 
-    cmdset = set(["hive", "pig", "hadoop"])
+    cmdset = set(["hive", "pig", "hadoop", "shell"])
     cmdsuffix = "cmd"
 
     cmd = args.pop(0)

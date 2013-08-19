@@ -21,7 +21,7 @@ This should place a command line utility 'qds.py' somewhere in your path
 CLI
 ---
 
-qds.py allows running Hive, Hadoop and Pig commands against QDS. Users can run commands synchronously - or submit a command and check it's status.
+qds.py allows running Hive, Hadoop, Pig and Shell commands against QDS. Users can run commands synchronously - or submit a command and check it's status.
 
         $ qds.py -h # will print detailed usage
 
