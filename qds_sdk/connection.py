@@ -16,7 +16,7 @@ see http://stackoverflow.com/questions/14102416/python-requests-requests-excepti
 """
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize, 
-                         block=requests.adapters.DEFAULT_POOLBLOCK):
+                         block=False):
         self.poolmanager = PoolManager(num_pools=connections,
                                        maxsize=maxsize, 
                                        block=block,
