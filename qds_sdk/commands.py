@@ -449,10 +449,10 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir):
         unique_paths = set()
         files = {}
         for one_path in bucket_paths:
-            name = one_path.name
+            name = one_path.name.replace(key_prefix, "", 1)
             if name.startswith('_tmp.'):
                 continue
-            path = name.replace(key_prefix, "", 1).split("/")
+            path = name.split("/")
             dir = path[0].replace("_$folder$", "", 1)
             unique_paths.add(dir)
             if len(path) > 1: 
@@ -472,7 +472,6 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir):
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
     retries = 6 
-
     if s3_path.endswith('/') is False:
         #It is a file
         key_name = m.group(2)  
