@@ -101,7 +101,7 @@ class Command(Resource):
         """
         conn=Qubole.agent()
         data={"status":"kill"}
-        conn.put(cls.element_path(id), data)
+        return conn.put(cls.element_path(id), data)
         
 
     def cancel(self):

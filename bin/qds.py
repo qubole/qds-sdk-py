@@ -65,8 +65,18 @@ def checkaction(cmdclass, args):
 
 def cancelaction(cmdclass, args):
     checkargs_id(args)
-    cmdclass.cancel_id(args.pop(0))
-    return 0
+    r = cmdclass.cancel_id(args.pop(0))
+    skey = 'kill_succeeded'
+    if (r.get(skey) is None):
+        sys.stderr.write("Invalid Json Response %s - missing field '%s'" % (str(r), skey));
+        return 11
+    elif (r['kill_succeeded']):
+        log.info("Command killed successfully")
+        return 0
+    else:
+        sys.stderr.write("Cancel failed with reason '%s'\n" % r.get('result'))
+        return 12
+
 
 def getresultaction(cmdclass, args):
     checkargs_id(args)
