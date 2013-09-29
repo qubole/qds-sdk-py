@@ -2,6 +2,7 @@
 
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
+from qds_sdk.cluster import *
 import qds_sdk.exception
 
 import os
@@ -95,7 +96,6 @@ def cmdmain(cmd, args):
     cmdclassname = cmd[0].upper() + cmd[1:] + "Command"
     cmdclass = globals()[cmdclassname]
 
-
     actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
@@ -108,6 +108,28 @@ def cmdmain(cmd, args):
 
 
     return globals()[action + "action"](cmdclass, args)
+
+def clustercheckaction(clusterclass, args):
+    name = args.pop(0) if (len(args) >= 1) else None
+    o = clusterclass.find(name=name)
+    print str(o)
+    return 0
+
+def clustermain(dummy, args):
+    clusterclass = HadoopCluster
+    actionset = set(["check"])
+
+    if len(args) < 1:
+        sys.stderr.write("missing argument containing action\n")
+        usage()
+    
+    action = args.pop(0)
+    if action not in actionset:
+        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+        usage()
+
+
+    return globals()["cluster" + action + "action"](clusterclass, args)
 
 
 def main():
@@ -173,17 +195,21 @@ def main():
         sys.stderr.write("Missing first argument containing command type\n")
         usage()
 
-    cmdset = set(["hive", "pig", "hadoop", "shell"])
     cmdsuffix = "cmd"
+    cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell"]])
 
-    cmd = args.pop(0)
 
-    if ((cmd.find(cmdsuffix) != len(cmd)-3) or
-        (cmd[:cmd.find(cmdsuffix)] not in cmdset)):
-        sys.stderr.write("First command must be one of <%s>\n" % "|".join(cmdset))
-        usage()
-        
-    return cmdmain(cmd[:cmd.find(cmdsuffix)], args)
+    a0 = args.pop(0)
+
+    if (a0 in cmdset):
+        return cmdmain(a0[:a0.find(cmdsuffix)], args)
+
+    if (a0 == "hadoop_cluster"):
+        return clustermain(a0, args)
+
+    sys.stderr.write("First command must be one of <%s>\n" % 
+                     "|".join(cmdset + ["hadoop_cluster"]))
+    usage()
 
 
 if __name__ == '__main__':

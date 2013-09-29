@@ -13,14 +13,18 @@ import os
 
 log = logging.getLogger("qds_cluster")
 
-class Cluster(Resource):
-  """qds_sdk.Cluster is the class for retrieving hadoop cluster information.
+class HadoopCluster(Resource):
+  """qds_sdk.HadoopCluster is the class for retrieving hadoop cluster 
+     information.
   """
 
   rest_entity_path = "hadoop_cluster"
 
   @classmethod
-  def get(cls):
-    conn = Qubole.agent()
-
-    return (conn.get(cls.rest_entity_path))
+  def find(cls, name="default", **kwargs):
+    if ((name is None) or (name == "default")):
+      conn = Qubole.agent()
+      return cls(conn.get(cls.rest_entity_path))
+    else:
+      raise ParseError("Bad name 'default'",
+                       "Hadoop Clusters can only be named 'default' currently")
