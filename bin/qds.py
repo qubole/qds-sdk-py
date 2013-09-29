@@ -14,14 +14,15 @@ from optparse import OptionParser
 log = logging.getLogger("qds")
 
 usage_str = ("Usage: \n"
-             "qds [options] "
-             "<hivecmd|hadoopcmd|pigcmd|shellcmd> <submit|run|check|cancel> [args .. ]\n"
-             "\tsubmit [cmd-specific-args .. ] : submit cmd & print id \n"
-             "\trun [cmd-specific-args .. ] : submit cmd & wait. print results \n"
-             "\tcheck <id> : print the cmd object for this Id\n"
-             "\tcancel <id> : cancels the cmd with this Id\n"
-             "\tgetresult <id> : get the results for the cmd with this Id\n"
-             "\tgetlog <id> : get the logs for the cmd with this Id\n")
+             "qds [options] <CmdArgs | hadoop_cluster check>\n"
+             "\nCmdArgs:\n" +
+             "  <hivecmd|hadoopcmd|pigcmd|shellcmd> <submit|run|check|cancel> [args .. ]\n"
+             "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
+             "  run [cmd-specific-args .. ] : submit cmd & wait. print results \n"
+             "  check <id> : print the cmd object for this Id\n"
+             "  cancel <id> : cancels the cmd with this Id\n"
+             "  getresult <id> : get the results for the cmd with this Id\n"
+             "  getlog <id> : get the logs for the cmd with this Id\n")
 
 def usage(parser=None):
     if parser is None:
@@ -193,7 +194,7 @@ def main():
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing command type\n")
-        usage()
+        usage(optparser)
 
     cmdsuffix = "cmd"
     cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell"]])
@@ -208,8 +209,8 @@ def main():
         return clustermain(a0, args)
 
     sys.stderr.write("First command must be one of <%s>\n" % 
-                     "|".join(cmdset + ["hadoop_cluster"]))
-    usage()
+                     "|".join(cmdset.union(["hadoop_cluster"])))
+    usage(optparser)
 
 
 if __name__ == '__main__':
