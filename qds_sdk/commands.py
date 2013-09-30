@@ -21,6 +21,8 @@ import re
 import os
 import pipes
 
+import json
+
 log = logging.getLogger("qds_commands")
 
 # Pattern matcher for s3 path
@@ -212,6 +214,8 @@ class HiveCommand(Command):
                 options.query = q
 
 
+        if options.macros is not None:
+            options.macros = json.loads(options.macros)
         return vars(options)
 
 class HadoopCommand(Command):
