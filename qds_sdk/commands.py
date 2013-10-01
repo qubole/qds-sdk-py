@@ -125,7 +125,7 @@ class Command(Resource):
         r=conn.get_raw(log_path)
         return r.text
 
-    def get_results(self, fp=sys.stdout, inline=True):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None):
         """
         Fetches the result for the command represented by this object
 
@@ -146,7 +146,7 @@ class Command(Resource):
             log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
 
             for s3_path in r['result_location']:
-                _download_to_local(boto_conn, s3_path, fp)
+                _download_to_local(boto_conn, s3_path, fp, delim=delim)
 
 
 class HiveCommand(Command):
@@ -422,7 +422,7 @@ class DbImportCommand(Command):
     pass
 
 
-def _download_to_local(boto_conn, s3_path, fp):
+def _download_to_local(boto_conn, s3_path, fp, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
     
@@ -450,14 +450,19 @@ def _download_to_local(boto_conn, s3_path, fp):
     m = _URI_RE.match(s3_path)     
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
-        
+
     if s3_path.endswith('/') is False:
         #It is a file
         key_name = m.group(2)  
         key_instance = bucket.get_key(key_name)
         
         log.info("Downloading file from %s" % s3_path)
-        key_instance.get_contents_to_file(fp) #cb=_callback
+        if delim is None:
+          key_instance.get_contents_to_file(fp) #cb=_callback
+        else:
+          # Get contents as string. Replace parameters and write to file.
+          result = key_instance.get_contents_as_string()
+          fp.write(result.replace(chr(1), delim))
         
     else:
         #It is a folder
@@ -472,4 +477,8 @@ def _download_to_local(boto_conn, s3_path, fp):
                 continue
                 
             log.info("Downloading file from %s" % name)
-            one_path.get_contents_to_file(fp) #cb=_callback
+            if delim is None:
+              one_path.get_contents_to_file(fp) #cb=_callback
+            else:
+              result = one_path.get_contents_as_string()
+              fp.write(result.replace(chr(1), delim))
