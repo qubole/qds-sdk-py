@@ -134,7 +134,7 @@ class Command(Resource):
         result_path = self.meta_data['results_resource']
         
         conn=Qubole.agent()
-        
+
         r = conn.get(result_path , {'inline': inline})
         if r.get('inline'):
             fp.write(r['results'].encode('utf8'))
@@ -144,9 +144,10 @@ class Command(Resource):
                                         aws_secret_access_key=acc.storage_secret_key)
 
             log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
-
+            #fetch latest value of num_result_dir
+            num_result_dir = Command.find(self.id).num_result_dir
             for s3_path in r['result_location']:
-                _download_to_local(boto_conn, s3_path, fp, delim=delim)
+                _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
 
 
 class HiveCommand(Command):
@@ -421,18 +422,18 @@ class DbImportCommand(Command):
         raise ParseError("dbimport command not implemented yet", "")
     pass
 
-def _read_iteratively(key_instance, fp, delim=None):
-  key_instance.open_read()
-  while True:
-    try:
-      # Default buffer size is 8192 bytes
-      data = key_instance.next()
-      fp.write(str(data).replace(chr(1), '\t'))
-    except StopIteration:
-      # Stream closes itself when the exception is raised
-      return
+def _read_iteratively(key_instance, fp, delim):
+    key_instance.open_read()
+    while True:
+        try:
+            # Default buffer size is 8192 bytes
+            data = key_instance.next()
+            fp.write(str(data).replace(chr(1), delim))
+        except StopIteration:
+            # Stream closes itself when the exception is raised
+            return
 
-def _download_to_local(boto_conn, s3_path, fp, delim=None):
+def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
     
@@ -456,28 +457,66 @@ def _download_to_local(boto_conn, s3_path, fp, delim=None):
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
         sys.stderr.flush()
         
-    
+    def _is_complete_data_available(bucket_paths, num_result_dir):
+        if num_result_dir == -1:
+            return True
+        unique_paths = set()
+        files = {}
+        for one_path in bucket_paths:
+            name = one_path.name.replace(key_prefix, "", 1)
+            if name.startswith('_tmp.'):
+                continue
+            path = name.split("/")
+            dir = path[0].replace("_$folder$", "", 1)
+            unique_paths.add(dir)
+            if len(path) > 1: 
+                file = int(path[1])
+                if files.has_key(dir) == False :
+                    files[dir]=[]
+                files[dir].append(file)
+        if len(unique_paths) < num_result_dir:
+            return False
+        for k in files:
+            v = files.get(k)
+            if len(v) > 0 and max(v) + 1 > len(v):
+                return False
+        return True  
+
     m = _URI_RE.match(s3_path)     
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
-
+    retries = 6 
     if s3_path.endswith('/') is False:
         #It is a file
         key_name = m.group(2)  
         key_instance = bucket.get_key(key_name)
-        
+        while key_instance is None and retries > 0:
+            retries = retries - 1
+            log.info("Results file is not available on s3. Retry: "+ str(6-retries))
+            time.sleep(10)
+            key_instance = bucket.get_key(key_name)
+        if key_instance is None:
+          raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
         log.info("Downloading file from %s" % s3_path)
         if delim is None:
-          key_instance.get_contents_to_file(fp) #cb=_callback
+            key_instance.get_contents_to_file(fp) #cb=_callback
         else:
-          # Get contents as string. Replace parameters and write to file.
-          _read_iteratively(key_instance, fp, delim='\t')
+            # Get contents as string. Replace parameters and write to file.
+            _read_iteratively(key_instance, fp, delim=delim)
         
     else:
         #It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
-        
+        complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
+        while complete_data_available == False and retries > 0:
+            retries = retries - 1
+            log.info("Results dir is not available on s3. Retry: "+ str(6-retries))
+            time.sleep(10)
+            complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
+        if complete_data_available == False:
+            raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
+
         for one_path in bucket_paths:
             name = one_path.name
             
@@ -487,6 +526,6 @@ def _download_to_local(boto_conn, s3_path, fp, delim=None):
                 
             log.info("Downloading file from %s" % name)
             if delim is None:
-              one_path.get_contents_to_file(fp) #cb=_callback
+                one_path.get_contents_to_file(fp) #cb=_callback
             else:
-              _read_iteratively(one_path, fp, delim='\t')
+                _read_iteratively(one_path, fp, delim=delim)

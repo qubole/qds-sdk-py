@@ -14,7 +14,6 @@ class Error(Exception):
         Exception.__init__(self, request.text)
         self.request = request
 
-
 class ServerError(Error):
     """An error caused by the server."""
     # HTTP error code 5xx (500..599)
@@ -39,6 +38,12 @@ class ClientError(ConnectionError):
 class ResourceConflict(ClientError):
     """An error raised when there is a resource conflict."""
     # 409 Conflict
+    pass
+
+
+class RetryWithDelay(ClientError):
+    """An error raised when a resource must be retried."""
+    # 449 Retry With 
     pass
 
 

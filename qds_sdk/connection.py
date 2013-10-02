@@ -5,6 +5,7 @@ import logging
 import ssl
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
+from retry import retry
 
 from exception import *
 
@@ -37,6 +38,7 @@ class Connection:
     def get_raw(self, path, data=None):
         return self._api_call_raw("GET", path, data);
 
+    @retry(RetryWithDelay,tries=5,delay=20,backoff=2)
     def get(self, path, data=None):
         return self._api_call("GET", path, data);
 
@@ -116,6 +118,8 @@ class Connection:
             raise ResourceConflict(request)
         elif code == 422:
             raise ResourceInvalid(request)
+        elif code == 449:
+            raise RetryWithDelay(request)
         elif 401 <= code < 500:
             raise ClientError(request)
         elif 500 <= code < 600:
