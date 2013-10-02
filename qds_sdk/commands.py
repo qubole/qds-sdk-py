@@ -421,6 +421,16 @@ class DbImportCommand(Command):
         raise ParseError("dbimport command not implemented yet", "")
     pass
 
+def _read_iteratively(key_instance, fp, delim=None):
+  key_instance.open_read()
+  while True:
+    try:
+      # Default buffer size is 8192 bytes
+      data = key_instance.next()
+      fp.write(str(data).replace(chr(1), '\t'))
+    except StopIteration:
+      # Stream closes itself when the exception is raised
+      return
 
 def _download_to_local(boto_conn, s3_path, fp, delim=None):
     '''
@@ -461,8 +471,7 @@ def _download_to_local(boto_conn, s3_path, fp, delim=None):
           key_instance.get_contents_to_file(fp) #cb=_callback
         else:
           # Get contents as string. Replace parameters and write to file.
-          result = key_instance.get_contents_as_string()
-          fp.write(result.replace(chr(1), delim))
+          _read_iteratively(key_instance, fp, delim='\t')
         
     else:
         #It is a folder
@@ -480,5 +489,4 @@ def _download_to_local(boto_conn, s3_path, fp, delim=None):
             if delim is None:
               one_path.get_contents_to_file(fp) #cb=_callback
             else:
-              result = one_path.get_contents_as_string()
-              fp.write(result.replace(chr(1), delim))
+              _read_iteratively(one_path, fp, delim='\t')
