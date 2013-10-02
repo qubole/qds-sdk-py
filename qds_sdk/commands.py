@@ -134,7 +134,7 @@ class Command(Resource):
         result_path = self.meta_data['results_resource']
         
         conn=Qubole.agent()
-        
+
         r = conn.get(result_path , {'inline': inline})
         if r.get('inline'):
             fp.write(r['results'].encode('utf8'))
@@ -144,9 +144,10 @@ class Command(Resource):
                                         aws_secret_access_key=acc.storage_secret_key)
 
             log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
-
+            #fetch latest value of num_result_dir
+            num_result_dir = Command.find(self.id).num_result_dir
             for s3_path in r['result_location']:
-                _download_to_local(boto_conn, s3_path, fp)
+                _download_to_local(boto_conn, s3_path, fp, num_result_dir)
 
 
 class HiveCommand(Command):
@@ -422,7 +423,7 @@ class DbImportCommand(Command):
     pass
 
 
-def _download_to_local(boto_conn, s3_path, fp):
+def _download_to_local(boto_conn, s3_path, fp, num_result_dir):
     '''
     Downloads the contents of all objects in s3_path into fp
     
@@ -446,16 +447,46 @@ def _download_to_local(boto_conn, s3_path, fp):
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
         sys.stderr.flush()
         
-    
+    def _is_complete_data_available(bucket_paths, num_result_dir):
+        if num_result_dir == -1:
+            return True
+        unique_paths = set()
+        files = {}
+        for one_path in bucket_paths:
+            name = one_path.name.replace(key_prefix, "", 1)
+            if name.startswith('_tmp.'):
+                continue
+            path = name.split("/")
+            dir = path[0].replace("_$folder$", "", 1)
+            unique_paths.add(dir)
+            if len(path) > 1: 
+                file = int(path[1])
+                if files.has_key(dir) == False :
+                    files[dir]=[]
+                files[dir].append(file)
+        if len(unique_paths) < num_result_dir:
+            return False
+        for k in files:
+            v = files.get(k)
+            if len(v) > 0 and max(v) + 1 > len(v):
+                return False
+        return True  
+
     m = _URI_RE.match(s3_path)     
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
-        
+    retries = 6 
     if s3_path.endswith('/') is False:
         #It is a file
         key_name = m.group(2)  
         key_instance = bucket.get_key(key_name)
-        
+        while key_instance is None and retries > 0:
+            retries = retries - 1
+            log.info("Results file is not available on s3. Retry: "+ str(6-retries))
+            time.sleep(10)
+            key_instance = bucket.get_key(key_name)
+        if key_instance is None:
+          raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
         log.info("Downloading file from %s" % s3_path)
         key_instance.get_contents_to_file(fp) #cb=_callback
         
@@ -463,7 +494,15 @@ def _download_to_local(boto_conn, s3_path, fp):
         #It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
-        
+        complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
+        while complete_data_available == False and retries > 0:
+            retries = retries - 1
+            log.info("Results dir is not available on s3. Retry: "+ str(6-retries))
+            time.sleep(10)
+            complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
+        if complete_data_available == False:
+            raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
+
         for one_path in bucket_paths:
             name = one_path.name
             
@@ -473,3 +512,4 @@ def _download_to_local(boto_conn, s3_path, fp):
                 
             log.info("Downloading file from %s" % name)
             one_path.get_contents_to_file(fp) #cb=_callback
+
