@@ -1,7 +1,14 @@
 import time
+import logging
+import sys
+import re
+import os
+import pipes
 from functools import wraps
 
-def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
+log = logging.getLogger("retry")
+
+def retry(ExceptionToCheck, tries=4, delay=3, backoff=2):
     def deco_retry(f):
         @wraps(f)
         def f_retry(*args, **kwargs):
@@ -11,10 +18,7 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
                     return f(*args, **kwargs)
                 except ExceptionToCheck, e:
                     msg = "%s, Retrying in %d seconds..." % (ExceptionToCheck.__name__, mdelay)
-                    if logger:
-                        logger.warning(msg)
-                    else:
-                        print msg
+                    log.info(msg)
                     time.sleep(mdelay)
                     mtries -= 1
                     mdelay *= backoff
