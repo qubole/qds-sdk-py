@@ -46,7 +46,7 @@ def submitaction(cmdclass, args):
 def _getresult(cmdclass, cmd):
     if (Command.is_success(cmd.status)):
         log.info("Fetching results for %s, Id: %s" % (cmdclass.__name__, cmd.id))
-        cmd.get_results(sys.stdout)
+        cmd.get_results(sys.stdout, delim='\t')
         return 0
     else:
         log.error("Cannot fetch results - command Id: %s failed with status: %s" % (cmd.id, cmd.status))

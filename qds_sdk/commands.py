@@ -125,7 +125,7 @@ class Command(Resource):
         r=conn.get_raw(log_path)
         return r.text
 
-    def get_results(self, fp=sys.stdout, inline=True):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None):
         """
         Fetches the result for the command represented by this object
 
@@ -147,7 +147,7 @@ class Command(Resource):
             #fetch latest value of num_result_dir
             num_result_dir = Command.find(self.id).num_result_dir
             for s3_path in r['result_location']:
-                _download_to_local(boto_conn, s3_path, fp, num_result_dir)
+                _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
 
 
 class HiveCommand(Command):
@@ -422,8 +422,18 @@ class DbImportCommand(Command):
         raise ParseError("dbimport command not implemented yet", "")
     pass
 
+def _read_iteratively(key_instance, fp, delim):
+    key_instance.open_read()
+    while True:
+        try:
+            # Default buffer size is 8192 bytes
+            data = key_instance.next()
+            fp.write(str(data).replace(chr(1), delim))
+        except StopIteration:
+            # Stream closes itself when the exception is raised
+            return
 
-def _download_to_local(boto_conn, s3_path, fp, num_result_dir):
+def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
     
@@ -488,7 +498,11 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir):
         if key_instance is None:
           raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
         log.info("Downloading file from %s" % s3_path)
-        key_instance.get_contents_to_file(fp) #cb=_callback
+        if delim is None:
+            key_instance.get_contents_to_file(fp) #cb=_callback
+        else:
+            # Get contents as string. Replace parameters and write to file.
+            _read_iteratively(key_instance, fp, delim=delim)
         
     else:
         #It is a folder
@@ -511,5 +525,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir):
                 continue
                 
             log.info("Downloading file from %s" % name)
-            one_path.get_contents_to_file(fp) #cb=_callback
-
+            if delim is None:
+                one_path.get_contents_to_file(fp) #cb=_callback
+            else:
+                _read_iteratively(one_path, fp, delim=delim)
