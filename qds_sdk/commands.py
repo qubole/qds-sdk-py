@@ -266,10 +266,10 @@ class ShellCommand(Command):
     optparser.add_option("-s", "--script", dest="inline", help="inline script that can be executed by bash")
 
     optparser.add_option("-f", "--script_location", dest="script_location", 
-                         help="List of files [optional] Format : file1,file2 (files in s3 bucket) These files will be copied to the working directory where the command is executed")
+                         help="Path where bash script to run is stored. Can be S3 URI or local file path")
 
     optparser.add_option("-i", "--files", dest="files", 
-                         help="Path where bash script to run is stored. Can be S3 URI or local file path")
+                         help="List of files [optional] Format : file1,file2 (files in s3 bucket) These files will be copied to the working directory where the command is executed")
     
     optparser.add_option("-a", "--archive", dest="archive", 
                          help="List of archives [optional] Format : archive1,archive2 (archives in s3 bucket) These are unarchived in the working directory where the command is executed")
