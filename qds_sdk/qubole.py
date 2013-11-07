@@ -21,11 +21,12 @@ class Qubole:
     api_token=None
     base_url=None
     poll_interval=None
+    skip_ssl_cert_check=None
 
     @classmethod
     def configure(cls, api_token, 
                   api_url="https://api.qubole.com/api/", version="v1.2", 
-                  poll_interval=5):
+                  poll_interval=5, skip_ssl_cert_check=False):
         """
         Set parameters governing interaction with QDS
         Args:
@@ -38,6 +39,7 @@ class Qubole:
         cls.api_token=api_token
         cls.base_url=os.path.join(api_url, version)
         cls.poll_interval=poll_interval
+        cls.skip_ssl_cert_check=skip_ssl_cert_check
 
 
     cached_agent = None
@@ -53,6 +55,6 @@ class Qubole:
 
 
         if cls.cached_agent is None:
-            cls.cached_agent = Connection(cls._auth, cls.base_url)
+            cls.cached_agent = Connection(cls._auth, cls.base_url, cls.skip_ssl_cert_check)
 
         return cls.cached_agent

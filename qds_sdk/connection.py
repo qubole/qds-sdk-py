@@ -6,7 +6,6 @@ import ssl
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 from retry import retry
-
 from exception import *
 
 
@@ -25,9 +24,10 @@ class MyAdapter(HTTPAdapter):
 
 class Connection:
 
-    def __init__ (self, auth, base_url, reuse=True):
+    def __init__ (self, auth, base_url, skip_ssl_cert_check, reuse=True):
         self.auth=auth
         self.base_url=base_url
+        self.skip_ssl_cert_check=skip_ssl_cert_check
         self._headers = {'Content-Type': 'application/json'}
 
         self.reuse = reuse
@@ -56,7 +56,8 @@ class Connection:
         else:
             x = requests
             
-        kwargs = {'headers': self._headers, 'auth': self.auth}
+        kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
+
         if data:
             kwargs['data'] = cjson.encode(data)
 

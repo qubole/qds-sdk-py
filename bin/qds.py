@@ -152,6 +152,10 @@ def main():
                          default=os.getenv('QDS_POLL_INTERVAL'),
                          help="interval for polling API for completion and other events. defaults to 5s")
 
+    optparser.add_option("--skip_ssl_cert_check", dest="skip_ssl_cert_check", action="store_true",
+                         default=False,
+                         help="skip verification of server SSL certificate. Insecure: use with caution.")
+
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
                          help="verbose mode - info level logging")
@@ -185,11 +189,16 @@ def main():
     if options.poll_interval is None:
         options.poll_interval = 5;
 
+    if options.skip_ssl_cert_check is None:
+        options.skip_ssl_cert_check = False
+    elif options.skip_ssl_cert_check:
+        sys.stderr.write("[WARN] Insecure mode enabled: skipping SSL cert verification\n")
         
     Qubole.configure(api_token=options.api_token,
                      api_url=options.api_url,
                      version=options.api_version,
-                     poll_interval=options.poll_interval)
+                     poll_interval=options.poll_interval,
+                     skip_ssl_cert_check=options.skip_ssl_cert_check)
                      
 
     if len(args) < 1:
