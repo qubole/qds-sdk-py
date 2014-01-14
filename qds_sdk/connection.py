@@ -119,7 +119,7 @@ class Connection:
             raise ResourceConflict(request)
         elif code == 422:
             raise ResourceInvalid(request)
-        elif code == 449:
+        elif code in (449, 503):
             raise RetryWithDelay(request)
         elif 401 <= code < 500:
             raise ClientError(request)
