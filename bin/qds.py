@@ -16,7 +16,7 @@ log = logging.getLogger("qds")
 usage_str = ("Usage: \n"
              "qds [options] <CmdArgs | hadoop_cluster check>\n"
              "\nCmdArgs:\n" +
-             "  <hivecmd|hadoopcmd|pigcmd|shellcmd> <submit|run|check|cancel> [args .. ]\n"
+             "  <hivecmd|hadoopcmd|pigcmd|shellcmd|dbexportcmd> <submit|run|check|cancel> [args .. ]\n"
              "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
              "  run [cmd-specific-args .. ] : submit cmd & wait. print results \n"
              "  check <id> : print the cmd object for this Id\n"
@@ -206,7 +206,7 @@ def main():
         usage(optparser)
 
     cmdsuffix = "cmd"
-    cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell"]])
+    cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell", "dbexport"]])
 
 
     a0 = args.pop(0)

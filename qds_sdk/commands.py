@@ -421,6 +421,64 @@ class PigCommand(Command):
         
         return vars(options)
 
+class DbexportCommand(Command):
+    usage = ("dbexportcmd run [options]")
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("-t", "--hive_table", dest="hive_table",
+                         help="Name of the Hive Table from which data will be exported")
+    optparser.add_option("-i", "--dbtap_id", dest="dbtap_id",
+                         help="DbTap Id of the target database in Qubole")
+    optparser.add_option("-d", "--db_table", dest="db_table",
+                         help="Table to export to in the target database")
+    optparser.add_option("-s", "--partition_spec", dest="partition_spec",
+                         help="(optional) Partition specification for Hive table")
+    optparser.add_option("-m", "--db_update_mode", dest="db_update_mode",
+                         help="(optional) can be 'allowinsert' or 'updateonly'. If updateonly is "
+                              "specified - only existing rows are updated. If allowinsert "
+                              "is specified - then existing rows are updated and non existing "
+                              "rows are inserted. If this option is not specified - then the "
+                              "given the data will be appended to the table")
+    optparser.add_option("-k", "--db_update_keys", dest="db_update_keys",
+                         help="(optional) Columns used to determine the uniqueness of rows")
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args` - sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if (options.hive_table is None) or (options.dbtap_id is None) or (options.db_table is None):
+                raise ParseError("hive_table, dbtap_id and db_table are required",
+                                 cls.optparser.format_help())
+
+            if options.db_update_mode is not None:
+                if options.db_update_mode not in ["allowinsert", "updateonly"]:
+                    raise ParseError("db_update_mode can be either 'allowinsert' or 'updateonly'",
+                                     cls.optparser.format_help())
+
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        v = vars(options)
+        v["command_type"] = "DbExportCommand"
+        v["mode"] = "1"
+        return v
+
 class DbImportCommand(Command):
     @classmethod
     def parse(cls, args):
