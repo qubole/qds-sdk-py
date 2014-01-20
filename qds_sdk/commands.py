@@ -421,6 +421,94 @@ class PigCommand(Command):
         
         return vars(options)
 
+class DbexportCommand(Command):
+    usage = ("dbexportcmd run [options]")
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("-m", "--mode", dest="mode",
+                         help="Can be 1 for Hive export or 2 for HDFS/S3 export")
+    optparser.add_option("--hive_table", dest="hive_table",
+                         help="Mode 1: Name of the Hive Table from which data will be exported")
+    optparser.add_option("--partition_spec", dest="partition_spec",
+                         help="Mode 1: (optional) Partition specification for Hive table")
+    optparser.add_option("--dbtap_id", dest="dbtap_id",
+                         help="Modes 1 and 2: DbTap Id of the target database in Qubole")
+    optparser.add_option("--db_table", dest="db_table",
+                         help="Modes 1 and 2: Table to export to in the target database")
+    optparser.add_option("--db_update_mode", dest="db_update_mode",
+                         help="Modes 1 and 2: (optional) can be 'allowinsert' or "
+                              "'updateonly'. If updateonly is "
+                              "specified - only existing rows are updated. If allowinsert "
+                              "is specified - then existing rows are updated and non existing "
+                              "rows are inserted. If this option is not specified - then the "
+                              "given the data will be appended to the table")
+    optparser.add_option("--db_update_keys", dest="db_update_keys",
+                         help="Modes 1 and 2: Columns used to determine the uniqueness of rows for "
+                              "'updateonly' mode")
+    optparser.add_option("--export_dir", dest="export_dir",
+                         help="Mode 2: HDFS/S3 location from which data will be exported")
+    optparser.add_option("--fields_terminated_by", dest="fields_terminated_by",
+                         help="Mode 2: Hex of the char used as column separator "
+                              "in the dataset, for eg. \0x20 for space")
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args` - sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if options.mode not in ["1", "2"]:
+                raise ParseError("mode must be either '1' or '2'",
+                                 cls.optparser.format_help())
+
+            if (options.dbtap_id is None) or (options.db_table is None):
+                raise ParseError("dbtap_id and db_table are required",
+                                 cls.optparser.format_help())
+
+            if options.mode is "1":
+                if options.hive_table is None:
+                    raise ParseError("hive_table is required for mode 1",
+                                     cls.optparser.format_help())
+            elif options.export_dir is None:    # mode 2
+                raise ParseError("export_dir is required for mode 2",
+                                 cls.optparser.format_help())
+
+            if options.db_update_mode is not None:
+                if options.db_update_mode not in ["allowinsert", "updateonly"]:
+                    raise ParseError("db_update_mode should either be left blank for append "
+                                     "mode or be 'updateonly' or 'allowinsert'",
+                                     cls.optparser.format_help())
+                if options.db_update_mode is "updateonly":
+                    if options.db_update_keys is None:
+                        raise ParseError("db_update_keys is required when db_update_mode "
+                                         "is 'updateonly'",
+                                         cls.optparser.format_help())
+                elif options.db_update_keys is not None:
+                    raise ParseError("db_update_keys is used only when db_update_mode "
+                                     "is 'updateonly'",
+                                     cls.optparser.format_help())
+
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        v = vars(options)
+        v["command_type"] = "DbExportCommand"
+        return v
+
 class DbImportCommand(Command):
     @classmethod
     def parse(cls, args):
