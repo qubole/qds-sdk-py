@@ -219,6 +219,76 @@ class HiveCommand(Command):
             options.macros = json.loads(options.macros)
         return vars(options)
 
+
+class PrestoCommand(Command):
+
+    usage = ("prestocmd run [options]")
+
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("-q", "--query", dest="query", help="query string")
+
+    optparser.add_option("-f", "--script_location", dest="script_location",
+                         help="Path where presto query to run is stored. Can be S3 URI or local file path")
+
+    optparser.add_option("--macros", dest="macros",
+                         help="expressions to expand macros used in query")
+
+    optparser.add_option("--sample_size", dest="sample_size",
+                         help="size of sample in bytes on which to run query")
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args` - sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if options.query is None and options.script_location is None:
+                raise ParseError("One of query or script location"
+                                 " must be specified",
+                                 cls.optparser.format_help())
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        if options.script_location is not None:
+            if options.query is not None:
+                raise ParseError(
+                    "Both query and script_location cannot be specified",
+                    cls.optparser.format_help())
+
+            if ((options.script_location.find("s3://") != 0) and
+                (options.script_location.find("s3n://") != 0)):
+
+                # script location is local file
+                try:
+                    q = open(options.script_location).read()
+                except:
+                    raise ParseError("Unable to open script location: %s" %
+                                     options.script_location,
+                                     cls.optparser.format_help())
+                options.script_location = None
+                options.query = q
+
+
+        if options.macros is not None:
+            options.macros = json.loads(options.macros)
+        return vars(options)
+
+
 class HadoopCommand(Command):
     subcmdlist = ["jar", "s3distcp", "streaming"]
     usage = "hadoopcmd <%s> <arg1> [arg2] ..." % " | ".join(subcmdlist)
