@@ -17,6 +17,15 @@ This should place a command line utility 'qds.py' somewhere in your path
         $ which qds.py
         /usr/bin/qds.py 
 
+Alternate Virtualenv Installation
+---------------------------------
+
+Alternatively, if you use virtualenv and virtualenvwrapper, you can do this:
+
+    $ mkvirtualenv qubole
+    $ <path-to-virtualenv>/bin/python setup.py install
+
+Which will install qds.py within your virtualenv.
 
 CLI
 ---
