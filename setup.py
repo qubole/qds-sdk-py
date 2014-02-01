@@ -1,7 +1,7 @@
 import os
 from setuptools import setup
 
-INSTALL_REQUIRES = ['python_cjson', 'requests >=1.0.3']
+INSTALL_REQUIRES = ['python_cjson', 'requests >=1.0.3', 'boto >=2.20.1']
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
