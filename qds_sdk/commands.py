@@ -234,9 +234,6 @@ class PrestoCommand(Command):
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
-    optparser.add_option("--sample_size", dest="sample_size",
-                         help="size of sample in bytes on which to run query")
-
     @classmethod
     def parse(cls, args):
         """
