@@ -49,7 +49,7 @@ class Connection:
         return self._api_call("POST", path, data);
 
     def _api_call_raw(self, req_type, path, data=None):
-        url = os.path.join(self.base_url, path)
+        url = self.base_url.rstrip('/') + '/' + path
         
         if self.reuse:
             x = self.session
