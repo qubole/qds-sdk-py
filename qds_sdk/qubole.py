@@ -37,7 +37,7 @@ class Qubole:
         """
         cls._auth=QuboleAuth(api_token)
         cls.api_token=api_token
-        cls.base_url=os.path.join(api_url, version)
+        cls.base_url=api_url.rstrip('/') + '/' + version
         cls.poll_interval=poll_interval
         cls.skip_ssl_cert_check=skip_ssl_cert_check
 
