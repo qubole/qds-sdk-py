@@ -8,6 +8,7 @@ from functools import wraps
 
 log = logging.getLogger("retry")
 
+
 def retry(ExceptionToCheck, tries=4, delay=3, backoff=2):
     def deco_retry(f):
         @wraps(f)
@@ -25,5 +26,3 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2):
             return f(*args, **kwargs)
         return f_retry  # true decorator
     return deco_retry
-
-
