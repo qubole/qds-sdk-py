@@ -15,16 +15,17 @@ log = logging.getLogger("qds_connection")
 see http://stackoverflow.com/questions/14102416/python-requests-requests-exceptions-sslerror-errno-8-ssl-c504-eof-occurred
 """
 class MyAdapter(HTTPAdapter):
-    def init_poolmanager(self, connections, maxsize, 
+    def init_poolmanager(self, connections, maxsize,
                          block=False):
         self.poolmanager = PoolManager(num_pools=connections,
-                                       maxsize=maxsize, 
+                                       maxsize=maxsize,
                                        block=block,
                                        ssl_version=ssl.PROTOCOL_TLSv1)
 
+
 class Connection:
 
-    def __init__ (self, auth, base_url, skip_ssl_cert_check, reuse=True):
+    def __init__(self, auth, base_url, skip_ssl_cert_check, reuse=True):
         self.auth=auth
         self.base_url=base_url
         self.skip_ssl_cert_check=skip_ssl_cert_check
@@ -36,26 +37,26 @@ class Connection:
             self.session.mount('https://', MyAdapter())
 
     def get_raw(self, path, data=None):
-        return self._api_call_raw("GET", path, data);
+        return self._api_call_raw("GET", path, data)
 
-    @retry(RetryWithDelay,tries=5,delay=20,backoff=2)
+    @retry(RetryWithDelay, tries=5, delay=20, backoff=2)
     def get(self, path, data=None):
-        return self._api_call("GET", path, data);
+        return self._api_call("GET", path, data)
 
     def put(self, path, data=None):
-        return self._api_call("PUT", path, data);
+        return self._api_call("PUT", path, data)
 
     def post(self, path, data=None):
-        return self._api_call("POST", path, data);
+        return self._api_call("POST", path, data)
 
     def _api_call_raw(self, req_type, path, data=None):
         url = self.base_url.rstrip('/') + '/' + path
-        
+
         if self.reuse:
             x = self.session
         else:
             x = requests
-            
+
         kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
 
         if data:
@@ -77,7 +78,6 @@ class Connection:
 
     def _api_call(self, req_type, path, data=None):
         return self._api_call_raw(req_type, path, data).json()
-    
 
     def _handle_error(self, request):
         """Raise exceptions in response to any http errors

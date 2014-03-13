@@ -13,8 +13,9 @@ import os
 
 log = logging.getLogger("qds_cluster")
 
+
 class HadoopCluster(Resource):
-  """qds_sdk.HadoopCluster is the class for retrieving hadoop cluster 
+  """qds_sdk.HadoopCluster is the class for retrieving hadoop cluster
      information.
   """
 
@@ -22,7 +23,7 @@ class HadoopCluster(Resource):
 
   @classmethod
   def find(cls, name="default", **kwargs):
-    if ((name is None) or (name == "default")):
+    if (name is None) or (name == "default"):
       conn = Qubole.agent()
       return cls(conn.get(cls.rest_entity_path))
     else:

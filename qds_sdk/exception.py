@@ -1,11 +1,12 @@
 class ConfigError(Exception):
     pass
 
+
 class ParseError(Exception):
     def __init__(self, message, usage):
         Exception.__init__(self, message)
         self.usage = usage
-    
+
 
 class Error(Exception):
     """A general error derived from Exception."""
@@ -13,6 +14,7 @@ class Error(Exception):
     def __init__(self, request):
         Exception.__init__(self, request.text)
         self.request = request
+
 
 class ServerError(Error):
     """An error caused by the server."""
@@ -23,6 +25,7 @@ class ServerError(Error):
 class ConnectionError(Error):
     """An error caused by network connection."""
     pass
+
 
 class Redirection(ConnectionError):
     """HTTP 3xx redirection."""
@@ -43,7 +46,7 @@ class ResourceConflict(ClientError):
 
 class RetryWithDelay(ClientError):
     """An error raised when a resource must be retried."""
-    # 449 Retry With 
+    # 449 Retry With
     pass
 
 
@@ -57,6 +60,7 @@ class ResourceNotFound(ClientError):
     """An error raised when a resource is not found."""
     # 404 Resource Not Found
     pass
+
 
 class BadRequest(ClientError):
     """An error raised when client sends a bad request."""

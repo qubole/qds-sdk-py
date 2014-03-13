@@ -24,12 +24,14 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n")
 
+
 def usage(parser=None):
     if parser is None:
         sys.stderr.write(usage_str)
     else:
         parser.print_help()
     sys.exit(1)
+
 
 def checkargs_id(args):
     if len(args) != 1:
@@ -43,15 +45,17 @@ def submitaction(cmdclass, args):
         cmd = cmdclass.create(**args)
         print "Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id)
 
+
 def _getresult(cmdclass, cmd):
-    if (Command.is_success(cmd.status)):
+    if Command.is_success(cmd.status):
         log.info("Fetching results for %s, Id: %s" % (cmdclass.__name__, cmd.id))
         cmd.get_results(sys.stdout, delim='\t')
         return 0
     else:
         log.error("Cannot fetch results - command Id: %s failed with status: %s" % (cmd.id, cmd.status))
         return 1
-    
+
+
 def runaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
@@ -65,14 +69,15 @@ def checkaction(cmdclass, args):
     print str(o)
     return 0
 
+
 def cancelaction(cmdclass, args):
     checkargs_id(args)
     r = cmdclass.cancel_id(args.pop(0))
     skey = 'kill_succeeded'
-    if (r.get(skey) is None):
-        sys.stderr.write("Invalid Json Response %s - missing field '%s'" % (str(r), skey));
+    if r.get(skey) is None:
+        sys.stderr.write("Invalid Json Response %s - missing field '%s'" % (str(r), skey))
         return 11
-    elif (r['kill_succeeded']):
+    elif r['kill_succeeded']:
         log.info("Command killed successfully")
         return 0
     else:
@@ -85,12 +90,12 @@ def getresultaction(cmdclass, args):
     cmd = cmdclass.find(args.pop(0))
     return _getresult(cmdclass, cmd)
 
+
 def getlogaction(cmdclass, args):
     checkargs_id(args)
     o = cmdclass.find(args.pop(0))
     print o.get_log()
     return 0
-
 
 
 def cmdmain(cmd, args):
@@ -101,20 +106,21 @@ def cmdmain(cmd, args):
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
-    
+
     action = args.pop(0)
     if action not in actionset:
         sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
         usage()
 
-
     return globals()[action + "action"](cmdclass, args)
+
 
 def clustercheckaction(clusterclass, args):
     name = args.pop(0) if (len(args) >= 1) else None
     o = clusterclass.find(name=name)
     print str(o)
     return 0
+
 
 def clustermain(dummy, args):
     clusterclass = HadoopCluster
@@ -123,12 +129,11 @@ def clustermain(dummy, args):
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
-    
+
     action = args.pop(0)
     if action not in actionset:
         sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
         usage()
-
 
     return globals()["cluster" + action + "action"](clusterclass, args)
 
@@ -136,19 +141,19 @@ def clustermain(dummy, args):
 def main():
 
     optparser = OptionParser(usage=usage_str)
-    optparser.add_option("--token", dest="api_token", 
+    optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
                          help="api token for accessing Qubole. must be specified via command line or passed in via environment variable QDS_API_TOKEN")
 
-    optparser.add_option("--url", dest="api_url", 
+    optparser.add_option("--url", dest="api_url",
                          default=os.getenv('QDS_API_URL'),
                          help="base url for QDS REST API. defaults to https://api.qubole.com/api ")
 
-    optparser.add_option("--version", dest="api_version", 
+    optparser.add_option("--version", dest="api_version",
                          default=os.getenv('QDS_API_VERSION'),
                          help="version of REST API to access. defaults to v1.2")
 
-    optparser.add_option("--poll_interval", dest="poll_interval", 
+    optparser.add_option("--poll_interval", dest="poll_interval",
                          default=os.getenv('QDS_POLL_INTERVAL'),
                          help="interval for polling API for completion and other events. defaults to 5s")
 
@@ -163,7 +168,6 @@ def main():
     optparser.add_option("--vv", dest="chatty", action="store_true",
                          default=False,
                          help="very verbose mode - debug level logging")
-
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
@@ -181,25 +185,24 @@ def main():
         usage(optparser)
 
     if options.api_url is None:
-        options.api_url = "https://api.qubole.com/api/";
+        options.api_url = "https://api.qubole.com/api/"
 
     if options.api_version is None:
-        options.api_version = "v1.2";
+        options.api_version = "v1.2"
 
     if options.poll_interval is None:
-        options.poll_interval = 5;
+        options.poll_interval = 5
 
     if options.skip_ssl_cert_check is None:
         options.skip_ssl_cert_check = False
     elif options.skip_ssl_cert_check:
         sys.stderr.write("[WARN] Insecure mode enabled: skipping SSL cert verification\n")
-        
+
     Qubole.configure(api_token=options.api_token,
                      api_url=options.api_url,
                      version=options.api_version,
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check)
-                     
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing command type\n")
@@ -208,16 +211,15 @@ def main():
     cmdsuffix = "cmd"
     cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell", "dbexport", "presto"]])
 
-
     a0 = args.pop(0)
 
-    if (a0 in cmdset):
+    if a0 in cmdset:
         return cmdmain(a0[:a0.find(cmdsuffix)], args)
 
-    if (a0 == "hadoop_cluster"):
+    if a0 == "hadoop_cluster":
         return clustermain(a0, args)
 
-    sys.stderr.write("First command must be one of <%s>\n" % 
+    sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["hadoop_cluster"])))
     usage(optparser)
 
@@ -226,7 +228,7 @@ if __name__ == '__main__':
     try:
         sys.exit(main())
     except qds_sdk.exception.Error as e:
-        sys.stderr.write("Error: Status code %s (%s) from url %s\n" % 
+        sys.stderr.write("Error: Status code %s (%s) from url %s\n" %
                          (e.request.status_code, e.__class__.__name__,
                           e.request.url))
         sys.exit(1)
