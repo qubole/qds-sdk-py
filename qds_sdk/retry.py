@@ -1,9 +1,5 @@
 import time
 import logging
-import sys
-import re
-import os
-import pipes
 from functools import wraps
 
 log = logging.getLogger("retry")

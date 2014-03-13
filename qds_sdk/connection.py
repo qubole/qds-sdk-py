@@ -1,4 +1,3 @@
-import os
 import requests
 import cjson
 import logging
@@ -26,9 +25,9 @@ class MyAdapter(HTTPAdapter):
 class Connection:
 
     def __init__(self, auth, base_url, skip_ssl_cert_check, reuse=True):
-        self.auth=auth
-        self.base_url=base_url
-        self.skip_ssl_cert_check=skip_ssl_cert_check
+        self.auth = auth
+        self.base_url = base_url
+        self.skip_ssl_cert_check = skip_ssl_cert_check
         self._headers = {'Content-Type': 'application/json'}
 
         self.reuse = reuse

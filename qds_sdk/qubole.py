@@ -1,6 +1,4 @@
-import os
 import requests
-import cjson
 from connection import Connection
 from exception import ConfigError
 
@@ -20,11 +18,11 @@ class Qubole:
     configuration parameters for QDS.
     """
 
-    _auth=None
-    api_token=None
-    base_url=None
-    poll_interval=None
-    skip_ssl_cert_check=None
+    _auth = None
+    api_token = None
+    base_url = None
+    poll_interval = None
+    skip_ssl_cert_check = None
 
     @classmethod
     def configure(cls, api_token,
@@ -38,11 +36,11 @@ class Qubole:
             ``version``: QDS REST api version
             ``poll_interval``: interval in secs when polling QDS for events
         """
-        cls._auth=QuboleAuth(api_token)
-        cls.api_token=api_token
-        cls.base_url=api_url.rstrip('/') + '/' + version
-        cls.poll_interval=poll_interval
-        cls.skip_ssl_cert_check=skip_ssl_cert_check
+        cls._auth = QuboleAuth(api_token)
+        cls.api_token = api_token
+        cls.base_url = api_url.rstrip('/') + '/' + version
+        cls.poll_interval = poll_interval
+        cls.skip_ssl_cert_check = skip_ssl_cert_check
 
     cached_agent = None
 

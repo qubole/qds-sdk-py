@@ -18,7 +18,6 @@ import time
 import logging
 import sys
 import re
-import os
 import pipes
 
 import json
@@ -37,7 +36,7 @@ class Command(Resource):
     """
 
     """ all commands use the /commands endpoint"""
-    rest_entity_path="commands"
+    rest_entity_path = "commands"
 
     @staticmethod
     def is_done(status):
@@ -49,11 +48,11 @@ class Command(Resource):
         Returns:
             True/False
         """
-        return (status == "cancelled" or status == "done" or status == "error")
+        return status == "cancelled" or status == "done" or status == "error"
 
     @staticmethod
     def is_success(status):
-        return (status == "done")
+        return status == "done"
 
     @classmethod
     def create(cls, **kwargs):
@@ -68,7 +67,7 @@ class Command(Resource):
             Command object
         """
 
-        conn=Qubole.agent()
+        conn = Qubole.agent()
         if kwargs.get('command_type') is None:
             kwargs['command_type'] = cls.__name__
 
@@ -101,8 +100,8 @@ class Command(Resource):
         Args:
             `id` - command id
         """
-        conn=Qubole.agent()
-        data={"status": "kill"}
+        conn = Qubole.agent()
+        data = {"status": "kill"}
         return conn.put(cls.element_path(id), data)
 
     def cancel(self):
@@ -119,8 +118,8 @@ class Command(Resource):
             The log as a string
         """
         log_path = self.meta_data['logs_resource']
-        conn=Qubole.agent()
-        r=conn.get_raw(log_path)
+        conn = Qubole.agent()
+        r = conn.get_raw(log_path)
         return r.text
 
     def get_results(self, fp=sys.stdout, inline=True, delim=None):
@@ -131,7 +130,7 @@ class Command(Resource):
         """
         result_path = self.meta_data['results_resource']
 
-        conn=Qubole.agent()
+        conn = Qubole.agent()
 
         r = conn.get(result_path, {'inline': inline})
         if r.get('inline'):
@@ -318,8 +317,6 @@ class HadoopCommand(Command):
 
         return parsed
 
-    pass
-
 
 class ShellCommand(Command):
     usage = ("shellcmd run [options] [arg1] [arg2] ...")
@@ -383,7 +380,7 @@ class ShellCommand(Command):
                 options.script_location = None
                 options.inline = s
 
-            if ((args is not None) and (len(args) > 0)):
+            if (args is not None) and (len(args) > 0):
                 if options.inline is not None:
                     raise ParseError(
                         "This sucks - but extra arguments can only be "
@@ -394,7 +391,7 @@ class ShellCommand(Command):
                         " ".join([pipes.quote(a) for a in args]))
 
         else:
-            if ((args is not None) and (len(args) > 0)):
+            if (args is not None) and (len(args) > 0):
                 raise ParseError(
                     "Extra arguments can only be supplied with a script_location",
                     cls.optparser.format_help())
@@ -459,7 +456,7 @@ class PigCommand(Command):
                 options.script_location = None
                 options.latin_statements = s
 
-            if ((args is not None) and (len(args) > 0)):
+            if (args is not None) and (len(args) > 0):
                 if options.latin_statements is not None:
                     raise ParseError(
                         "This sucks - but extra arguments can only be "
@@ -468,14 +465,14 @@ class PigCommand(Command):
 
                 p = {}
                 for a in args:
-                  kv = a.split('=')
-                  if len(kv)!=2:
-                    raise ParseError("Arguments to pig script must be of this format k1=v1 k2=v2 k3=v3...")
-                  p[kv[0]] = kv[1]
+                    kv = a.split('=')
+                    if len(kv) != 2:
+                        raise ParseError("Arguments to pig script must be of this format k1=v1 k2=v2 k3=v3...")
+                    p[kv[0]] = kv[1]
                 setattr(options, 'parameters', p)
 
         else:
-            if ((args is not None) and (len(args) > 0)):
+            if (args is not None) and (len(args) > 0):
                 raise ParseError(
                     "Extra arguments can only be supplied with a script_location",
                     cls.optparser.format_help())
@@ -576,7 +573,6 @@ class DbImportCommand(Command):
     @classmethod
     def parse(cls, args):
         raise ParseError("dbimport command not implemented yet", "")
-    pass
 
 
 def _read_iteratively(key_instance, fp, delim):
@@ -609,7 +605,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         @param key_prefix: Total file size to be downloaded
         @type key_prefix: int
         '''
-        if ((total is 0) or (downloaded == total)):
+        if (total is 0) or (downloaded == total):
             return
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
@@ -629,8 +625,8 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             unique_paths.add(dir)
             if len(path) > 1:
                 file = int(path[1])
-                if files.has_key(dir) == False:
-                    files[dir]=[]
+                if files.has_key(dir) is False:
+                    files[dir] = []
                 files[dir].append(file)
         if len(unique_paths) < num_result_dir:
             return False
@@ -650,11 +646,11 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         key_instance = bucket.get_key(key_name)
         while key_instance is None and retries > 0:
             retries = retries - 1
-            log.info("Results file is not available on s3. Retry: "+ str(6-retries))
+            log.info("Results file is not available on s3. Retry: " + str(6-retries))
             time.sleep(10)
             key_instance = bucket.get_key(key_name)
         if key_instance is None:
-          raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
+            raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
         log.info("Downloading file from %s" % s3_path)
         if delim is None:
             key_instance.get_contents_to_file(fp)  # cb=_callback
@@ -667,12 +663,12 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
         complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-        while complete_data_available == False and retries > 0:
+        while complete_data_available is False and retries > 0:
             retries = retries - 1
             log.info("Results dir is not available on s3. Retry: " + str(6-retries))
             time.sleep(10)
             complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-        if complete_data_available == False:
+        if complete_data_available is False:
             raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
 
         for one_path in bucket_paths:

@@ -10,7 +10,6 @@ from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 import qds_sdk.exception
 
-import os
 import sys
 import traceback
 import logging

@@ -178,7 +178,6 @@ def main():
         logging.basicConfig(level=logging.INFO)
     else:
         logging.basicConfig(level=logging.WARN)
-        pass
 
     if options.api_token is None:
         sys.stderr.write("No API Token provided\n")
