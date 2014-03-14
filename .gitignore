@@ -38,3 +38,5 @@ nosetests.xml
 *.swp
 *.swm
 
+# Virtualenv
+venv
