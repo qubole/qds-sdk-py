@@ -149,7 +149,7 @@ class Command(Resource):
 
 class HiveCommand(Command):
 
-    usage = ("hivecmd run [options]")
+    usage = ("hivecmd <submit|run> [options]")
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-q", "--query", dest="query", help="query string")
@@ -217,7 +217,7 @@ class HiveCommand(Command):
 
 class PrestoCommand(Command):
 
-    usage = ("prestocmd run [options]")
+    usage = ("prestocmd <submit|run> [options]")
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-q", "--query", dest="query", help="query string")
@@ -281,7 +281,7 @@ class PrestoCommand(Command):
 
 class HadoopCommand(Command):
     subcmdlist = ["jar", "s3distcp", "streaming"]
-    usage = "hadoopcmd <%s> <arg1> [arg2] ..." % " | ".join(subcmdlist)
+    usage = "hadoopcmd <submit|run> <%s> <arg1> [arg2] ..." % " | ".join(subcmdlist)
 
     @classmethod
     def parse(cls, args):
@@ -319,7 +319,7 @@ class HadoopCommand(Command):
 
 
 class ShellCommand(Command):
-    usage = ("shellcmd run [options] [arg1] [arg2] ...")
+    usage = ("shellcmd <submit|run> [options] [arg1] [arg2] ...")
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-s", "--script", dest="inline", help="inline script that can be executed by bash")
@@ -400,7 +400,7 @@ class ShellCommand(Command):
 
 
 class PigCommand(Command):
-    usage = ("pigcmd run [options] [key1=value1] [key2=value2] ...")
+    usage = ("pigcmd <submit|run> [options] [key1=value1] [key2=value2] ...")
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-s", "--script", dest="latin_statements",
@@ -481,7 +481,7 @@ class PigCommand(Command):
 
 
 class DbexportCommand(Command):
-    usage = ("dbexportcmd run [options]")
+    usage = ("dbexportcmd <submit|run> [options]")
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
