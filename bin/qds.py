@@ -25,14 +25,13 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  <cluster> <create|delete|update|list|start|terminate|show|status> [args .. ]\n"
+             "  <cluster> <create|delete|update|list|start|terminate|status> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
-             "  list [cmd-specific-args ..] : list all existing clusters\n"
+             "  list [cmd-specific-args ..] : list existing cluster(s)\n"
              "  start [cmd-specific-args ..] : start an existing cluster\n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
-             "  show [cmd-specific-args ..] : show the settings of an existing cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n")
 
 
@@ -162,10 +161,6 @@ def cluster_terminate_action(clusterclass, args):
     print result
 
 
-def cluster_show_action(clusterclass, args):
-    pass
-
-
 def cluster_status_action(clusterclass, args):
     checkargs_cluster_id(args)
     result = clusterclass.status(args.pop(0))
@@ -199,7 +194,7 @@ def clustermain(dummy, args):
 
     else:
         clusterclass = Cluster
-        actionset = set(["create", "delete", "update", "list", "start", "terminate", "show", "status"])
+        actionset = set(["create", "delete", "update", "list", "start", "terminate", "status"])
 
         if len(args) < 1:
             sys.stderr.write("missing argument containing action\n")
