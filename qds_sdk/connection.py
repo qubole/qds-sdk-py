@@ -48,6 +48,9 @@ class Connection:
     def post(self, path, data=None):
         return self._api_call("POST", path, data)
 
+    def delete(self, path, data=None):
+        return self._api_call("DELETE", path, data)
+
     def _api_call_raw(self, req_type, path, data=None):
         url = self.base_url.rstrip('/') + '/' + path
 
@@ -69,6 +72,8 @@ class Connection:
             r = x.post(url, **kwargs)
         elif req_type == 'PUT':
             r = x.put(url, **kwargs)
+        elif req_type == 'DELETE':
+            r = x.delete(url, **kwargs)
         else:
             raise NotImplemented
 

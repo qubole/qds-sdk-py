@@ -126,11 +126,20 @@ def cmdmain(cmd, args):
     return globals()[action + "action"](cmdclass, args)
 
 
+def checkargs_cluster_id(args):
+    if len(args) != 1:
+        sys.stderr.write("expecting single argument cluster id\n")
+        usage()
+
+
 def cluster_create_action(clusterclass, args):
     pass
 
 
 def cluster_delete_action(clusterclass, args):
+    checkargs_cluster_id(args)
+    result = clusterclass.delete(args.pop(0))
+    print result
     pass
 
 

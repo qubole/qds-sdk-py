@@ -20,3 +20,7 @@ class Cluster(Resource):
     rest_entity_path = "clusters"
     pass
 
+    @classmethod
+    def delete(cls, cluster_id):
+        conn = Qubole.agent()
+        return conn.delete(cls.element_path(cluster_id))
