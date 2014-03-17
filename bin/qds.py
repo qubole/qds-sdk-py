@@ -167,7 +167,9 @@ def cluster_show_action(clusterclass, args):
 
 
 def cluster_status_action(clusterclass, args):
-    pass
+    checkargs_cluster_id(args)
+    result = clusterclass.status(args.pop(0))
+    print result
 
 
 def cluster_check_action(clusterclass, args):

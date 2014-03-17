@@ -20,6 +20,11 @@ class Cluster(Resource):
     rest_entity_path = "clusters"
 
     @classmethod
+    def status(cls, cluster_id):
+        conn = Qubole.agent()
+        return conn.get(cls.element_path(cluster_id) + "/state")
+
+    @classmethod
     def start(cls, cluster_id):
         conn = Qubole.agent()
         data = {"state": "start"}
