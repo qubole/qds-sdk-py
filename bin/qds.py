@@ -3,6 +3,7 @@
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
+from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
 
 import os
@@ -14,15 +15,25 @@ from optparse import OptionParser
 log = logging.getLogger("qds")
 
 usage_str = ("Usage: \n"
-             "qds [options] <CmdArgs | hadoop_cluster check>\n"
+             "qds [options] <CmdArgs | ClusterArgs>\n"
              "\nCmdArgs:\n" +
-             "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd> <submit|run|check|cancel> [args .. ]\n"
+             "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
              "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
              "  run [cmd-specific-args .. ] : submit cmd & wait. print results \n"
              "  check <id> : print the cmd object for this Id\n"
              "  cancel <id> : cancels the cmd with this Id\n"
              "  getresult <id> : get the results for the cmd with this Id\n"
-             "  getlog <id> : get the logs for the cmd with this Id\n")
+             "  getlog <id> : get the logs for the cmd with this Id\n"
+             "\nClusterArgs:\n" +
+             "  <cluster> <create|delete|update|list|start|terminate|show|status> [args .. ]\n"
+             "  create [cmd-specific-args ..] : create a new cluster\n"
+             "  delete [cmd-specific-args ..] : delete an existing cluster\n"
+             "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
+             "  list [cmd-specific-args ..] : list all existing clusters\n"
+             "  start [cmd-specific-args ..] : start an existing cluster\n"
+             "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
+             "  show [cmd-specific-args ..] : show the settings of an existing cluster\n"
+             "  status [cmd-specific-args ..] : show whether the cluster is up or down\n")
 
 
 def usage(parser=None):
@@ -115,7 +126,39 @@ def cmdmain(cmd, args):
     return globals()[action + "action"](cmdclass, args)
 
 
-def clustercheckaction(clusterclass, args):
+def cluster_create_action(clusterclass, args):
+    pass
+
+
+def cluster_delete_action(clusterclass, args):
+    pass
+
+
+def cluster_update_action(clusterclass, args):
+    pass
+
+
+def cluster_list_action(clusterclass, args):
+    pass
+
+
+def cluster_start_action(clusterclass, args):
+    pass
+
+
+def cluster_terminate_action(clusterclass, args):
+    pass
+
+
+def cluster_show_action(clusterclass, args):
+    pass
+
+
+def cluster_status_action(clusterclass, args):
+    pass
+
+
+def cluster_check_action(clusterclass, args):
     name = args.pop(0) if (len(args) >= 1) else None
     o = clusterclass.find(name=name)
     print str(o)
@@ -123,19 +166,36 @@ def clustercheckaction(clusterclass, args):
 
 
 def clustermain(dummy, args):
-    clusterclass = HadoopCluster
-    actionset = set(["check"])
+    if dummy == "hadoop_cluster":
+        sys.stderr.write("'hadoop_cluster check' command is deprecated and will be" \
+                         " removed in the next version. Please use 'cluster status'" \
+                         " instead.\n")
+        clusterclass = HadoopCluster
+        actionset = set(["check"])
 
-    if len(args) < 1:
-        sys.stderr.write("missing argument containing action\n")
-        usage()
+        if len(args) < 1:
+            sys.stderr.write("missing argument containing action\n")
+            usage()
 
-    action = args.pop(0)
-    if action not in actionset:
-        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
-        usage()
+        action = args.pop(0)
+        if action not in actionset:
+            sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+            usage()
+        return globals()["cluster_" + action + "_action"](clusterclass, args)
 
-    return globals()["cluster" + action + "action"](clusterclass, args)
+    else:
+        clusterclass = Cluster
+        actionset = set(["create", "delete", "update", "list", "start", "terminate", "show", "status"])
+
+        if len(args) < 1:
+            sys.stderr.write("missing argument containing action\n")
+            usage()
+
+        action = args.pop(0)
+        if action not in actionset:
+            sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+            usage()
+        return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 
 def main():
@@ -215,11 +275,11 @@ def main():
     if a0 in cmdset:
         return cmdmain(a0[:a0.find(cmdsuffix)], args)
 
-    if a0 == "hadoop_cluster":
+    if a0 == "hadoop_cluster" or a0 == "cluster":
         return clustermain(a0, args)
 
     sys.stderr.write("First command must be one of <%s>\n" %
-                     "|".join(cmdset.union(["hadoop_cluster"])))
+                     "|".join(cmdset.union(["cluster"])))
     usage(optparser)
 
 

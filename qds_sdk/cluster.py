@@ -1,5 +1,5 @@
 """
-The cluster module contains the definitions for retrieving hadoop cluster
+The cluster module contains the definitions for retrieving the cluster
 information from Qubole
 """
 
@@ -12,18 +12,11 @@ import logging
 log = logging.getLogger("qds_cluster")
 
 
-class HadoopCluster(Resource):
+class Cluster(Resource):
     """
-    qds_sdk.HadoopCluster is the class for retrieving hadoop cluster information.
+    qds_sdk.Cluster is the class for retrieving the cluster information.
     """
 
-    rest_entity_path = "hadoop_cluster"
+    rest_entity_path = "clusters"
+    pass
 
-    @classmethod
-    def find(cls, name="default", **kwargs):
-        if (name is None) or (name == "default"):
-            conn = Qubole.agent()
-            return cls(conn.get(cls.rest_entity_path))
-        else:
-            raise ParseError("Bad name 'default'",
-                             "Hadoop Clusters can only be named 'default' currently")
