@@ -146,7 +146,16 @@ def cluster_update_action(clusterclass, args):
 
 
 def cluster_list_action(clusterclass, args):
-    pass
+    arguments = clusterclass.parse_list(args)
+    if arguments['cluster_id'] is not None:
+        result = clusterclass.show(arguments['cluster_id'])
+    elif arguments['state'] is not None:
+        result = clusterclass.list(state=arguments['state'])
+    elif arguments['tag'] is not None:
+        result = clusterclass.list(tag=arguments['tag'])
+    else:
+        result = clusterclass.list()
+    print result
 
 
 def cluster_start_action(clusterclass, args):
