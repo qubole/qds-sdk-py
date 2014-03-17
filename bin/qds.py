@@ -140,7 +140,6 @@ def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id(args)
     result = clusterclass.delete(args.pop(0))
     print result
-    pass
 
 
 def cluster_update_action(clusterclass, args):
@@ -152,11 +151,15 @@ def cluster_list_action(clusterclass, args):
 
 
 def cluster_start_action(clusterclass, args):
-    pass
+    checkargs_cluster_id(args)
+    result = clusterclass.start(args.pop(0))
+    print result
 
 
 def cluster_terminate_action(clusterclass, args):
-    pass
+    checkargs_cluster_id(args)
+    result = clusterclass.terminate(args.pop(0))
+    print result
 
 
 def cluster_show_action(clusterclass, args):

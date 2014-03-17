@@ -18,7 +18,18 @@ class Cluster(Resource):
     """
 
     rest_entity_path = "clusters"
-    pass
+
+    @classmethod
+    def start(cls, cluster_id):
+        conn = Qubole.agent()
+        data = {"state": "start"}
+        return conn.put(cls.element_path(cluster_id) + "/state", data)
+
+    @classmethod
+    def terminate(cls, cluster_id):
+        conn = Qubole.agent()
+        data = {"state": "terminate"}
+        return conn.put(cls.element_path(cluster_id) + "/state", data)
 
     @classmethod
     def delete(cls, cluster_id):
