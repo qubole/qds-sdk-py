@@ -147,13 +147,13 @@ def cluster_update_action(clusterclass, args):
 
 
 def cluster_list_action(clusterclass, args):
-    arguments = clusterclass.parse_list(args)
+    arguments = clusterclass._parse_list(args)
     if arguments['cluster_id'] is not None:
         result = clusterclass.show(arguments['cluster_id'])
     elif arguments['state'] is not None:
         result = clusterclass.list(state=arguments['state'])
-    elif arguments['tag'] is not None:
-        result = clusterclass.list(tag=arguments['tag'])
+    elif arguments['label'] is not None:
+        result = clusterclass.list(label=arguments['label'])
     else:
         result = clusterclass.list()
     print json.dumps(result, indent=4)
