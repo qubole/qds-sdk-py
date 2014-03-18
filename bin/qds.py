@@ -135,14 +135,14 @@ def checkargs_cluster_id(args):
 def cluster_create_action(clusterclass, args):
     arguments = clusterclass._parse_create_update(args, action="create")
     cluster_info = _create_cluster_info(arguments)
-    result = clusterclass.create(cluster_info.to_dict())
+    result = clusterclass.create(cluster_info.minimal_payload())
     print json.dumps(result, indent=4)
 
 
 def cluster_update_action(clusterclass, args):
     arguments = clusterclass._parse_create_update(args, action="update")
     cluster_info = _create_cluster_info(arguments)
-    result = clusterclass.update(arguments.cluster_id, cluster_info.to_dict())
+    result = clusterclass.update(arguments.cluster_id, cluster_info.minimal_payload())
     print json.dumps(result, indent=4)
 
 

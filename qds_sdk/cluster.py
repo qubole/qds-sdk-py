@@ -411,5 +411,19 @@ class ClusterInfo():
         self.presto_settings['jvm_memory'] = jvm_memory
         self.presto_settings['task_memory'] = task_memory
 
-    def to_dict(self):
-        return {"cluster": self.__dict__}
+    def minimal_payload(self):
+        payload = {"cluster": self.__dict__}
+        return _make_minimal(payload)
+
+
+def _make_minimal(dictionary):
+    new_dict = {}
+    for key, value in dictionary.iteritems():
+        if value is not None:
+            if isinstance(value, dict):
+                new_value = _make_minimal(value)
+                if new_value:
+                    new_dict[key] = new_value
+            else:
+                new_dict[key] = value
+    return new_dict
