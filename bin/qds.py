@@ -133,7 +133,63 @@ def checkargs_cluster_id(args):
 
 
 def cluster_create_action(clusterclass, args):
-    pass
+    arguments = clusterclass._parse_create(args)
+
+    cluster_info = ClusterInfo(arguments.label,
+                               arguments.aws_access_key_id,
+                               arguments.aws_secret_access_key,
+                               arguments.disallow_cluster_termination,
+                               arguments.enable_ganglia_monitoring)
+
+    cluster_info.set_ec2_settings(arguments.aws_region,
+                                  arguments.aws_availability_zone)
+
+    custom_config = None
+    if arguments.custom_config_file is not None:
+        try:
+            custom_config = open(arguments.custom_config_file).read()
+        except:
+            sys.stderr.write("Unable to read custom config file: %s\n" %
+                            arguments.custom_config_file)
+            usage()
+    cluster_info.set_hadoop_settings(arguments.master_instance_type,
+                                     arguments.slave_instance_type,
+                                     arguments.initial_nodes,
+                                     arguments.max_nodes,
+                                     custom_config,
+                                     arguments.slave_request_type)
+
+    cluster_info.set_spot_instance_settings(
+          arguments.maximum_bid_price_percentage,
+          arguments.timeout_for_request,
+          arguments.maximum_spot_instance_percentage)
+
+    fairscheduler_config_xml = None
+    if arguments.fairscheduler_config_xml_file is not None:
+        try:
+            fairscheduler_config_xml = open(arguments.fairscheduler_config_xml_file).read()
+        except:
+            raise Exception("Unable to read config xml file: %s" %
+                            arguments.fairscheduler_config_xml_file)
+    cluster_info.set_fairscheduler_settings(fairscheduler_config_xml,
+                                            arguments.default_pool)
+
+    customer_ssh_key = None
+    if arguments.customer_ssh_key_file is not None:
+        try:
+            customer_ssh_key = open(arguments.customer_ssh_key_file).read()
+        except:
+            raise Exception("Unable to read customer ssh key file: %s" %
+                            arguments.customer_ssh_key_file)
+    cluster_info.set_security_settings(arguments.persistent_security_groups,
+                                       arguments.encrypted_ephemerals,
+                                       customer_ssh_key)
+
+    cluster_info.set_presto_settings(arguments.presto_jvm_memory,
+                                     arguments.presto_task_memory)
+
+    result = clusterclass.create(cluster_info.to_dict())
+    print json.dumps(result, indent=4)
 
 
 def cluster_delete_action(clusterclass, args):

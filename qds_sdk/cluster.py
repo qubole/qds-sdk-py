@@ -84,6 +84,319 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id) + "/state", data)
 
     @classmethod
+    def _parse_create(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of cluster
+        parameters that can be used to create a cluster
+
+        Args:
+            `args` - sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+        """
+        argparser = ArgumentParser(prog="cluster create")
+
+        argparser.add_argument("--label", dest="label",
+                               nargs="+", required=True,
+                               help="list of label for the cluster" +
+                                    " (atleast one label is required)")
+
+        ec2_group = argparser.add_argument_group("ec2 settings")
+        ec2_group.add_argument("--access-key-id",
+                               dest="aws_access_key_id",
+                               required=True,
+                               help="access key id for customer's aws" +
+                                    " account which would be used for" +
+                                    " creating the cluster (required)",)
+        ec2_group.add_argument("--secret-access-key",
+                               dest="aws_secret_access_key",
+                               required=True,
+                               help="secret access key for customer's aws" +
+                                    " account which would be used for" +
+                                    " creating the cluster (required)",)
+        ec2_group.add_argument("--aws-region",
+                               dest="aws_region",
+                               choices=["us-east-1", "us-west-2",
+                                        "eu-west-1", "ap-southeast-1"],
+                               help="aws region to create the cluster in.",)
+        ec2_group.add_argument("--aws-availability-zone",
+                               dest="aws_availability_zone",
+                               help="availability zone in the region to" +
+                                    " create the cluster in.",)
+
+        hadoop_group = argparser.add_argument_group("hadoop settings")
+        hadoop_group.add_argument("--master-instance-type",
+                                  dest="master_instance_type",
+                                  help="instance type to use for the hadoop" +
+                                       " master node.",)
+        hadoop_group.add_argument("--slave-instance-type",
+                                  dest="slave_instance_type",
+                                  help="instance type to use for the hadoop" +
+                                       " slave nodes.",)
+        hadoop_group.add_argument("--initial-nodes",
+                                  dest="initial_nodes",
+                                  type=int,
+                                  help="number of nodes to start the" +
+                                       " cluster with.",)
+        hadoop_group.add_argument("--max-nodes",
+                                  dest="max_nodes",
+                                  type=int,
+                                  help="maximum number of nodes the cluster" +
+                                       " may be auto-scaled up to.")
+        hadoop_group.add_argument("--custom-config",
+                                  dest="custom_config_file",
+                                  help="location of file containg custom" +
+                                       " hadoop configuration overrides")
+        hadoop_group.add_argument("--slave-request-type",
+                                  dest="slave_request_type",
+                                  choices=["on-demand", "spot", "hybid"],
+                                  help="purchasing option for slave instaces.",)
+
+        spot_group = argparser.add_argument_group("spot instance settings" +
+                    " (valid only when slave-request-type is hybrid or spot)")
+        spot_group.add_argument("--maximum-bid-price-percentage",
+                                dest="maximum_bid_price_percentage",
+                                type=float,
+                                help="maximum value to vid for spot instances" +
+                                     " expressed as a percentage of the base" +
+                                     " price for the slave node instance type.",)
+        spot_group.add_argument("--timeout-for-spot-request",
+                                dest="timeout_for_request",
+                                type=int,
+                                help="timeout for a spot instance request" +
+                                     " unit: minutes")
+        spot_group.add_argument("--maximum-spot-instance-percentage",
+                                dest="maximum_spot_instance_percentage",
+                                type=int,
+                                help="maximum percentage of instances that may" +
+                                     " be purchased from the aws spot market," +
+                                     " valid only when slave-request-type" +
+                                     " is 'hybrid'.",)
+
+        fairscheduler_group = argparser.add_argument_group(
+                              "fairscheduler configuration options")
+        fairscheduler_group.add_argument("--fairscheduler-config-xml",
+                                         dest="fairscheduler_config_xml_file",
+                                         help="location for file containing" +
+                                              " xml with custom configuration" +
+                                              " for the fairscheduler",)
+        fairscheduler_group.add_argument("--fairscheduler-default-pool",
+                                         dest="default_pool",
+                                         help="default pool for the fairscheduler",)
+
+        security_group = argparser.add_argument_group("security setttings")
+        security_group.add_argument("--persistent-security-group",
+                                    dest="persistent_security_groups",
+                                    nargs="+",
+                                    help="list of persistent security groups" +
+                                         " for the cluster",)
+        security_group.add_argument("--encrypted-ephmerals",
+                                    dest="encrypted_ephemerals",
+                                    action="store_true",
+                                    help="encrypt the ephemeral drives on" +
+                                         " the instance",)
+        security_group.add_argument("--customer-ssh-key",
+                                    dest="customer_ssh_key_file",
+                                    help="location for ssh key to use to" +
+                                         " login to the instance")
+
+        presto_group = argparser.add_argument_group("presto settings")
+        presto_group.add_argument("--presto-jvm-memory",
+                                  dest="presto_jvm_memory",
+                                  help="maximum memory that presto jvm can use",)
+        presto_group.add_argument("--presto-task-memory",
+                                  dest="presto_task_memory",
+                                  help="maximum memory a presto worker task can use",)
+
+        argparser.add_argument("--disallow-cluster-termination",
+                               dest="disallow_cluster_termination",
+                               action="store_true",
+                               default=None,
+                               help="don't auto-terminate idle clusters," +
+                                    " use this with extreme caution",)
+
+        argparser.add_argument("--enable-ganglia-monitoring",
+                               dest="enable_ganglia_monitoring",
+                               action="store_true",
+                               default=None,
+                               help="enable ganglia monitoring for the cluster",)
+
+        arguments = argparser.parse_args(args)
+        return arguments
+
+    @classmethod
+    def create(cls, cluster_info):
+        conn = Qubole.agent()
+        return conn.post(cls.rest_entity_path, data=cluster_info)
+
+    @classmethod
     def delete(cls, cluster_id):
         conn = Qubole.agent()
         return conn.delete(cls.element_path(cluster_id))
+
+
+class ClusterInfo():
+    """
+    qds_sdk.ClusterInfo is the class which stores information about a cluster.
+    """
+
+    def __init__(self, label, aws_access_key_id, aws_secret_access_key,
+                 disallow_cluster_termination=None,
+                 enable_ganglia_monitoring=None):
+        """
+        Args:
+
+        `label`
+        A list of labels that identify the cluster. At least one label must be
+        provided when creating a cluster.
+
+        `aws_access_key_id`
+        The access key id for customer's aws account which would be used for
+        creating the cluster. (required)
+
+        `aws_secret_access_key`
+        The secret access key for customers' aws account which would be used
+        for creating the cluster. (required)
+
+        `disallow_cluster_termination`
+        Set this to True if you don't want qubole to auto-terminate idle
+        clusters. Use this option with extreme caution.
+
+        `enable_ganglia_monitorint`
+        Set this to True if you want to enable ganglia monitoring for the
+        cluster.
+        """
+        self.label = label
+        self.ec2_settings = {}
+        self.ec2_settings['compute_access_key'] = aws_access_key_id
+        self.ec2_settings['compute_secret_key'] = aws_secret_access_key
+        self.disallow_cluster_termination = disallow_cluster_termination
+        self.enable_ganglia_monitoring = enable_ganglia_monitoring
+        self.hadoop_settings = {}
+        self.security_settings = {}
+        self.presto_settings = {}
+
+    def set_ec2_settings(self,
+          aws_region = None,
+          aws_availability_zone = None):
+        """
+        Kwargs:
+
+        `aws_region`
+        AWS region to create the cluster in.
+
+        `aws_availability_zone`
+        The availability zone to create the cluster in.
+        """
+        self.ec2_settings['aws_region'] = aws_region
+        self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
+
+    def set_hadoop_settings(self, master_instance_type=None,
+                            slave_instance_type=None,
+                            initial_nodes=None,
+                            max_nodes=None,
+                            custom_config=None,
+                            slave_request_type=None):
+        """
+        Kwargs:
+
+        `master_instance_type`
+        The instance type to use for the Hadoop master node.
+
+        `slave_instance_type`
+        The instance type to use for the Hadoop slave nodes.
+
+        `initial_nodes`
+        Number of nodes to start the cluster with.
+
+        `max_nodes`
+        Maximum number of nodes the cluster may be auto-scaled up to.
+
+        `custom_config`
+        Custom Hadoop configuration overrides.
+
+        `slave_request_type`
+        Purchasing option for slave instances.
+        Valid values: "on-demand", "hybrid", "spot".
+        """
+        self.hadoop_settings['master_instance_type'] = master_instance_type
+        self.hadoop_settings['slave_instance_type'] = slave_instance_type
+        self.hadoop_settings['initial_nodes'] = initial_nodes
+        self.hadoop_settings['max_nodes'] = max_nodes
+        self.hadoop_settings['custom_config'] = custom_config
+        self.hadoop_settings['slave_request_type'] = slave_request_type
+
+    def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
+                                   timeout_for_request=None,
+                                   maximum_spot_instance_percentage=None):
+        """
+        Purchase options for spot instances. Valid only when `slave_request_type`
+        is hybrid or spot.
+
+        `maximum_bid_price_percentage`
+        Maximum value to bid for spot instances, expressed as a percentage
+        of the base price for the slave node instance type.
+
+        `timeout_for_request`
+        Timeout for a spot instance request (Unit: minutes)
+
+        `maximum_spot_instance_percentage`
+        Maximum percentage of instances that may be purchased from the AWS
+        Spot market. Valid only when slave_request_type is "hybrid".
+        """
+        self.hadoop_settings['spot_instance_settings'] = {
+               'maximum_bid_price_percentage': maximum_bid_price_percentage,
+               'timeout_for_request': timeout_for_request,
+               'maximum_spot_instance_percentage': maximum_spot_instance_percentage}
+
+    def set_fairscheduler_settings(self, fairscheduler_config_xml=None,
+                                   default_pool=None):
+        """
+        Fair scheduler configuration options.
+
+        `fairscheduler_config_xml`
+        XML string with custom configuration parameters for the fair
+        scheduler.
+
+        `default_pool`
+        The default pool for the fair scheduler.
+        """
+        self.hadoop_settings['fairscheduler_settings'] = {
+               'fairscheduler_config_xml': fairscheduler_config_xml,
+               'default_pool': default_pool}
+
+    def set_security_settings(self, persistent_security_groups=None,
+                              encrypted_ephemerals=None,
+                              customer_ssh_key=None):
+        """
+        Kwargs:
+
+        `persistent_security_groups`
+        List of persistent security groups for the cluster.
+
+        `encrypted_ephemerals`
+        Encrypt the ephemeral drives on the instance.
+
+        `customer_ssh_key`
+        SSH key to use to login to the instances.
+        """
+        self.security_settings['persistent_security_groups'] = persistent_security_groups
+        self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
+        self.security_settings['customer_ssh_key'] = customer_ssh_key
+
+    def set_presto_settings(self, jvm_memory=None, task_memory=None):
+        """
+        Kwargs:
+
+        `jvm_memory`
+        The maximum memory that Presto JVM can use.
+
+        `task_memory`
+        The maximum memory a worker task can use in Presto.
+        """
+        self.presto_settings['jvm_memory'] = jvm_memory
+        self.presto_settings['task_memory'] = task_memory
+
+    def to_dict(self):
+        return {"cluster": self.__dict__}
