@@ -84,37 +84,45 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id) + "/state", data)
 
     @classmethod
-    def _parse_create(cls, args):
+    def _parse_create_update(cls, args, action):
         """
         Parse command line arguments to construct a dictionary of cluster
         parameters that can be used to create a cluster
 
         Args:
             `args` - sequence of arguments
+            `action` - create or update
 
         Returns:
             Dictionary that can be used in create method
         """
-        argparser = ArgumentParser(prog="cluster create")
+        argparser = ArgumentParser(prog="cluster %s" % action)
+
+        create_required = False
+        if action == "create":
+            create_required = True
+        elif action == "update":
+            argparser.add_argument("cluster_id",
+                                   help="id of the cluster to update.")
 
         argparser.add_argument("--label", dest="label",
-                               nargs="+", required=True,
+                               nargs="+", required=create_required,
                                help="list of label for the cluster" +
                                     " (atleast one label is required)")
 
         ec2_group = argparser.add_argument_group("ec2 settings")
         ec2_group.add_argument("--access-key-id",
                                dest="aws_access_key_id",
-                               required=True,
+                               required=create_required,
                                help="access key id for customer's aws" +
-                                    " account which would be used for" +
-                                    " creating the cluster (required)",)
+                                    " account. This is required while" +
+                                    " creating the cluster",)
         ec2_group.add_argument("--secret-access-key",
                                dest="aws_secret_access_key",
-                               required=True,
+                               required=create_required,
                                help="secret access key for customer's aws" +
-                                    " account which would be used for" +
-                                    " creating the cluster (required)",)
+                                    " account. This is required while" +
+                                    " creating the cluster",)
         ec2_group.add_argument("--aws-region",
                                dest="aws_region",
                                choices=["us-east-1", "us-west-2",
@@ -229,6 +237,11 @@ class Cluster(Resource):
     def create(cls, cluster_info):
         conn = Qubole.agent()
         return conn.post(cls.rest_entity_path, data=cluster_info)
+
+    @classmethod
+    def update(cls, cluster_id, cluster_info):
+        conn = Qubole.agent()
+        return conn.put(cls.element_path(cluster_id), data=cluster_info)
 
     @classmethod
     def delete(cls, cluster_id):

@@ -133,8 +133,20 @@ def checkargs_cluster_id(args):
 
 
 def cluster_create_action(clusterclass, args):
-    arguments = clusterclass._parse_create(args)
+    arguments = clusterclass._parse_create_update(args, action="create")
+    cluster_info = _create_cluster_info(arguments)
+    result = clusterclass.create(cluster_info.to_dict())
+    print json.dumps(result, indent=4)
 
+
+def cluster_update_action(clusterclass, args):
+    arguments = clusterclass._parse_create_update(args, action="update")
+    cluster_info = _create_cluster_info(arguments)
+    result = clusterclass.update(arguments.cluster_id, cluster_info.to_dict())
+    print json.dumps(result, indent=4)
+
+
+def _create_cluster_info(arguments):
     cluster_info = ClusterInfo(arguments.label,
                                arguments.aws_access_key_id,
                                arguments.aws_secret_access_key,
@@ -188,18 +200,13 @@ def cluster_create_action(clusterclass, args):
     cluster_info.set_presto_settings(arguments.presto_jvm_memory,
                                      arguments.presto_task_memory)
 
-    result = clusterclass.create(cluster_info.to_dict())
-    print json.dumps(result, indent=4)
+    return cluster_info
 
 
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id(args)
     result = clusterclass.delete(args.pop(0))
     print json.dumps(result, indent=4)
-
-
-def cluster_update_action(clusterclass, args):
-    pass
 
 
 def cluster_list_action(clusterclass, args):
