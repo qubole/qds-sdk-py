@@ -2,6 +2,7 @@ import requests
 import cjson
 import logging
 import ssl
+import json
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 from retry import retry
@@ -65,6 +66,7 @@ class Connection:
             kwargs['data'] = cjson.encode(data)
 
         log.info("[%s] %s" % (req_type, url))
+        log.info("Payload: %s" % json.dumps(data, indent=4))
 
         if req_type == 'GET':
             r = x.get(url, **kwargs)
@@ -83,14 +85,13 @@ class Connection:
     def _api_call(self, req_type, path, data=None):
         return self._api_call_raw(req_type, path, data).json()
 
-    def _handle_error(self, request):
+    def _handle_error(self, response):
         """Raise exceptions in response to any http errors
 
         Args:
-            err: A Request object
+            response: A Response object
 
         Raises:
-            Redirection: if HTTP error code 301,302 returned.
             BadRequest: if HTTP error code 400 returned.
             UnauthorizedAccess: if HTTP error code 401 returned.
             ForbiddenAccess: if HTTP error code 403 returned.
@@ -102,32 +103,40 @@ class Connection:
             ServerError: if HTTP error code falls in 500 - 599.
             ConnectionError: if unknown HTTP error code returned.
         """
-        code = request.status_code
+        code = response.status_code
 
         if 200 <= code < 400:
             return
 
-        if code in (301, 302):
-            raise Redirection(request)
-        elif code == 400:
-            raise BadRequest(request)
+        if code == 400:
+            print response.text
+            raise BadRequest(response)
         elif code == 401:
-            raise UnauthorizedAccess(request)
+            print response.text
+            raise UnauthorizedAccess(response)
         elif code == 403:
-            raise ForbiddenAccess(request)
+            print response.text
+            raise ForbiddenAccess(response)
         elif code == 404:
-            raise ResourceNotFound(request)
+            print response.text
+            raise ResourceNotFound(response)
         elif code == 405:
-            raise MethodNotAllowed(request)
+            print response.text
+            raise MethodNotAllowed(response)
         elif code == 409:
-            raise ResourceConflict(request)
+            print response.text
+            raise ResourceConflict(response)
         elif code == 422:
-            raise ResourceInvalid(request)
+            print response.text
+            raise ResourceInvalid(response)
         elif code in (449, 503):
-            raise RetryWithDelay(request)
+            print response.text
+            raise RetryWithDelay(response)
         elif 401 <= code < 500:
-            raise ClientError(request)
+            print response.text
+            raise ClientError(response)
         elif 500 <= code < 600:
-            raise ServerError(request)
+            print response.text
+            raise ServerError(response)
         else:
-            raise ConnectionError(request)
+            raise ConnectionError(response)
