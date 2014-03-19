@@ -110,24 +110,34 @@ class Connection:
         if code in (301, 302):
             raise Redirection(request)
         elif code == 400:
+            print request.text
             raise BadRequest(request)
         elif code == 401:
+            print request.text
             raise UnauthorizedAccess(request)
         elif code == 403:
+            print request.text
             raise ForbiddenAccess(request)
         elif code == 404:
+            print request.text
             raise ResourceNotFound(request)
         elif code == 405:
+            print request.text
             raise MethodNotAllowed(request)
         elif code == 409:
+            print request.text
             raise ResourceConflict(request)
         elif code == 422:
+            print request.text
             raise ResourceInvalid(request)
         elif code in (449, 503):
+            print request.text
             raise RetryWithDelay(request)
         elif 401 <= code < 500:
+            print request.text
             raise ClientError(request)
         elif 500 <= code < 600:
+            print request.text
             raise ServerError(request)
         else:
             raise ConnectionError(request)
