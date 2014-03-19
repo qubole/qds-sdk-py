@@ -5,7 +5,6 @@ information from Qubole
 
 from qubole import Qubole
 from resource import Resource
-from exception import ParseError
 from argparse import ArgumentParser
 
 import logging
@@ -202,6 +201,7 @@ class Cluster(Resource):
         security_group.add_argument("--encrypted-ephmerals",
                                     dest="encrypted_ephemerals",
                                     action="store_true",
+                                    default=None,
                                     help="encrypt the ephemeral drives on" +
                                          " the instance",)
         security_group.add_argument("--customer-ssh-key",
@@ -291,8 +291,8 @@ class ClusterInfo():
         self.presto_settings = {}
 
     def set_ec2_settings(self,
-          aws_region = None,
-          aws_availability_zone = None):
+          aws_region=None,
+          aws_availability_zone=None):
         """
         Kwargs:
 
