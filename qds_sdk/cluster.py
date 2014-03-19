@@ -236,12 +236,19 @@ class Cluster(Resource):
                                     nargs="+",
                                     help="list of persistent security groups" +
                                          " for the cluster",)
-        security_group.add_argument("--encrypted-ephmerals",
-                                    dest="encrypted_ephemerals",
-                                    action="store_true",
-                                    default=None,
-                                    help="encrypt the ephemeral drives on" +
-                                         " the instance",)
+        ephemerals = security_group.add_mutually_exclusive_group()
+        ephemerals.add_argument("--encrypted-ephemerals",
+                                 dest="encrypted_ephemerals",
+                                 action="store_true",
+                                 default=None,
+                                 help="encrypt the ephemeral drives on" +
+                                      " the instance",)
+        ephemerals.add_argument("--no-encrypted-ephemerals",
+                                 dest="encrypted_ephemerals",
+                                 action="store_false",
+                                 default=None,
+                                 help="don't encrypt the ephemeral drives on" +
+                                      " the instance",)
         security_group.add_argument("--customer-ssh-key",
                                     dest="customer_ssh_key_file",
                                     help="location for ssh key to use to" +
@@ -257,19 +264,33 @@ class Cluster(Resource):
                                   help="maximum memory a presto worker task" +
                                        " can use",)
 
-        argparser.add_argument("--disallow-cluster-termination",
-                               dest="disallow_cluster_termination",
-                               action="store_true",
-                               default=None,
-                               help="don't auto-terminate idle clusters," +
-                                    " use this with extreme caution",)
+        termination = argparser.add_mutually_exclusive_group()
+        termination.add_argument("--disallow-cluster-termination",
+                                 dest="disallow_cluster_termination",
+                                 action="store_true",
+                                 default=None,
+                                 help="don't auto-terminate idle clusters," +
+                                      " use this with extreme caution",)
+        termination.add_argument("--allow-cluster-termination",
+                                 dest="disallow_cluster_termination",
+                                 action="store_false",
+                                 default=None,
+                                 help="auto-terminate idle clusters,")
 
-        argparser.add_argument("--enable-ganglia-monitoring",
-                               dest="enable_ganglia_monitoring",
-                               action="store_true",
-                               default=None,
-                               help="enable ganglia monitoring for the" +
-                                    " cluster",)
+        ganglia = argparser.add_mutually_exclusive_group()
+        ganglia.add_argument("--enable-ganglia-monitoring",
+                             dest="enable_ganglia_monitoring",
+                             action="store_true",
+                             default=None,
+                             help="enable ganglia monitoring for the" +
+                                  " cluster",)
+        ganglia.add_argument("--disable-ganglia-monitoring",
+                             dest="enable_ganglia_monitoring",
+                             action="store_false",
+                             default=None,
+                             help="disable ganglia monitoring for the" +
+                                  " cluster",)
+
 
         arguments = argparser.parse_args(args)
         return arguments
