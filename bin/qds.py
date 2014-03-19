@@ -162,7 +162,7 @@ def _create_cluster_info(arguments):
             custom_config = open(arguments.custom_config_file).read()
         except:
             sys.stderr.write("Unable to read custom config file: %s\n" %
-                            arguments.custom_config_file)
+                             arguments.custom_config_file)
             usage()
     cluster_info.set_hadoop_settings(arguments.master_instance_type,
                                      arguments.slave_instance_type,
@@ -181,8 +181,9 @@ def _create_cluster_info(arguments):
         try:
             fairscheduler_config_xml = open(arguments.fairscheduler_config_xml_file).read()
         except:
-            raise Exception("Unable to read config xml file: %s" %
-                            arguments.fairscheduler_config_xml_file)
+            sys.stderr.write("Unable to read config xml file: %s\n" %
+                             arguments.fairscheduler_config_xml_file)
+            usage()
     cluster_info.set_fairscheduler_settings(fairscheduler_config_xml,
                                             arguments.default_pool)
 
@@ -191,8 +192,9 @@ def _create_cluster_info(arguments):
         try:
             customer_ssh_key = open(arguments.customer_ssh_key_file).read()
         except:
-            raise Exception("Unable to read customer ssh key file: %s" %
-                            arguments.customer_ssh_key_file)
+            sys.stderr.write("Unable to read customer ssh key file: %s\n" %
+                             arguments.customer_ssh_key_file)
+            usage()
     cluster_info.set_security_settings(arguments.persistent_security_groups,
                                        arguments.encrypted_ephemerals,
                                        customer_ssh_key)
