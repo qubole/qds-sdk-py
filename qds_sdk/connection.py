@@ -2,6 +2,7 @@ import requests
 import cjson
 import logging
 import ssl
+import json
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
 from retry import retry
@@ -65,6 +66,7 @@ class Connection:
             kwargs['data'] = cjson.encode(data)
 
         log.info("[%s] %s" % (req_type, url))
+        log.info("Payload: %s" % json.dumps(data, indent=4))
 
         if req_type == 'GET':
             r = x.get(url, **kwargs)
