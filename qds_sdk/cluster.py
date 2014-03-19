@@ -1,6 +1,6 @@
 """
-The cluster module contains the definitions for retrieving the cluster
-information from Qubole
+The cluster module contains the definitions for retrieving and manipulating
+cluster information.
 """
 
 from qubole import Qubole
@@ -14,32 +14,56 @@ log = logging.getLogger("qds_cluster")
 
 class Cluster(Resource):
     """
-    qds_sdk.Cluster is the class for retrieving the cluster information.
+    qds_sdk.Cluster is the class for retrieving and manipulating cluster
+    information.
     """
 
     rest_entity_path = "clusters"
 
     @classmethod
     def _parse_list(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of cluster
+        parameters that can be used to determine which clusters to list.
+
+        Args:
+            `args` - sequence of arguments
+
+        Returns:
+            Dictionary that can be used to determine which clusters to list
+        """
         argparser = ArgumentParser(prog="cluster list")
 
         group = argparser.add_mutually_exclusive_group()
 
         group.add_argument("--id", dest="cluster_id",
-                         help="show cluster with this id")
+                           help="show cluster with this id")
 
         group.add_argument("--label", dest="label",
-                         help="show cluster with this label")
+                           help="show cluster with this label")
 
         group.add_argument("--state", dest="state", action="store",
-                         choices=['up', 'down', 'pending', 'terminating'],
-                         help="list only clusters in the given state")
+                           choices=['up', 'down', 'pending', 'terminating'],
+                           help="list only clusters in the given state")
 
         arguments = argparser.parse_args(args)
         return vars(arguments)
 
     @classmethod
     def list(cls, label=None, state=None):
+        """
+        List existing clusters present in your account.
+
+        Kwargs:
+            `label` - list cluster with this label
+            `state` - list only those clusters which are in this state
+
+        Returns:
+            List of clusters satisfying the given criteria
+
+        Raises:
+            Exception if both label and state options are provided
+        """
         conn = Qubole.agent()
         if label is None and state is None:
             return conn.get(cls.rest_entity_path)
@@ -58,26 +82,39 @@ class Cluster(Resource):
                     result.append(cluster)
             return result
         else:
-            sys.stderr.write("Can filter either by label or by state but not both")
+            raise Exception("Can filter either by label or" +
+                            " by state but not both")
 
     @classmethod
     def show(cls, cluster_id):
+        """
+        Show information about the cluster with id `cluster_id`.
+        """
         conn = Qubole.agent()
         return conn.get(cls.element_path(cluster_id))
 
     @classmethod
     def status(cls, cluster_id):
+        """
+        Show the status of the cluster with id `cluster_id`.
+        """
         conn = Qubole.agent()
         return conn.get(cls.element_path(cluster_id) + "/state")
 
     @classmethod
     def start(cls, cluster_id):
+        """
+        Start the cluster with id `cluster_id`.
+        """
         conn = Qubole.agent()
         data = {"state": "start"}
         return conn.put(cls.element_path(cluster_id) + "/state", data)
 
     @classmethod
     def terminate(cls, cluster_id):
+        """
+        Terminate the cluster with id `cluster_id`.
+        """
         conn = Qubole.agent()
         data = {"state": "terminate"}
         return conn.put(cls.element_path(cluster_id) + "/state", data)
@@ -85,15 +122,15 @@ class Cluster(Resource):
     @classmethod
     def _parse_create_update(cls, args, action):
         """
-        Parse command line arguments to construct a dictionary of cluster
-        parameters that can be used to create a cluster
+        Parse command line arguments to determine cluster parameters that can
+        be used to create or update a cluster.
 
         Args:
             `args` - sequence of arguments
-            `action` - create or update
+            `action` - "create" or "update"
 
         Returns:
-            Dictionary that can be used in create method
+            Object that contains cluster parameters
         """
         argparser = ArgumentParser(prog="cluster %s" % action)
 
@@ -102,7 +139,7 @@ class Cluster(Resource):
             create_required = True
         elif action == "update":
             argparser.add_argument("cluster_id",
-                                   help="id of the cluster to update.")
+                                   help="id of the cluster to update")
 
         argparser.add_argument("--label", dest="label",
                                nargs="+", required=create_required,
@@ -126,31 +163,31 @@ class Cluster(Resource):
                                dest="aws_region",
                                choices=["us-east-1", "us-west-2",
                                         "eu-west-1", "ap-southeast-1"],
-                               help="aws region to create the cluster in.",)
+                               help="aws region to create the cluster in",)
         ec2_group.add_argument("--aws-availability-zone",
                                dest="aws_availability_zone",
-                               help="availability zone in the region to" +
-                                    " create the cluster in.",)
+                               help="availability zone to" +
+                                    " create the cluster in",)
 
         hadoop_group = argparser.add_argument_group("hadoop settings")
         hadoop_group.add_argument("--master-instance-type",
                                   dest="master_instance_type",
                                   help="instance type to use for the hadoop" +
-                                       " master node.",)
+                                       " master node",)
         hadoop_group.add_argument("--slave-instance-type",
                                   dest="slave_instance_type",
                                   help="instance type to use for the hadoop" +
-                                       " slave nodes.",)
+                                       " slave nodes",)
         hadoop_group.add_argument("--initial-nodes",
                                   dest="initial_nodes",
                                   type=int,
                                   help="number of nodes to start the" +
-                                       " cluster with.",)
+                                       " cluster with",)
         hadoop_group.add_argument("--max-nodes",
                                   dest="max_nodes",
                                   type=int,
                                   help="maximum number of nodes the cluster" +
-                                       " may be auto-scaled up to.")
+                                       " may be auto-scaled up to")
         hadoop_group.add_argument("--custom-config",
                                   dest="custom_config_file",
                                   help="location of file containg custom" +
@@ -158,16 +195,16 @@ class Cluster(Resource):
         hadoop_group.add_argument("--slave-request-type",
                                   dest="slave_request_type",
                                   choices=["on-demand", "spot", "hybid"],
-                                  help="purchasing option for slave instaces.",)
+                                  help="purchasing option for slave instaces",)
 
         spot_group = argparser.add_argument_group("spot instance settings" +
                     " (valid only when slave-request-type is hybrid or spot)")
         spot_group.add_argument("--maximum-bid-price-percentage",
                                 dest="maximum_bid_price_percentage",
                                 type=float,
-                                help="maximum value to vid for spot instances" +
+                                help="maximum value to bid for spot instances" +
                                      " expressed as a percentage of the base" +
-                                     " price for the slave node instance type.",)
+                                     " price for the slave node instance type",)
         spot_group.add_argument("--timeout-for-spot-request",
                                 dest="timeout_for_request",
                                 type=int,
@@ -179,7 +216,7 @@ class Cluster(Resource):
                                 help="maximum percentage of instances that may" +
                                      " be purchased from the aws spot market," +
                                      " valid only when slave-request-type" +
-                                     " is 'hybrid'.",)
+                                     " is 'hybrid'",)
 
         fairscheduler_group = argparser.add_argument_group(
                               "fairscheduler configuration options")
@@ -190,7 +227,8 @@ class Cluster(Resource):
                                               " for the fairscheduler",)
         fairscheduler_group.add_argument("--fairscheduler-default-pool",
                                          dest="default_pool",
-                                         help="default pool for the fairscheduler",)
+                                         help="default pool for the" +
+                                              " fairscheduler",)
 
         security_group = argparser.add_argument_group("security setttings")
         security_group.add_argument("--persistent-security-group",
@@ -212,10 +250,12 @@ class Cluster(Resource):
         presto_group = argparser.add_argument_group("presto settings")
         presto_group.add_argument("--presto-jvm-memory",
                                   dest="presto_jvm_memory",
-                                  help="maximum memory that presto jvm can use",)
+                                  help="maximum memory that presto jvm can" +
+                                       " use",)
         presto_group.add_argument("--presto-task-memory",
                                   dest="presto_task_memory",
-                                  help="maximum memory a presto worker task can use",)
+                                  help="maximum memory a presto worker task" +
+                                       " can use",)
 
         argparser.add_argument("--disallow-cluster-termination",
                                dest="disallow_cluster_termination",
@@ -228,23 +268,34 @@ class Cluster(Resource):
                                dest="enable_ganglia_monitoring",
                                action="store_true",
                                default=None,
-                               help="enable ganglia monitoring for the cluster",)
+                               help="enable ganglia monitoring for the" +
+                                    " cluster",)
 
         arguments = argparser.parse_args(args)
         return arguments
 
     @classmethod
     def create(cls, cluster_info):
+        """
+        Create a new cluster using information provided in `cluster_info`.
+        """
         conn = Qubole.agent()
         return conn.post(cls.rest_entity_path, data=cluster_info)
 
     @classmethod
     def update(cls, cluster_id, cluster_info):
+        """
+        Update the cluster with id `cluster_id` using information provided in
+        `cluster_info`.
+        """
         conn = Qubole.agent()
         return conn.put(cls.element_path(cluster_id), data=cluster_info)
 
     @classmethod
     def delete(cls, cluster_id):
+        """
+        Delete the cluster with id `cluster_id`.
+        """
         conn = Qubole.agent()
         return conn.delete(cls.element_path(cluster_id))
 
@@ -252,6 +303,7 @@ class Cluster(Resource):
 class ClusterInfo():
     """
     qds_sdk.ClusterInfo is the class which stores information about a cluster.
+    You can use objects of this class to create or update a cluster.
     """
 
     def __init__(self, label, aws_access_key_id, aws_secret_access_key,
@@ -265,12 +317,12 @@ class ClusterInfo():
         provided when creating a cluster.
 
         `aws_access_key_id`
-        The access key id for customer's aws account which would be used for
-        creating the cluster. (required)
+        The access key id for customer's aws account. This is required for
+        creating the cluster.
 
         `aws_secret_access_key`
-        The secret access key for customers' aws account which would be used
-        for creating the cluster. (required)
+        The secret access key for customer's aws account. This is required
+        for creating the cluster.
 
         `disallow_cluster_termination`
         Set this to True if you don't want qubole to auto-terminate idle
@@ -291,8 +343,8 @@ class ClusterInfo():
         self.presto_settings = {}
 
     def set_ec2_settings(self,
-          aws_region=None,
-          aws_availability_zone=None):
+                         aws_region=None,
+                         aws_availability_zone=None):
         """
         Kwargs:
 
@@ -344,8 +396,8 @@ class ClusterInfo():
                                    timeout_for_request=None,
                                    maximum_spot_instance_percentage=None):
         """
-        Purchase options for spot instances. Valid only when `slave_request_type`
-        is hybrid or spot.
+        Purchase options for spot instances. Valid only when
+        `slave_request_type` is hybrid or spot.
 
         `maximum_bid_price_percentage`
         Maximum value to bid for spot instances, expressed as a percentage
@@ -412,11 +464,19 @@ class ClusterInfo():
         self.presto_settings['task_memory'] = task_memory
 
     def minimal_payload(self):
+        """
+        This method can be used to create the payload which is sent while
+        creating or updating a cluster.
+        """
         payload = {"cluster": self.__dict__}
         return _make_minimal(payload)
 
 
 def _make_minimal(dictionary):
+    """
+    This function removes all the keys whose value is either None or an empty
+    dictionary.
+    """
     new_dict = {}
     for key, value in dictionary.iteritems():
         if value is not None:
