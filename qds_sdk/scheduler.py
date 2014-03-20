@@ -77,6 +77,10 @@ class Scheduler(Resource):
       list_instances = subparsers.add_parser("list-instances",
           help="List instances of a specific schedule")
       list_instances.add_argument("id", help="Numeric id or name of the schedule")
+      list_instances.add_argument("--per-page", dest="per_page",
+          help="Number of items per page")
+      list_instances.add_argument("--page", dest="page",
+          help="Page Number")
       list_instances.set_defaults(func=self.list_instances)
     
     def run(self, args):
@@ -105,7 +109,7 @@ class Scheduler(Resource):
           page_attr.append("page=%s"  % args.page)
         if args.per_page is not None:
           page_attr.append("per_page=%s"  % args.per_page)
-        if args:
+        if page_attr:
           url = "%s?%s" % (Scheduler.rest_entity_path, "&".join(page_attr))
         ll = conn.get(url)
         if args.fields:
@@ -135,7 +139,7 @@ class Scheduler(Resource):
         conn=Qubole.agent()
         data={"status":"resume"}
         conn.put(self.element_path(args.id), data)
-        return conn.get(self.element_path(args.id))['status']
+        print conn.get(self.element_path(args.id))['status']
         
     def kill(self, args):
         conn=Qubole.agent()
@@ -146,4 +150,13 @@ class Scheduler(Resource):
     def list_instances(self, args):
         conn=Qubole.agent()
         url_path = self.element_path(args.id) + "/" + "instances"
-        return conn.get(url_path)
+        page_attr = []
+        if args.page is not None:
+          page_attr.append("page=%s"  % args.page)
+        if args.per_page is not None:
+          page_attr.append("per_page=%s"  % args.per_page)
+        if page_attr:
+          url_path = "%s/instances?%s" % (self.element_path(args.id), "&".join(page_attr))
+
+        instances = conn.get(url_path)
+        print json.dumps(instances, indent=4, sort_keys=True)
