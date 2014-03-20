@@ -18,7 +18,7 @@ setup(
     keywords = "qubole sdk api",
     url = "http://packages.python.org/qds_sdk",
     packages=['qds_sdk'],
-    scripts=['bin/qds.py', 'bin/scheduler.py'],
+    scripts=['bin/qds.py'],
     install_requires=INSTALL_REQUIRES,
     long_description="[Please visit the project page at https://github.com/qubole/qds-sdk-py]\n\n" + read('README')
     )
