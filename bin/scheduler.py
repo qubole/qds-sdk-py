@@ -18,7 +18,7 @@ def main():
     argparser = argparse.ArgumentParser(description="Scheduler client for Qubole Data Service.")
 
     argparser.add_argument("--token", dest="api_token", 
-                         default=os.getenv('QDS_API_TOKEN'), required=True,
+                         default=os.getenv('QDS_API_TOKEN'),
                          help="api token for accessing Qubole. must be specified via command line or passed in via environment variable QDS_API_TOKEN")
 
     argparser.add_argument("--url", dest="api_url", 
@@ -53,10 +53,10 @@ def main():
         raise Exception("No API Token provided")
 
     if args.api_url is None:
-        options.api_url = "https://api.qubole.com/api/";
+        args.api_url = "https://api.qubole.com/api/";
 
     if args.api_version is None:
-        options.api_version = "v1.2";
+        args.api_version = "v1.2";
         
     Qubole.configure(api_token=args.api_token,
                      api_url=args.api_url,
