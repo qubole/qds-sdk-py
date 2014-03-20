@@ -18,10 +18,13 @@ class ResourceMeta(type):
         """Create a new class.
 
         Args:
-            mcs: The metaclass.
-            name: The name of the class.
-            bases: List of base classes from which mcs inherits.
-            new_attrs: The class attribute dictionary.
+            `mcs`: The metaclass.
+
+            `name`: The name of the class.
+
+            `bases`: List of base classes from which mcs inherits.
+
+            `new_attrs`: The class attribute dictionary.
         """
         if 'rest_entity_path' not in new_attrs:
             new_attrs['rest_entity_path'] = util.pluralize(util.underscore(name))
@@ -38,10 +41,13 @@ class ResourceMetaSingleton(type):
         """Create a new class.
 
         Args:
-            mcs: The metaclass.
-            name: The name of the class.
-            bases: List of base classes from which mcs inherits.
-            new_attrs: The class attribute dictionary.
+            `mcs`: The metaclass.
+
+            `name`: The name of the class.
+
+            `bases`: List of base classes from which mcs inherits.
+
+            `new_attrs`: The class attribute dictionary.
         """
         if 'rest_entity_path' not in new_attrs:
             new_attrs['rest_entity_path'] = util.underscore(name)
@@ -59,9 +65,11 @@ class BaseResource(object):
         """Retrieve the requested attribute if it exists.
 
         Args:
-            name: The attribute name.
+            `name`: The attribute name.
+
         Returns:
             The attribute's value.
+
         Raises:
             AttributeError: if no such attribute exists.
         """
@@ -76,7 +84,7 @@ class BaseResource(object):
 
 class Resource(BaseResource):
 
-    """ subclasses should uncomment this if it helps"""
+    # subclasses should uncomment this if it helps
     # __metaclass__ = ResourceMeta
 
     @classmethod

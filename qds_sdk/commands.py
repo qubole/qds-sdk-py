@@ -35,7 +35,7 @@ class Command(Resource):
     commands can subclass this.
     """
 
-    """ all commands use the /commands endpoint"""
+    """all commands use the /commands endpoint"""
     rest_entity_path = "commands"
 
     @staticmethod
@@ -43,7 +43,7 @@ class Command(Resource):
         """
         Does the status represent a completed command
         Args:
-            ``status``: a status string
+            `status`: a status string
 
         Returns:
             True/False
@@ -61,7 +61,7 @@ class Command(Resource):
         Note - this does not wait for the command to complete
 
         Args:
-            `\**kwargs` - keyword arguments specific to command type
+            `**kwargs`: keyword arguments specific to command type
 
         Returns:
             Command object
@@ -80,7 +80,7 @@ class Command(Resource):
         Waits until the command is complete. Repeatedly polls to check status
 
         Args:
-            `\**kwargs` - keyword arguments specific to command type
+            `**kwargs`: keyword arguments specific to command type
 
         Returns:
             Command object
@@ -98,7 +98,7 @@ class Command(Resource):
         Cancels command denoted by this id
 
         Args:
-            `id` - command id
+            `id`: command id
         """
         conn = Qubole.agent()
         data = {"status": "kill"}
@@ -126,7 +126,8 @@ class Command(Resource):
         """
         Fetches the result for the command represented by this object
 
-        @param fp: a file object to write the results to directly
+        Args:
+            `fp`: a file object to write the results to directly
         """
         result_path = self.meta_data['results_resource']
 
@@ -173,7 +174,7 @@ class HiveCommand(Command):
         parameters that can be used to create a command
 
         Args:
-            `args` - sequence of arguments
+            `args`: sequence of arguments
 
         Returns:
             Dictionary that can be used in create method
@@ -241,7 +242,7 @@ class PrestoCommand(Command):
         parameters that can be used to create a command
 
         Args:
-            `args` - sequence of arguments
+            `args`: sequence of arguments
 
         Returns:
             Dictionary that can be used in create method
@@ -296,7 +297,7 @@ class HadoopCommand(Command):
         parameters that can be used to create a command
 
         Args:
-            `args` - sequence of arguments
+            `args`: sequence of arguments
 
         Returns:
             Dictionary that can be used in create method
@@ -349,7 +350,7 @@ class ShellCommand(Command):
         parameters that can be used to create a command
 
         Args:
-            `args` - sequence of arguments
+            `args`: sequence of arguments
 
         Returns:
             Dictionary that can be used in create method
@@ -428,7 +429,7 @@ class PigCommand(Command):
         parameters that can be used to create a command
 
         Args:
-            `args` - sequence of arguments
+            `args`: sequence of arguments
 
         Returns:
             Dictionary that can be used in create method
@@ -529,7 +530,7 @@ class DbexportCommand(Command):
         parameters that can be used to create a command
 
         Args:
-            `args` - sequence of arguments
+            `args`: sequence of arguments
 
         Returns:
             Dictionary that can be used in create method
@@ -603,19 +604,21 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
 
-    @param boto_conn: S3 connection object
-    @param s3_path: S3 path to be downloaded
-    @param fp: The file object where data is to be downloaded
+    Args:
+        `boto_conn`: S3 connection object
 
+        `s3_path`: S3 path to be downloaded
+
+        `fp`: The file object where data is to be downloaded
     '''
     #Progress bar to display download progress
     def _callback(downloaded, total):
         '''
         Call function for upload.
-        @param key_name: File size already downloaded
-        @type key_name: int
-        @param key_prefix: Total file size to be downloaded
-        @type key_prefix: int
+
+        `downloaded`: File size already downloaded (int)
+
+        `total`: Total file size to be downloaded (int)
         '''
         if (total is 0) or (downloaded == total):
             return

@@ -30,11 +30,15 @@ class Qubole:
                   poll_interval=5, skip_ssl_cert_check=False):
         """
         Set parameters governing interaction with QDS
+
         Args:
-            ``api_token``: authorization token for QDS. required
-            ``api_url``: the base URL for QDS API. configurable for testing only
-            ``version``: QDS REST api version
-            ``poll_interval``: interval in secs when polling QDS for events
+            `api_token`: authorization token for QDS. required
+
+            `api_url`: the base URL for QDS API. configurable for testing only
+
+            `version`: QDS REST api version
+
+            `poll_interval`: interval in secs when polling QDS for events
         """
         cls._auth = QuboleAuth(api_token)
         cls.api_token = api_token

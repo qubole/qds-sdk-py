@@ -27,7 +27,7 @@ class Cluster(Resource):
         parameters that can be used to determine which clusters to list.
 
         Args:
-            `args` - sequence of arguments
+            `args`: sequence of arguments
 
         Returns:
             Dictionary that can be used to determine which clusters to list
@@ -55,8 +55,9 @@ class Cluster(Resource):
         List existing clusters present in your account.
 
         Kwargs:
-            `label` - list cluster with this label
-            `state` - list only those clusters which are in this state
+            `label`: list cluster with this label
+
+            `state`: list only those clusters which are in this state
 
         Returns:
             List of clusters satisfying the given criteria
@@ -126,8 +127,9 @@ class Cluster(Resource):
         be used to create or update a cluster.
 
         Args:
-            `args` - sequence of arguments
-            `action` - "create" or "update"
+            `args`: sequence of arguments
+
+            `action`: "create" or "update"
 
         Returns:
             Object that contains cluster parameters
@@ -333,25 +335,21 @@ class ClusterInfo():
         """
         Args:
 
-        `label`
-        A list of labels that identify the cluster. At least one label must be
-        provided when creating a cluster.
+        `label`: A list of labels that identify the cluster. At least one label
+            must be provided when creating a cluster.
 
-        `aws_access_key_id`
-        The access key id for customer's aws account. This is required for
-        creating the cluster.
+        `aws_access_key_id`: The access key id for customer's aws account. This
+            is required for creating the cluster.
 
-        `aws_secret_access_key`
-        The secret access key for customer's aws account. This is required
-        for creating the cluster.
+        `aws_secret_access_key`: The secret access key for customer's aws
+            account. This is required for creating the cluster.
 
-        `disallow_cluster_termination`
-        Set this to True if you don't want qubole to auto-terminate idle
-        clusters. Use this option with extreme caution.
+        `disallow_cluster_termination`: Set this to True if you don't want
+            qubole to auto-terminate idle clusters. Use this option with
+            extreme caution.
 
-        `enable_ganglia_monitorint`
-        Set this to True if you want to enable ganglia monitoring for the
-        cluster.
+        `enable_ganglia_monitoring`: Set this to True if you want to enable
+            ganglia monitoring for the cluster.
         """
         self.label = label
         self.ec2_settings = {}
@@ -369,11 +367,10 @@ class ClusterInfo():
         """
         Kwargs:
 
-        `aws_region`
-        AWS region to create the cluster in.
+        `aws_region`: AWS region to create the cluster in.
 
-        `aws_availability_zone`
-        The availability zone to create the cluster in.
+        `aws_availability_zone`: The availability zone to create the cluster
+            in.
         """
         self.ec2_settings['aws_region'] = aws_region
         self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
@@ -387,24 +384,21 @@ class ClusterInfo():
         """
         Kwargs:
 
-        `master_instance_type`
-        The instance type to use for the Hadoop master node.
+        `master_instance_type`: The instance type to use for the Hadoop master
+            node.
 
-        `slave_instance_type`
-        The instance type to use for the Hadoop slave nodes.
+        `slave_instance_type`: The instance type to use for the Hadoop slave
+            nodes.
 
-        `initial_nodes`
-        Number of nodes to start the cluster with.
+        `initial_nodes`: Number of nodes to start the cluster with.
 
-        `max_nodes`
-        Maximum number of nodes the cluster may be auto-scaled up to.
+        `max_nodes`: Maximum number of nodes the cluster may be auto-scaled up
+            to.
 
-        `custom_config`
-        Custom Hadoop configuration overrides.
+        `custom_config`: Custom Hadoop configuration overrides.
 
-        `slave_request_type`
-        Purchasing option for slave instances.
-        Valid values: "on-demand", "hybrid", "spot".
+        `slave_request_type`: Purchasing option for slave instances.
+            Valid values: "on-demand", "hybrid", "spot".
         """
         self.hadoop_settings['master_instance_type'] = master_instance_type
         self.hadoop_settings['slave_instance_type'] = slave_instance_type
@@ -420,16 +414,16 @@ class ClusterInfo():
         Purchase options for spot instances. Valid only when
         `slave_request_type` is hybrid or spot.
 
-        `maximum_bid_price_percentage`
-        Maximum value to bid for spot instances, expressed as a percentage
-        of the base price for the slave node instance type.
+        `maximum_bid_price_percentage`: Maximum value to bid for spot
+            instances, expressed as a percentage of the base price for the
+            slave node instance type.
 
-        `timeout_for_request`
-        Timeout for a spot instance request (Unit: minutes)
+        `timeout_for_request`: Timeout for a spot instance request (Unit:
+            minutes)
 
-        `maximum_spot_instance_percentage`
-        Maximum percentage of instances that may be purchased from the AWS
-        Spot market. Valid only when slave_request_type is "hybrid".
+        `maximum_spot_instance_percentage`: Maximum percentage of instances
+            that may be purchased from the AWS Spot market. Valid only when
+            slave_request_type is "hybrid".
         """
         self.hadoop_settings['spot_instance_settings'] = {
                'maximum_bid_price_percentage': maximum_bid_price_percentage,
@@ -441,12 +435,10 @@ class ClusterInfo():
         """
         Fair scheduler configuration options.
 
-        `fairscheduler_config_xml`
-        XML string with custom configuration parameters for the fair
-        scheduler.
+        `fairscheduler_config_xml`: XML string with custom configuration
+            parameters for the fair scheduler.
 
-        `default_pool`
-        The default pool for the fair scheduler.
+        `default_pool`: The default pool for the fair scheduler.
         """
         self.hadoop_settings['fairscheduler_settings'] = {
                'fairscheduler_config_xml': fairscheduler_config_xml,
@@ -458,14 +450,12 @@ class ClusterInfo():
         """
         Kwargs:
 
-        `persistent_security_groups`
-        List of persistent security groups for the cluster.
+        `persistent_security_groups`: List of persistent security groups for
+            the cluster.
 
-        `encrypted_ephemerals`
-        Encrypt the ephemeral drives on the instance.
+        `encrypted_ephemerals`: Encrypt the ephemeral drives on the instance.
 
-        `customer_ssh_key`
-        SSH key to use to login to the instances.
+        `customer_ssh_key`: SSH key to use to login to the instances.
         """
         self.security_settings['persistent_security_groups'] = persistent_security_groups
         self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
@@ -475,11 +465,9 @@ class ClusterInfo():
         """
         Kwargs:
 
-        `jvm_memory`
-        The maximum memory that Presto JVM can use.
+        `jvm_memory`: The maximum memory that Presto JVM can use.
 
-        `task_memory`
-        The maximum memory a worker task can use in Presto.
+        `task_memory`: The maximum memory a worker task can use in Presto.
         """
         self.presto_settings['jvm_memory'] = jvm_memory
         self.presto_settings['task_memory'] = task_memory
