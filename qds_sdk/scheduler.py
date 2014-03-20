@@ -8,6 +8,8 @@ from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 
+from qds_sdk import argparse
+
 import time
 import logging
 import sys
@@ -23,7 +25,9 @@ class Scheduler(Resource):
     
     rest_entity_path="scheduler"
     
-    def __init__(self,subparsers):
+    def __init__(self):
+      self.argparser = argparse.ArgumentParser(prog="qds.py scheduler", description="Scheduler client for Qubole Data Service.")
+      subparsers = self.argparser.add_subparsers()
       #List
       list = subparsers.add_parser("list",
           help="List all schedulers")
@@ -68,7 +72,11 @@ class Scheduler(Resource):
           help="List instances of a specific schedule")
       list_instances.add_argument("id", help="Numeric id or name of the schedule")
       list_instances.set_defaults(func=self.list_instances)
-     
+    
+    def run(self, args):
+      parsed = self.argparser.parse_args(args)
+      parsed.func(parsed)
+
     def filter_fields(self,schedule, fields):
       filtered = {}
       for field in fields:

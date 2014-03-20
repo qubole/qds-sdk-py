@@ -5,6 +5,7 @@ from qds_sdk.commands import *
 from qds_sdk.cluster import *
 from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
+from qds_sdk.scheduler import Scheduler
 
 import os
 import sys
@@ -33,7 +34,9 @@ usage_str = ("Usage: \n"
              "  list [cmd-specific-args ..] : list existing cluster(s)\n"
              "  start [cmd-specific-args ..] : start an existing cluster\n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
-             "  status [cmd-specific-args ..] : show whether the cluster is up or down\n")
+             "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
+             "\nScheduler:\n" +
+             "  scheduler --help\n")
 
 
 def usage(parser=None):
@@ -282,6 +285,10 @@ def clustermain(dummy, args):
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 
+def schedulermain(args):
+    scheduler = Scheduler()
+    scheduler.run(args)
+
 def main():
 
     optparser = OptionParser(usage=usage_str)
@@ -361,6 +368,9 @@ def main():
 
     if a0 == "hadoop_cluster" or a0 == "cluster":
         return clustermain(a0, args)
+
+    if a0 == "scheduler":
+        return schedulermain(args)
 
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster"])))
