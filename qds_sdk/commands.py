@@ -206,9 +206,9 @@ class HiveCommand(Command):
 
                 try:
                     q = open(options.script_location).read()
-                except:
+                except IOError, e:
                     raise ParseError("Unable to open script location: %s" %
-                                     options.script_location,
+                                     str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
                 options.query = q
@@ -273,9 +273,9 @@ class PrestoCommand(Command):
                 # script location is local file
                 try:
                     q = open(options.script_location).read()
-                except:
+                except IOError, e:
                     raise ParseError("Unable to open script location: %s" %
-                                     options.script_location,
+                                     str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
                 options.query = q
@@ -382,9 +382,9 @@ class ShellCommand(Command):
 
                 try:
                     s = open(options.script_location).read()
-                except:
+                except IOError, e:
                     raise ParseError("Unable to open script location: %s" %
-                                     options.script_location,
+                                     str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
                 options.inline = s
@@ -461,9 +461,9 @@ class PigCommand(Command):
 
                 try:
                     s = open(options.script_location).read()
-                except:
+                except IOError, e:
                     raise ParseError("Unable to open script location: %s" %
-                                     options.script_location,
+                                     str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
                 options.latin_statements = s
