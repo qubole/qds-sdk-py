@@ -28,6 +28,14 @@ class Scheduler(Resource):
     def __init__(self):
       self.argparser = ArgumentParser(prog="qds.py scheduler", description="Scheduler client for Qubole Data Service.")
       subparsers = self.argparser.add_subparsers()
+      
+      #Create
+      create = subparsers.add_parser("create",
+          help="Create a new schedule")
+      create.add_argument("--data", dest="data", required=True,
+          help="Path to a file that contains scheduler attributes as a json object")
+      create.set_defaults(func=self.create)
+
       #List
       list = subparsers.add_parser("list",
           help="List all schedulers")
@@ -81,6 +89,14 @@ class Scheduler(Resource):
         filtered[field] = schedule[field]
       return filtered
 
+    def create(self, args):
+        conn = Qubole.agent()
+        schedule = {}
+        with open(args.data) as file:
+            schedule = json.load(file)
+        ll = conn.post(Scheduler.rest_entity_path, data=schedule)
+        print json.dumps(ll, indent=4, sort_keys=True)
+    
     def list(self, args):
         conn =  Qubole.agent()
         url = Scheduler.rest_entity_path
