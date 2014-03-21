@@ -311,6 +311,11 @@ class HadoopCommand(Command):
             sys.stderr.write(cls.usage + "\n")
             return None
 
+        if len(args) >= 2 and args[0] == "--cluster-label":
+            parsed['label'] = args[1]
+            args.pop(0)
+            args.pop(0)
+
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
 
