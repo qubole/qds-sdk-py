@@ -4,10 +4,6 @@ from qds_sdk.exception import ParseError
 
 from qds_sdk.account import Account
 
-from qds_sdk.util import GentleOptionParser
-from qds_sdk.util import OptionParsingError
-from qds_sdk.util import OptionParsingExit
-
 from argparse import ArgumentParser
 
 import time
@@ -26,6 +22,9 @@ class Scheduler(Resource):
     rest_entity_path="scheduler"
     
     def __init__(self):
+        pass
+
+    def parsers(self):
         self.argparser = ArgumentParser(prog="qds.py scheduler", description="Scheduler client for Qubole Data Service.")
         subparsers = self.argparser.add_subparsers()
       

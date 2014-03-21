@@ -287,6 +287,7 @@ def clustermain(dummy, args):
 
 def schedulermain(args):
     scheduler = Scheduler()
+    scheduler.parsers()
     scheduler.run(args)
 
 def main():
