@@ -93,7 +93,7 @@ def cancelaction(cmdclass, args):
         sys.stderr.write("Invalid Json Response %s - missing field '%s'" % (str(r), skey))
         return 11
     elif r['kill_succeeded']:
-        log.info("Command killed successfully")
+        print "Command killed successfully"
         return 0
     else:
         sys.stderr.write("Cancel failed with reason '%s'\n" % r.get('result'))
@@ -262,7 +262,7 @@ def cluster_check_action(clusterclass, args):
 
 def clustermain(dummy, args):
     if dummy == "hadoop_cluster":
-        sys.stderr.write("'hadoop_cluster check' command is deprecated and will be" \
+        log.warn("'hadoop_cluster check' command is deprecated and will be" \
                          " removed in the next version. Please use 'cluster status'" \
                          " instead.\n")
         clusterclass = HadoopCluster
@@ -355,7 +355,7 @@ def main():
     if options.skip_ssl_cert_check is None:
         options.skip_ssl_cert_check = False
     elif options.skip_ssl_cert_check:
-        sys.stderr.write("[WARN] Insecure mode enabled: skipping SSL cert verification\n")
+        log.warn("Insecure mode enabled: skipping SSL cert verification\n")
 
     Qubole.configure(api_token=options.api_token,
                      api_url=options.api_url,
