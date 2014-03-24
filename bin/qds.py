@@ -35,6 +35,7 @@ usage_str = ("Usage: \n"
              "  start [cmd-specific-args ..] : start an existing cluster\n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
+             "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
              "\nScheduler:\n" +
              "  scheduler --help\n")
 
@@ -253,6 +254,14 @@ def cluster_status_action(clusterclass, args):
     return 0
 
 
+def cluster_reassign_label_action(clusterclass, args):
+    arguments = clusterclass._parse_reassign_label(args)
+    result = clusterclass.reassign_label(arguments.destination_cluster,
+                                         arguments.label)
+    print json.dumps(result, indent=4)
+    return 0
+
+
 def cluster_check_action(clusterclass, args):
     name = args.pop(0) if (len(args) >= 1) else None
     o = clusterclass.find(name=name)
@@ -280,7 +289,7 @@ def clustermain(dummy, args):
 
     else:
         clusterclass = Cluster
-        actionset = set(["create", "delete", "update", "list", "start", "terminate", "status"])
+        actionset = set(["create", "delete", "update", "list", "start", "terminate", "status", "reassign_label"])
 
         if len(args) < 1:
             sys.stderr.write("missing argument containing action\n")

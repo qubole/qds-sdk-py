@@ -315,6 +315,40 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id), data=cluster_info)
 
     @classmethod
+    def _parse_reassign_label(cls, args):
+        """
+        Parse command line arguments for reassigning label.
+        """
+        argparser = ArgumentParser(prog="cluster reassign_label")
+
+        argparser.add_argument("destination_cluster",
+                metavar="destination_cluster_id",
+                help="id of the cluster to move the label to")
+
+        argparser.add_argument("label",
+                help="label to be moved from the source cluster")
+
+        arguments = argparser.parse_args(args)
+        return arguments
+
+    @classmethod
+    def reassign_label(cls, destination_cluster, label):
+        """
+        Reassign a label from one cluster to another.
+
+        Args:
+            `destination_cluster`: id of the cluster to move the label to
+
+            `label`: label to be moved from the source cluster
+        """
+        conn = Qubole.agent()
+        data = {
+                    "destination_cluster": destination_cluster,
+                    "label": label
+                }
+        return conn.put(cls.rest_entity_path + "/reassign-label", data)
+
+    @classmethod
     def delete(cls, cluster_id):
         """
         Delete the cluster with id `cluster_id`.
