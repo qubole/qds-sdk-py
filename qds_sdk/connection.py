@@ -1,3 +1,4 @@
+import sys
 import requests
 import cjson
 import logging
@@ -109,34 +110,34 @@ class Connection:
             return
 
         if code == 400:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise BadRequest(response)
         elif code == 401:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise UnauthorizedAccess(response)
         elif code == 403:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise ForbiddenAccess(response)
         elif code == 404:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise ResourceNotFound(response)
         elif code == 405:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise MethodNotAllowed(response)
         elif code == 409:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise ResourceConflict(response)
         elif code == 422:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise ResourceInvalid(response)
         elif code in (449, 503):
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response)
         elif 401 <= code < 500:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise ClientError(response)
         elif 500 <= code < 600:
-            print response.text
+            sys.stderr.write(response.text + "\n")
             raise ServerError(response)
         else:
             raise ConnectionError(response)
