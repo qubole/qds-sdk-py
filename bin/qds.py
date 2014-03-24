@@ -58,6 +58,7 @@ def submitaction(cmdclass, args):
     if args is not None:
         cmd = cmdclass.create(**args)
         print "Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id)
+        return 0
 
 
 def _getresult(cmdclass, cmd):
@@ -140,6 +141,7 @@ def cluster_create_action(clusterclass, args):
     cluster_info = _create_cluster_info(arguments)
     result = clusterclass.create(cluster_info.minimal_payload())
     print json.dumps(result, indent=4)
+    return 0
 
 
 def cluster_update_action(clusterclass, args):
@@ -147,6 +149,7 @@ def cluster_update_action(clusterclass, args):
     cluster_info = _create_cluster_info(arguments)
     result = clusterclass.update(arguments.cluster_id, cluster_info.minimal_payload())
     print json.dumps(result, indent=4)
+    return 0
 
 
 def _create_cluster_info(arguments):
@@ -212,6 +215,7 @@ def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id(args)
     result = clusterclass.delete(args.pop(0))
     print json.dumps(result, indent=4)
+    return 0
 
 
 def cluster_list_action(clusterclass, args):
@@ -225,24 +229,28 @@ def cluster_list_action(clusterclass, args):
     else:
         result = clusterclass.list()
     print json.dumps(result, indent=4)
+    return 0
 
 
 def cluster_start_action(clusterclass, args):
     checkargs_cluster_id(args)
     result = clusterclass.start(args.pop(0))
     print json.dumps(result, indent=4)
+    return 0
 
 
 def cluster_terminate_action(clusterclass, args):
     checkargs_cluster_id(args)
     result = clusterclass.terminate(args.pop(0))
     print json.dumps(result, indent=4)
+    return 0
 
 
 def cluster_status_action(clusterclass, args):
     checkargs_cluster_id(args)
     result = clusterclass.status(args.pop(0))
     print json.dumps(result, indent=4)
+    return 0
 
 
 def cluster_check_action(clusterclass, args):
