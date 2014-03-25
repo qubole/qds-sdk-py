@@ -503,8 +503,8 @@ class ClusterInfo():
 
         `task_memory`: The maximum memory a worker task can use in Presto.
         """
-        self.presto_settings['jvm_memory'] = jvm_memory
-        self.presto_settings['task_memory'] = task_memory
+        self.presto_settings['jvm_mem'] = jvm_memory
+        self.presto_settings['task_mem'] = task_memory
 
     def minimal_payload(self):
         """
