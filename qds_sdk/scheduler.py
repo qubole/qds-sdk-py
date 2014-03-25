@@ -76,6 +76,12 @@ class Scheduler(Resource):
                                     help="Page Number")
         list_instances.set_defaults(func=self.list_instances)
 
+        rerun = subparsers.add_parser("rerun",
+                                               help="Rerun an instance of a schedule")
+        rerun.add_argument("id", help="Numeric id or name of the schedule")
+        rerun.add_argument("instance_id", help="Numeric id of the instance")
+        rerun.set_defaults(func=self.rerun)
+
     def run(self, args):
         parsed = self.argparser.parse_args(args)
         return parsed.func(parsed)
@@ -150,3 +156,8 @@ class Scheduler(Resource):
             url_path = "%s/instances?%s" % (self.element_path(args.id), "&".join(page_attr))
 
         return conn.get(url_path)
+
+    def rerun(self, args):
+        conn = Qubole.agent()
+        url_path = self.element_path(args.id) + "/instances/" + args.instance_id + "/rerun"
+        return conn.post(url_path)['status']
