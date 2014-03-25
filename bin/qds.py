@@ -288,7 +288,8 @@ def clustermain(dummy, args):
 def schedulermain(args):
     scheduler = Scheduler()
     scheduler.parsers()
-    scheduler.run(args)
+    result = scheduler.run(args)
+    print json.dumps(result, indent=4, sort_keys=True)
 
 def main():
 
