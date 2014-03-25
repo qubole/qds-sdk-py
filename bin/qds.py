@@ -5,7 +5,7 @@ from qds_sdk.commands import *
 from qds_sdk.cluster import *
 from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
-from qds_sdk.scheduler import Scheduler
+from qds_sdk.scheduler import SchedulerCmdLine
 
 import os
 import sys
@@ -286,10 +286,8 @@ def clustermain(dummy, args):
 
 
 def schedulermain(args):
-    scheduler = Scheduler()
-    scheduler.parsers()
-    result = scheduler.run(args)
-    print json.dumps(result, indent=4, sort_keys=True)
+    result = SchedulerCmdLine.run(args)
+    print result
 
 def main():
 
