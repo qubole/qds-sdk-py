@@ -293,6 +293,12 @@ class Cluster(Resource):
                              help="disable ganglia monitoring for the" +
                                   " cluster",)
 
+        argparser.add_argument("--node-bootstrap-file",
+                dest="node_bootstrap_file",
+                help="""name of the node bootstrap file for this cluster. It
+                should be in stored in S3 at
+                <account-default-location>/scripts/hadoop/NODE_BOOTSTRAP_FILE
+                """,)
 
         arguments = argparser.parse_args(args)
         return arguments
@@ -365,7 +371,8 @@ class ClusterInfo():
 
     def __init__(self, label, aws_access_key_id, aws_secret_access_key,
                  disallow_cluster_termination=None,
-                 enable_ganglia_monitoring=None):
+                 enable_ganglia_monitoring=None,
+                 node_bootstrap_file=None):
         """
         Args:
 
@@ -384,6 +391,10 @@ class ClusterInfo():
 
         `enable_ganglia_monitoring`: Set this to True if you want to enable
             ganglia monitoring for the cluster.
+
+        `node_bootstrap_file`: name of the node bootstrap file for this
+            cluster. It should be in stored in S3 at
+            <your-default-location>/scripts/hadoop/
         """
         self.label = label
         self.ec2_settings = {}
@@ -391,6 +402,7 @@ class ClusterInfo():
         self.ec2_settings['compute_secret_key'] = aws_secret_access_key
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
+        self.node_bootstrap_file = node_bootstrap_file
         self.hadoop_settings = {}
         self.security_settings = {}
         self.presto_settings = {}

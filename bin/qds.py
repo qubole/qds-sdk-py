@@ -158,7 +158,8 @@ def _create_cluster_info(arguments):
                                arguments.aws_access_key_id,
                                arguments.aws_secret_access_key,
                                arguments.disallow_cluster_termination,
-                               arguments.enable_ganglia_monitoring)
+                               arguments.enable_ganglia_monitoring,
+                               arguments.node_bootstrap_file,)
 
     cluster_info.set_ec2_settings(arguments.aws_region,
                                   arguments.aws_availability_zone)
