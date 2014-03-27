@@ -43,3 +43,6 @@ venv
 
 # ctags
 tags
+
+# Idea IDE
+.idea
