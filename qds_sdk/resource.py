@@ -79,7 +79,7 @@ class BaseResource(object):
             raise AttributeError(name)
 
     def __str__(self):
-        return json.encode(self.attributes)
+        return json.dumps(self.attributes)
 
 
 class Resource(BaseResource):
