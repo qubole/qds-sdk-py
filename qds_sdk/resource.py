@@ -4,7 +4,7 @@ create/find etc.
 """
 
 import util
-import cjson
+import json
 from qubole import Qubole
 
 
@@ -79,7 +79,7 @@ class BaseResource(object):
             raise AttributeError(name)
 
     def __str__(self):
-        return cjson.encode(self.attributes)
+        return json.encode(self.attributes)
 
 
 class Resource(BaseResource):
