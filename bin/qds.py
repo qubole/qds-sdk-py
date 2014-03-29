@@ -2,6 +2,7 @@
 
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
+from qds_sdk.template import *
 from qds_sdk.cluster import *
 from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
@@ -20,6 +21,7 @@ usage_str = ("Usage: \n"
              "qds [options] <CmdArgs | ClusterArgs>\n"
              "\nCmdArgs:\n" +
              "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
+             "  OR templatecmd <submit|run> -t <hive|hadoop|pig|presto|shell> -n <name> [args .. ]\n"
              "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
              "  run [cmd-specific-args .. ] : submit cmd & wait. print results \n"
              "  check <id> : print the cmd object for this Id\n"
@@ -377,7 +379,7 @@ def main():
         usage(optparser)
 
     cmdsuffix = "cmd"
-    cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell", "dbexport", "presto"]])
+    cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell", "dbexport", "presto", "template"]])
 
     a0 = args.pop(0)
 
