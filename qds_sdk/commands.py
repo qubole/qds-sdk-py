@@ -167,6 +167,9 @@ class HiveCommand(Command):
     optparser.add_option("--cluster-label", dest="label",
                          help="the label of the cluster to run the command on")
 
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
+
     @classmethod
     def parse(cls, args):
         """
@@ -235,6 +238,9 @@ class PrestoCommand(Command):
     optparser.add_option("--cluster-label", dest="label",
                          help="the label of the cluster to run the command on")
 
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
+ 
     @classmethod
     def parse(cls, args):
         """
@@ -348,6 +354,9 @@ class ShellCommand(Command):
     optparser.add_option("--cluster-label", dest="label",
                          help="the label of the cluster to run the command on")
 
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
+
     @classmethod
     def parse(cls, args):
         """
@@ -426,6 +435,9 @@ class PigCommand(Command):
 
     optparser.add_option("--cluster-label", dest="label",
                          help="the label of the cluster to run the command on")
+
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
 
     @classmethod
     def parse(cls, args):
@@ -527,6 +539,9 @@ class DbexportCommand(Command):
     optparser.add_option("--fields_terminated_by", dest="fields_terminated_by",
                          help="Mode 2: Hex of the char used as column separator "
                               "in the dataset, for eg. \0x20 for space")
+
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
 
     @classmethod
     def parse(cls, args):
