@@ -294,7 +294,15 @@ class PrestoCommand(Command):
 
 class HadoopCommand(Command):
     subcmdlist = ["jar", "s3distcp", "streaming"]
-    usage = "hadoopcmd <submit|run> <%s> <arg1> [arg2] ..." % " | ".join(subcmdlist)
+    usage = "hadoopcmd <submit|run> [options] <%s> <arg1> [arg2] ..." % "|".join(subcmdlist)
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("--cluster-label", dest="label",
+                         help="the label of the cluster to run the command on")
+
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
+
 
     @classmethod
     def parse(cls, args):
@@ -313,14 +321,15 @@ class HadoopCommand(Command):
         """
         parsed = {}
 
-        if len(args) >= 1 and args[0] == "-h":
-            sys.stderr.write(cls.usage + "\n")
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
             return None
 
-        if len(args) >= 2 and args[0] == "--cluster-label":
-            parsed['label'] = args[1]
-            args.pop(0)
-            args.pop(0)
+        parsed['label'] = options.label
+        parsed['can_notify'] = options.can_notify
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
