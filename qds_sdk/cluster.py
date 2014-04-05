@@ -196,7 +196,7 @@ class Cluster(Resource):
                                        " hadoop configuration overrides")
         hadoop_group.add_argument("--slave-request-type",
                                   dest="slave_request_type",
-                                  choices=["on-demand", "spot", "hybrid"],
+                                  choices=["ondemand", "spot", "hybrid"],
                                   help="purchasing option for slave instaces",)
 
         spot_group = argparser.add_argument_group("spot instance settings" +
@@ -444,7 +444,7 @@ class ClusterInfo():
         `custom_config`: Custom Hadoop configuration overrides.
 
         `slave_request_type`: Purchasing option for slave instances.
-            Valid values: "on-demand", "hybrid", "spot".
+            Valid values: "ondemand", "hybrid", "spot".
         """
         self.hadoop_settings['master_instance_type'] = master_instance_type
         self.hadoop_settings['slave_instance_type'] = slave_instance_type
