@@ -38,7 +38,7 @@ usage_str = ("Usage: \n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
              "\nReportArgs:\n" +
-             "  report (<report-name> [options] | index)\n" +
+             "  report (<report-name> [options] | list)\n" +
              "\nScheduler:\n" +
              "  scheduler --help\n")
 

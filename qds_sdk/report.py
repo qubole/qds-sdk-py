@@ -18,8 +18,8 @@ class ReportCmdLine:
                 description="Report client for Qubole Data Service.")
         subparsers = argparser.add_subparsers(title="report name")
 
-        # For listing all reports
-        index = subparsers.add_parser("index",
+        # For listing the names of all reports
+        index = subparsers.add_parser("list",
                 description="show names of all available reports")
         index.set_defaults(func=ReportCmdLine.index)
 
@@ -38,12 +38,12 @@ class ReportCmdLine:
                 help="""The starting point of the results.  api default = 0""")
         chc.add_argument("--limit", type=int, default=argparse.SUPPRESS,
                 help="""The number of results to fetch.  api default = 10""")
-        chc.add_argument("--sort-column", default=argparse.SUPPRESS,
-                choices=["frequency", "cpu", "fs_bytes_read",
-                "fs_bytes_written"], help="""The column used to sort the
-                report. Since this report returns top canonical_hive_commands,
-                the sort order is always descending. api default =
-                frequency""")
+        chc.add_argument("--sort", dest="sort_column",
+                default=argparse.SUPPRESS, choices=["frequency", "cpu",
+                "fs_bytes_read", "fs_bytes_written"], help="""The column used
+                to sort the report. Since this report returns top canonical
+                hive commands, the sort order is always descending.  api
+                default = frequency""")
         chc.set_defaults(func=ReportCmdLine.canonical_hive_commands)
 
         # Foo Bar Report
