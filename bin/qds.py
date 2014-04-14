@@ -6,6 +6,7 @@ from qds_sdk.cluster import *
 from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
 from qds_sdk.scheduler import SchedulerCmdLine
+from qds_sdk.report import ReportCmdLine
 
 import os
 import sys
@@ -17,7 +18,7 @@ from optparse import OptionParser
 log = logging.getLogger("qds")
 
 usage_str = ("Usage: \n"
-             "qds [options] <CmdArgs | ClusterArgs>\n"
+             "qds [options] <CmdArgs|ClusterArgs|ReportArgs>\n"
              "\nCmdArgs:\n" +
              "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
              "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
@@ -27,7 +28,7 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  <cluster> <create|delete|update|list|start|terminate|status> [args .. ]\n"
+             "  cluster <create|delete|update|list|start|terminate|status|reassign_label> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
@@ -36,6 +37,8 @@ usage_str = ("Usage: \n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
+             "\nReportArgs:\n" +
+             "  report (<report-name> [options] | list)\n" +
              "\nScheduler:\n" +
              "  scheduler --help\n")
 
@@ -303,9 +306,15 @@ def clustermain(dummy, args):
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 
+def reportmain(args):
+    result = ReportCmdLine.run(args)
+    print result
+
+
 def schedulermain(args):
     result = SchedulerCmdLine.run(args)
     print result
+
 
 def main():
 
@@ -390,8 +399,11 @@ def main():
     if a0 == "scheduler":
         return schedulermain(args)
 
+    if a0 == "report":
+        return reportmain(args)
+
     sys.stderr.write("First command must be one of <%s>\n" %
-                     "|".join(cmdset.union(["cluster"])))
+                     "|".join(cmdset.union(["cluster", "scheduler", "report"])))
     usage(optparser)
 
 
