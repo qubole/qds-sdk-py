@@ -49,25 +49,22 @@ class ReportCmdLine:
         # Foo Bar Report
         #fb = subparsers.add_parser("foo_bar",
         #        description="Show report for foo bar")
-        #fb.add_argument("--start-date", dest="start_date",
+        #fb.add_argument("--start-date", default=argparse.SUPPRESS,
         #        help="""The date from which you want the report.
         #        api default = """)
-        #fb.add_argument("--end-date",
+        #fb.add_argument("--end-date", default=argparse.SUPPRESS,
         #        help="""The date till which you want the report.
         #        api default = """)
-        #fb.add_argument("--offset",
-        #        help="""The starting point of the results.
-        #        api default = """)
-        #fb.add_argument("--limit",
-        #        help="""The number of results to fetch.
-        #        api default = """)
-        #fb.add_argument("--sort-column",
-        #        help="""The column used to sort the report.
-        #        api default = """)
-        #fb.add_argument("--sort-order",
-        #        help="""The sorting order used.
-        #        api default = """)
-        #fb.add_argument("--any-other",
+        #fb.add_argument("--offset", type=int, default=argparse.SUPPRESS,
+        #        help="""The starting point of the results.  api default = """)
+        #fb.add_argument("--limit", type=int, default=argparse.SUPPRESS,
+        #        help="""The number of results to fetch.  api default = """)
+        #fb.add_argument("--sort", dest="sort_column",
+        #        default=argparse.SUPPRESS, help="""The column used to sort the
+        #        report.  api default = """)
+        #fb.add_argument("--sort-order", default=argparse.SUPPRESS,
+        #        help="""The sorting order used.  api default = """)
+        #fb.add_argument("--any-other", default=argparse.SUPPRESS,
         #        help="""Any other argument specific to this report.
         #        api default = """)
         #fb.set_defaults(func=ReportCmdLine.foo_bar)
