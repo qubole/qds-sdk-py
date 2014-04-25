@@ -50,75 +50,60 @@ class Cluster(Resource):
         return vars(arguments)
 
     @classmethod
-    def list(cls, label=None, state=None):
+    def list(cls, state=None):
         """
         List existing clusters present in your account.
 
         Kwargs:
-            `label`: list cluster with this label
-
             `state`: list only those clusters which are in this state
 
         Returns:
             List of clusters satisfying the given criteria
-
-        Raises:
-            Exception if both label and state options are provided
         """
         conn = Qubole.agent()
-        if label is None and state is None:
+        if state is None:
             return conn.get(cls.rest_entity_path)
-        elif label is not None and state is None:
-            cluster_list = conn.get(cls.rest_entity_path)
-            result = []
-            for cluster in cluster_list:
-                if label in cluster['cluster']['label']:
-                    result.append(cluster)
-            return result
-        elif label is None and state is not None:
+        elif state is not None:
             cluster_list = conn.get(cls.rest_entity_path)
             result = []
             for cluster in cluster_list:
                 if state.lower() == cluster['cluster']['state'].lower():
                     result.append(cluster)
             return result
-        else:
-            raise Exception("Can filter either by label or" +
-                            " by state but not both")
 
     @classmethod
-    def show(cls, cluster_id):
+    def show(cls, cluster_id_label):
         """
-        Show information about the cluster with id `cluster_id`.
+        Show information about the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
-        return conn.get(cls.element_path(cluster_id))
+        return conn.get(cls.element_path(cluster_id_label))
 
     @classmethod
-    def status(cls, cluster_id):
+    def status(cls, cluster_id_label):
         """
-        Show the status of the cluster with id `cluster_id`.
+        Show the status of the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
-        return conn.get(cls.element_path(cluster_id) + "/state")
+        return conn.get(cls.element_path(cluster_id_label) + "/state")
 
     @classmethod
-    def start(cls, cluster_id):
+    def start(cls, cluster_id_label):
         """
-        Start the cluster with id `cluster_id`.
+        Start the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
         data = {"state": "start"}
-        return conn.put(cls.element_path(cluster_id) + "/state", data)
+        return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
-    def terminate(cls, cluster_id):
+    def terminate(cls, cluster_id_label):
         """
-        Terminate the cluster with id `cluster_id`.
+        Terminate the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
         data = {"state": "terminate"}
-        return conn.put(cls.element_path(cluster_id) + "/state", data)
+        return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
     def _parse_create_update(cls, args, action):
@@ -140,8 +125,8 @@ class Cluster(Resource):
         if action == "create":
             create_required = True
         elif action == "update":
-            argparser.add_argument("cluster_id",
-                                   help="id of the cluster to update")
+            argparser.add_argument("cluster_id_label",
+                                   help="id/label of the cluster to update")
 
         argparser.add_argument("--label", dest="label",
                                nargs="+", required=create_required,
@@ -312,13 +297,13 @@ class Cluster(Resource):
         return conn.post(cls.rest_entity_path, data=cluster_info)
 
     @classmethod
-    def update(cls, cluster_id, cluster_info):
+    def update(cls, cluster_id_label, cluster_info):
         """
-        Update the cluster with id `cluster_id` using information provided in
+        Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
         """
         conn = Qubole.agent()
-        return conn.put(cls.element_path(cluster_id), data=cluster_info)
+        return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
     def _parse_reassign_label(cls, args):
@@ -328,8 +313,8 @@ class Cluster(Resource):
         argparser = ArgumentParser(prog="cluster reassign_label")
 
         argparser.add_argument("destination_cluster",
-                metavar="destination_cluster_id",
-                help="id of the cluster to move the label to")
+                metavar="destination_cluster_id_label",
+                help="id/label of the cluster to move the label to")
 
         argparser.add_argument("label",
                 help="label to be moved from the source cluster")
@@ -343,7 +328,7 @@ class Cluster(Resource):
         Reassign a label from one cluster to another.
 
         Args:
-            `destination_cluster`: id of the cluster to move the label to
+            `destination_cluster`: id/label of the cluster to move the label to
 
             `label`: label to be moved from the source cluster
         """
@@ -355,12 +340,12 @@ class Cluster(Resource):
         return conn.put(cls.rest_entity_path + "/reassign-label", data)
 
     @classmethod
-    def delete(cls, cluster_id):
+    def delete(cls, cluster_id_label):
         """
-        Delete the cluster with id `cluster_id`.
+        Delete the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
-        return conn.delete(cls.element_path(cluster_id))
+        return conn.delete(cls.element_path(cluster_id_label))
 
 
 class ClusterInfo():
