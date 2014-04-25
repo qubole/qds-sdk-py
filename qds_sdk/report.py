@@ -46,6 +46,31 @@ class ReportCmdLine:
                 default = frequency""")
         chc.set_defaults(func=ReportCmdLine.canonical_hive_commands)
 
+
+        # All Commands Report
+        ac = subparsers.add_parser("all_commands",
+                description="Show report for all commands")
+        ac.add_argument("--start-date", default=argparse.SUPPRESS,
+                help="""The date from which you want the report (inclusive)
+                api default = 7 days before the end date.""")
+        ac.add_argument("--end-date", default=argparse.SUPPRESS,
+                help="""The date till which you want the report (exclusive)
+                api default = today""")
+        ac.add_argument("--offset", type=int, default=argparse.SUPPRESS,
+                help="""The starting point of the results.  api default = 0""")
+        ac.add_argument("--limit", type=int, default=argparse.SUPPRESS,
+                help="""The number of results to fetch.  api default = 10""")
+        ac.add_argument("--sort", dest="sort_column",
+                default=argparse.SUPPRESS, choices=["cpu", "fs_bytes_read",
+                "fs_bytes_written", "time"], help="""The column used to sort the
+                report.  api default = time (chronological order)""")
+        ac.add_argument("--by-user", default=argparse.SUPPRESS,
+                action="store_true", help="""Report only those queries which
+                are created by the current user. By default, all queries from
+                the current account are reported.""")
+        ac.set_defaults(func=ReportCmdLine.all_commands)
+
+
         # Foo Bar Report
         #fb = subparsers.add_parser("foo_bar",
         #        description="Show report for foo bar")
@@ -87,6 +112,13 @@ class ReportCmdLine:
         data = vars(args)
         data.pop("func")    # We don't want to send this to the api
         result = Report.show("canonical_hive_commands", data)
+        return json.dumps(result, indent=4)
+
+    @staticmethod
+    def all_commands(args):
+        data = vars(args)
+        data.pop("func")    # We don't want to send this to the api
+        result = Report.show("all_commands", data)
         return json.dumps(result, indent=4)
 
     #@staticmethod
