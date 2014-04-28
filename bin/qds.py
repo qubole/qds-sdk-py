@@ -209,8 +209,16 @@ def _create_cluster_info(arguments):
     cluster_info.set_security_settings(arguments.encrypted_ephemerals,
                                        customer_ssh_key)
 
-    cluster_info.set_presto_settings(arguments.presto_jvm_memory,
-                                     arguments.presto_task_memory)
+    presto_custom_config = None
+    if arguments.presto_custom_config_file is not None:
+        try:
+            presto_custom_config = open(arguments.presto_custom_config_file).read()
+        except IOError, e:
+            sys.stderr.write("Unable to read presto custom config file: %s\n" %
+                             str(e))
+            usage()
+    cluster_info.set_presto_settings(arguments.enable_presto,
+                                     presto_custom_config)
 
     return cluster_info
 

@@ -237,14 +237,21 @@ class Cluster(Resource):
                                          " login to the instance")
 
         presto_group = argparser.add_argument_group("presto settings")
-        presto_group.add_argument("--presto-jvm-memory",
-                                  dest="presto_jvm_memory",
-                                  help="maximum memory that presto jvm can" +
-                                       " use",)
-        presto_group.add_argument("--presto-task-memory",
-                                  dest="presto_task_memory",
-                                  help="maximum memory a presto worker task" +
-                                       " can use",)
+        enabling_presto = presto_group.add_mutually_exclusive_group()
+        enabling_presto.add_argument("--enable-presto",
+                                  dest="enable_presto",
+                                  action="store_true",
+                                  default=None,
+                                  help="Enable presto for this cluster",)
+        enabling_presto.add_argument("--disable-presto",
+                                  dest="enable_presto",
+                                  action="store_false",
+                                  default=None,
+                                  help="Disable presto for this cluster",)
+        presto_group.add_argument("--presto-custom-config",
+                                  dest="presto_custom_config_file",
+                                  help="location of file containg custom" +
+                                       " presto configuration overrides")
 
         termination = argparser.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
@@ -483,16 +490,16 @@ class ClusterInfo():
         self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
         self.security_settings['customer_ssh_key'] = customer_ssh_key
 
-    def set_presto_settings(self, jvm_memory=None, task_memory=None):
+    def set_presto_settings(self, enable_presto=None, presto_custom_config=None):
         """
         Kwargs:
 
-        `jvm_memory`: The maximum memory that Presto JVM can use.
+        `enable_presto`: Enable Presto on the cluster.
 
-        `task_memory`: The maximum memory a worker task can use in Presto.
+        `presto_custom_config`: Custom Presto configuration overrides.
         """
-        self.presto_settings['jvm_mem'] = jvm_memory
-        self.presto_settings['task_mem'] = task_memory
+        self.presto_settings['enable_presto'] = enable_presto
+        self.presto_settings['custom_config'] = presto_custom_config
 
     def minimal_payload(self):
         """
