@@ -218,11 +218,6 @@ class Cluster(Resource):
                                               " fairscheduler",)
 
         security_group = argparser.add_argument_group("security setttings")
-        security_group.add_argument("--persistent-security-group",
-                                    dest="persistent_security_groups",
-                                    nargs="+",
-                                    help="list of persistent security groups" +
-                                         " for the cluster",)
         ephemerals = security_group.add_mutually_exclusive_group()
         ephemerals.add_argument("--encrypted-ephemerals",
                                  dest="encrypted_ephemerals",
@@ -475,20 +470,16 @@ class ClusterInfo():
                'fairscheduler_config_xml': fairscheduler_config_xml,
                'default_pool': default_pool}
 
-    def set_security_settings(self, persistent_security_groups=None,
+    def set_security_settings(self,
                               encrypted_ephemerals=None,
                               customer_ssh_key=None):
         """
         Kwargs:
 
-        `persistent_security_groups`: List of persistent security groups for
-            the cluster.
-
         `encrypted_ephemerals`: Encrypt the ephemeral drives on the instance.
 
         `customer_ssh_key`: SSH key to use to login to the instances.
         """
-        self.security_settings['persistent_security_groups'] = persistent_security_groups
         self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
         self.security_settings['customer_ssh_key'] = customer_ssh_key
 

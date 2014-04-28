@@ -206,8 +206,7 @@ def _create_cluster_info(arguments):
             sys.stderr.write("Unable to read customer ssh key file: %s\n" %
                              str(e))
             usage()
-    cluster_info.set_security_settings(arguments.persistent_security_groups,
-                                       arguments.encrypted_ephemerals,
+    cluster_info.set_security_settings(arguments.encrypted_ephemerals,
                                        customer_ssh_key)
 
     cluster_info.set_presto_settings(arguments.presto_jvm_memory,
