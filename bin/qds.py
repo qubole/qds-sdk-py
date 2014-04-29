@@ -7,6 +7,7 @@ from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
 from qds_sdk.scheduler import SchedulerCmdLine
 from qds_sdk.report import ReportCmdLine
+from qds_sdk.dbtaps import DbTapCmdLine
 
 import os
 import sys
@@ -37,6 +38,8 @@ usage_str = ("Usage: \n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
+             "\nDbTap:\n" +
+             "  dbtap --help\n" +
              "\nReportArgs:\n" +
              "  report (<report-name> [options] | list)\n" +
              "\nScheduler:\n" +
@@ -315,6 +318,9 @@ def schedulermain(args):
     result = SchedulerCmdLine.run(args)
     print result
 
+def dbtapmain(args):
+    result = DbTapCmdLine.run(args)
+    print result
 
 def main():
 
@@ -402,8 +408,11 @@ def main():
     if a0 == "report":
         return reportmain(args)
 
+    if a0 == "dbtap":
+        return dbtapmain(args)
+
     sys.stderr.write("First command must be one of <%s>\n" %
-                     "|".join(cmdset.union(["cluster", "scheduler", "report"])))
+                     "|".join(cmdset.union(["cluster", "scheduler", "report", "dbtap"])))
     usage(optparser)
 
 
