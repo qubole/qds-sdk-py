@@ -33,7 +33,12 @@ def print_command():
     print
 
 
-class TestClusterList(unittest.TestCase):
+class QdsCliTestCase(unittest.TestCase):
+    def setUp(self):
+        os.environ['QDS_API_TOKEN'] = 'dummy_token'
+
+
+class TestClusterList(QdsCliTestCase):
 
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'list']
@@ -101,7 +106,7 @@ class TestClusterList(unittest.TestCase):
                 qds.main()
 
 
-class TestClusterDelete(unittest.TestCase):
+class TestClusterDelete(QdsCliTestCase):
     def test_success(self):
         sys.argv = ['qds.py', 'cluster', 'delete', '123']
         print_command()
@@ -125,7 +130,7 @@ class TestClusterDelete(unittest.TestCase):
                 qds.main()
 
 
-class TestClusterStart(unittest.TestCase):
+class TestClusterStart(QdsCliTestCase):
     def test_success(self):
         sys.argv = ['qds.py', 'cluster', 'start', '123']
         print_command()
@@ -150,7 +155,7 @@ class TestClusterStart(unittest.TestCase):
                 qds.main()
 
 
-class TestClusterTerminate(unittest.TestCase):
+class TestClusterTerminate(QdsCliTestCase):
     def test_success(self):
         sys.argv = ['qds.py', 'cluster', 'terminate', '123']
         print_command()
@@ -175,7 +180,7 @@ class TestClusterTerminate(unittest.TestCase):
                 qds.main()
 
 
-class TestClusterStatus(unittest.TestCase):
+class TestClusterStatus(QdsCliTestCase):
     def test_success(self):
         sys.argv = ['qds.py', 'cluster', 'status', '123']
         print_command()
@@ -200,7 +205,7 @@ class TestClusterStatus(unittest.TestCase):
                 qds.main()
 
 
-class TestClusterReassignLabel(unittest.TestCase):
+class TestClusterReassignLabel(QdsCliTestCase):
     def test_success(self):
         sys.argv = ['qds.py', 'cluster', 'reassign_label', '123', 'test_label']
         print_command()
@@ -233,7 +238,7 @@ class TestClusterReassignLabel(unittest.TestCase):
                 qds.main()
 
 
-class TestClusterCreate(unittest.TestCase):
+class TestClusterCreate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak']
@@ -845,7 +850,7 @@ class TestClusterCreate(unittest.TestCase):
                 })
 
 
-class TestClusterUpdate(unittest.TestCase):
+class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123']
         print_command()
