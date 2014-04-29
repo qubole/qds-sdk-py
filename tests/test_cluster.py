@@ -8,34 +8,9 @@ from cStringIO import StringIO
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
 from qds_sdk.connection import Connection
-
-
-@contextlib.contextmanager
-def capture():
-    """
-    This provides a context manager which captures stdout and stderr.
-    """
-    oldout, olderr = sys.stdout, sys.stderr
-    try:
-        out = [StringIO(), StringIO()]
-        sys.stdout, sys.stderr = out
-        yield out
-    finally:
-        sys.stdout, sys.stderr = oldout, olderr
-        out[0] = out[0].getvalue()
-        out[1] = out[1].getvalue()
-
-
-def print_command():
-    print
-    for arg in sys.argv:
-        print arg,
-    print
-
-
-class QdsCliTestCase(unittest.TestCase):
-    def setUp(self):
-        os.environ['QDS_API_TOKEN'] = 'dummy_token'
+from test_base import capture
+from test_base import print_command
+from test_base import QdsCliTestCase
 
 
 class TestClusterList(QdsCliTestCase):
