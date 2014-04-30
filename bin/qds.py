@@ -18,13 +18,13 @@ from optparse import OptionParser
 
 log = logging.getLogger("qds")
 CommandClasses = {
-    "hive": "HiveCommand",
-    "pig":  "PigCommand",
-    "hadoop": "HadoopCommand",
-    "shell": "ShellCommand",
-    "dbexport": "DbExportCommand",
-    "dbimport": "DbImportCommand",
-    "presto": "PrestoCommand"
+    "hivecmd": HiveCommand,
+    "pigcmd":  PigCommand,
+    "hadoopcmd": HadoopCommand,
+    "shellcmd": ShellCommand,
+    "dbexportcmd": DbExportCommand,
+    "dbimportcmd": DbImportCommand,
+    "prestocmd": PrestoCommand
 }
 
 usage_str = ("Usage: \n"
@@ -131,7 +131,7 @@ def getlogaction(cmdclass, args):
 
 def cmdmain(cmd, args):
     global CommandClasses
-    cmdclass = globals()[CommandClasses[cmd]]
+    cmdclass = CommandClasses[cmd]
 
     actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
     if len(args) < 1:
@@ -400,13 +400,10 @@ def main():
         sys.stderr.write("Missing first argument containing command type\n")
         usage(optparser)
 
-    cmdsuffix = "cmd"
-    cmdset = set([x + cmdsuffix for x in ["hive", "pig", "hadoop", "shell", "dbexport", "presto"]])
-
     a0 = args.pop(0)
-
-    if a0 in cmdset:
-        return cmdmain(a0[:a0.find(cmdsuffix)], args)
+    global CommandClasses
+    if a0 in CommandClasses:
+        return cmdmain(a0, args)
 
     if a0 == "hadoop_cluster" or a0 == "cluster":
         return clustermain(a0, args)
@@ -420,6 +417,7 @@ def main():
     if a0 == "dbtap":
         return dbtapmain(args)
 
+    cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "scheduler", "report", "dbtap"])))
     usage(optparser)
