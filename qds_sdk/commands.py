@@ -519,7 +519,7 @@ class PigCommand(Command):
         return vars(options)
 
 
-class DbexportCommand(Command):
+class DbExportCommand(Command):
     usage = ("dbexportcmd <submit|run> [options]")
 
     optparser = GentleOptionParser(usage=usage)
@@ -607,7 +607,6 @@ class DbexportCommand(Command):
             return None
 
         v = vars(options)
-        v["command_type"] = "DbExportCommand"
         return v
 
 
