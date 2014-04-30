@@ -17,6 +17,15 @@ import json
 from optparse import OptionParser
 
 log = logging.getLogger("qds")
+CommandClasses = {
+    "hive": "HiveCommand",
+    "pig":  "PigCommand",
+    "hadoop": "HadoopCommand",
+    "shell": "ShellCommand",
+    "dbexport": "DbExportCommand",
+    "dbimport": "DbImportCommand",
+    "presto": "PrestoCommand"
+}
 
 usage_str = ("Usage: \n"
              "qds [options] <CmdArgs|ClusterArgs|ReportArgs>\n"
@@ -121,8 +130,8 @@ def getlogaction(cmdclass, args):
 
 
 def cmdmain(cmd, args):
-    cmdclassname = cmd[0].upper() + cmd[1:] + "Command"
-    cmdclass = globals()[cmdclassname]
+    global CommandClasses
+    cmdclass = globals()[CommandClasses[cmd]]
 
     actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
     if len(args) < 1:
