@@ -130,7 +130,6 @@ def getlogaction(cmdclass, args):
 
 
 def cmdmain(cmd, args):
-    global CommandClasses
     cmdclass = CommandClasses[cmd]
 
     actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
@@ -401,7 +400,6 @@ def main():
         usage(optparser)
 
     a0 = args.pop(0)
-    global CommandClasses
     if a0 in CommandClasses:
         return cmdmain(a0, args)
 
