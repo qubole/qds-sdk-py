@@ -607,8 +607,12 @@ class DbExportCommand(Command):
             return None
 
         v = vars(options)
+        if cls.__name__ == "DbexportCommand":
+            v["command_type"] = "DbExportCommand"
         return v
 
+class DbexportCommand(DbExportCommand):
+    pass
 
 class DbImportCommand(Command):
     @classmethod
