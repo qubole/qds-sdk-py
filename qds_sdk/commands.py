@@ -110,6 +110,18 @@ class Command(Resource):
         """
         self.__class__.cancel_id(self.id)
 
+    @classmethod
+    def get_log_id(cls, id):
+        """
+        Fetches log for the command represented by this id
+
+        Args:
+            `id`: command id
+        """
+        conn = Qubole.agent()
+        r = conn.get_raw(cls.element_path(id) + "/logs")
+        return r.text
+
     def get_log(self):
         """
         Fetches log for the command represented by this object
