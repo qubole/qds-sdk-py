@@ -1,14 +1,11 @@
 import sys
 import os
 import unittest2 as unittest
-import contextlib
 from mock import Mock
 import tempfile
-from cStringIO import StringIO
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
 from qds_sdk.connection import Connection
-from test_base import capture
 from test_base import print_command
 from test_base import QdsCliTestCase
 
@@ -19,10 +16,7 @@ class TestReportList(QdsCliTestCase):
         sys.argv = ['qds.py', 'report', 'list']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
-        #out = captured[0]
-        #err = captured[1]
+        qds.main()
         Connection._api_call.assert_called_with("GET", "reports", None)
 
 
@@ -31,8 +25,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands", {})
 
@@ -41,8 +34,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--start-date', '2014-01-01']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'start_date': '2014-01-01'})
@@ -52,8 +44,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--end-date', '2014-01-01']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'end_date': '2014-01-01'})
@@ -63,8 +54,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--offset', '10']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'offset': 10})
@@ -74,8 +64,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--limit', '20']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'limit': 20})
@@ -85,8 +74,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--sort', 'frequency']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'sort_column': 'frequency'})
@@ -96,8 +84,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--sort', 'cpu']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'sort_column': 'cpu'})
@@ -107,8 +94,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--sort', 'fs_bytes_read']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'sort_column': 'fs_bytes_read'})
@@ -118,8 +104,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--sort', 'fs_bytes_written']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
                 {'sort_column': 'fs_bytes_written'})
@@ -129,8 +114,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
                 '--sort', 'invalid']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
 class TestReportAllCommands(QdsCliTestCase):
@@ -138,8 +122,7 @@ class TestReportAllCommands(QdsCliTestCase):
         sys.argv = ['qds.py', 'report', 'all_commands']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands", {})
 
@@ -148,8 +131,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--start-date', '2014-01-01']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'start_date': '2014-01-01'})
@@ -159,8 +141,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--end-date', '2014-01-01']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'end_date': '2014-01-01'})
@@ -170,8 +151,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--offset', '10']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'offset': 10})
@@ -181,8 +161,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--limit', '20']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'limit': 20})
@@ -192,8 +171,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--sort', 'time']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'sort_column': 'time'})
@@ -203,8 +181,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--sort', 'cpu']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'sort_column': 'cpu'})
@@ -214,8 +191,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--sort', 'fs_bytes_read']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'sort_column': 'fs_bytes_read'})
@@ -225,8 +201,7 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--sort', 'fs_bytes_written']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'sort_column': 'fs_bytes_written'})
@@ -236,16 +211,14 @@ class TestReportAllCommands(QdsCliTestCase):
                 '--sort', 'invalid']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_by_user(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
                 '--by-user']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
                 {'by_user': True})

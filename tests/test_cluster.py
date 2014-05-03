@@ -1,14 +1,11 @@
 import sys
 import os
 import unittest2 as unittest
-import contextlib
 from mock import Mock
 import tempfile
-from cStringIO import StringIO
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
 from qds_sdk.connection import Connection
-from test_base import capture
 from test_base import print_command
 from test_base import QdsCliTestCase
 
@@ -19,66 +16,56 @@ class TestClusterList(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'list']
         print_command()
         Connection._api_call = Mock(return_value=[])
-        with capture() as captured:
-            qds.main()
-        #out = captured[0]
-        #err = captured[1]
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters", None)
 
     def test_id(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--id', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters/123", None)
 
     def test_label(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--label', 'test_label']
         print_command()
         Connection._api_call = Mock(return_value=[])
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters", None)
 
     def test_state_up(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'up']
         print_command()
         Connection._api_call = Mock(return_value=[])
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters", None)
 
     def test_state_down(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'down']
         print_command()
         Connection._api_call = Mock(return_value=[])
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters", None)
 
     def test_state_pending(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'pending']
         print_command()
         Connection._api_call = Mock(return_value=[])
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters", None)
 
     def test_state_terminating(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'terminating']
         print_command()
         Connection._api_call = Mock(return_value=[])
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters", None)
 
     def test_state_invalid(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'invalid']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
 class TestClusterDelete(QdsCliTestCase):
@@ -86,23 +73,20 @@ class TestClusterDelete(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'delete', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("DELETE", "clusters/123", None)
 
     def test_no_argument(self):
         sys.argv = ['qds.py', 'cluster', 'delete']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_more_arguments(self):
         sys.argv = ['qds.py', 'cluster', 'delete', '1', '2']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
 class TestClusterStart(QdsCliTestCase):
@@ -110,8 +94,7 @@ class TestClusterStart(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'start', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("PUT", "clusters/123/state",
                 {'state': 'start'})
 
@@ -119,15 +102,13 @@ class TestClusterStart(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'start']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_more_arguments(self):
         sys.argv = ['qds.py', 'cluster', 'start', '1', '2']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
 class TestClusterTerminate(QdsCliTestCase):
@@ -135,8 +116,7 @@ class TestClusterTerminate(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'terminate', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("PUT", "clusters/123/state",
                 {'state': 'terminate'})
 
@@ -144,15 +124,13 @@ class TestClusterTerminate(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'terminate']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_more_arguments(self):
         sys.argv = ['qds.py', 'cluster', 'terminate', '1', '2']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
 class TestClusterStatus(QdsCliTestCase):
@@ -160,8 +138,7 @@ class TestClusterStatus(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'status', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with("GET", "clusters/123/state",
                 None)
 
@@ -169,15 +146,13 @@ class TestClusterStatus(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'status']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_more_arguments(self):
         sys.argv = ['qds.py', 'cluster', 'status', '1', '2']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
 class TestClusterReassignLabel(QdsCliTestCase):
@@ -185,8 +160,7 @@ class TestClusterReassignLabel(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'reassign_label', '123', 'test_label']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT',
                 'clusters/reassign-label',
                 {'destination_cluster': '123', 'label': 'test_label'})
@@ -195,22 +169,19 @@ class TestClusterReassignLabel(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'reassign_label']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_less_arguments(self):
         sys.argv = ['qds.py', 'cluster', 'reassign_label', '1']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_more_arguments(self):
         sys.argv = ['qds.py', 'cluster', 'reassign_label', '1', '2', '3']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
 class TestClusterCreate(QdsCliTestCase):
@@ -219,8 +190,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--access-key-id', 'aki', '--secret-access-key', 'sak']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -235,8 +205,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--disallow-cluster-termination']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -252,8 +221,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--allow-cluster-termination']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -269,8 +237,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--allow-cluster-termination', '--disallow-cluster-termination']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_enable_ganglia_monitoring(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -278,8 +245,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--enable-ganglia-monitoring']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -295,8 +261,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--disable-ganglia-monitoring']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -312,8 +277,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--enable-ganglia-monitoring', '--disable-ganglia-monitoring']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_node_bootstrap_file(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -321,8 +285,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--node-bootstrap-file', 'test_file_name']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -338,8 +301,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--aws-region', 'us-east-1']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -355,8 +317,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--aws-region', 'us-west-2']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -372,8 +333,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--aws-region', 'eu-west-1']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -389,8 +349,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--aws-region', 'ap-southeast-1']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -407,8 +366,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_aws_availability_zone(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -416,8 +374,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--aws-availability-zone', 'us-east-1a']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -433,8 +390,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--master-instance-type', 'm1.xlarge']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -450,8 +406,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--slave-instance-type', 'm1.large']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -467,8 +422,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--initial-nodes', '3']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -485,8 +439,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_max_nodes(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -494,8 +447,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--max-nodes', '5']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -512,8 +464,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_custom_config(self):
         with tempfile.NamedTemporaryFile() as temp:
@@ -524,8 +475,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--custom-config', temp.name]
             print_command()
             Connection._api_call = Mock(return_value={})
-            with capture() as captured:
-                qds.main()
+            qds.main()
             Connection._api_call.assert_called_with('POST', 'clusters',
                     {'cluster':
                         {'label': ['test_label'],
@@ -543,8 +493,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_slave_request_type_ondemand(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -552,8 +501,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--slave-request-type', 'ondemand']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -569,8 +517,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--slave-request-type', 'spot']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -586,8 +533,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--slave-request-type', 'hybrid']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -604,8 +550,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_maximum_bid_price_percentage(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -613,8 +558,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--maximum-bid-price-percentage', '80']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -634,8 +578,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_timeout_for_spot_request(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -643,8 +586,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--timeout-for-spot-request', '3']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -664,8 +606,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_maximum_spot_instance_percentage(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -673,8 +614,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--maximum-spot-instance-percentage', '40']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -694,8 +634,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_encrypted_ephemerals(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -703,8 +642,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--encrypted-ephemerals']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -720,8 +658,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--no-encrypted-ephemerals']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -737,8 +674,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--encrypted-ephemerals', '--no-encrypted-ephemerals']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
     def test_customer_ssh_key(self):
@@ -750,8 +686,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--customer-ssh-key', temp.name]
             print_command()
             Connection._api_call = Mock(return_value={})
-            with capture() as captured:
-                qds.main()
+            qds.main()
             Connection._api_call.assert_called_with('POST', 'clusters',
                     {'cluster':
                         {'label': ['test_label'],
@@ -768,8 +703,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_fairscheduler_config_xml(self):
         with tempfile.NamedTemporaryFile() as temp:
@@ -780,8 +714,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--fairscheduler-config-xml', temp.name]
             print_command()
             Connection._api_call = Mock(return_value={})
-            with capture() as captured:
-                qds.main()
+            qds.main()
             Connection._api_call.assert_called_with('POST', 'clusters',
                     {'cluster':
                         {'label': ['test_label'],
@@ -801,8 +734,7 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_fairscheduler_default_pool(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
@@ -810,8 +742,7 @@ class TestClusterCreate(QdsCliTestCase):
                 '--fairscheduler-default-pool', 'test_pool']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                 {'cluster':
                     {'label': ['test_label'],
@@ -830,8 +761,7 @@ class TestClusterUpdate(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'update', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123', {})
 
     def test_label(self):
@@ -839,8 +769,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--label', 'test_label']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -853,8 +782,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--access-key-id', 'aki']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -867,8 +795,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--secret-access-key', 'sak']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -881,8 +808,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--disallow-cluster-termination']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -895,8 +821,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--allow-cluster-termination']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -909,16 +834,14 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--allow-cluster-termination', '--disallow-cluster-termination']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_enable_ganglia_monitoring(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--enable-ganglia-monitoring']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -931,8 +854,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--disable-ganglia-monitoring']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -945,16 +867,14 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--enable-ganglia-monitoring', '--disable-ganglia-monitoring']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_node_bootstrap_file(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--node-bootstrap-file', 'test_file_name']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -967,8 +887,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--aws-region', 'us-east-1']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -981,8 +900,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--aws-region', 'us-west-2']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -995,8 +913,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--aws-region', 'eu-west-1']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1009,8 +926,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--aws-region', 'ap-southeast-1']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1024,16 +940,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_aws_availability_zone(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--aws-availability-zone', 'us-east-1a']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1046,8 +960,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--master-instance-type', 'm1.xlarge']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1060,8 +973,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--slave-instance-type', 'm1.large']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1074,8 +986,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--initial-nodes', '3']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1089,16 +1000,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_max_nodes(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--max-nodes', '5']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1112,8 +1021,7 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_custom_config(self):
         with tempfile.NamedTemporaryFile() as temp:
@@ -1123,8 +1031,7 @@ class TestClusterUpdate(QdsCliTestCase):
                     '--custom-config', temp.name]
             print_command()
             Connection._api_call = Mock(return_value={})
-            with capture() as captured:
-                qds.main()
+            qds.main()
             Connection._api_call.assert_called_with('PUT', 'clusters/123',
                     {'cluster':
                         {
@@ -1139,16 +1046,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_slave_request_type_ondemand(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--slave-request-type', 'ondemand']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1161,8 +1066,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--slave-request-type', 'spot']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1175,8 +1079,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--slave-request-type', 'hybrid']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1190,16 +1093,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_maximum_bid_price_percentage(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--maximum-bid-price-percentage', '80']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1216,16 +1117,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_timeout_for_spot_request(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--timeout-for-spot-request', '3']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1242,16 +1141,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_maximum_spot_instance_percentage(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--maximum-spot-instance-percentage', '40']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1268,16 +1165,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_encrypted_ephemerals(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--encrypted-ephemerals']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1290,8 +1185,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--no-encrypted-ephemerals']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
@@ -1304,8 +1198,7 @@ class TestClusterUpdate(QdsCliTestCase):
                 '--encrypted-ephemerals', '--no-encrypted-ephemerals']
         print_command()
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
 
     def test_customer_ssh_key(self):
@@ -1316,8 +1209,7 @@ class TestClusterUpdate(QdsCliTestCase):
                     '--customer-ssh-key', temp.name]
             print_command()
             Connection._api_call = Mock(return_value={})
-            with capture() as captured:
-                qds.main()
+            qds.main()
             Connection._api_call.assert_called_with('PUT', 'clusters/123',
                     {'cluster':
                         {
@@ -1331,8 +1223,7 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_fairscheduler_config_xml(self):
         with tempfile.NamedTemporaryFile() as temp:
@@ -1342,8 +1233,7 @@ class TestClusterUpdate(QdsCliTestCase):
                     '--fairscheduler-config-xml', temp.name]
             print_command()
             Connection._api_call = Mock(return_value={})
-            with capture() as captured:
-                qds.main()
+            qds.main()
             Connection._api_call.assert_called_with('PUT', 'clusters/123',
                     {'cluster':
                         {
@@ -1360,16 +1250,14 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
-            with capture() as captured:
-                qds.main()
+            qds.main()
 
     def test_fairscheduler_default_pool(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--fairscheduler-default-pool', 'test_pool']
         print_command()
         Connection._api_call = Mock(return_value={})
-        with capture() as captured:
-            qds.main()
+        qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                 {'cluster':
                     {
