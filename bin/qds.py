@@ -124,8 +124,7 @@ def getresultaction(cmdclass, args):
 
 def getlogaction(cmdclass, args):
     checkargs_id(args)
-    o = cmdclass.find(args.pop(0))
-    print o.get_log()
+    print cmdclass.get_log_id(args.pop(0))
     return 0
 
 
