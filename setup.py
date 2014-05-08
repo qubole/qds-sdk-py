@@ -16,9 +16,9 @@ setup(
     author_email = "dev@qubole.com",
     description = ("Python SDK for coding to the Qubole Data Service API"),
     keywords = "qubole sdk api",
-    url = "http://packages.python.org/qds_sdk",
+    url = "https://github.com/qubole/qds-sdk-py",
     packages=['qds_sdk'],
     scripts=['bin/qds.py'],
     install_requires=INSTALL_REQUIRES,
-    long_description="[Please visit the project page at https://github.com/qubole/qds-sdk-py]\n\n" + read('README.rst')
+    long_description=read('README.rst')
     )
