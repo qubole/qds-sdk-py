@@ -627,10 +627,67 @@ class DbexportCommand(DbExportCommand):
     pass
 
 class DbImportCommand(Command):
+    usage = "dbimportcmd <submit|run> [options]"
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("-m", "--mode", dest="mode",
+                         help="Can be 1 for Hive export or 2 for HDFS/S3 export")
+    optparser.add_option("--hive_table", dest="hive_table",
+                         help="Mode 1: Name of the Hive Table from which data will be exported")
+    optparser.add_option("--dbtap_id", dest="dbtap_id",
+                         help="Modes 1 and 2: DbTap Id of the target database in Qubole")
+    optparser.add_option("--db_table", dest="db_table",
+                         help="Modes 1 and 2: Table to export to in the target database")
+    optparser.add_option("--where_clause", dest="db_where",
+                         help="Mode 1: where clause to be applied to the table before extracting rows to be imported")
+    optparser.add_option("--parallelism", dest="db_parallelism",
+                         help="Mode 1 and 2: Number of parallel threads to use for extracting data")
+
+    optparser.add_option("--extract_query", dest="db_extract_query",
+                         help="Modes 2: SQL query to be applied at the source database for extracting data. "
+                              "$CONDITIONS must be part of the where clause")
+    optparser.add_option("--boundary_query", dest="db_boundary_query",
+                         help="Mode 2: query to be used get range of rowids to be extracted")
+    optparser.add_option("--split_column", dest="db_split_column",
+                         help="column used as rowid to split data into range")
+
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
+
     @classmethod
     def parse(cls, args):
-        raise ParseError("dbimport command not implemented yet", "")
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
 
+        Args:
+            `args`: sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if options.mode not in ["1", "2"]:
+                raise ParseError("mode must be either '1' or '2'",
+                                 cls.optparser.format_help())
+
+            if (options.dbtap_id is None) or (options.db_table is None):
+                raise ParseError("dbtap_id and db_table are required",
+                                 cls.optparser.format_help())
+
+            # TODO: Semantic checks for parameters in mode 1 and 2
+
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        return vars(options)
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
