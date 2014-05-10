@@ -1,14 +1,17 @@
 import re
 import optparse
 
+
 class OptionParsingError(RuntimeError):
     def __init__(self, msg):
         self.msg = msg
+
 
 class OptionParsingExit(Exception):
     def __init__(self, status, msg):
         self.msg = msg
         self.status = status
+
 
 class GentleOptionParser(optparse.OptionParser):
     def error(self, msg):
@@ -78,6 +81,7 @@ IRREGULAR = [
 UNCOUNTABLES = ['equipment', 'information', 'rice', 'money', 'species',
                 'series', 'fish', 'sheep']
 
+
 def pluralize(singular):
     """Convert singular word to its plural form.
 
@@ -95,6 +99,7 @@ def pluralize(singular):
     for i in PLURALIZE_PATTERNS:
         if re.search(i[0], singular):
             return re.sub(i[0], i[1], singular)
+
 
 def singularize(plural):
     """Convert plural word to its singular form.

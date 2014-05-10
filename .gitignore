@@ -38,3 +38,11 @@ nosetests.xml
 *.swp
 *.swm
 
+# Virtualenv
+venv
+
+# ctags
+tags
+
+# Idea IDE
+.idea

@@ -7,6 +7,7 @@ import util
 import cjson
 from qubole import Qubole
 
+
 class ResourceMeta(type):
     """
     A metaclass for Resource objects.
@@ -17,10 +18,13 @@ class ResourceMeta(type):
         """Create a new class.
 
         Args:
-            mcs: The metaclass.
-            name: The name of the class.
-            bases: List of base classes from which mcs inherits.
-            new_attrs: The class attribute dictionary.
+            `mcs`: The metaclass.
+
+            `name`: The name of the class.
+
+            `bases`: List of base classes from which mcs inherits.
+
+            `new_attrs`: The class attribute dictionary.
         """
         if 'rest_entity_path' not in new_attrs:
             new_attrs['rest_entity_path'] = util.pluralize(util.underscore(name))
@@ -37,10 +41,13 @@ class ResourceMetaSingleton(type):
         """Create a new class.
 
         Args:
-            mcs: The metaclass.
-            name: The name of the class.
-            bases: List of base classes from which mcs inherits.
-            new_attrs: The class attribute dictionary.
+            `mcs`: The metaclass.
+
+            `name`: The name of the class.
+
+            `bases`: List of base classes from which mcs inherits.
+
+            `new_attrs`: The class attribute dictionary.
         """
         if 'rest_entity_path' not in new_attrs:
             new_attrs['rest_entity_path'] = util.underscore(name)
@@ -52,15 +59,17 @@ class BaseResource(object):
     def __init__(self, attributes=None):
         if attributes is None:
             attributes = {}
-        self.attributes=attributes
+        self.attributes = attributes
 
     def __getattr__(self, name):
         """Retrieve the requested attribute if it exists.
 
         Args:
-            name: The attribute name.
+            `name`: The attribute name.
+
         Returns:
             The attribute's value.
+
         Raises:
             AttributeError: if no such attribute exists.
         """
@@ -69,14 +78,13 @@ class BaseResource(object):
         except KeyError:
             raise AttributeError(name)
 
-
     def __str__(self):
         return cjson.encode(self.attributes)
 
 
 class Resource(BaseResource):
 
-    """ subclasses should uncomment this if it helps"""
+    # subclasses should uncomment this if it helps
     # __metaclass__ = ResourceMeta
 
     @classmethod
@@ -85,21 +93,18 @@ class Resource(BaseResource):
 
     @classmethod
     def find(cls, id, **kwargs):
-        conn=Qubole.agent()
+        conn = Qubole.agent()
         if id is not None:
             return cls(conn.get(cls.element_path(id)))
 
-
     @classmethod
     def create(cls, **kwargs):
-        conn=Qubole.agent()
+        conn = Qubole.agent()
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
-
 
     @property
     def my_element_path(self):
         return self.__class__.element_path(self.id)
-
 
 
 class SingletonResource(BaseResource):
@@ -111,7 +116,7 @@ class SingletonResource(BaseResource):
     @classmethod
     def find(cls, **kwargs):
         if cls.cached_resource is None:
-            conn=Qubole.agent()
+            conn = Qubole.agent()
             cls.cached_resource = cls(conn.get(cls.rest_entity_path))
 
         return cls.cached_resource
@@ -119,4 +124,3 @@ class SingletonResource(BaseResource):
     @classmethod
     def clear_cache(cls):
         cls.cached_resource = None
-    
