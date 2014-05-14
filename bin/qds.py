@@ -144,9 +144,9 @@ def cmdmain(cmd, args):
     return globals()[action + "action"](cmdclass, args)
 
 
-def checkargs_cluster_id(args):
+def checkargs_cluster_id_label(args):
     if len(args) != 1:
-        sys.stderr.write("expecting single argument cluster id\n")
+        sys.stderr.write("expecting single argument cluster id or cluster label\n")
         usage()
 
 
@@ -161,7 +161,7 @@ def cluster_create_action(clusterclass, args):
 def cluster_update_action(clusterclass, args):
     arguments = clusterclass._parse_create_update(args, action="update")
     cluster_info = _create_cluster_info(arguments)
-    result = clusterclass.update(arguments.cluster_id, cluster_info.minimal_payload())
+    result = clusterclass.update(arguments.cluster_id_label, cluster_info.minimal_payload())
     print json.dumps(result, indent=4)
     return 0
 
@@ -216,18 +216,25 @@ def _create_cluster_info(arguments):
             sys.stderr.write("Unable to read customer ssh key file: %s\n" %
                              str(e))
             usage()
-    cluster_info.set_security_settings(arguments.persistent_security_groups,
-                                       arguments.encrypted_ephemerals,
+    cluster_info.set_security_settings(arguments.encrypted_ephemerals,
                                        customer_ssh_key)
 
-    cluster_info.set_presto_settings(arguments.presto_jvm_memory,
-                                     arguments.presto_task_memory)
+    presto_custom_config = None
+    if arguments.presto_custom_config_file is not None:
+        try:
+            presto_custom_config = open(arguments.presto_custom_config_file).read()
+        except IOError, e:
+            sys.stderr.write("Unable to read presto custom config file: %s\n" %
+                             str(e))
+            usage()
+    cluster_info.set_presto_settings(arguments.enable_presto,
+                                     presto_custom_config)
 
     return cluster_info
 
 
 def cluster_delete_action(clusterclass, args):
-    checkargs_cluster_id(args)
+    checkargs_cluster_id_label(args)
     result = clusterclass.delete(args.pop(0))
     print json.dumps(result, indent=4)
     return 0
@@ -237,10 +244,10 @@ def cluster_list_action(clusterclass, args):
     arguments = clusterclass._parse_list(args)
     if arguments['cluster_id'] is not None:
         result = clusterclass.show(arguments['cluster_id'])
+    elif arguments['label'] is not None:
+        result = clusterclass.show(arguments['label'])
     elif arguments['state'] is not None:
         result = clusterclass.list(state=arguments['state'])
-    elif arguments['label'] is not None:
-        result = clusterclass.list(label=arguments['label'])
     else:
         result = clusterclass.list()
     print json.dumps(result, indent=4)
@@ -248,21 +255,21 @@ def cluster_list_action(clusterclass, args):
 
 
 def cluster_start_action(clusterclass, args):
-    checkargs_cluster_id(args)
+    checkargs_cluster_id_label(args)
     result = clusterclass.start(args.pop(0))
     print json.dumps(result, indent=4)
     return 0
 
 
 def cluster_terminate_action(clusterclass, args):
-    checkargs_cluster_id(args)
+    checkargs_cluster_id_label(args)
     result = clusterclass.terminate(args.pop(0))
     print json.dumps(result, indent=4)
     return 0
 
 
 def cluster_status_action(clusterclass, args):
-    checkargs_cluster_id(args)
+    checkargs_cluster_id_label(args)
     result = clusterclass.status(args.pop(0))
     print json.dumps(result, indent=4)
     return 0

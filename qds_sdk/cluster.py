@@ -50,75 +50,60 @@ class Cluster(Resource):
         return vars(arguments)
 
     @classmethod
-    def list(cls, label=None, state=None):
+    def list(cls, state=None):
         """
         List existing clusters present in your account.
 
         Kwargs:
-            `label`: list cluster with this label
-
             `state`: list only those clusters which are in this state
 
         Returns:
             List of clusters satisfying the given criteria
-
-        Raises:
-            Exception if both label and state options are provided
         """
         conn = Qubole.agent()
-        if label is None and state is None:
+        if state is None:
             return conn.get(cls.rest_entity_path)
-        elif label is not None and state is None:
-            cluster_list = conn.get(cls.rest_entity_path)
-            result = []
-            for cluster in cluster_list:
-                if label in cluster['cluster']['label']:
-                    result.append(cluster)
-            return result
-        elif label is None and state is not None:
+        elif state is not None:
             cluster_list = conn.get(cls.rest_entity_path)
             result = []
             for cluster in cluster_list:
                 if state.lower() == cluster['cluster']['state'].lower():
                     result.append(cluster)
             return result
-        else:
-            raise Exception("Can filter either by label or" +
-                            " by state but not both")
 
     @classmethod
-    def show(cls, cluster_id):
+    def show(cls, cluster_id_label):
         """
-        Show information about the cluster with id `cluster_id`.
+        Show information about the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
-        return conn.get(cls.element_path(cluster_id))
+        return conn.get(cls.element_path(cluster_id_label))
 
     @classmethod
-    def status(cls, cluster_id):
+    def status(cls, cluster_id_label):
         """
-        Show the status of the cluster with id `cluster_id`.
+        Show the status of the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
-        return conn.get(cls.element_path(cluster_id) + "/state")
+        return conn.get(cls.element_path(cluster_id_label) + "/state")
 
     @classmethod
-    def start(cls, cluster_id):
+    def start(cls, cluster_id_label):
         """
-        Start the cluster with id `cluster_id`.
+        Start the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
         data = {"state": "start"}
-        return conn.put(cls.element_path(cluster_id) + "/state", data)
+        return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
-    def terminate(cls, cluster_id):
+    def terminate(cls, cluster_id_label):
         """
-        Terminate the cluster with id `cluster_id`.
+        Terminate the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
         data = {"state": "terminate"}
-        return conn.put(cls.element_path(cluster_id) + "/state", data)
+        return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
     def _parse_create_update(cls, args, action):
@@ -140,8 +125,8 @@ class Cluster(Resource):
         if action == "create":
             create_required = True
         elif action == "update":
-            argparser.add_argument("cluster_id",
-                                   help="id of the cluster to update")
+            argparser.add_argument("cluster_id_label",
+                                   help="id/label of the cluster to update")
 
         argparser.add_argument("--label", dest="label",
                                nargs="+", required=create_required,
@@ -233,11 +218,6 @@ class Cluster(Resource):
                                               " fairscheduler",)
 
         security_group = argparser.add_argument_group("security setttings")
-        security_group.add_argument("--persistent-security-group",
-                                    dest="persistent_security_groups",
-                                    nargs="+",
-                                    help="list of persistent security groups" +
-                                         " for the cluster",)
         ephemerals = security_group.add_mutually_exclusive_group()
         ephemerals.add_argument("--encrypted-ephemerals",
                                  dest="encrypted_ephemerals",
@@ -257,14 +237,21 @@ class Cluster(Resource):
                                          " login to the instance")
 
         presto_group = argparser.add_argument_group("presto settings")
-        presto_group.add_argument("--presto-jvm-memory",
-                                  dest="presto_jvm_memory",
-                                  help="maximum memory that presto jvm can" +
-                                       " use",)
-        presto_group.add_argument("--presto-task-memory",
-                                  dest="presto_task_memory",
-                                  help="maximum memory a presto worker task" +
-                                       " can use",)
+        enabling_presto = presto_group.add_mutually_exclusive_group()
+        enabling_presto.add_argument("--enable-presto",
+                                  dest="enable_presto",
+                                  action="store_true",
+                                  default=None,
+                                  help="Enable presto for this cluster",)
+        enabling_presto.add_argument("--disable-presto",
+                                  dest="enable_presto",
+                                  action="store_false",
+                                  default=None,
+                                  help="Disable presto for this cluster",)
+        presto_group.add_argument("--presto-custom-config",
+                                  dest="presto_custom_config_file",
+                                  help="location of file containg custom" +
+                                       " presto configuration overrides")
 
         termination = argparser.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
@@ -312,13 +299,13 @@ class Cluster(Resource):
         return conn.post(cls.rest_entity_path, data=cluster_info)
 
     @classmethod
-    def update(cls, cluster_id, cluster_info):
+    def update(cls, cluster_id_label, cluster_info):
         """
-        Update the cluster with id `cluster_id` using information provided in
+        Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
         """
         conn = Qubole.agent()
-        return conn.put(cls.element_path(cluster_id), data=cluster_info)
+        return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
     def _parse_reassign_label(cls, args):
@@ -328,8 +315,8 @@ class Cluster(Resource):
         argparser = ArgumentParser(prog="cluster reassign_label")
 
         argparser.add_argument("destination_cluster",
-                metavar="destination_cluster_id",
-                help="id of the cluster to move the label to")
+                metavar="destination_cluster_id_label",
+                help="id/label of the cluster to move the label to")
 
         argparser.add_argument("label",
                 help="label to be moved from the source cluster")
@@ -343,7 +330,7 @@ class Cluster(Resource):
         Reassign a label from one cluster to another.
 
         Args:
-            `destination_cluster`: id of the cluster to move the label to
+            `destination_cluster`: id/label of the cluster to move the label to
 
             `label`: label to be moved from the source cluster
         """
@@ -355,12 +342,12 @@ class Cluster(Resource):
         return conn.put(cls.rest_entity_path + "/reassign-label", data)
 
     @classmethod
-    def delete(cls, cluster_id):
+    def delete(cls, cluster_id_label):
         """
-        Delete the cluster with id `cluster_id`.
+        Delete the cluster with id/label `cluster_id_label`.
         """
         conn = Qubole.agent()
-        return conn.delete(cls.element_path(cluster_id))
+        return conn.delete(cls.element_path(cluster_id_label))
 
 
 class ClusterInfo():
@@ -490,33 +477,29 @@ class ClusterInfo():
                'fairscheduler_config_xml': fairscheduler_config_xml,
                'default_pool': default_pool}
 
-    def set_security_settings(self, persistent_security_groups=None,
+    def set_security_settings(self,
                               encrypted_ephemerals=None,
                               customer_ssh_key=None):
         """
         Kwargs:
 
-        `persistent_security_groups`: List of persistent security groups for
-            the cluster.
-
         `encrypted_ephemerals`: Encrypt the ephemeral drives on the instance.
 
         `customer_ssh_key`: SSH key to use to login to the instances.
         """
-        self.security_settings['persistent_security_groups'] = persistent_security_groups
         self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
         self.security_settings['customer_ssh_key'] = customer_ssh_key
 
-    def set_presto_settings(self, jvm_memory=None, task_memory=None):
+    def set_presto_settings(self, enable_presto=None, presto_custom_config=None):
         """
         Kwargs:
 
-        `jvm_memory`: The maximum memory that Presto JVM can use.
+        `enable_presto`: Enable Presto on the cluster.
 
-        `task_memory`: The maximum memory a worker task can use in Presto.
+        `presto_custom_config`: Custom Presto configuration overrides.
         """
-        self.presto_settings['jvm_mem'] = jvm_memory
-        self.presto_settings['task_mem'] = task_memory
+        self.presto_settings['enable_presto'] = enable_presto
+        self.presto_settings['custom_config'] = presto_custom_config
 
     def minimal_payload(self):
         """
