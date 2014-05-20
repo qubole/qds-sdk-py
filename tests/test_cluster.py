@@ -31,7 +31,7 @@ class TestClusterList(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters/test_label", None)
 
     def test_state_up(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'up']
