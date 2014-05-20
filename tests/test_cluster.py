@@ -1,7 +1,6 @@
 import sys
 import os
-major, minor = sys.version_info.major, sys.version_info.minor
-if (major >= 2 and minor >= 7):
+if sys.version_info > (2, 7, 0):
     import unittest
 else:
     import unittest2 as unittest
@@ -672,6 +671,7 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
     def test_conflict_encrypted_ephemerals(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1197,6 +1197,7 @@ class TestClusterUpdate(QdsCliTestCase):
                     }
                 })
 
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
     def test_conflict_encrypted_ephemerals(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--encrypted-ephemerals', '--no-encrypted-ephemerals']
