@@ -282,6 +282,67 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_enable_presto(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--enable-presto']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'presto_settings': {'enable_presto': True},
+                    }
+                })
+
+    def test_disable_presto(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--disable-presto']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'presto_settings': {'enable_presto': False},
+                    }
+                })
+
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
+    def test_conflict_presto(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--enable-presto', '--disable-presto']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_presto_custom_config(self):
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write("config.properties:\na=1\nb=2")
+            temp.flush()
+            sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--presto-custom-config', temp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'clusters',
+                    {'cluster':
+                        {'label': ['test_label'],
+                         'ec2_settings': {'compute_secret_key': 'sak',
+                                          'compute_access_key': 'aki'},
+                         'presto_settings':
+                                {'custom_config': 'config.properties:\na=1\nb=2'}
+                        }
+                    })
+
     def test_node_bootstrap_file(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -872,6 +933,57 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
+
+    def test_enable_presto(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--enable-presto']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'cluster':
+                    {
+                     'presto_settings': {'enable_presto': True},
+                    }
+                })
+
+    def test_disable_presto(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--disable-presto']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'cluster':
+                    {
+                     'presto_settings': {'enable_presto': False},
+                    }
+                })
+
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
+    def test_conflict_presto(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--enable-presto', '--disable-presto']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_presto_custom_config(self):
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write("config.properties:\na=1\nb=2")
+            temp.flush()
+            sys.argv = ['qds.py', 'cluster', 'update', '123',
+                    '--presto-custom-config', temp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={})
+            qds.main()
+            Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                    {'cluster':
+                        {
+                         'presto_settings':
+                                {'custom_config': 'config.properties:\na=1\nb=2'}
+                        }
+                    })
 
     def test_node_bootstrap_file(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
