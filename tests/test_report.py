@@ -1,6 +1,9 @@
 import sys
 import os
-import unittest2 as unittest
+if sys.version_info > (2, 7, 0):
+    import unittest
+else:
+    import unittest2 as unittest
 from mock import Mock
 import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
