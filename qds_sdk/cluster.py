@@ -205,6 +205,24 @@ class Cluster(Resource):
                                      " valid only when slave-request-type" +
                                      " is 'hybrid'",)
 
+        stable_spot_group = argparser.add_argument_group("stable spot instance settings")
+        stable_spot_group.add_argument("--stable-maximum-bid-price-percentage",
+                                       dest="stable_maximum_bid_price_percentage",
+                                       type=float,
+                                       help="maximum value to bid for stable node spot instances" +
+                                       " expressed as a percentage of the base" +
+                                       " price for the master and slave node instance types",)
+        stable_spot_group.add_argument("--stable-timeout-for-spot-request",
+                                       dest="stable_timeout_for_request",
+                                       type=int,
+                                       help="timeout for a stable node spot instance request" +
+                                       " unit: minutes")
+        stable_spot_group.add_argument("--stable-allow-fallback",
+                                       dest="stable_allow_fallback",
+                                       type=int,
+                                       help="whether to fallback to on-demand instances for stable nodes" +
+                                       " if spot instances aren't available")
+
         fairscheduler_group = argparser.add_argument_group(
                               "fairscheduler configuration options")
         fairscheduler_group.add_argument("--fairscheduler-config-xml",
@@ -462,6 +480,29 @@ class ClusterInfo():
                'maximum_bid_price_percentage': maximum_bid_price_percentage,
                'timeout_for_request': timeout_for_request,
                'maximum_spot_instance_percentage': maximum_spot_instance_percentage}
+
+
+    def set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
+                                          timeout_for_request=None,
+                                          allow_fallback=True):
+        """
+        Purchase options for stable spot instances.
+
+        `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
+            instances, expressed as a percentage of the base price 
+            (applies to both master and slave nodes).
+
+        `timeout_for_request`: Timeout for a stable node spot instance request (Unit:
+            minutes)
+
+        `allow_fallback`: Whether to fallback to on-demand instances for
+            stable nodes if spot instances are not available
+        """
+        self.hadoop_settings['stable_spot_instance_settings'] = {
+               'maximum_bid_price_percentage': maximum_bid_price_percentage,
+               'timeout_for_request': timeout_for_request,
+               'allow_fallback': allow_fallback}
+
 
     def set_fairscheduler_settings(self, fairscheduler_config_xml=None,
                                    default_pool=None):

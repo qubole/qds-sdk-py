@@ -185,6 +185,7 @@ def _create_cluster_info(arguments):
             sys.stderr.write("Unable to read custom config file: %s\n" %
                              str(e))
             usage()
+
     cluster_info.set_hadoop_settings(arguments.master_instance_type,
                                      arguments.slave_instance_type,
                                      arguments.initial_nodes,
@@ -196,6 +197,11 @@ def _create_cluster_info(arguments):
           arguments.maximum_bid_price_percentage,
           arguments.timeout_for_request,
           arguments.maximum_spot_instance_percentage)
+
+    cluster_info.set_stable_spot_instance_settings(
+          arguments.stable_maximum_bid_price_percentage,
+          arguments.stable_timeout_for_request,
+          arguments.stable_allow_fallback)
 
     fairscheduler_config_xml = None
     if arguments.fairscheduler_config_xml_file is not None:
