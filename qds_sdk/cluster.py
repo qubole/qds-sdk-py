@@ -11,6 +11,8 @@ import logging
 
 log = logging.getLogger("qds_cluster")
 
+def str2bool(v):
+    return v.lower() in ("yes", "true", "t", "1")
 
 class Cluster(Resource):
     """
@@ -218,8 +220,8 @@ class Cluster(Resource):
                                        help="timeout for a stable node spot instance request" +
                                        " unit: minutes")
         stable_spot_group.add_argument("--stable-allow-fallback",
-                                       dest="stable_allow_fallback",
-                                       type=int,
+                                       dest="stable_allow_fallback", default=True,
+                                       type=str2bool,
                                        help="whether to fallback to on-demand instances for stable nodes" +
                                        " if spot instances aren't available")
 
