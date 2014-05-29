@@ -44,6 +44,10 @@ class ReportCmdLine:
                 to sort the report. Since this report returns top canonical
                 hive commands, the sort order is always descending.  api
                 default = frequency""")
+        chc.add_argument("--show-ast", default=argparse.SUPPRESS,
+                action="store_true", help="""Also return the serialized AST
+                corresponding to the canonical query. By default, only the
+                canonical_query_id is return.""")
         chc.set_defaults(func=ReportCmdLine.canonical_hive_commands)
 
 

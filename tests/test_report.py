@@ -119,6 +119,16 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_show_ast(self):
+        sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
+                '--show-ast']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET",
+                "reports/canonical_hive_commands",
+                {'show_ast': True})
+
 
 class TestReportAllCommands(QdsCliTestCase):
     def test_minimal(self):
