@@ -694,8 +694,10 @@ class DbTapQueryCommand(Command):
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--db_tap_id", dest="db_tap_id",
-                         help="DbTap Id of the target database in Qubole")
+                         help="dbTap Id of the target database in Qubole")
     optparser.add_option("-q", "--query", dest="query", help="query string")
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
 
     @classmethod
     def parse(cls, args):
