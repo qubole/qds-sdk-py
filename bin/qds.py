@@ -19,6 +19,7 @@ from optparse import OptionParser
 log = logging.getLogger("qds")
 CommandClasses = {
     "hivecmd": HiveCommand,
+    "dbtapquerycmd": DbTapQueryCommand,
     "pigcmd":  PigCommand,
     "hadoopcmd": HadoopCommand,
     "shellcmd": ShellCommand,
@@ -30,7 +31,7 @@ CommandClasses = {
 usage_str = ("Usage: \n"
              "qds [options] <CmdArgs|ClusterArgs|ReportArgs>\n"
              "\nCmdArgs:\n" +
-             "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
+             "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbtapquerycmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
              "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
              "  run [cmd-specific-args .. ] : submit cmd & wait. print results \n"
              "  check <id> : print the cmd object for this Id\n"
