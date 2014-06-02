@@ -689,6 +689,46 @@ class DbImportCommand(Command):
 
         return vars(options)
 
+class DbTapQueryCommand(Command):
+    usage = "dbtapquerycmd <submit|run> [options]"
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("--db_tap_id", dest="db_tap_id",
+                         help="DbTap Id of the target database in Qubole")
+    optparser.add_option("-q", "--query", dest="query", help="query string")
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args`: sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if (options.db_tap_id is None):
+                raise ParseError("db_tap_id is required",
+                                 cls.optparser.format_help())
+            if (options.query is None):
+                raise ParseError("query is required",
+                                 cls.optparser.format_help())
+
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        return vars(options)
+
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
     while True:
