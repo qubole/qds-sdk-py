@@ -703,7 +703,7 @@ class DbImportCommand(Command):
 
 class CompositeCommand(Command):
     @classmethod
-    def compose(cls, sub_commands, cluster_label=None, notify=False):
+    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False):
         """
         Args:
             `sub_commands`: list of sub-command dicts
@@ -717,9 +717,12 @@ class CompositeCommand(Command):
             composite = CompositeCommand.compose([cmd1, cmd2])
             cmd = CompositeCommand.run(**composite)
         """
+        if macros is not None:
+            macros = json.loads(macros)
         return {
                 "sub_commands": sub_commands,
                 "command_type": "CompositeCommand",
+                "macros": macros,
                 "label": cluster_label,
                 "can_notify": notify
                }
