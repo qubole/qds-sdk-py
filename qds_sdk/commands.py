@@ -231,7 +231,9 @@ class HiveCommand(Command):
 
         if options.macros is not None:
             options.macros = json.loads(options.macros)
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "HiveCommand"
+        return v
 
 
 class PrestoCommand(Command):
@@ -301,7 +303,9 @@ class PrestoCommand(Command):
 
         if options.macros is not None:
             options.macros = json.loads(options.macros)
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "PrestoCommand"
+        return v
 
 
 class HadoopCommand(Command):
@@ -441,7 +445,9 @@ class ShellCommand(Command):
                     "Extra arguments can only be supplied with a script_location",
                     cls.optparser.format_help())
 
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "HadoopCommand"
+        return v
 
 
 class PigCommand(Command):
@@ -528,7 +534,9 @@ class PigCommand(Command):
                     "Extra arguments can only be supplied with a script_location",
                     cls.optparser.format_help())
 
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "PigCommand"
+        return v
 
 
 class DbExportCommand(Command):
@@ -619,12 +627,13 @@ class DbExportCommand(Command):
             return None
 
         v = vars(options)
-        if cls.__name__ == "DbexportCommand":
-            v["command_type"] = "DbExportCommand"
+        v["command_type"] = "DbExportCommand"
         return v
+
 
 class DbexportCommand(DbExportCommand):
     pass
+
 
 class DbImportCommand(Command):
     usage = "dbimportcmd <submit|run> [options]"
@@ -687,7 +696,37 @@ class DbImportCommand(Command):
         except OptionParsingExit as e:
             return None
 
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "DbImportCommand"
+        return v
+
+
+class CompositeCommand(Command):
+    @classmethod
+    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False):
+        """
+        Args:
+            `sub_commands`: list of sub-command dicts
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Example Usage:
+            cmd1 = HiveCommand.parse(['--query', "show tables"])
+            cmd2 = PigCommand.parse(['--script_location', "s3://paid-qubole/PigAPIDemo/scripts/script1-hadoop-s3-small.pig"])
+            composite = CompositeCommand.compose([cmd1, cmd2])
+            cmd = CompositeCommand.run(**composite)
+        """
+        if macros is not None:
+            macros = json.loads(macros)
+        return {
+                "sub_commands": sub_commands,
+                "command_type": "CompositeCommand",
+                "macros": macros,
+                "label": cluster_label,
+                "can_notify": notify
+               }
+
 
 class DbTapQueryCommand(Command):
     usage = "dbtapquerycmd <submit|run> [options]"
