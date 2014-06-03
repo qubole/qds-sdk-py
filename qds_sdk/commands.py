@@ -769,7 +769,9 @@ class DbTapQueryCommand(Command):
         except OptionParsingExit as e:
             return None
 
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "DbTapQueryCommand"
+        return v
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
