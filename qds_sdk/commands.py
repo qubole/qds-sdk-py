@@ -346,6 +346,7 @@ class HadoopCommand(Command):
 
         parsed['label'] = options.label
         parsed['can_notify'] = options.can_notify
+        parsed["command_type"] = "HadoopCommand"
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
@@ -446,7 +447,7 @@ class ShellCommand(Command):
                     cls.optparser.format_help())
 
         v = vars(options)
-        v["command_type"] = "HadoopCommand"
+        v["command_type"] = "ShellCommand"
         return v
 
 
