@@ -1,6 +1,5 @@
 import sys
 import requests
-import cjson
 import logging
 import ssl
 import json
@@ -64,7 +63,7 @@ class Connection:
         kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
 
         if data:
-            kwargs['data'] = cjson.encode(data)
+            kwargs['data'] = json.dumps(data)
 
         log.info("[%s] %s" % (req_type, url))
         log.info("Payload: %s" % json.dumps(data, indent=4))
