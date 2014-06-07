@@ -57,6 +57,20 @@ class TestCommandCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET", "commands/123", None)
 
+    def test_dbimportcmd(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'check', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands/123", None)
+
+    def test_dbtapquerycmd(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'check', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands/123", None)
+
 
 class TestCommandCancel(QdsCliTestCase):
 
@@ -102,6 +116,22 @@ class TestCommandCancel(QdsCliTestCase):
 
     def test_dbexportcmd(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'cancel', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'kill_succeeded': True})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "commands/123",
+                {'status': 'kill'})
+
+    def test_dbimportcmd(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'cancel', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'kill_succeeded': True})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "commands/123",
+                {'status': 'kill'})
+
+    def test_dbtapquerycmd(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'cancel', '123']
         print_command()
         Connection._api_call = Mock(return_value={'kill_succeeded': True})
         qds.main()
