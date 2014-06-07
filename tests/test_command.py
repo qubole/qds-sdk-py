@@ -8,6 +8,7 @@ from mock import Mock
 import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
+import qds_sdk
 from qds_sdk.connection import Connection
 from test_base import print_command
 from test_base import QdsCliTestCase
@@ -137,6 +138,110 @@ class TestCommandCancel(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("PUT", "commands/123",
                 {'status': 'kill'})
+
+
+class TestHiveCommand(QdsCliTestCase):
+
+    def test_submit_query(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'sample_size': None,
+                 'query': 'show tables',
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_script_location(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'sample_size': None,
+                 'query': None,
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_none(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_both(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
+                    '--script_location', 's3://bucket/path-to-script']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_macros(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+                    '--macros', '[{"key1":"11","key2":"22"}, {"key3":"key1+key2"}]']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
+                 'label': None,
+                 'sample_size': None,
+                 'query': None,
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_cluster_label(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
+                    '--cluster-label', 'test_label']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': 'test_label',
+                 'sample_size': None,
+                 'query': 'show tables',
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_notify(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
+                    '--notify']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'sample_size': None,
+                 'query': 'show tables',
+                 'command_type': 'HiveCommand',
+                 'can_notify': True,
+                 'script_location': None})
+
+    def test_submit_sample_size(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
+                    '--sample_size', '1024']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'sample_size': '1024',
+                 'query': 'show tables',
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None})
 
 
 if __name__ == '__main__':
