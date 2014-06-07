@@ -319,6 +319,7 @@ class HadoopCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.disable_interspersed_args()
 
     @classmethod
     def parse(cls, args):
