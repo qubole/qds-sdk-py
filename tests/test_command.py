@@ -244,5 +244,89 @@ class TestHiveCommand(QdsCliTestCase):
                  'script_location': None})
 
 
+class TestPrestoCommand(QdsCliTestCase):
+
+    def test_submit_query(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--query', 'show tables']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'query': 'show tables',
+                 'command_type': 'PrestoCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_script_location(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--script_location', 's3://bucket/path-to-script']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'query': None,
+                 'command_type': 'PrestoCommand',
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_none(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_both(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--query', 'show tables',
+                    '--script_location', 's3://bucket/path-to-script']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_macros(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+                    '--macros', '[{"key1":"11","key2":"22"}, {"key3":"key1+key2"}]']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
+                 'label': None,
+                 'query': None,
+                 'command_type': 'PrestoCommand',
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_cluster_label(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--query', 'show tables',
+                    '--cluster-label', 'test_label']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': 'test_label',
+                 'query': 'show tables',
+                 'command_type': 'PrestoCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_notify(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--query', 'show tables',
+                    '--notify']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'query': 'show tables',
+                 'command_type': 'PrestoCommand',
+                 'can_notify': True,
+                 'script_location': None})
+
+
 if __name__ == '__main__':
     unittest.main()
