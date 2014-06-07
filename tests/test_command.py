@@ -414,5 +414,35 @@ class TestHadoopCommand(QdsCliTestCase):
                  'can_notify': True})
 
 
+class TestShellCommand(QdsCliTestCase):
+
+    def test_stub(self):
+        pass
+
+
+class TestPigCommand(QdsCliTestCase):
+
+    def test_stub(self):
+        pass
+
+
+class TestDbExportCommand(QdsCliTestCase):
+
+    def test_stub(self):
+        pass
+
+
+class TestDbImportCommand(QdsCliTestCase):
+
+    def test_stub(self):
+        pass
+
+
+class TestDbTapQueryCommand(QdsCliTestCase):
+
+    def test_stub(self):
+        pass
+
+
 if __name__ == '__main__':
     unittest.main()
