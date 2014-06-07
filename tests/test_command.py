@@ -328,5 +328,91 @@ class TestPrestoCommand(QdsCliTestCase):
                  'script_location': None})
 
 
+class TestHadoopCommand(QdsCliTestCase):
+
+    def test_submit_jar(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', 'jar', 's3://bucket/path-to-jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'jar',
+                 'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'label': None,
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False})
+
+    def test_submit_jar_invalid(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', 'jar']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_s3distcp(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', 's3distcp', '--src', 'source', '--dest', 'destincation']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 's3distcp',
+                 'sub_command_args': "'--src' 'source' '--dest' 'destincation'",
+                 'label': None,
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False})
+
+    def test_submit_s3distcp_invalid(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', 's3distcp']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_streaming(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', 'streaming',
+                    '-files', 's3n://location-of-mapper.py,s3n://location-of-reducer.py',
+                    '-input', 'myInputDirs',
+                    '-output', 'myOutputDir',
+                    '-mapper', 'mapper.py',
+                    '-reducer', 'reducer.py']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'streaming',
+                 'sub_command_args': "'-files' 's3n://location-of-mapper.py,s3n://location-of-reducer.py' '-input' 'myInputDirs' '-output' 'myOutputDir' '-mapper' 'mapper.py' '-reducer' 'reducer.py'",
+                 'label': None,
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False})
+
+    def test_submit_streaming_invalid(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', 'streaming']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_jar_cluster_label(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--cluster-label', 'test_label', 'jar', 's3://bucket/path-to-jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'jar',
+                 'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'label': 'test_label',
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False})
+
+    def test_submit_jar_notify(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--notify', 'jar', 's3://bucket/path-to-jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'jar',
+                 'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'label': None,
+                 'command_type': 'HadoopCommand',
+                 'can_notify': True})
+
+
 if __name__ == '__main__':
     unittest.main()
