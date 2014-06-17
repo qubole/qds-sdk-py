@@ -176,7 +176,9 @@ def _create_cluster_info(arguments):
                                arguments.node_bootstrap_file,)
 
     cluster_info.set_ec2_settings(arguments.aws_region,
-                                  arguments.aws_availability_zone)
+                                  arguments.aws_availability_zone,
+                                  arguments.vpc_id,
+                                  arguments.subnet_id)
 
     custom_config = None
     if arguments.custom_config_file is not None:
