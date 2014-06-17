@@ -157,6 +157,12 @@ class Cluster(Resource):
                                dest="aws_availability_zone",
                                help="availability zone to" +
                                     " create the cluster in",)
+        ec2_group.add_argument("--subnet-id",
+                               dest="subnet_id",
+                               help="subnet to create the cluster in",)
+        ec2_group.add_argument("--vpc-id",
+                               dest="vpc_id",
+                               help="vpc to create the cluster in",)
 
         hadoop_group = argparser.add_argument_group("hadoop settings")
         hadoop_group.add_argument("--master-instance-type",
@@ -416,7 +422,9 @@ class ClusterInfo():
 
     def set_ec2_settings(self,
                          aws_region=None,
-                         aws_availability_zone=None):
+                         aws_availability_zone=None,
+                         vpc_id=None,
+                         subnet_id=None):
         """
         Kwargs:
 
@@ -424,9 +432,16 @@ class ClusterInfo():
 
         `aws_availability_zone`: The availability zone to create the cluster
             in.
+
+        `vpc_id`: The vpc to create the cluster in.
+
+        `subnet_id`: The subnet to create the cluster in.
         """
         self.ec2_settings['aws_region'] = aws_region
         self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
+        self.ec2_settings['vpc_id'] = vpc_id
+        self.ec2_settings['subnet_id'] = subnet_id
+
 
     def set_hadoop_settings(self, master_instance_type=None,
                             slave_instance_type=None,
