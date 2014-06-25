@@ -20,7 +20,7 @@ class TestReportList(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "reports", None)
+        Connection._api_call.assert_called_with("GET", "reports", params=None)
 
 
 class TestReportCanonicalHiveCommands(QdsCliTestCase):
@@ -30,7 +30,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("GET",
-                "reports/canonical_hive_commands", {})
+                "reports/canonical_hive_commands", params={})
 
     def test_start_date(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -40,7 +40,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'start_date': '2014-01-01'})
+                params={'start_date': '2014-01-01'})
 
     def test_end_date(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -50,7 +50,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'end_date': '2014-01-01'})
+                params={'end_date': '2014-01-01'})
 
     def test_offset(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -60,7 +60,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'offset': 10})
+                params={'offset': 10})
 
     def test_limit(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -70,7 +70,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'limit': 20})
+                params={'limit': 20})
 
     def test_sort_frequency(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -80,7 +80,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'sort_column': 'frequency'})
+                params={'sort_column': 'frequency'})
 
     def test_sort_cpu(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -90,7 +90,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'sort_column': 'cpu'})
+                params={'sort_column': 'cpu'})
 
     def test_sort_fs_bytes_read(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -100,7 +100,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'sort_column': 'fs_bytes_read'})
+                params={'sort_column': 'fs_bytes_read'})
 
     def test_sort_fs_bytes_written(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -110,7 +110,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'sort_column': 'fs_bytes_written'})
+                params={'sort_column': 'fs_bytes_written'})
 
     def test_sort_invalid(self):
         sys.argv = ['qds.py', 'report', 'canonical_hive_commands',
@@ -127,7 +127,7 @@ class TestReportCanonicalHiveCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/canonical_hive_commands",
-                {'show_ast': True})
+                params={'show_ast': True})
 
 
 class TestReportAllCommands(QdsCliTestCase):
@@ -137,7 +137,7 @@ class TestReportAllCommands(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("GET",
-                "reports/all_commands", {})
+                "reports/all_commands", params={})
 
     def test_start_date(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -147,7 +147,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'start_date': '2014-01-01'})
+                params={'start_date': '2014-01-01'})
 
     def test_end_date(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -157,7 +157,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'end_date': '2014-01-01'})
+                params={'end_date': '2014-01-01'})
 
     def test_offset(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -167,7 +167,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'offset': 10})
+                params={'offset': 10})
 
     def test_limit(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -177,7 +177,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'limit': 20})
+                params={'limit': 20})
 
     def test_sort_time(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -187,7 +187,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'sort_column': 'time'})
+                params={'sort_column': 'time'})
 
     def test_sort_cpu(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -197,7 +197,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'sort_column': 'cpu'})
+                params={'sort_column': 'cpu'})
 
     def test_sort_fs_bytes_read(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -207,7 +207,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'sort_column': 'fs_bytes_read'})
+                params={'sort_column': 'fs_bytes_read'})
 
     def test_sort_fs_bytes_written(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -217,7 +217,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'sort_column': 'fs_bytes_written'})
+                params={'sort_column': 'fs_bytes_written'})
 
     def test_sort_invalid(self):
         sys.argv = ['qds.py', 'report', 'all_commands',
@@ -234,7 +234,7 @@ class TestReportAllCommands(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET",
                 "reports/all_commands",
-                {'by_user': True})
+                params={'by_user': True})
 
 
 if __name__ == '__main__':

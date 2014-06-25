@@ -20,49 +20,49 @@ class TestClusterList(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_id(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--id', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters/123", None)
+        Connection._api_call.assert_called_with("GET", "clusters/123", params=None)
 
     def test_label(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--label', 'test_label']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters/test_label", None)
+        Connection._api_call.assert_called_with("GET", "clusters/test_label", params=None)
 
     def test_state_up(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'up']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_down(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'down']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_pending(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'pending']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_terminating(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'terminating']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_invalid(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'invalid']
@@ -143,7 +143,7 @@ class TestClusterStatus(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("GET", "clusters/123/state",
-                None)
+                params=None)
 
     def test_no_argument(self):
         sys.argv = ['qds.py', 'cluster', 'status']

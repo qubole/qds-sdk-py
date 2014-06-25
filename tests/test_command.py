@@ -21,56 +21,56 @@ class TestCommandCheck(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
     def test_hadoopcmd(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
     def test_prestocmd(self):
         sys.argv = ['qds.py', 'prestocmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
     def test_pigcmd(self):
         sys.argv = ['qds.py', 'pigcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
     def test_shellcmd(self):
         sys.argv = ['qds.py', 'shellcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
     def test_dbexportcmd(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
     def test_dbimportcmd(self):
         sys.argv = ['qds.py', 'dbimportcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
     def test_dbtapquerycmd(self):
         sys.argv = ['qds.py', 'dbtapquerycmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
 
 class TestCommandCancel(QdsCliTestCase):

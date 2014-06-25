@@ -36,12 +36,12 @@ class Connection:
             self.session = requests.Session()
             self.session.mount('https://', MyAdapter())
 
-    def get_raw(self, path, data=None):
-        return self._api_call_raw("GET", path, data)
+    def get_raw(self, path, params=None):
+        return self._api_call_raw("GET", path, params=params)
 
     @retry(RetryWithDelay, tries=5, delay=20, backoff=2)
-    def get(self, path, data=None):
-        return self._api_call("GET", path, data)
+    def get(self, path, params=None):
+        return self._api_call("GET", path, params=params)
 
     def put(self, path, data=None):
         return self._api_call("PUT", path, data)
@@ -52,7 +52,7 @@ class Connection:
     def delete(self, path, data=None):
         return self._api_call("DELETE", path, data)
 
-    def _api_call_raw(self, req_type, path, data=None):
+    def _api_call_raw(self, req_type, path, data=None, params=None):
         url = self.base_url.rstrip('/') + '/' + path
 
         if self.reuse:
@@ -64,9 +64,12 @@ class Connection:
 
         if data:
             kwargs['data'] = json.dumps(data)
+        if params:
+            kwargs['params'] = params
 
         log.info("[%s] %s" % (req_type, url))
         log.info("Payload: %s" % json.dumps(data, indent=4))
+        log.info("Params: %s" % params)
 
         if req_type == 'GET':
             r = x.get(url, **kwargs)
@@ -82,8 +85,8 @@ class Connection:
         self._handle_error(r)
         return r
 
-    def _api_call(self, req_type, path, data=None):
-        return self._api_call_raw(req_type, path, data).json()
+    def _api_call(self, req_type, path, data=None, params=None):
+        return self._api_call_raw(req_type, path, data=data, params=params).json()
 
     def _handle_error(self, response):
         """Raise exceptions in response to any http errors
