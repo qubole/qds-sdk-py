@@ -231,7 +231,9 @@ class HiveCommand(Command):
 
         if options.macros is not None:
             options.macros = json.loads(options.macros)
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "HiveCommand"
+        return v
 
 
 class PrestoCommand(Command):
@@ -301,7 +303,9 @@ class PrestoCommand(Command):
 
         if options.macros is not None:
             options.macros = json.loads(options.macros)
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "PrestoCommand"
+        return v
 
 
 class HadoopCommand(Command):
@@ -315,6 +319,7 @@ class HadoopCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.disable_interspersed_args()
 
     @classmethod
     def parse(cls, args):
@@ -342,6 +347,7 @@ class HadoopCommand(Command):
 
         parsed['label'] = options.label
         parsed['can_notify'] = options.can_notify
+        parsed["command_type"] = "HadoopCommand"
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
@@ -428,7 +434,7 @@ class ShellCommand(Command):
             if (args is not None) and (len(args) > 0):
                 if options.inline is not None:
                     raise ParseError(
-                        "This sucks - but extra arguments can only be "
+                        "Extra arguments can only be "
                         "supplied with a script_location in S3 right now",
                         cls.optparser.format_help())
 
@@ -441,7 +447,9 @@ class ShellCommand(Command):
                     "Extra arguments can only be supplied with a script_location",
                     cls.optparser.format_help())
 
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "ShellCommand"
+        return v
 
 
 class PigCommand(Command):
@@ -510,7 +518,7 @@ class PigCommand(Command):
             if (args is not None) and (len(args) > 0):
                 if options.latin_statements is not None:
                     raise ParseError(
-                        "This sucks - but extra arguments can only be "
+                        "Extra arguments can only be "
                         "supplied with a script_location in S3 right now",
                         cls.optparser.format_help())
 
@@ -528,7 +536,9 @@ class PigCommand(Command):
                     "Extra arguments can only be supplied with a script_location",
                     cls.optparser.format_help())
 
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "PigCommand"
+        return v
 
 
 class DbExportCommand(Command):
@@ -619,12 +629,13 @@ class DbExportCommand(Command):
             return None
 
         v = vars(options)
-        if cls.__name__ == "DbexportCommand":
-            v["command_type"] = "DbExportCommand"
+        v["command_type"] = "DbExportCommand"
         return v
+
 
 class DbexportCommand(DbExportCommand):
     pass
+
 
 class DbImportCommand(Command):
     usage = "dbimportcmd <submit|run> [options]"
@@ -687,7 +698,81 @@ class DbImportCommand(Command):
         except OptionParsingExit as e:
             return None
 
-        return vars(options)
+        v = vars(options)
+        v["command_type"] = "DbImportCommand"
+        return v
+
+
+class CompositeCommand(Command):
+    @classmethod
+    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False):
+        """
+        Args:
+            `sub_commands`: list of sub-command dicts
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Example Usage:
+            cmd1 = HiveCommand.parse(['--query', "show tables"])
+            cmd2 = PigCommand.parse(['--script_location', "s3://paid-qubole/PigAPIDemo/scripts/script1-hadoop-s3-small.pig"])
+            composite = CompositeCommand.compose([cmd1, cmd2])
+            cmd = CompositeCommand.run(**composite)
+        """
+        if macros is not None:
+            macros = json.loads(macros)
+        return {
+                "sub_commands": sub_commands,
+                "command_type": "CompositeCommand",
+                "macros": macros,
+                "label": cluster_label,
+                "can_notify": notify
+               }
+
+
+class DbTapQueryCommand(Command):
+    usage = "dbtapquerycmd <submit|run> [options]"
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("--db_tap_id", dest="db_tap_id",
+                         help="dbTap Id of the target database in Qubole")
+    optparser.add_option("-q", "--query", dest="query", help="query string")
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args`: sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if (options.db_tap_id is None):
+                raise ParseError("db_tap_id is required",
+                                 cls.optparser.format_help())
+            if (options.query is None):
+                raise ParseError("query is required",
+                                 cls.optparser.format_help())
+
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        v = vars(options)
+        v["command_type"] = "DbTapQueryCommand"
+        return v
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()

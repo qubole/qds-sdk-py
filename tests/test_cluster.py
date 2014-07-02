@@ -20,49 +20,49 @@ class TestClusterList(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_id(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--id', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters/123", None)
+        Connection._api_call.assert_called_with("GET", "clusters/123", params=None)
 
     def test_label(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--label', 'test_label']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters/test_label", None)
+        Connection._api_call.assert_called_with("GET", "clusters/test_label", params=None)
 
     def test_state_up(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'up']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_down(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'down']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_pending(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'pending']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_terminating(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'terminating']
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", None)
+        Connection._api_call.assert_called_with("GET", "clusters", params=None)
 
     def test_state_invalid(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--state', 'invalid']
@@ -143,7 +143,7 @@ class TestClusterStatus(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("GET", "clusters/123/state",
-                None)
+                params=None)
 
     def test_no_argument(self):
         sys.argv = ['qds.py', 'cluster', 'status']
@@ -445,6 +445,23 @@ class TestClusterCreate(QdsCliTestCase):
                      'ec2_settings': {'compute_secret_key': 'sak',
                                       'compute_access_key': 'aki',
                                       'aws_preferred_availability_zone': 'us-east-1a'},
+                    }
+                })
+
+    def test_vpc_subnet(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--vpc-id', 'vpc-12345678', '--subnet-id', 'subnet-12345678']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki',
+                                      'vpc_id': 'vpc-12345678',
+                                      'subnet_id': 'subnet-12345678'},
                     }
                 })
 
@@ -1068,6 +1085,32 @@ class TestClusterUpdate(QdsCliTestCase):
                 {'cluster':
                     {
                      'ec2_settings': {'aws_preferred_availability_zone': 'us-east-1a'},
+                    }
+                })
+
+    def test_vpc(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--vpc-id', 'vpc-12345678']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'cluster':
+                    {
+                     'ec2_settings': {'vpc_id': 'vpc-12345678'},
+                    }
+                })
+
+    def test_subnet(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--subnet-id', 'subnet-12345678']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'cluster':
+                    {
+                     'ec2_settings': {'subnet_id': 'subnet-12345678'},
                     }
                 })
 

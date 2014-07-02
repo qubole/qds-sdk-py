@@ -29,7 +29,7 @@ class DbTapCmdLine:
                             help="Password")
         create.add_argument("--port", dest="port",
                             help="Database Port")
-        create.add_argument("--type", dest="type", choices=["mysql","vertica","mongo","postgresql","redshift"],
+        create.add_argument("--type", dest="type", choices=["mysql","vertica","mongo","postgresql","redshift","sqlserver"],
                             help="Type of database")
         create.add_argument("--location", dest="location", choices=["us-east-1", "us-west-2", "ap-southeast-1", "eu-west-1", "on-premise"],
                             help="Type of database", required=True)
@@ -74,7 +74,7 @@ class DbTapCmdLine:
                             help="Password")
         edit.add_argument("--port", dest="port",
                             help="Database Port")
-        edit.add_argument("--type", dest="type", choices=["mysql","vertica","mongo","postgresql","redshift"],
+        edit.add_argument("--type", dest="type", choices=["mysql","vertica","mongo","postgresql","redshift","sqlserver"],
                             help="Type of database")
         edit.add_argument("--location", dest="location", choices=["us-east-1", "us-west-2", "ap-southeast-1", "eu-west-1", "on-premise"],
                             help="Type of database")
