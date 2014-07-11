@@ -4,6 +4,7 @@ from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 from qds_sdk.commands import *
+from qds_sdk.actions import *
 
 class SchedulerCmdLine:
     """
@@ -144,6 +145,9 @@ class SchedulerCmdLine:
     def list_actions(args):
         schedule = Scheduler.find(args.id)
         actlist = schedule.list_actions(args.sequence_id, args.page, args.per_page)
+        if args.fields:
+            for a in actionlist:
+                a.attributes = ActionCmdLine.filter_fields(a.attributes, args.fields)
         return json.dumps(actlist, default=lambda o: o.attributes,
                           sort_keys=True, indent=4)
 

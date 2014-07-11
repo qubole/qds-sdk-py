@@ -43,6 +43,8 @@ class ActionCmdLine:
                           help="Number of items per page")
         list.add_argument("--page", dest="page",
                           help="Page Number")
+        view.add_argument("--fields", nargs="*", dest="fields",
+                          help="List of fields to show")
         list.set_defaults(func=ActionCmdLine.list)
 
         #View
@@ -86,13 +88,25 @@ class ActionCmdLine:
         return parsed.func(parsed)
 
     @staticmethod
+    def filter_fields(act, fields):
+        filtered = {}
+        for field in fields:
+            filtered[field] = act[field]
+        return filtered
+    
+    @staticmethod
     def list(args):
         actionlist = Action.list(args.page, args.per_page)
+        if args.fields:
+            for a in actionlist:
+                a.attributes = ActionCmdLine.filter_fields(a.attributes, args.fields)
         return json.dumps(actionlist, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def view(args):
         act = Action.find(args.id)
+        if args.fields:
+            act.attributes = ActionCmdLine.filter_fields(act.attributes, args.fields)
         return json.dumps(act.attributes, sort_keys=True, indent=4)
 
     @staticmethod
@@ -142,7 +156,7 @@ class Action(Resource):
         if per_page is not None:
             page_attr.append("per_page=%s" % per_page)
         if page_attr:
-            url_path = "%s?%s" % (Scheduler.rest_entity_path, "&".join(page_attr))
+            url_path = "%s?%s" % (Action.rest_entity_path, "&".join(page_attr))
 
         #Todo Page numbers are thrown away right now
         actjson = conn.get(url_path)
