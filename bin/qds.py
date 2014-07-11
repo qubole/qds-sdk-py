@@ -337,6 +337,10 @@ def reportmain(args):
     print result
 
 
+def actionmain(args):
+    result = ActionCmdLine.run(args)
+    print result
+
 def schedulermain(args):
     result = SchedulerCmdLine.run(args)
     print result
@@ -420,6 +424,9 @@ def main():
 
     if a0 == "hadoop_cluster" or a0 == "cluster":
         return clustermain(a0, args)
+
+    if a0 == "action":
+        return actionmain(args)
 
     if a0 == "scheduler":
         return schedulermain(args)

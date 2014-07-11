@@ -60,6 +60,17 @@ class SchedulerCmdLine:
         kill.add_argument("id", help="Numeric id or name of the schedule")
         kill.set_defaults(func=SchedulerCmdLine.kill)
 
+        #List Actions
+        list_actions = subparsers.add_parser("list-actions",
+                                               help="List actions of a specific schedule")
+        list_actions.add_argument("id", help="Numeric id or name of the schedule")
+        list_actions.add_argument("sequence_id", help="Sequence id of the actions to list")
+        list_actions.add_argument("--per-page", dest="per_page",
+                                    help="Number of items per page")
+        list_actions.add_argument("--page", dest="page",
+                                    help="Page Number")
+        list_actions.set_defaults(func=SchedulerCmdLine.list_actions)
+
         #List Instances
         list_instances = subparsers.add_parser("list-instances",
                                                help="List instances of a specific schedule")
@@ -130,6 +141,13 @@ class SchedulerCmdLine:
         return json.dumps(schedule.kill(), sort_keys=True, indent=4)
 
     @staticmethod
+    def list_actions(args):
+        schedule = Scheduler.find(args.id)
+        actlist = schedule.list_actions(args.sequence_id, args.page, args.per_page)
+        return json.dumps(actlist, default=lambda o: o.attributes,
+                          sort_keys=True, indent=4)
+
+    @staticmethod
     def list_instances(args):
         schedule = Scheduler.find(args.id)
         cmdlist = schedule.list_instances(args.page, args.per_page)
@@ -187,6 +205,25 @@ class Scheduler(Resource):
         conn = Qubole.agent()
         data = {"status": "kill"}
         return conn.put(self.element_path(self.id), data)
+
+    def list_actions(self, sequence_id = None, page=None, per_page=None):
+        conn = Qubole.agent()
+        url_path = self.element_path(self.id) + "/" + "actions"
+        if sequence_id is not NONE:
+            url_path = url_path + "/" +  sequence_id
+        page_attr = []
+        if page is not None:
+            page_attr.append("page=%s" % page)
+        if per_page is not None:
+            page_attr.append("per_page=%s" % per_page)
+        if page_attr:
+            url_path = "%s?%s" % (url_path, "&".join(page_attr))
+        #Todo Page numbers are thrown away right now
+        actjson = conn.get(url_path)
+        actlist = []
+        for act in actjson["scheduler_instances"]:
+            actlist.append(Action(act))
+        return actlist
 
     def list_instances(self, page=None, per_page=None):
         conn = Qubole.agent()
