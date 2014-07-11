@@ -159,7 +159,18 @@ class Action(Resource):
         conn = Qubole.agent()
         return conn.post(self.element_path(self.id) + "/rerun", {})
 
+    def status(self):
+        return self.attributes["status"]
+
     def logs(self):
+        if self.status().lower() == "submitted":   
+            return "Logs for action are not yet available. Action is waiting for underlying command to be created."
+        if self.status().lower() == "waiting":  
+            return "Logs for action are not yet available. Waiting for dependencies to be met."
+        if self.status().lower() == "not_found":  
+            return "Logs for action are not available. Dependencies not found."
+        if self.status().lower() == "cancelled":  
+            return "Logs for action are not available. Action was cancelled before underlying command gets created."
         cmd = self.getcommand()
         if cmd is None:
             return "Logs for action are not yet available."
