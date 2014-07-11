@@ -6,6 +6,7 @@ from qds_sdk.cluster import *
 from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
 from qds_sdk.scheduler import SchedulerCmdLine
+from qds_sdk.actions import ActionCmdLine
 from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 
@@ -337,6 +338,10 @@ def reportmain(args):
     print result
 
 
+def actionmain(args):
+    result = ActionCmdLine.run(args)
+    print result
+
 def schedulermain(args):
     result = SchedulerCmdLine.run(args)
     print result
@@ -420,6 +425,9 @@ def main():
 
     if a0 == "hadoop_cluster" or a0 == "cluster":
         return clustermain(a0, args)
+
+    if a0 == "action":
+        return actionmain(args)
 
     if a0 == "scheduler":
         return schedulermain(args)

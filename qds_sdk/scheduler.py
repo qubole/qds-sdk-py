@@ -4,6 +4,7 @@ from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 from qds_sdk.commands import *
+from qds_sdk.actions import *
 
 class SchedulerCmdLine:
     """
@@ -59,6 +60,19 @@ class SchedulerCmdLine:
                                      help="Kill a specific schedule")
         kill.add_argument("id", help="Numeric id or name of the schedule")
         kill.set_defaults(func=SchedulerCmdLine.kill)
+
+        #List Actions
+        list_actions = subparsers.add_parser("list-actions",
+                                               help="List actions of a specific schedule")
+        list_actions.add_argument("id", help="Numeric id or name of the schedule")
+        list_actions.add_argument("--sequence_id", dest="sequence_id", help="Sequence id of the actions to list")
+        list_actions.add_argument("--fields", nargs="*", dest="fields",
+                          help="List of fields to show")
+        list_actions.add_argument("--per-page", dest="per_page",
+                                    help="Number of items per page")
+        list_actions.add_argument("--page", dest="page",
+                                    help="Page Number")
+        list_actions.set_defaults(func=SchedulerCmdLine.list_actions)
 
         #List Instances
         list_instances = subparsers.add_parser("list-instances",
@@ -130,6 +144,16 @@ class SchedulerCmdLine:
         return json.dumps(schedule.kill(), sort_keys=True, indent=4)
 
     @staticmethod
+    def list_actions(args):
+        schedule = Scheduler.find(args.id)
+        actlist = schedule.list_actions(args.sequence_id, args.page, args.per_page)
+        if args.fields:
+            for a in actlist:
+                a.attributes = ActionCmdLine.filter_fields(a.attributes, args.fields)
+        return json.dumps(actlist, default=lambda o: o.attributes,
+                          sort_keys=True, indent=4)
+
+    @staticmethod
     def list_instances(args):
         schedule = Scheduler.find(args.id)
         cmdlist = schedule.list_instances(args.page, args.per_page)
@@ -187,6 +211,24 @@ class Scheduler(Resource):
         conn = Qubole.agent()
         data = {"status": "kill"}
         return conn.put(self.element_path(self.id), data)
+
+    def list_actions(self, sequence_id = None, page=None, per_page=None):
+        conn = Qubole.agent()
+        url_path = self.element_path(self.id) + "/" + "actions"
+        if sequence_id is not None:
+            url_path = url_path + "/" +  str(sequence_id)
+        params = {}
+        if page is not None:
+            params['page'] = page  
+        if per_page is not None:
+            params['per_page'] = per_page  
+
+        #Todo Page numbers are thrown away right now
+        actjson = conn.get(url_path, params)
+        actlist = []
+        for act in actjson["scheduler_instances"]:
+            actlist.append(Action(act))
+        return actlist
 
     def list_instances(self, page=None, per_page=None):
         conn = Qubole.agent()
