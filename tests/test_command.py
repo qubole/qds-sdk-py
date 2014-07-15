@@ -440,8 +440,60 @@ class TestDbImportCommand(QdsCliTestCase):
 
 class TestDbTapQueryCommand(QdsCliTestCase):
 
-    def test_stub(self):
-        pass
+    def test_submit(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', 'show tables', '--db_tap_id', 1]
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'db_tap_id': 1,
+                                                 'query': 'show tables',
+                                                 'macros': None,
+                                                 'command_type': 'DbTapQueryCommand',
+                                                 'can_notify': False})
+
+    def test_submit_fail_with_no_parameters(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_fail_with_only_query_passed(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', 'show tables']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_fail_with_only_db_tap_id_passed(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--db_tap_id', 1]
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_with_notify(self):
+         sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', 'show tables', '--db_tap_id', 1, '--notify']
+         print_command()
+         Connection._api_call = Mock(return_value={'id': 1})
+         qds.main()
+         Connection._api_call.assert_called_with('POST', 'commands',
+                                                 {'db_tap_id': 1,
+                                                  'query': 'show tables',
+                                                  'macros': None,
+                                                  'command_type': 'DbTapQueryCommand',
+                                                  'can_notify': True})
+
+    def test_submit_with_macros(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', "select * from table_1 limit  \$limit\$",
+                    '--db_tap_id', 1, '--macros', '[{"a": "1", "b" : "4", "limit":"a + b"}]']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'macros': [{"a": "1", "b" : "4", "limit":"a + b"}],
+                                                 'db_tap_id': 1,
+                                                 'query': "select * from table_1 limit  \$limit\$",
+                                                 'command_type': 'DbTapQueryCommand',
+                                                 'can_notify': False})
 
 
 if __name__ == '__main__':
