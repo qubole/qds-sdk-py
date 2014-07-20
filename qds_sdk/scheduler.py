@@ -216,7 +216,7 @@ class Scheduler(Resource):
         conn = Qubole.agent()
         url_path = self.element_path(self.id) + "/" + "actions"
         if sequence_id is not None:
-            url_path = url_path + "/" +  sequence_id
+            url_path = url_path + "/" +  str(sequence_id)
         page_attr = []
         if page is not None:
             page_attr.append("page=%s" % page)
