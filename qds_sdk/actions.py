@@ -6,6 +6,7 @@ the specific commands
 
 from qubole import Qubole
 from resource import Resource
+from argparse import ArgumentParser
 from exception import ParseError
 from account import Account
 from qds_sdk.commands import *
@@ -43,7 +44,7 @@ class ActionCmdLine:
                           help="Number of items per page")
         list.add_argument("--page", dest="page",
                           help="Page Number")
-        view.add_argument("--fields", nargs="*", dest="fields",
+        list.add_argument("--fields", nargs="*", dest="fields",
                           help="List of fields to show")
         list.set_defaults(func=ActionCmdLine.list)
 
@@ -122,12 +123,12 @@ class ActionCmdLine:
     @staticmethod
     def logs(args):
         action = Action.find(args.id)
-        return json.logs(action.logs(), sort_keys=True, indent=4)
+        print action.logs()
 
     @staticmethod
     def results(args):
         action = Action.find(args.id)
-        return json.logs(action.results(), sort_keys=True, indent=4)
+        action.results()
 
 class Action(Resource):
 

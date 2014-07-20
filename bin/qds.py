@@ -6,6 +6,7 @@ from qds_sdk.cluster import *
 from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
 from qds_sdk.scheduler import SchedulerCmdLine
+from qds_sdk.actions import ActionCmdLine
 from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 

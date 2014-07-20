@@ -148,7 +148,7 @@ class SchedulerCmdLine:
         schedule = Scheduler.find(args.id)
         actlist = schedule.list_actions(args.sequence_id, args.page, args.per_page)
         if args.fields:
-            for a in actionlist:
+            for a in actlist:
                 a.attributes = ActionCmdLine.filter_fields(a.attributes, args.fields)
         return json.dumps(actlist, default=lambda o: o.attributes,
                           sort_keys=True, indent=4)
