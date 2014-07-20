@@ -65,7 +65,7 @@ class SchedulerCmdLine:
         list_actions = subparsers.add_parser("list-actions",
                                                help="List actions of a specific schedule")
         list_actions.add_argument("id", help="Numeric id or name of the schedule")
-        list_actions.add_argument("sequence_id", help="Sequence id of the actions to list")
+        list_actions.add_argument("--sequence_id", dest="sequence_id", help="Sequence id of the actions to list")
         list_actions.add_argument("--fields", nargs="*", dest="fields",
                           help="List of fields to show")
         list_actions.add_argument("--per-page", dest="per_page",
