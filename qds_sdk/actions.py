@@ -4,25 +4,14 @@ a generic Qubole command and the implementation of all
 the specific commands
 """
 
+import json
+
 from qubole import Qubole
 from resource import Resource
 from argparse import ArgumentParser
-from exception import ParseError
-from account import Account
 from qds_sdk.commands import *
-from qds_sdk.util import GentleOptionParser
-from qds_sdk.util import OptionParsingError
-from qds_sdk.util import OptionParsingExit
 
-import boto
-
-import time
 import logging
-import sys
-import re
-import pipes
-
-import json
 
 log = logging.getLogger("qds_actions")
 
