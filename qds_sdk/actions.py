@@ -1,7 +1,5 @@
 """
-The commands module contains the base definition for
-a generic Qubole command and the implementation of all
-the specific commands
+The actions module contains the definition for actions started by scheduler.
 """
 
 import json
