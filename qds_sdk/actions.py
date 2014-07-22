@@ -99,13 +99,16 @@ class ActionCmdLine:
 
     @staticmethod
     def kill(args):
-        action = Action.find(args.id)
-        return json.dumps(action.kill(), sort_keys=True, indent=4)
+        conn = Qubole.agent()
+        ret_val = conn.put(Action.element_path(args.id) + "/kill", data=None)
+        return json.dumps(ret_val, sort_keys=True, indent=4)
 
     @staticmethod
     def rerun(args):
-        action = Action.find(args.id)
-        return json.dumps(action.rerun(), sort_keys=True, indent=4)
+        conn = Qubole.agent()
+        ret_val = conn.post(Action.element_path(args.id) + "/rerun", data=None)
+        print str(ret_val)
+        return json.dumps(ret_val, sort_keys=True, indent=4)
 
     @staticmethod
     def logs(args):
