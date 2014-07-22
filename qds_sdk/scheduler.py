@@ -217,15 +217,14 @@ class Scheduler(Resource):
         url_path = self.element_path(self.id) + "/" + "actions"
         if sequence_id is not None:
             url_path = url_path + "/" +  str(sequence_id)
-        page_attr = []
+        params = {}
         if page is not None:
-            page_attr.append("page=%s" % page)
+            params['page'] = page  
         if per_page is not None:
-            page_attr.append("per_page=%s" % per_page)
-        if page_attr:
-            url_path = "%s?%s" % (url_path, "&".join(page_attr))
+            params['per_page'] = per_page  
+
         #Todo Page numbers are thrown away right now
-        actjson = conn.get(url_path)
+        actjson = conn.get(url_path, params)
         actlist = []
         for act in actjson["scheduler_instances"]:
             actlist.append(Action(act))

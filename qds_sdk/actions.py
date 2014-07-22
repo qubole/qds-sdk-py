@@ -138,16 +138,14 @@ class Action(Resource):
     def list(page = None, per_page = None):
         conn = Qubole.agent()
         url_path = Action.rest_entity_path
-        page_attr = []
+        params = {}
         if page is not None:
-            page_attr.append("page=%s" % page)
+            params['page'] = page  
         if per_page is not None:
-            page_attr.append("per_page=%s" % per_page)
-        if page_attr:
-            url_path = "%s?%s" % (Action.rest_entity_path, "&".join(page_attr))
+            params['per_page'] = per_page  
 
         #Todo Page numbers are thrown away right now
-        actjson = conn.get(url_path)
+        actjson = conn.get(url_path, params)
         actlist = []
         for a in actjson["scheduler_instances"]:
             actlist.append(Action(a))
@@ -155,11 +153,11 @@ class Action(Resource):
     
     def kill(self):
         conn = Qubole.agent()
-        return conn.put(self.element_path(self.id) + "/kill", {})
+        return conn.put(self.element_path(self.id) + "/kill", data=None)
 
     def rerun(self):
         conn = Qubole.agent()
-        return conn.post(self.element_path(self.id) + "/rerun", {})
+        return conn.post(self.element_path(self.id) + "/rerun", data=None)
 
     def status(self):
         return self.attributes["status"]
