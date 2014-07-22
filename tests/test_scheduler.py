@@ -19,7 +19,7 @@ def list_actions_side_effect(*args, **kwargs):
     if args[1] == "scheduler/123":
       return {'id':'123'}
     else:
-      return {"scheduler_instances":[]}
+      return {"actions":[]}
 
 class TestSchedulerCheck(QdsCliTestCase):
 

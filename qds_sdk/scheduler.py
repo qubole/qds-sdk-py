@@ -226,7 +226,7 @@ class Scheduler(Resource):
         #Todo Page numbers are thrown away right now
         actjson = conn.get(url_path, params)
         actlist = []
-        for act in actjson["scheduler_instances"]:
+        for act in actjson["actions"]:
             actlist.append(Action(act))
         return actlist
 

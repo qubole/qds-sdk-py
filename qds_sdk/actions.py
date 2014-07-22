@@ -149,7 +149,7 @@ class Action(Resource):
         #Todo Page numbers are thrown away right now
         actjson = conn.get(url_path, params)
         actlist = []
-        for a in actjson["scheduler_instances"]:
+        for a in actjson["actions"]:
             actlist.append(Action(a))
         return actlist
     
