@@ -64,18 +64,16 @@ class TestActionCheck(QdsCliTestCase):
     def test_rerun(self):
         sys.argv = ['qds.py', 'action', 'rerun', '123']
         print_command()
-        Connection._api_call = Mock()
-        Connection._api_call.side_effect = common_side_effect
+        Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_has_calls([call("POST", "actions/123/rerun", None)])
+        Connection._api_call.assert_called_with("POST", "actions/123/rerun", None)
 
     def test_kill(self):
         sys.argv = ['qds.py', 'action', 'kill', '123']
         print_command()
-        Connection._api_call = Mock()
-        Connection._api_call.side_effect = common_side_effect
+        Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_has_calls([call("PUT", "actions/123/kill", None)])
+        Connection._api_call.assert_called_with("PUT", "actions/123/kill", None)
 
     def test_logs(self):
         sys.argv = ['qds.py', 'action', 'logs', '123']

@@ -107,7 +107,6 @@ class ActionCmdLine:
     def rerun(args):
         conn = Qubole.agent()
         ret_val = conn.post(Action.element_path(args.id) + "/rerun", data=None)
-        print str(ret_val)
         return json.dumps(ret_val, sort_keys=True, indent=4)
 
     @staticmethod
