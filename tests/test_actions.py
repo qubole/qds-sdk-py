@@ -29,21 +29,21 @@ class TestActionCheck(QdsCliTestCase):
     def test_list(self):
         sys.argv = ['qds.py', 'action', 'list']
         print_command()
-        Connection._api_call = Mock(return_value={"scheduler_instances":[]})
+        Connection._api_call = Mock(return_value={"actions":[]})
         qds.main()
         Connection._api_call.assert_called_with("GET", "actions", params={})
 
     def test_list_pages(self):
         sys.argv = ['qds.py', 'action', 'list', '--per-page', '2']
         print_command()
-        Connection._api_call = Mock(return_value={"scheduler_instances":[]})
+        Connection._api_call = Mock(return_value={"actions":[]})
         qds.main()
         Connection._api_call.assert_called_with("GET", "actions", params={'per_page':'2'})
 
     def test_list_pages_fields(self):
         sys.argv = ['qds.py', 'action', 'list', '--per-page', '2', '--fields', 'id', 'sequence_id']
         print_command()
-        Connection._api_call = Mock(return_value={"scheduler_instances":[]})
+        Connection._api_call = Mock(return_value={"actions":[]})
         qds.main()
         Connection._api_call.assert_called_with("GET", "actions", params={'per_page':'2'})
 
