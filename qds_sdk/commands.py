@@ -739,6 +739,8 @@ class DbTapQueryCommand(Command):
     optparser.add_option("-q", "--query", dest="query", help="query string")
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
+    optparser.add_option("--macros", dest="macros",
+                         help="expressions to expand macros used in query")
 
     @classmethod
     def parse(cls, args):
@@ -770,6 +772,8 @@ class DbTapQueryCommand(Command):
         except OptionParsingExit as e:
             return None
 
+        if options.macros is not None:
+            options.macros = json.loads(options.macros)
         v = vars(options)
         v["command_type"] = "DbTapQueryCommand"
         return v
