@@ -150,7 +150,7 @@ class Cluster(Resource):
                                     " creating the cluster",)
         ec2_group.add_argument("--aws-region",
                                dest="aws_region",
-                               choices=["us-east-1", "us-west-2",
+                               choices=["us-east-1", "us-west-2", "ap-northeast-1",
                                         "eu-west-1", "ap-southeast-1"],
                                help="aws region to create the cluster in",)
         ec2_group.add_argument("--aws-availability-zone",
