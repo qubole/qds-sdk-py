@@ -780,15 +780,23 @@ class DbTapQueryCommand(Command):
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
-    while True:
-        try:
-            # Default buffer size is 8192 bytes
-            data = next(key_instance)
-            fp.write(str(data).replace(chr(1), delim))
-        except StopIteration:
-            # Stream closes itself when the exception is raised
-            return
-
+    if chr(1) != '\x01':
+        while True:
+            try:
+                # Default buffer size is 8192 bytes
+                data = next(key_instance)
+                fp.write(str(data).replace(chr(1), delim))
+            except StopIteration:
+                # Stream closes itself when the exception is raised
+                return
+    else:
+        while True:
+            try:
+                # Default buffer size is 8192 bytes
+                data = next(key_instance)
+            except StopIteration:
+                # Stream closes itself when the exception is raised
+                return
 
 def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
