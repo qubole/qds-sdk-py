@@ -6,10 +6,10 @@ else:
     import unittest2 as unittest
 
 def print_command():
-    print()
+    print
     for arg in sys.argv:
-        print(arg, end=' ')
-    print()
+        print arg,
+    print
 
 
 class QdsCliTestCase(unittest.TestCase):
