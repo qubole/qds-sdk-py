@@ -780,6 +780,7 @@ class DbTapQueryCommand(Command):
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
+    print("Speeding up writing")
     if chr(1) != '\x01':
         while True:
             try:
@@ -794,6 +795,7 @@ def _read_iteratively(key_instance, fp, delim):
             try:
                 # Default buffer size is 8192 bytes
                 data = next(key_instance)
+                fp.write(str(data))
             except StopIteration:
                 # Stream closes itself when the exception is raised
                 return
