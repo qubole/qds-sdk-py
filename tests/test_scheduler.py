@@ -21,9 +21,6 @@ def list_actions_side_effect(*args, **kwargs):
     else:
       return {"actions":[]}
 
-def view_by_name_side_effect(*args, **kwargs):
-      return {"schedules":[]}
-
 class TestSchedulerCheck(QdsCliTestCase):
 
     def test_list_actions(self):
@@ -61,8 +58,7 @@ class TestSchedulerCheck(QdsCliTestCase):
     def test_view_by_name(self):
         sys.argv = ['qds.py', 'scheduler', 'view_by_name', '123']
         print_command()
-        Connection._api_call = Mock()
-        Connection._api_call.side_effect = view_by_name_side_effect
+        Connection._api_call = Mock(return_value={"schedules":[]})
         qds.main()
         Connection._api_call.assert_has_calls([call("GET","scheduler",params={'name':'123'})])
 
