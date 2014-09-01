@@ -55,6 +55,12 @@ class TestSchedulerCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_has_calls([call("GET","scheduler/123",params=None), call("GET", "scheduler/123/actions", params={'per_page':'2'})])
 
+    def test_view_by_name(self):
+        sys.argv = ['qds.py', 'scheduler', 'view_by_name', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={"schedules":[]})
+        qds.main()
+        Connection._api_call.assert_has_calls([call("GET","scheduler",params={'name':'123'})])
 
 if __name__ == '__main__':
     unittest.main()

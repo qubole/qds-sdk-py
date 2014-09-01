@@ -38,10 +38,18 @@ class SchedulerCmdLine:
         #View
         view = subparsers.add_parser("view",
                                      help="View a specific schedule")
-        view.add_argument("id", help="Numeric id or name of the schedule")
+        view.add_argument("id", help="Numeric id of the schedule")
         view.add_argument("--fields", nargs="*", dest="fields",
                           help="List of fields to show")
         view.set_defaults(func=SchedulerCmdLine.view)
+
+        #View by name
+        view_by_name = subparsers.add_parser("view_by_name",
+                                     help="View a specific schedule")
+        view_by_name.add_argument("name", help="Name of the schedule")
+        view_by_name.add_argument("--fields", nargs="*", dest="fields",
+                          help="List of fields to show")
+        view_by_name.set_defaults(func=SchedulerCmdLine.view_by_name)
 
         #Suspend
         suspend = subparsers.add_parser("suspend",
@@ -129,6 +137,15 @@ class SchedulerCmdLine:
         return json.dumps(schedule.attributes, sort_keys=True, indent=4)
 
     @staticmethod
+    def view_by_name(args):
+        schedule = Scheduler.find_by_name(args.name)
+        if schedule is None:
+            return "Schedule '%s' not found" % args.name
+        if args.fields:
+            schedule.attributes = SchedulerCmdLine.filter_fields(schedule.attributes, args.fields)
+        return json.dumps(schedule.attributes, sort_keys=True, indent=4)
+
+    @staticmethod
     def suspend(args):
         schedule = Scheduler.find(args.id)
         return json.dumps(schedule.suspend(), sort_keys=True, indent=4)
@@ -196,6 +213,15 @@ class Scheduler(Resource):
         for s in schedjson["schedules"]:
             schedlist.append(Scheduler(s))
         return schedlist
+
+    @staticmethod
+    def find_by_name(name):
+        conn = Qubole.agent()
+        if name is not None:
+            schedjson = conn.get(Scheduler.rest_entity_path, params={"name":name})
+            if schedjson["schedules"]:
+                return Scheduler(schedjson["schedules"][0])
+        return None
 
     def suspend(self):
         conn = Qubole.agent()
