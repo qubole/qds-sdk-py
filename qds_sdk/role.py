@@ -36,7 +36,7 @@ class RoleCmdLine:
         #View
         view = subparsers.add_parser("view",
                                      help="View a specific role")
-        view.add_argument("id", help="Numeric id of the role")
+        view.add_argument("id", help="Numeric id or Name of the role")
         view.set_defaults(func=RoleCmdLine.view)
 
         #update
@@ -48,19 +48,36 @@ class RoleCmdLine:
                             help="Policy Statement")
         update.set_defaults(func=RoleCmdLine.update)
 
+        #duplicate
+        duplicate = subparsers.add_parser("duplicate",
+                                        help="Duplicates/clone a role")
+        duplicate.add_argument("id", help="Numeric id of the role")
+        duplicate.add_argument("--name", dest="name", required=False,
+                            help="Name of the new role")
+        duplicate.add_argument("--policy", dest="policy", required=False,
+             help="Optional policy Statement example '[{\"access\":\"allow\", \"resource\": \"all\"}]'")
+        duplicate.set_defaults(func=RoleCmdLine.duplicate)
+
         #Assign Role
         assign_role = subparsers.add_parser("assign_role",
                                         help="assign a role to a group")
         assign_role.add_argument("id", help="Numeric id of the role")
-        assign_role.add_argument("qbol_group_id", help="Numeric Id of the group")
+        assign_role.add_argument("--group_id", dest="group_id", required=True,
+help="Numeric Id of the group")
         assign_role.set_defaults(func=RoleCmdLine.assign_role)
 
          #UnAssign Role
         unassign_role = subparsers.add_parser("unassign_role",
                                         help="unassign a role to a group")
         unassign_role.add_argument("id", help="Numeric id of the role")
-        unassign_role.add_argument("qbol_group_id", help="Numeric Id of the group")
+        unassign_role.add_argument("--group_id", dest="group_id", required=True, help="Numeric Id of the group")
         unassign_role.set_defaults(func=RoleCmdLine.unassign_role)
+
+        #List groups
+        list_groups = subparsers.add_parser("list_groups",
+                                        help="List all groups for a role ")
+        list_groups.add_argument("id", help="Numeric id of the role")
+        list_groups.set_defaults(func=RoleCmdLine.list_groups)
 
         return argparser
 
@@ -96,14 +113,29 @@ class RoleCmdLine:
         return json.dumps(role.update(**options), sort_keys=True, indent=4)
 
     @staticmethod
+    def duplicate(args):
+        role = Role.find(args.id) 
+        options = {}
+        if args.name is not None:
+          options["name"] = args.name
+        if args.policy is not None:
+          options["policy"] = args.policy
+        return json.dumps(role.duplicate(**options), sort_keys=True, indent=4)
+
+    @staticmethod
     def assign_role(args):
         role = Role.find(args.id)
-        return role.assign_role(args.qbol_group_id)
+        return role.assign_role(args.group_id)
 
     @staticmethod
     def unassign_role(args):
         role = Role.find(args.id)
-        return role.unassign_role(args.qbol_group_id)
+        return role.unassign_role(args.group_id)
+
+    @staticmethod
+    def list_groups(args):
+        role = Role.find(args.id)
+        return json.dumps(role.list_groups(), sort_keys=True, indent=4)
 
 class Role(Resource):
     """
@@ -137,6 +169,11 @@ class Role(Resource):
         conn = Qubole.agent()
         return conn.put(self.element_path(self.roles["id"]), data=kwargs)
 
+    def duplicate(self, **kwargs):
+        conn = Qubole.agent()
+        url_path = "roles/%s/duplicate" % self.roles["id"]
+        return conn.post(url_path, data=kwargs)
+
     def assign_role(self, qbol_group_id):
         conn = Qubole.agent()
         url_path = "groups/%s/roles/%s/assign" % (qbol_group_id, self.roles["id"])
@@ -146,5 +183,10 @@ class Role(Resource):
         conn = Qubole.agent()
         url_path = "groups/%s/roles/%s/unassign" % (qbol_group_id, self.roles["id"])
         return conn.put(url_path)
+
+    def list_groups(self):
+        conn = Qubole.agent()
+        url_path = "roles/%s/groups" % self.roles["id"]
+        return conn.get(url_path)
 
 

@@ -35,19 +35,41 @@ class GroupCmdLine:
         view.add_argument("id", help="Numeric id or name of the group")
         view.set_defaults(func=GroupCmdLine.view)
 
+        #duplicate
+        duplicate = subparsers.add_parser("duplicate",
+                                        help="Duplicates/clone a group")
+        duplicate.add_argument("id", help="Numeric id of the group")
+        duplicate.add_argument("--name", dest="name", required=False,
+                            help="Name of group")
+        duplicate.set_defaults(func=GroupCmdLine.duplicate)
+        
         #Add user
         add_user = subparsers.add_parser("add_user",
                                         help="add users to a group")
         add_user.add_argument("id", help="Numeric id of the group")
-        add_user.add_argument("user_id", help="user Id")
+        add_user.add_argument("--user_id", dest="user_id", required=True,
+help="user Id")
         add_user.set_defaults(func=GroupCmdLine.add_user)
 
          #remove user
         remove_user = subparsers.add_parser("remove_user",
                                         help="remove users from a group")
         remove_user.add_argument("id", help="Numeric id of the group")
-        remove_user.add_argument("user_id", help="user Id")
+        remove_user.add_argument("--user_id", dest="user_id", required=True,
+ help="user Id")
         remove_user.set_defaults(func=GroupCmdLine.remove_user)
+
+         #List roles for a group
+        list_roles = subparsers.add_parser("list_roles",
+                                        help="List all roles for a group ")
+        list_roles.add_argument("id", help="Numeric id of the group")
+        list_roles.set_defaults(func=GroupCmdLine.list_roles)
+
+         #List users for a group
+        list_users = subparsers.add_parser("list_users",
+                                        help="List all users in a group ")
+        list_users.add_argument("id", help="Numeric id of the group")
+        list_users.set_defaults(func=GroupCmdLine.list_users)
 
         return argparser
 
@@ -82,6 +104,26 @@ class GroupCmdLine:
         group = Group.find(args.id)
         return group.remove_user(args.user_id)
 
+    @staticmethod
+    def duplicate(args):
+        group = Group.find(args.id) 
+        options = {}
+        if args.name is not None:
+          options["name"] = args.name
+        return json.dumps(group.duplicate(**options), sort_keys=True, indent=4)
+
+    @staticmethod
+    def list_roles(args):
+        group = Group.find(args.id)
+        return json.dumps(group.list_roles(), sort_keys=True, indent=4)
+
+    @staticmethod
+    def list_users(args):
+        group = Group.find(args.id)
+        return json.dumps(group.list_users(), sort_keys=True, indent=4)
+
+
+
 class Group(Resource):
     """
     qds_sdk.Group is the base Qubole Group class.
@@ -112,11 +154,26 @@ class Group(Resource):
 
     def add_user(self, user_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/users/%s/add" % (self.groups["id"], user_id)
+        url_path = "groups/%s/qbol_users/%s/add" % (self.groups["id"], user_id)
         return conn.put(url_path)
 
     def remove_user(self, user_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/users/%s/remove" % (self.groups["id"], user_id)
+        url_path = "groups/%s/qbol_users/%s/remove" % (self.groups["id"], user_id)
         return conn.put(url_path)
+
+    def duplicate(self, **kwargs):
+        conn = Qubole.agent()
+        url_path = "groups/%s/duplicate" % self.groups["id"]
+        return conn.post(url_path, data=kwargs)
+
+    def list_roles(self):
+        conn = Qubole.agent()
+        url_path = "groups/%s/roles" % self.groups["id"]
+        return conn.get(url_path)
+
+    def list_users(self):
+        conn = Qubole.agent()
+        url_path = "groups/%s/qbol_users" % self.groups["id"]
+        return conn.get(url_path)
 
