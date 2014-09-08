@@ -55,7 +55,9 @@ usage_str = ("Usage: \n"
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
              "  report (<report-name> [options] | list)\n" +
-              "\nRole:\n" +
+             "\nGroup:\n" +
+             "  group --help\n" +
+             "\nRole:\n" +
              "  role --help\n" +
             "\nScheduler:\n" +
              "  scheduler --help\n")
