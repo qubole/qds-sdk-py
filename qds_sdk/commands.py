@@ -4,10 +4,10 @@ a generic Qubole command and the implementation of all
 the specific commands
 """
 
-from qubole import Qubole
-from resource import Resource
-from exception import ParseError
-from account import Account
+from .qubole import Qubole
+from .resource import Resource
+from .exception import ParseError
+from .account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
@@ -222,7 +222,7 @@ class HiveCommand(Command):
 
                 try:
                     q = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -294,7 +294,7 @@ class PrestoCommand(Command):
                 # script location is local file
                 try:
                     q = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -424,7 +424,7 @@ class ShellCommand(Command):
 
                 try:
                     s = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -508,7 +508,7 @@ class PigCommand(Command):
 
                 try:
                     s = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -780,15 +780,27 @@ class DbTapQueryCommand(Command):
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
-    while True:
-        try:
-            # Default buffer size is 8192 bytes
-            data = key_instance.next()
-            fp.write(str(data).replace(chr(1), delim))
-        except StopIteration:
-            # Stream closes itself when the exception is raised
-            return
-
+    if delim != '\x01':
+        while True:
+            try:
+                # Default buffer size is 8192 bytes       
+                data = next(key_instance)
+                string_to_save = data.decode(encoding='latin-1')
+                string_to_save = string_to_save.replace(chr(1), delim)
+                fp.write(string_to_save)
+            except StopIteration:
+                # Stream closes itself when the exception is raised
+                return
+    else:
+        while True:
+            try:
+                # Default buffer size is 8192 bytes
+                data = next(key_instance)
+                string_to_save = data.decode(encoding='latin-1')
+                fp.write(string_to_save)
+            except StopIteration:
+                # Stream closes itself when the exception is raised
+                return
 
 def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
@@ -830,7 +842,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             unique_paths.add(dir)
             if len(path) > 1:
                 file = int(path[1])
-                if files.has_key(dir) is False:
+                if (dir in files) is False:
                     files[dir] = []
                 files[dir].append(file)
         if len(unique_paths) < num_result_dir:

@@ -5,8 +5,8 @@ import ssl
 import json
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.poolmanager import PoolManager
-from retry import retry
-from exception import *
+from .retry import retry
+from .exception import *
 
 
 log = logging.getLogger("qds_connection")

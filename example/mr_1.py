@@ -43,8 +43,8 @@ def main():
 
     cmd = HadoopCommand.run(**args)
 
-    print("Streaming Job run via command id: %s, finished with status %s"
-          % (cmd.id, cmd.status))
+    print(("Streaming Job run via command id: %s, finished with status %s"
+          % (cmd.id, cmd.status)))
 
 
 if __name__ == '__main__':

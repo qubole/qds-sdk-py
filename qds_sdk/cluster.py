@@ -3,8 +3,8 @@ The cluster module contains the definitions for retrieving and manipulating
 cluster information.
 """
 
-from qubole import Qubole
-from resource import Resource
+from .qubole import Qubole
+from .resource import Resource
 from argparse import ArgumentParser
 
 import logging
@@ -574,7 +574,7 @@ def _make_minimal(dictionary):
     dictionary.
     """
     new_dict = {}
-    for key, value in dictionary.iteritems():
+    for key, value in dictionary.items():
         if value is not None:
             if isinstance(value, dict):
                 new_value = _make_minimal(value)
