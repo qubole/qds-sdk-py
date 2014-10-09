@@ -5,9 +5,9 @@ This module is deprecated and will be removed in a future version.
 Please use the cluster module instead.
 """
 
-from qubole import Qubole
-from resource import Resource
-from exception import ParseError
+from qds_sdk.qubole import Qubole
+from qds_sdk.resource import Resource
+from qds_sdk.exception import ParseError
 
 import logging
 

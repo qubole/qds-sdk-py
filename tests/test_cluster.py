@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import os
 if sys.version_info > (2, 7, 0):
@@ -325,7 +326,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_presto_custom_config(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("config.properties:\na=1\nb=2")
+            temp.write("config.properties:\na=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                     '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -549,7 +550,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_custom_config(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("a=1\nb=2")
+            temp.write("a=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                     '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -761,7 +762,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_customer_ssh_key(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("ssh-rsa Blah1/Blah2+BLAH3==")
+            temp.write("ssh-rsa Blah1/Blah2+BLAH3==".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                     '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -789,7 +790,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_fairscheduler_config_xml(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("<tag>60</tag>")
+            temp.write("<tag>60</tag>".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                     '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -987,7 +988,7 @@ class TestClusterUpdate(QdsCliTestCase):
 
     def test_presto_custom_config(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("config.properties:\na=1\nb=2")
+            temp.write("config.properties:\na=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'update', '123',
                     '--presto-custom-config', temp.name]
@@ -1184,7 +1185,7 @@ class TestClusterUpdate(QdsCliTestCase):
 
     def test_custom_config(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("a=1\nb=2")
+            temp.write("a=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'update', '123',
                     '--custom-config', temp.name]
@@ -1363,7 +1364,7 @@ class TestClusterUpdate(QdsCliTestCase):
 
     def test_customer_ssh_key(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("ssh-rsa Blah1/Blah2+BLAH3==")
+            temp.write("ssh-rsa Blah1/Blah2+BLAH3==".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'update', '123',
                     '--customer-ssh-key', temp.name]
@@ -1387,7 +1388,7 @@ class TestClusterUpdate(QdsCliTestCase):
 
     def test_fairscheduler_config_xml(self):
         with tempfile.NamedTemporaryFile() as temp:
-            temp.write("<tag>60</tag>")
+            temp.write("<tag>60</tag>".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', 'cluster', 'update', '123',
                     '--fairscheduler-config-xml', temp.name]

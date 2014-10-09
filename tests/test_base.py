@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 import os
 if sys.version_info > (2, 7, 0):
@@ -6,10 +7,10 @@ else:
     import unittest2 as unittest
 
 def print_command():
-    print
+    print()
     for arg in sys.argv:
-        print arg,
-    print
+        print(arg, end=' ')
+    print()
 
 
 class QdsCliTestCase(unittest.TestCase):

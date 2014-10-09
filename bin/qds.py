@@ -1,5 +1,6 @@
 #!/bin/env python
 
+from __future__ import print_function
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
@@ -75,7 +76,7 @@ def submitaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
         cmd = cmdclass.create(**args)
-        print "Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id)
+        print("Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id))
         return 0
 
 
@@ -99,7 +100,7 @@ def runaction(cmdclass, args):
 def checkaction(cmdclass, args):
     checkargs_id(args)
     o = cmdclass.find(args.pop(0))
-    print str(o)
+    print(str(o))
     return 0
 
 
@@ -111,7 +112,7 @@ def cancelaction(cmdclass, args):
         sys.stderr.write("Invalid Json Response %s - missing field '%s'" % (str(r), skey))
         return 11
     elif r['kill_succeeded']:
-        print "Command killed successfully"
+        print("Command killed successfully")
         return 0
     else:
         sys.stderr.write("Cancel failed with reason '%s'\n" % r.get('result'))
@@ -126,7 +127,7 @@ def getresultaction(cmdclass, args):
 
 def getlogaction(cmdclass, args):
     checkargs_id(args)
-    print cmdclass.get_log_id(args.pop(0))
+    print(cmdclass.get_log_id(args.pop(0)))
     return 0
 
 
@@ -156,7 +157,7 @@ def cluster_create_action(clusterclass, args):
     arguments = clusterclass._parse_create_update(args, action="create")
     cluster_info = _create_cluster_info(arguments)
     result = clusterclass.create(cluster_info.minimal_payload())
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
@@ -164,7 +165,7 @@ def cluster_update_action(clusterclass, args):
     arguments = clusterclass._parse_create_update(args, action="update")
     cluster_info = _create_cluster_info(arguments)
     result = clusterclass.update(arguments.cluster_id_label, cluster_info.minimal_payload())
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
@@ -185,7 +186,7 @@ def _create_cluster_info(arguments):
     if arguments.custom_config_file is not None:
         try:
             custom_config = open(arguments.custom_config_file).read()
-        except IOError, e:
+        except IOError as e:
             sys.stderr.write("Unable to read custom config file: %s\n" %
                              str(e))
             usage()
@@ -211,7 +212,7 @@ def _create_cluster_info(arguments):
     if arguments.fairscheduler_config_xml_file is not None:
         try:
             fairscheduler_config_xml = open(arguments.fairscheduler_config_xml_file).read()
-        except IOError, e:
+        except IOError as e:
             sys.stderr.write("Unable to read config xml file: %s\n" %
                              str(e))
             usage()
@@ -222,7 +223,7 @@ def _create_cluster_info(arguments):
     if arguments.customer_ssh_key_file is not None:
         try:
             customer_ssh_key = open(arguments.customer_ssh_key_file).read()
-        except IOError, e:
+        except IOError as e:
             sys.stderr.write("Unable to read customer ssh key file: %s\n" %
                              str(e))
             usage()
@@ -233,7 +234,7 @@ def _create_cluster_info(arguments):
     if arguments.presto_custom_config_file is not None:
         try:
             presto_custom_config = open(arguments.presto_custom_config_file).read()
-        except IOError, e:
+        except IOError as e:
             sys.stderr.write("Unable to read presto custom config file: %s\n" %
                              str(e))
             usage()
@@ -246,7 +247,7 @@ def _create_cluster_info(arguments):
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id_label(args)
     result = clusterclass.delete(args.pop(0))
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
@@ -260,28 +261,28 @@ def cluster_list_action(clusterclass, args):
         result = clusterclass.list(state=arguments['state'])
     else:
         result = clusterclass.list()
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
 def cluster_start_action(clusterclass, args):
     checkargs_cluster_id_label(args)
     result = clusterclass.start(args.pop(0))
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
 def cluster_terminate_action(clusterclass, args):
     checkargs_cluster_id_label(args)
     result = clusterclass.terminate(args.pop(0))
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
 def cluster_status_action(clusterclass, args):
     checkargs_cluster_id_label(args)
     result = clusterclass.status(args.pop(0))
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
@@ -289,14 +290,14 @@ def cluster_reassign_label_action(clusterclass, args):
     arguments = clusterclass._parse_reassign_label(args)
     result = clusterclass.reassign_label(arguments.destination_cluster,
                                          arguments.label)
-    print json.dumps(result, indent=4)
+    print(json.dumps(result, indent=4))
     return 0
 
 
 def cluster_check_action(clusterclass, args):
     name = args.pop(0) if (len(args) >= 1) else None
     o = clusterclass.find(name=name)
-    print str(o)
+    print(str(o))
     return 0
 
 
@@ -335,20 +336,20 @@ def clustermain(dummy, args):
 
 def reportmain(args):
     result = ReportCmdLine.run(args)
-    print result
+    print(result)
 
 
 def actionmain(args):
     result = ActionCmdLine.run(args)
-    print result
+    print(result)
 
 def schedulermain(args):
     result = SchedulerCmdLine.run(args)
-    print result
+    print(result)
 
 def dbtapmain(args):
     result = DbTapCmdLine.run(args)
-    print result
+    print(result)
 
 def main():
 
