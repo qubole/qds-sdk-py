@@ -150,12 +150,14 @@ class Command(Resource):
             if sys.version_info < (3, 0, 0):
                 fp.write(r['results'].encode('utf8'))
             else:
-                # fp.write() expects str (and not bytes) in python3. But if I
-                # don't encode it while writing, the program may crash when
-                # sys.getdefaultencoding() doesn't support the unicode
-                # characters in the results. That's why, I am using the
-                # underlying buffer object.
-                fp.buffer.write(r['results'].encode('utf8'))
+                import io
+                if isinstance(fp, io.TextIOBase):
+                    fp.buffer.write(r['results'].encode('utf8'))
+                elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                    fp.write(r['results'].encode('utf8'))
+                else:
+                    # Can this happen? Don't know what's the right thing to do in this case.
+                    pass
         else:
             acc = Account.find()
             boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
@@ -165,6 +167,7 @@ class Command(Resource):
             #fetch latest value of num_result_dir
             num_result_dir = Command.find(self.id).num_result_dir
             for s3_path in r['result_location']:
+                # In Python 3, in this case, `fp` should always be binary mode.
                 _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
 
 
