@@ -375,7 +375,7 @@ class ShellCommand(Command):
     optparser.add_option("-i", "--files", dest="files",
                          help="List of files [optional] Format : file1,file2 (files in s3 bucket) These files will be copied to the working directory where the command is executed")
 
-    optparser.add_option("-a", "--archive", dest="archive",
+    optparser.add_option("-a", "--archives", dest="archives",
                          help="List of archives [optional] Format : archive1,archive2 (archives in s3 bucket) These are unarchived in the working directory where the command is executed")
 
     optparser.add_option("--cluster-label", dest="label",
