@@ -2,10 +2,11 @@
 The actions module contains the definition for actions started by scheduler.
 """
 
+from __future__ import print_function
 import json
 
-from qubole import Qubole
-from resource import Resource
+from qds_sdk.qubole import Qubole
+from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 from qds_sdk.commands import *
 
@@ -112,7 +113,7 @@ class ActionCmdLine:
     @staticmethod
     def logs(args):
         action = Action.find(args.id)
-        print action.logs()
+        print(action.logs())
 
     @staticmethod
     def results(args):
@@ -182,7 +183,7 @@ class Action(Resource):
     def results(self):
         cmd = self.getcommand()
         if cmd is None:
-            print "Results for action are not yet available."
+            print("Results for action are not yet available.")
         else:
             cmd.get_results() 
 

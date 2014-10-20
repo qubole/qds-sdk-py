@@ -4,10 +4,10 @@ a generic Qubole command and the implementation of all
 the specific commands
 """
 
-from qubole import Qubole
-from resource import Resource
-from exception import ParseError
-from account import Account
+from qds_sdk.qubole import Qubole
+from qds_sdk.resource import Resource
+from qds_sdk.exception import ParseError
+from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
@@ -147,7 +147,17 @@ class Command(Resource):
 
         r = conn.get(result_path, {'inline': inline})
         if r.get('inline'):
-            fp.write(r['results'].encode('utf8'))
+            if sys.version_info < (3, 0, 0):
+                fp.write(r['results'].encode('utf8'))
+            else:
+                import io
+                if isinstance(fp, io.TextIOBase):
+                    fp.buffer.write(r['results'].encode('utf8'))
+                elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                    fp.write(r['results'].encode('utf8'))
+                else:
+                    # Can this happen? Don't know what's the right thing to do in this case.
+                    pass
         else:
             acc = Account.find()
             boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
@@ -157,6 +167,7 @@ class Command(Resource):
             #fetch latest value of num_result_dir
             num_result_dir = Command.find(self.id).num_result_dir
             for s3_path in r['result_location']:
+                # In Python 3, in this case, `fp` should always be binary mode.
                 _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
 
 
@@ -222,7 +233,7 @@ class HiveCommand(Command):
 
                 try:
                     q = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -294,7 +305,7 @@ class PrestoCommand(Command):
                 # script location is local file
                 try:
                     q = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -424,7 +435,7 @@ class ShellCommand(Command):
 
                 try:
                     s = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -508,7 +519,7 @@ class PigCommand(Command):
 
                 try:
                     s = open(options.script_location).read()
-                except IOError, e:
+                except IOError as e:
                     raise ParseError("Unable to open script location: %s" %
                                      str(e),
                                      cls.optparser.format_help())
@@ -783,7 +794,7 @@ def _read_iteratively(key_instance, fp, delim):
     while True:
         try:
             # Default buffer size is 8192 bytes
-            data = key_instance.next()
+            data = next(key_instance)
             fp.write(str(data).replace(chr(1), delim))
         except StopIteration:
             # Stream closes itself when the exception is raised
@@ -830,7 +841,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             unique_paths.add(dir)
             if len(path) > 1:
                 file = int(path[1])
-                if files.has_key(dir) is False:
+                if dir not in files:
                     files[dir] = []
                 files[dir].append(file)
         if len(unique_paths) < num_result_dir:

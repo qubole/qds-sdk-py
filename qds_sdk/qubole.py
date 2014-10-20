@@ -1,6 +1,6 @@
 import requests
-from connection import Connection
-from exception import ConfigError
+from qds_sdk.connection import Connection
+from qds_sdk.exception import ConfigError
 
 
 class QuboleAuth(requests.auth.AuthBase):

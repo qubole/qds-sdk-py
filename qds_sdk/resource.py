@@ -3,8 +3,9 @@ qds_sdk.Resource represents a REST based resource with standard methods like
 create/find etc.
 """
 import json
-import util
-from qubole import Qubole
+from six import add_metaclass
+from qds_sdk import util
+from qds_sdk.qubole import Qubole
 
 
 class ResourceMeta(type):
@@ -106,9 +107,8 @@ class Resource(BaseResource):
         return self.__class__.element_path(self.id)
 
 
+@add_metaclass(ResourceMetaSingleton)
 class SingletonResource(BaseResource):
-
-    __metaclass__ = ResourceMetaSingleton
 
     cached_resource = None
 
