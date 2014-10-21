@@ -152,6 +152,7 @@ class TestHiveCommand(QdsCliTestCase):
                 {'macros': None,
                  'label': None,
                  'sample_size': None,
+                 'name': None,
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': False,
@@ -166,6 +167,7 @@ class TestHiveCommand(QdsCliTestCase):
                 {'macros': None,
                  'label': None,
                  'sample_size': None,
+                 'name': None,
                  'query': None,
                  'command_type': 'HiveCommand',
                  'can_notify': False,
@@ -194,6 +196,7 @@ class TestHiveCommand(QdsCliTestCase):
                 {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
                  'label': None,
                  'sample_size': None,
+                 'name': None,
                  'query': None,
                  'command_type': 'HiveCommand',
                  'can_notify': False,
@@ -209,6 +212,23 @@ class TestHiveCommand(QdsCliTestCase):
                 {'macros': None,
                  'label': 'test_label',
                  'sample_size': None,
+                 'name': None,
+                 'query': 'show tables',
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_name(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
+                    '--name', 'test_name']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'sample_size': None,
+                 'name': 'test_name',
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': False,
@@ -224,6 +244,7 @@ class TestHiveCommand(QdsCliTestCase):
                 {'macros': None,
                  'label': None,
                  'sample_size': None,
+                 'name': None,
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': True,
@@ -239,6 +260,7 @@ class TestHiveCommand(QdsCliTestCase):
                 {'macros': None,
                  'label': None,
                  'sample_size': '1024',
+                 'name': None,
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': False,
@@ -255,6 +277,7 @@ class TestPrestoCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'name': None,
                  'query': 'show tables',
                  'command_type': 'PrestoCommand',
                  'can_notify': False,
@@ -268,6 +291,7 @@ class TestPrestoCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'name': None,
                  'query': None,
                  'command_type': 'PrestoCommand',
                  'can_notify': False,
@@ -295,6 +319,7 @@ class TestPrestoCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
                  'label': None,
+                 'name': None,
                  'query': None,
                  'command_type': 'PrestoCommand',
                  'can_notify': False,
@@ -309,6 +334,22 @@ class TestPrestoCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': 'test_label',
+                 'name': None,
+                 'query': 'show tables',
+                 'command_type': 'PrestoCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_name(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--query', 'show tables',
+                    '--name', 'test_name']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'name': 'test_name',
                  'query': 'show tables',
                  'command_type': 'PrestoCommand',
                  'can_notify': False,
@@ -323,6 +364,7 @@ class TestPrestoCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'name': None,
                  'query': 'show tables',
                  'command_type': 'PrestoCommand',
                  'can_notify': True,
@@ -339,6 +381,7 @@ class TestHadoopCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'sub_command': 'jar',
                  'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'name': None,
                  'label': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
@@ -357,6 +400,7 @@ class TestHadoopCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'sub_command': 's3distcp',
                  'sub_command_args': "'--src' 'source' '--dest' 'destincation'",
+                 'name': None,
                  'label': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
@@ -380,6 +424,7 @@ class TestHadoopCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'sub_command': 'streaming',
                  'sub_command_args': "'-files' 's3n://location-of-mapper.py,s3n://location-of-reducer.py' '-input' 'myInputDirs' '-output' 'myOutputDir' '-mapper' 'mapper.py' '-reducer' 'reducer.py'",
+                 'name': None,
                  'label': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
@@ -398,7 +443,21 @@ class TestHadoopCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'sub_command': 'jar',
                  'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'name': None,
                  'label': 'test_label',
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False})
+
+    def test_submit_jar_name(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--name', 'test_name', 'jar', 's3://bucket/path-to-jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'jar',
+                 'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'name': 'test_name',
+                 'label': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -410,6 +469,7 @@ class TestHadoopCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'sub_command': 'jar',
                  'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'name': None,
                  'label': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': True})
@@ -449,6 +509,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                                                 {'db_tap_id': 1,
                                                  'query': 'show tables',
+                                                 'name': None,
                                                  'macros': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
@@ -479,9 +540,23 @@ class TestDbTapQueryCommand(QdsCliTestCase):
          Connection._api_call.assert_called_with('POST', 'commands',
                                                  {'db_tap_id': 1,
                                                   'query': 'show tables',
+                                                  'name': None,
                                                   'macros': None,
                                                   'command_type': 'DbTapQueryCommand',
                                                   'can_notify': True})
+
+    def test_submit_with_name(self):
+         sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', 'show tables', '--db_tap_id', 1, '--name', 'test_name']
+         print_command()
+         Connection._api_call = Mock(return_value={'id': 1})
+         qds.main()
+         Connection._api_call.assert_called_with('POST', 'commands',
+                                                 {'db_tap_id': 1,
+                                                  'query': 'show tables',
+                                                  'name': 'test_name',
+                                                  'macros': None,
+                                                  'command_type': 'DbTapQueryCommand',
+                                                  'can_notify': False})
 
     def test_submit_with_macros(self):
         sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', "select * from table_1 limit  \$limit\$",
@@ -493,6 +568,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                 {'macros': [{"a": "1", "b" : "4", "limit":"a + b"}],
                                                  'db_tap_id': 1,
                                                  'query': "select * from table_1 limit  \$limit\$",
+                                                 'name': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
 

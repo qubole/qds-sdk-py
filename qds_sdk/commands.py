@@ -367,6 +367,7 @@ class HadoopCommand(Command):
 
         parsed['label'] = options.label
         parsed['can_notify'] = options.can_notify
+        parsed['name'] = options.name
         parsed["command_type"] = "HadoopCommand"
 
         if len(args) < 2:
