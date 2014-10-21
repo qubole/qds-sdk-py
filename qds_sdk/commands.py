@@ -193,6 +193,9 @@ class HiveCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this query")
+
     @classmethod
     def parse(cls, args):
         """
@@ -265,7 +268,10 @@ class PrestoCommand(Command):
 
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
- 
+
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this query")
+
     @classmethod
     def parse(cls, args):
         """
@@ -330,6 +336,9 @@ class HadoopCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this command")
+
     optparser.disable_interspersed_args()
 
     @classmethod
@@ -358,6 +367,7 @@ class HadoopCommand(Command):
 
         parsed['label'] = options.label
         parsed['can_notify'] = options.can_notify
+        parsed['name'] = options.name
         parsed["command_type"] = "HadoopCommand"
 
         if len(args) < 2:
@@ -394,6 +404,9 @@ class ShellCommand(Command):
 
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
+
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this command")
 
     @classmethod
     def parse(cls, args):
@@ -478,6 +491,9 @@ class PigCommand(Command):
 
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
+
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this command")
 
     @classmethod
     def parse(cls, args):
@@ -585,6 +601,9 @@ class DbExportCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this command")
+
     @classmethod
     def parse(cls, args):
         """
@@ -676,6 +695,9 @@ class DbImportCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this command")
+
     @classmethod
     def parse(cls, args):
         """
@@ -752,6 +774,9 @@ class DbTapQueryCommand(Command):
                          default=False, help="sends an email on command completion")
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
+
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this command")
 
     @classmethod
     def parse(cls, args):
