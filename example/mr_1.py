@@ -1,18 +1,19 @@
 #!/bin/env python
 
 """
-  Trivial example for using the Qubole SDK to run a Hadoop Streaming Command.
-  See: http://old.qubole.com/quick-start-guide-running-hadoop-job
+Trivial example for using the Qubole SDK to run a Hadoop Streaming Command.
+See: http://www.qubole.com/documentation/en/latest/quick-start-guide/running-hadoop-job.html
 """
 
 
 from qds_sdk.qubole import Qubole
-from qds_sdk.commands import *
+from qds_sdk.commands import HadoopCommand
 import qds_sdk.exception
 
 import sys
 import traceback
 import logging
+import shlex
 
 log = logging.getLogger("mr_1")
 
@@ -26,7 +27,7 @@ def usage(code=1):
 
 def main():
 
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.WARN)
 
     if len(sys.argv) < 3:
         usage()
@@ -39,7 +40,7 @@ def main():
 
     Qubole.configure(api_token=api_token)
 
-    args = HadoopCommand.parse(("streaming -files s3n://paid-qubole/HadoopAPIExamples/WordCountPython/mapper.py,s3n://paid-qubole/HadoopAPIExamples/WordCountPython/reducer.py -mapper mapper.py -reducer reducer.py -numReduceTasks 1 -input s3n://paid-qubole/default-datasets/gutenberg -output %s" % output_path).split())
+    args = HadoopCommand.parse(shlex.split("streaming -files s3n://paid-qubole/HadoopAPIExamples/WordCountPython/mapper.py,s3n://paid-qubole/HadoopAPIExamples/WordCountPython/reducer.py -mapper mapper.py -reducer reducer.py -numReduceTasks 1 -input s3n://paid-qubole/default-datasets/gutenberg -output %s" % output_path))
 
     cmd = HadoopCommand.run(**args)
 
