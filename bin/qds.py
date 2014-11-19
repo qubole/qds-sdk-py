@@ -170,17 +170,31 @@ def cluster_update_action(clusterclass, args):
 
 
 def _create_cluster_info(arguments):
-    cluster_info = ClusterInfo(arguments.label,
-                               arguments.aws_access_key_id,
-                               arguments.aws_secret_access_key,
+    if arguments.aws_access_key_id is None and arguments.account_email is not None:
+        # provider is google cloud
+        cluster_info = GceClusterInfo(arguments.label,
+                               arguments.client_email,
+                               arguments.private_key,
+                               arguments.project_id,
                                arguments.disallow_cluster_termination,
                                arguments.enable_ganglia_monitoring,
                                arguments.node_bootstrap_file,)
 
-    cluster_info.set_ec2_settings(arguments.aws_region,
-                                  arguments.aws_availability_zone,
-                                  arguments.vpc_id,
-                                  arguments.subnet_id)
+        cluster_info.set_gce_settings(arguments.region,
+                                  arguments.availability_zone)
+    else:
+        # defaults to AWS EC2 provider
+        cluster_info = AwsClusterInfo(arguments.label,
+                                   arguments.aws_access_key_id,
+                                   arguments.aws_secret_access_key,
+                                   arguments.disallow_cluster_termination,
+                                   arguments.enable_ganglia_monitoring,
+                                   arguments.node_bootstrap_file,)
+
+        cluster_info.set_ec2_settings(arguments.aws_region,
+                                      arguments.aws_availability_zone,
+                                      arguments.vpc_id,
+                                      arguments.subnet_id)
 
     custom_config = None
     if arguments.custom_config_file is not None:

@@ -135,6 +135,30 @@ class Cluster(Resource):
                                help="list of label for the cluster" +
                                     " (atleast one label is required)")
 
+        gce_group = argparser.add_argument_group("gce settings")
+        gce_group.add_argument("--account-email",
+                               dest="account_email",
+                               required=create_required,
+                               help="email of the google cloud project account")
+        gce_group.add_argument("--private-key",
+                               dest="private_key",
+                               required=create_required,
+                               help="path to the client private key file"
+                                    "of your google cloud project")
+        gce_group.add_argument("--project-id",
+                               dest="project_id",
+                               required=create_required,
+                               help="name of your google cloud project")
+        gce_group.add_argument("--region",
+                               dest="region",
+                               required=create_required,
+                               default="us-central1",
+                               help="google cloud region")
+        gce_group.add_argument("-z", "--availability-zone",
+                               dest="availability_zone",
+                               help="optional availability zone "
+                                    "in the given region")
+
         ec2_group = argparser.add_argument_group("ec2 settings")
         ec2_group.add_argument("--access-key-id",
                                dest="aws_access_key_id",
@@ -382,66 +406,13 @@ class ClusterInfo():
     You can use objects of this class to create or update a cluster.
     """
 
-    def __init__(self, label, aws_access_key_id, aws_secret_access_key,
-                 disallow_cluster_termination=None,
-                 enable_ganglia_monitoring=None,
-                 node_bootstrap_file=None):
-        """
-        Args:
-
-        `label`: A list of labels that identify the cluster. At least one label
-            must be provided when creating a cluster.
-
-        `aws_access_key_id`: The access key id for customer's aws account. This
-            is required for creating the cluster.
-
-        `aws_secret_access_key`: The secret access key for customer's aws
-            account. This is required for creating the cluster.
-
-        `disallow_cluster_termination`: Set this to True if you don't want
-            qubole to auto-terminate idle clusters. Use this option with
-            extreme caution.
-
-        `enable_ganglia_monitoring`: Set this to True if you want to enable
-            ganglia monitoring for the cluster.
-
-        `node_bootstrap_file`: name of the node bootstrap file for this
-            cluster. It should be in stored in S3 at
-            <your-default-location>/scripts/hadoop/
-        """
-        self.label = label
-        self.ec2_settings = {}
-        self.ec2_settings['compute_access_key'] = aws_access_key_id
-        self.ec2_settings['compute_secret_key'] = aws_secret_access_key
-        self.disallow_cluster_termination = disallow_cluster_termination
-        self.enable_ganglia_monitoring = enable_ganglia_monitoring
-        self.node_bootstrap_file = node_bootstrap_file
+    def __init__(self):
+        self.disallow_cluster_termination = False
+        self.enable_ganglia_monitoring = False
+        self.node_bootstrap_file = None
         self.hadoop_settings = {}
         self.security_settings = {}
         self.presto_settings = {}
-
-    def set_ec2_settings(self,
-                         aws_region=None,
-                         aws_availability_zone=None,
-                         vpc_id=None,
-                         subnet_id=None):
-        """
-        Kwargs:
-
-        `aws_region`: AWS region to create the cluster in.
-
-        `aws_availability_zone`: The availability zone to create the cluster
-            in.
-
-        `vpc_id`: The vpc to create the cluster in.
-
-        `subnet_id`: The subnet to create the cluster in.
-        """
-        self.ec2_settings['aws_region'] = aws_region
-        self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
-        self.ec2_settings['vpc_id'] = vpc_id
-        self.ec2_settings['subnet_id'] = subnet_id
-
 
     def set_hadoop_settings(self, master_instance_type=None,
                             slave_instance_type=None,
@@ -474,51 +445,6 @@ class ClusterInfo():
         self.hadoop_settings['max_nodes'] = max_nodes
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
-
-    def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
-                                   timeout_for_request=None,
-                                   maximum_spot_instance_percentage=None):
-        """
-        Purchase options for spot instances. Valid only when
-        `slave_request_type` is hybrid or spot.
-
-        `maximum_bid_price_percentage`: Maximum value to bid for spot
-            instances, expressed as a percentage of the base price for the
-            slave node instance type.
-
-        `timeout_for_request`: Timeout for a spot instance request (Unit:
-            minutes)
-
-        `maximum_spot_instance_percentage`: Maximum percentage of instances
-            that may be purchased from the AWS Spot market. Valid only when
-            slave_request_type is "hybrid".
-        """
-        self.hadoop_settings['spot_instance_settings'] = {
-               'maximum_bid_price_percentage': maximum_bid_price_percentage,
-               'timeout_for_request': timeout_for_request,
-               'maximum_spot_instance_percentage': maximum_spot_instance_percentage}
-
-
-    def set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
-                                          timeout_for_request=None,
-                                          allow_fallback=True):
-        """
-        Purchase options for stable spot instances.
-
-        `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
-            instances, expressed as a percentage of the base price 
-            (applies to both master and slave nodes).
-
-        `timeout_for_request`: Timeout for a stable node spot instance request (Unit:
-            minutes)
-
-        `allow_fallback`: Whether to fallback to on-demand instances for
-            stable nodes if spot instances are not available
-        """
-        self.hadoop_settings['stable_spot_instance_settings'] = {
-               'maximum_bid_price_percentage': maximum_bid_price_percentage,
-               'timeout_for_request': timeout_for_request,
-               'allow_fallback': allow_fallback}
 
 
     def set_fairscheduler_settings(self, fairscheduler_config_xml=None,
@@ -566,6 +492,177 @@ class ClusterInfo():
         """
         payload = {"cluster": self.__dict__}
         return _make_minimal(payload)
+
+
+class AwsClusterInfo(ClusterInfo):
+    """
+    qds_sdk.GceClusterInfo is the class specific to the Google Cloud Clusters
+    launched from the Qubole SDK
+    """
+
+
+    def __init__(self, label, aws_access_key_id=None, aws_secret_access_key=None,
+                 disallow_cluster_termination=None,
+                 enable_ganglia_monitoring=None,
+                 node_bootstrap_file=None):
+            """
+            Args:
+
+            `label`: A list of labels that identify the cluster. At least one label
+                must be provided when creating a cluster.
+
+            `aws_access_key_id`: The access key id for customer's aws account. This
+                is required for creating the cluster.
+
+            `aws_secret_access_key`: The secret access key for customer's aws
+                account. This is required for creating the cluster.
+
+            `disallow_cluster_termination`: Set this to True if you don't want
+                qubole to auto-terminate idle clusters. Use this option with
+                extreme caution.
+
+            `enable_ganglia_monitoring`: Set this to True if you want to enable
+                ganglia monitoring for the cluster.
+
+            `node_bootstrap_file`: name of the node bootstrap file for this
+                cluster. It should be in stored in S3 at
+                <your-default-location>/scripts/hadoop/
+            """
+            super(AwsClusterInfo, self).__init__()
+            self.label = label
+            # AWS EC2 specific settings
+            self.ec2_settings = {}
+            self.ec2_settings['compute_access_key'] = aws_access_key_id
+            self.ec2_settings['compute_secret_key'] = aws_secret_access_key
+            self.disallow_cluster_termination = disallow_cluster_termination
+            self.enable_ganglia_monitoring = enable_ganglia_monitoring
+            self.node_bootstrap_file = node_bootstrap_file
+
+    def set_ec2_settings(self,
+                         aws_region=None,
+                         aws_availability_zone=None,
+                         vpc_id=None,
+                         subnet_id=None):
+        """
+        Kwargs:
+
+        `aws_region`: AWS region to create the cluster in.
+
+        `aws_availability_zone`: The availability zone to create the cluster
+            in.
+
+        `vpc_id`: The vpc to create the cluster in.
+
+        `subnet_id`: The subnet to create the cluster in.
+        """
+        self.ec2_settings['aws_region'] = aws_region
+        self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
+        self.ec2_settings['vpc_id'] = vpc_id
+        self.ec2_settings['subnet_id'] = subnet_id
+
+    def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
+                                   timeout_for_request=None,
+                                   maximum_spot_instance_percentage=None):
+        """
+        Purchase options for spot instances. Valid only when
+        `slave_request_type` is hybrid or spot.
+
+        `maximum_bid_price_percentage`: Maximum value to bid for spot
+            instances, expressed as a percentage of the base price for the
+            slave node instance type.
+
+        `timeout_for_request`: Timeout for a spot instance request (Unit:
+            minutes)
+
+        `maximum_spot_instance_percentage`: Maximum percentage of instances
+            that may be purchased from the AWS Spot market. Valid only when
+            slave_request_type is "hybrid".
+        """
+        self.hadoop_settings['spot_instance_settings'] = {
+               'maximum_bid_price_percentage': maximum_bid_price_percentage,
+               'timeout_for_request': timeout_for_request,
+               'maximum_spot_instance_percentage': maximum_spot_instance_percentage}
+
+
+    def set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
+                                          timeout_for_request=None,
+                                          allow_fallback=True):
+        """
+        Purchase options for stable spot instances.
+
+        `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
+            instances, expressed as a percentage of the base price
+            (applies to both master and slave nodes).
+
+        `timeout_for_request`: Timeout for a stable node spot instance request (Unit:
+            minutes)
+
+        `allow_fallback`: Whether to fallback to on-demand instances for
+            stable nodes if spot instances are not available
+        """
+        self.hadoop_settings['stable_spot_instance_settings'] = {
+               'maximum_bid_price_percentage': maximum_bid_price_percentage,
+               'timeout_for_request': timeout_for_request,
+               'allow_fallback': allow_fallback}
+
+
+class GceClusterInfo(ClusterInfo):
+    """
+    qds_sdk.GceClusterInfo is the class specific to the Google Cloud Clusters
+    launched from the Qubole SDK
+    """
+
+
+    def __init__(self, label, client_email=None, private_key=None, project_id=None,
+                 disallow_cluster_termination=None, enable_ganglia_monitoring=None,
+                 node_bootstrap_file=None):
+        """
+        Args:
+
+        `label`: A list of labels that identify the cluster. At least one label
+            must be provided when creating a cluster.
+
+        `client_email`: The email in the google cloud project with `project_id`. This
+            is required for creating a cluster in google cloud
+
+        `private_key`: The client's private key file for google cloud. This is
+            required for creating a cluster in the google cloud
+
+        `project_id`: The project in your google cloud account where clusters will be spawned
+
+        `disallow_cluster_termination`: Set this to True if you don't want
+            qubole to auto-terminate idle clusters. Use this option with
+            extreme caution.
+
+        `enable_ganglia_monitoring`: Set this to True if you want to enable
+            ganglia monitoring for the cluster.
+
+        `node_bootstrap_file`: name of the node bootstrap file for this
+            cluster. It should be in stored in S3 at
+            <your-default-location>/scripts/hadoop/
+        """
+        self.label = label
+        super(GceClusterInfo, self).__init__()
+        # Google Cloud Platform settings
+        self.gce_settings = {}
+        self.gce_settings['client_email'] = client_email
+        self.gce_settings['private_key'] = private_key
+        self.gce_settings['project_id'] = project_id
+        self.disallow_cluster_termination = disallow_cluster_termination
+        self.enable_ganglia_monitoring = enable_ganglia_monitoring
+        self.node_bootstrap_file = node_bootstrap_file
+
+    def set_gce_settings(self, region=None, availability_zone=None):
+        """
+        Kwargs:
+
+        `region`: GCE region to create the cluster in.
+
+        `availability_zone`: The availability zone to create the cluster
+            in.
+        """
+        self.gce_settings['region'] = region
+        self.gce_settings['availability_zone'] = availability_zone
 
 
 def _make_minimal(dictionary):
