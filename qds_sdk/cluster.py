@@ -136,22 +136,18 @@ class Cluster(Resource):
                                     " (atleast one label is required)")
 
         gce_group = argparser.add_argument_group("gce settings")
-        gce_group.add_argument("--account-email",
-                               dest="account_email",
-                               required=create_required,
+        gce_group.add_argument("--client-email",
+                               dest="client_email",
                                help="email of the google cloud project account")
         gce_group.add_argument("--private-key",
                                dest="private_key",
-                               required=create_required,
                                help="path to the client private key file"
                                     "of your google cloud project")
         gce_group.add_argument("--project-id",
                                dest="project_id",
-                               required=create_required,
                                help="name of your google cloud project")
         gce_group.add_argument("--region",
                                dest="region",
-                               required=create_required,
                                default="us-central1",
                                help="google cloud region")
         gce_group.add_argument("-z", "--availability-zone",
@@ -162,13 +158,11 @@ class Cluster(Resource):
         ec2_group = argparser.add_argument_group("ec2 settings")
         ec2_group.add_argument("--access-key-id",
                                dest="aws_access_key_id",
-                               required=create_required,
                                help="access key id for customer's aws" +
                                     " account. This is required while" +
                                     " creating the cluster",)
         ec2_group.add_argument("--secret-access-key",
                                dest="aws_secret_access_key",
-                               required=create_required,
                                help="secret access key for customer's aws" +
                                     " account. This is required while" +
                                     " creating the cluster",)

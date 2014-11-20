@@ -170,7 +170,7 @@ def cluster_update_action(clusterclass, args):
 
 
 def _create_cluster_info(arguments):
-    if arguments.aws_access_key_id is None and arguments.account_email is not None:
+    if arguments.aws_access_key_id is None and arguments.client_email is not None:
         # provider is google cloud
         cluster_info = GceClusterInfo(arguments.label,
                                arguments.client_email,
@@ -196,6 +196,17 @@ def _create_cluster_info(arguments):
                                       arguments.vpc_id,
                                       arguments.subnet_id)
 
+        cluster_info.set_spot_instance_settings(
+              arguments.maximum_bid_price_percentage,
+              arguments.timeout_for_request,
+              arguments.maximum_spot_instance_percentage)
+
+        cluster_info.set_stable_spot_instance_settings(
+              arguments.stable_maximum_bid_price_percentage,
+              arguments.stable_timeout_for_request,
+              arguments.stable_allow_fallback)
+
+
     custom_config = None
     if arguments.custom_config_file is not None:
         try:
@@ -211,16 +222,6 @@ def _create_cluster_info(arguments):
                                      arguments.max_nodes,
                                      custom_config,
                                      arguments.slave_request_type)
-
-    cluster_info.set_spot_instance_settings(
-          arguments.maximum_bid_price_percentage,
-          arguments.timeout_for_request,
-          arguments.maximum_spot_instance_percentage)
-
-    cluster_info.set_stable_spot_instance_settings(
-          arguments.stable_maximum_bid_price_percentage,
-          arguments.stable_timeout_for_request,
-          arguments.stable_allow_fallback)
 
     fairscheduler_config_xml = None
     if arguments.fairscheduler_config_xml_file is not None:
