@@ -400,7 +400,7 @@ class Cluster(Resource):
         return conn.delete(cls.element_path(cluster_id_label))
 
 
-class ClusterInfo():
+class ClusterInfo(object):
     """
     qds_sdk.ClusterInfo is the class which stores information about a cluster.
     You can use objects of this class to create or update a cluster.
