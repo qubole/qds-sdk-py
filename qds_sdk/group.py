@@ -96,31 +96,26 @@ help="user Id")
 
     @staticmethod
     def add_user(args):
-        group = Group.find(args.id)
-        return group.add_user(args.user_id)
+        return Group.add_user(args.id, args.user_id)
 
     @staticmethod
     def remove_user(args):
-        group = Group.find(args.id)
-        return group.remove_user(args.user_id)
+        return Group.remove_user(args.id, args.user_id)
 
     @staticmethod
     def duplicate(args):
-        group = Group.find(args.id) 
         options = {}
         if args.name is not None:
           options["name"] = args.name
-        return json.dumps(group.duplicate(**options), sort_keys=True, indent=4)
+        return json.dumps(Group.duplicate(args.id, **options), sort_keys=True, indent=4)
 
     @staticmethod
     def list_roles(args):
-        group = Group.find(args.id)
-        return json.dumps(group.list_roles(), sort_keys=True, indent=4)
+        return json.dumps(Group.list_roles(args.id), sort_keys=True, indent=4)
 
     @staticmethod
     def list_users(args):
-        group = Group.find(args.id)
-        return json.dumps(group.list_users(), sort_keys=True, indent=4)
+        return json.dumps(Group.list_users(args.id), sort_keys=True, indent=4)
 
 
 
@@ -152,28 +147,33 @@ class Group(Resource):
             grouplist.append(Group(s))
         return grouplist
 
-    def add_user(self, user_id):
+    @staticmethod
+    def add_user(group_id, user_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/qbol_users/%s/add" % (self.groups["id"], user_id)
+        url_path = "groups/%s/qbol_users/%s/add" % (group_id, user_id)
         return conn.put(url_path)
 
-    def remove_user(self, user_id):
+    @staticmethod
+    def remove_user(group_id, user_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/qbol_users/%s/remove" % (self.groups["id"], user_id)
+        url_path = "groups/%s/qbol_users/%s/remove" % (group_id, user_id)
         return conn.put(url_path)
 
-    def duplicate(self, **kwargs):
+    @staticmethod
+    def duplicate(group_id, **kwargs):
         conn = Qubole.agent()
-        url_path = "groups/%s/duplicate" % self.groups["id"]
+        url_path = "groups/%s/duplicate" % group_id
         return conn.post(url_path, data=kwargs)
 
-    def list_roles(self):
+    @staticmethod
+    def list_roles(group_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/roles" % self.groups["id"]
+        url_path = "groups/%s/roles" % group_id
         return conn.get(url_path)
 
-    def list_users(self):
+    @staticmethod
+    def list_users(group_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/qbol_users" % self.groups["id"]
+        url_path = "groups/%s/qbol_users" % group_id
         return conn.get(url_path)
 

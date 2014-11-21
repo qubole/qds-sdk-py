@@ -359,11 +359,11 @@ def dbtapmain(args):
 
 def rolemain(args):
     result = RoleCmdLine.run(args)
-    print result
+    print(result)
 
 def groupmain(args):
     result = GroupCmdLine.run(args)
-    print result
+    print(result)
 
 def main():
 

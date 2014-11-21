@@ -104,38 +104,33 @@ help="Numeric Id of the group")
 
     @staticmethod
     def update(args):
-        role = Role.find(args.id)
         options = {}
         if args.name is not None:
           options["name"] = args.name
         if args.policy is not None:
           options["policy"] = args.policy
-        return json.dumps(role.update(**options), sort_keys=True, indent=4)
+        return json.dumps(Role.update(args.id, **options), sort_keys=True, indent=4)
 
     @staticmethod
     def duplicate(args):
-        role = Role.find(args.id) 
         options = {}
         if args.name is not None:
           options["name"] = args.name
         if args.policy is not None:
           options["policy"] = args.policy
-        return json.dumps(role.duplicate(**options), sort_keys=True, indent=4)
+        return json.dumps(Role.duplicate(args.id, **options), sort_keys=True, indent=4)
 
     @staticmethod
     def assign_role(args):
-        role = Role.find(args.id)
-        return role.assign_role(args.group_id)
+        return Role.assign_role(args.id, args.group_id)
 
     @staticmethod
     def unassign_role(args):
-        role = Role.find(args.id)
-        return role.unassign_role(args.group_id)
+        return Role.unassign_role(args.id, args.group_id)
 
     @staticmethod
     def list_groups(args):
-        role = Role.find(args.id)
-        return json.dumps(role.list_groups(), sort_keys=True, indent=4)
+        return json.dumps(Role.list_groups(args.id), sort_keys=True, indent=4)
 
 class Role(Resource):
     """
@@ -165,28 +160,34 @@ class Role(Resource):
             rolelist.append(Role(s))
         return rolelist
 
-    def update(self, **kwargs):
+    @staticmethod
+    def update(role_id, **kwargs):
         conn = Qubole.agent()
-        return conn.put(self.element_path(self.roles["id"]), data=kwargs)
+        url_path = "roles/%s" % role_id
+        return conn.put(url_path, data=kwargs)
 
-    def duplicate(self, **kwargs):
+    @staticmethod
+    def duplicate(role_id, **kwargs):
         conn = Qubole.agent()
-        url_path = "roles/%s/duplicate" % self.roles["id"]
+        url_path = "roles/%s/duplicate" % role_id
         return conn.post(url_path, data=kwargs)
 
-    def assign_role(self, qbol_group_id):
+    @staticmethod
+    def assign_role(role_id, qbol_group_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/roles/%s/assign" % (qbol_group_id, self.roles["id"])
+        url_path = "groups/%s/roles/%s/assign" % (qbol_group_id, role_id)
         return conn.put(url_path)
 
-    def unassign_role(self, qbol_group_id):
+    @staticmethod
+    def unassign_role(role_id, qbol_group_id):
         conn = Qubole.agent()
-        url_path = "groups/%s/roles/%s/unassign" % (qbol_group_id, self.roles["id"])
+        url_path = "groups/%s/roles/%s/unassign" % (qbol_group_id, role_id)
         return conn.put(url_path)
 
-    def list_groups(self):
+    @staticmethod
+    def list_groups(role_id):
         conn = Qubole.agent()
-        url_path = "roles/%s/groups" % self.roles["id"]
+        url_path = "roles/%s/groups" % role_id
         return conn.get(url_path)
 
 
