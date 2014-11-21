@@ -16,66 +16,57 @@ class RoleCmdLine:
         subparsers = argparser.add_subparsers()
 
         #Create
-        create = subparsers.add_parser("create",
-                                       help="Create a new Role")
-        create.add_argument("--name", dest="name", required=True,
-                            help="Name of role")
+        create = subparsers.add_parser("create", help="Create a new Role")
+        create.add_argument("--name", dest="name", required=True, help="Name of role")
         create.add_argument("--policy", dest="policy", required=True,
              help="Policy Statement example '[{\"access\":\"allow\", \"resource\": \"all\"}]'")
         create.set_defaults(func=RoleCmdLine.create)
 
         #List
-        list = subparsers.add_parser("list",
-                                     help="List all roles")
-        list.add_argument("--per-page", dest="per_page",
-                          help="Number of items per page")
-        list.add_argument("--page", dest="page",
-                          help="Page Number")
+        list = subparsers.add_parser("list", help="List all roles")
+        list.add_argument("--per-page", dest="per_page", help="Number of items per page")
+        list.add_argument("--page", dest="page", help="Page Number")
         list.set_defaults(func=RoleCmdLine.list)
 
         #View
-        view = subparsers.add_parser("view",
-                                     help="View a specific role")
+        view = subparsers.add_parser("view", help="View a specific role")
         view.add_argument("id", help="Numeric id or Name of the role")
         view.set_defaults(func=RoleCmdLine.view)
 
         #update
-        update = subparsers.add_parser("update",
-                                        help="update a specific role")
+        update = subparsers.add_parser("update", help="update a specific role")
         update.add_argument("id", help="Numeric id of the role")
         update.add_argument("--name", dest="name", help="Name of role")
-        update.add_argument("--policy", dest="policy",
-                            help="Policy Statement")
+        update.add_argument("--policy", dest="policy", help="Policy Statement")
         update.set_defaults(func=RoleCmdLine.update)
 
+        #Delete
+        delete = subparsers.add_parser("delete", help="Delete a role")
+        delete.add_argument("id", help="Numeric id of the role")
+        delete.set_defaults(func=RoleCmdLine.delete)
+
         #duplicate
-        duplicate = subparsers.add_parser("duplicate",
-                                        help="Duplicates/clone a role")
+        duplicate = subparsers.add_parser("duplicate", help="Duplicates/clone a role")
         duplicate.add_argument("id", help="Numeric id of the role")
-        duplicate.add_argument("--name", dest="name", required=False,
-                            help="Name of the new role")
+        duplicate.add_argument("--name", dest="name", required=False, help="Name of the new role")
         duplicate.add_argument("--policy", dest="policy", required=False,
              help="Optional policy Statement example '[{\"access\":\"allow\", \"resource\": \"all\"}]'")
         duplicate.set_defaults(func=RoleCmdLine.duplicate)
 
         #Assign Role
-        assign_role = subparsers.add_parser("assign_role",
-                                        help="assign a role to a group")
+        assign_role = subparsers.add_parser("assign_role", help="assign a role to a group")
         assign_role.add_argument("id", help="Numeric id of the role")
-        assign_role.add_argument("--group_id", dest="group_id", required=True,
-help="Numeric Id of the group")
+        assign_role.add_argument("--group_id", dest="group_id", required=True, help="Numeric Id of the group")
         assign_role.set_defaults(func=RoleCmdLine.assign_role)
 
          #UnAssign Role
-        unassign_role = subparsers.add_parser("unassign_role",
-                                        help="unassign a role to a group")
+        unassign_role = subparsers.add_parser("unassign_role", help="unassign a role to a group")
         unassign_role.add_argument("id", help="Numeric id of the role")
         unassign_role.add_argument("--group_id", dest="group_id", required=True, help="Numeric Id of the group")
         unassign_role.set_defaults(func=RoleCmdLine.unassign_role)
 
         #List groups
-        list_groups = subparsers.add_parser("list_groups",
-                                        help="List all groups for a role ")
+        list_groups = subparsers.add_parser("list_groups", help="List all groups for a role ")
         list_groups.add_argument("id", help="Numeric id of the role")
         list_groups.set_defaults(func=RoleCmdLine.list_groups)
 
@@ -110,6 +101,10 @@ help="Numeric Id of the group")
         if args.policy is not None:
           options["policy"] = args.policy
         return json.dumps(Role.update(args.id, **options), sort_keys=True, indent=4)
+
+    @staticmethod
+    def delete(args):
+        return json.dumps(Role.delete(args.id), sort_keys=True, indent=4)
 
     @staticmethod
     def duplicate(args):
@@ -165,6 +160,12 @@ class Role(Resource):
         conn = Qubole.agent()
         url_path = "roles/%s" % role_id
         return conn.put(url_path, data=kwargs)
+
+    @staticmethod
+    def delete(role_id):
+        conn = Qubole.agent()
+        url_path = "roles/%s" % role_id
+        return conn.delete(url_path)
 
     @staticmethod
     def duplicate(role_id, **kwargs):

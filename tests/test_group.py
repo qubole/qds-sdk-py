@@ -31,21 +31,33 @@ class TestGroupCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_has_calls(call("GET", "groups/123", params=None))
 
+    def test_update_group(self):
+        sys.argv = ['qds.py', 'group', 'update', '123', '--name', 'sdk-test']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_has_calls(call("PUT", "groups/123", {'name':'sdk-test'}))
+
+    def test_delete_group(self):
+        sys.argv = ['qds.py', 'group', 'delete', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_has_calls(call("DELETE", "groups/123", None))
+
     def test_duplicate(self):
         sys.argv = ['qds.py', 'group', 'duplicate', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_has_calls(call("POST",
-          "groups/123/duplicate", {}))
+        Connection._api_call.assert_has_calls(call("POST", "groups/123/duplicate", {}))
 
     def test_add_user(self):
         sys.argv = ['qds.py', 'group', 'add_user', '123', '--user_id', '456']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_has_calls(call("PUT",
-          "groups/123/qbol_users/456/add", None))
+        Connection._api_call.assert_has_calls(call("PUT", "groups/123/qbol_users/456/add", None))
 
     def test_remove_user(self):
         sys.argv = ['qds.py', 'group', 'remove_user', '123', '--user_id',
@@ -53,24 +65,21 @@ class TestGroupCheck(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_has_calls(call("PUT",
-          "groups/123/qbol_users/456/remove", None))
+        Connection._api_call.assert_has_calls(call("PUT", "groups/123/qbol_users/456/remove", None))
 
     def test_list_roles(self):
         sys.argv = ['qds.py', 'group', 'list_roles', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_has_calls(call("GET",
-          "groups/123/roles", params=None))
+        Connection._api_call.assert_has_calls(call("GET", "groups/123/roles", params=None))
 
     def test_list_users(self):
         sys.argv = ['qds.py', 'group', 'list_users', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_has_calls(call("GET",
-          "groups/123/qbol_users", params=None))
+        Connection._api_call.assert_has_calls(call("GET", "groups/123/qbol_users", params=None))
 
 
 if __name__ == '__main__':

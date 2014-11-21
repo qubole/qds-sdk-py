@@ -1,6 +1,10 @@
 Qubole Data Service Python SDK
 ==============================
 
+.. image:: https://travis-ci.org/qbole/qds-sdk-py.svg?branch=master
+    :target: https://travis-ci.org/qbole/qds-sdk-py
+    :alt: Build Status
+
 A Python module that provides the tools you need to authenticate with,
 and use the Qubole Data Service API.
 
@@ -99,3 +103,6 @@ An example Python application needs to do the following:
        print "Id: %s, Status: %s" % (str(hc.id), hc.status)
 
 ``example/mr_1.py`` contains a Hadoop Streaming example
+
+
+
