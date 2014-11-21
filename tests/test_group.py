@@ -81,6 +81,20 @@ class TestGroupCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_has_calls(call("GET", "groups/123/qbol_users", params=None))
 
+    def test_add_role(self):
+        sys.argv = ['qds.py', 'group', 'add_role', '123', '--role_id', '456']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_has_calls(call("PUT", "groups/123", {'roles':'456'}))
+
+    def test_remove_role(self):
+        sys.argv = ['qds.py', 'group', 'remove_role', '123', '--role_id', '456']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_has_calls(call("PUT", "groups/123", {'removed_roles':'456'}))
+
 
 if __name__ == '__main__':
     unittest.main()

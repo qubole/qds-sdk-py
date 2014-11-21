@@ -49,23 +49,35 @@ class GroupCmdLine:
         duplicate.set_defaults(func=GroupCmdLine.duplicate)
         
         #Add user
-        add_user = subparsers.add_parser("add_user", help="add users to a group")
+        add_user = subparsers.add_parser("add_user", help="Add a user to a group")
         add_user.add_argument("id", help="Numeric id of the group")
         add_user.add_argument("--user_id", dest="user_id", required=True, help="user Id")
         add_user.set_defaults(func=GroupCmdLine.add_user)
 
-         #remove user
-        remove_user = subparsers.add_parser("remove_user", help="remove users from a group")
+        #Remove user
+        remove_user = subparsers.add_parser("remove_user", help="Remove a user from a group")
         remove_user.add_argument("id", help="Numeric id of the group")
         remove_user.add_argument("--user_id", dest="user_id", required=True, help="user Id")
         remove_user.set_defaults(func=GroupCmdLine.remove_user)
 
-         #List roles for a group
+        #List roles for a group
         list_roles = subparsers.add_parser("list_roles", help="List all roles for a group ")
         list_roles.add_argument("id", help="Numeric id of the group")
         list_roles.set_defaults(func=GroupCmdLine.list_roles)
 
-         #List users for a group
+        #Add role
+        add_role = subparsers.add_parser("add_role", help="Add a role to a group")
+        add_role.add_argument("id", help="Numeric id of the group")
+        add_role.add_argument("--role_id", dest="role_id", required=True, help="role Id")
+        add_role.set_defaults(func=GroupCmdLine.add_role)
+
+        #Remove role
+        remove_role = subparsers.add_parser("remove_role", help="Remove a role from a group")
+        remove_role.add_argument("id", help="Numeric id of the group")
+        remove_role.add_argument("--role_id", dest="role_id", required=True, help="role Id")
+        remove_role.set_defaults(func=GroupCmdLine.remove_role)
+
+        #List users for a group
         list_users = subparsers.add_parser("list_users", help="List all users in a group ")
         list_users.add_argument("id", help="Numeric id of the group")
         list_users.set_defaults(func=GroupCmdLine.list_users)
@@ -127,6 +139,19 @@ class GroupCmdLine:
     def list_users(args):
         return json.dumps(Group.list_users(args.id), sort_keys=True, indent=4)
 
+    @staticmethod
+    def add_role(args):
+        options = {}
+        if args.role_id is not None:
+            options["roles"] = args.role_id
+        return json.dumps(Group.update(args.id, **options), sort_keys=True, indent=4)
+
+    @staticmethod
+    def remove_role(args):
+        options = {}
+        if args.role_id is not None:
+            options["removed_roles"] = args.role_id
+        return json.dumps(Group.update(args.id, **options), sort_keys=True, indent=4)
 
 
 
