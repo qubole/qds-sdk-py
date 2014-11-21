@@ -1,6 +1,10 @@
 Qubole Data Service Python SDK
 ==============================
 
+.. image:: https://travis-ci.org/qubole/qds-sdk-py.svg?branch=master
+    :target: https://travis-ci.org/qubole/qds-sdk-py
+    :alt: Build Status
+
 A Python module that provides the tools you need to authenticate with,
 and use the Qubole Data Service API.
 
