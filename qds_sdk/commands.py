@@ -738,7 +738,7 @@ class DbImportCommand(Command):
 
 class CompositeCommand(Command):
     @classmethod
-    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False):
+    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False, name=None):
         """
         Args:
             `sub_commands`: list of sub-command dicts
@@ -759,7 +759,8 @@ class CompositeCommand(Command):
                 "command_type": "CompositeCommand",
                 "macros": macros,
                 "label": cluster_label,
-                "can_notify": notify
+                "can_notify": notify,
+                "name": name
                }
 
 
