@@ -108,94 +108,88 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
-    def _parse_create_update(cls, args, action):
+    def configure_parser(cls, argparser, create, provider="aws"):
+        """ configures the parser arguments as per the provider IaaS
+
+        Defaults to AWS cloud provider. Supports GCE cluster provider
         """
-        Parse command line arguments to determine cluster parameters that can
-        be used to create or update a cluster.
-
-        Args:
-            `args`: sequence of arguments
-
-            `action`: "create" or "update"
-
-        Returns:
-            Object that contains cluster parameters
-        """
-        argparser = ArgumentParser(prog="cluster %s" % action)
-
-        create_required = False
-        if action == "create":
-            create_required = True
-        elif action == "update":
-            argparser.add_argument("cluster_id_label",
-                                   help="id/label of the cluster to update")
-
         argparser.add_argument("--label", dest="label",
-                               nargs="+", required=create_required,
+                               nargs="+", required=create,
                                help="list of label for the cluster" +
                                     " (atleast one label is required)")
+        if not create:
+            # all updates require a label for the cluster
+            argparser.add_argument("cluster_id_label",
+                                   help="id/label of the cluster to update",)
 
-        gce_group = argparser.add_argument_group("gce settings")
-        gce_group.add_argument("--client-email",
-                               dest="client_email",
-                               help="email of the google cloud project account")
-        gce_group.add_argument("--private-key",
-                               dest="private_key",
-                               help="path to the client private key file"
-                                    "of your google cloud project")
-        gce_group.add_argument("--project-id",
-                               dest="project_id",
-                               help="name of your google cloud project")
-        gce_group.add_argument("--region",
-                               dest="region",
-                               default="us-central1",
-                               help="google cloud region")
-        gce_group.add_argument("-z", "--availability-zone",
-                               dest="availability_zone",
-                               help="optional availability zone "
-                                    "in the given region")
+        if provider.lower() == "gce":
+            gce_group = argparser.add_argument_group("gce settings")
+            gce_group.add_argument("--client-email",
+                                   dest="client_email",
+                                   help="email of the google cloud project account",
+                                   required=create)
+            gce_group.add_argument("--private-key",
+                                   dest="private_key",
+                                   help="path to the client private key file"
+                                        "of your google cloud project",
+                                   required=create)
+            gce_group.add_argument("--project-id",
+                                   dest="project_id",
+                                   help="name of your google cloud project",
+                                   required=create)
+            gce_group.add_argument("--region",
+                                   dest="region",
+                                   default="us-central1",
+                                   help="google cloud region")
+            gce_group.add_argument("-z", "--availability-zone",
+                                   dest="availability_zone",
+                                   help="optional availability zone "
+                                        "in the given region")
 
-        ec2_group = argparser.add_argument_group("ec2 settings")
-        ec2_group.add_argument("--access-key-id",
-                               dest="aws_access_key_id",
-                               help="access key id for customer's aws" +
-                                    " account. This is required while" +
-                                    " creating the cluster",)
-        ec2_group.add_argument("--secret-access-key",
-                               dest="aws_secret_access_key",
-                               help="secret access key for customer's aws" +
-                                    " account. This is required while" +
-                                    " creating the cluster",)
-        ec2_group.add_argument("--aws-region",
-                               dest="aws_region",
-                               choices=["us-east-1", "us-west-2", "ap-northeast-1",
-                                        "eu-west-1", "ap-southeast-1"],
-                               help="aws region to create the cluster in",)
-        ec2_group.add_argument("--aws-availability-zone",
-                               dest="aws_availability_zone",
-                               help="availability zone to" +
-                                    " create the cluster in",)
-        ec2_group.add_argument("--subnet-id",
-                               dest="subnet_id",
-                               help="subnet to create the cluster in",)
-        ec2_group.add_argument("--vpc-id",
-                               dest="vpc_id",
-                               help="vpc to create the cluster in",)
+        if provider.lower() == "aws":
+            ec2_group = argparser.add_argument_group("ec2 settings")
+            ec2_group.add_argument("--access-key-id",
+                                   dest="aws_access_key_id",
+                                   help="access key id for customer's aws" +
+                                        " account. This is required while" +
+                                        " creating the cluster",
+                                   required=create)
+            ec2_group.add_argument("--secret-access-key",
+                                   dest="aws_secret_access_key",
+                                   help="secret access key for customer's aws" +
+                                        " account. This is required while" +
+                                        " creating the cluster",
+                                   required=create)
+            ec2_group.add_argument("--aws-region",
+                                   dest="aws_region",
+                                   choices=["us-east-1", "us-west-2", "ap-northeast-1",
+                                            "eu-west-1", "ap-southeast-1"],
+                                   help="aws region to create the cluster in", )
+            ec2_group.add_argument("--aws-availability-zone",
+                                   dest="aws_availability_zone",
+                                   help="availability zone to" +
+                                        " create the cluster in", )
+            ec2_group.add_argument("--subnet-id",
+                                   dest="subnet_id",
+                                   help="subnet to create the cluster in", )
+            ec2_group.add_argument("--vpc-id",
+                                   dest="vpc_id",
+                                   help="vpc to create the cluster in", )
 
         hadoop_group = argparser.add_argument_group("hadoop settings")
         hadoop_group.add_argument("--master-instance-type",
                                   dest="master_instance_type",
                                   help="instance type to use for the hadoop" +
-                                       " master node",)
+                                       " master node", )
         hadoop_group.add_argument("--slave-instance-type",
                                   dest="slave_instance_type",
                                   help="instance type to use for the hadoop" +
-                                       " slave nodes",)
+                                       " slave nodes", )
         hadoop_group.add_argument("--initial-nodes",
                                   dest="initial_nodes",
                                   type=int,
                                   help="number of nodes to start the" +
-                                       " cluster with",)
+                                       " cluster with", )
         hadoop_group.add_argument("--max-nodes",
                                   dest="max_nodes",
                                   type=int,
@@ -206,75 +200,74 @@ class Cluster(Resource):
                                   help="location of file containg custom" +
                                        " hadoop configuration overrides")
         hadoop_group.add_argument("--slave-request-type",
-                                  dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid"],
-                                  help="purchasing option for slave instaces",)
+                                      dest="slave_request_type",
+                                      choices=["ondemand", "spot", "hybrid"],
+                                      help="purchasing option for slave instaces", )
 
-        spot_group = argparser.add_argument_group("spot instance settings" +
-                    " (valid only when slave-request-type is hybrid or spot)")
-        spot_group.add_argument("--maximum-bid-price-percentage",
-                                dest="maximum_bid_price_percentage",
-                                type=float,
-                                help="maximum value to bid for spot instances" +
-                                     " expressed as a percentage of the base" +
-                                     " price for the slave node instance type",)
-        spot_group.add_argument("--timeout-for-spot-request",
-                                dest="timeout_for_request",
-                                type=int,
-                                help="timeout for a spot instance request" +
-                                     " unit: minutes")
-        spot_group.add_argument("--maximum-spot-instance-percentage",
-                                dest="maximum_spot_instance_percentage",
-                                type=int,
-                                help="maximum percentage of instances that may" +
-                                     " be purchased from the aws spot market," +
-                                     " valid only when slave-request-type" +
-                                     " is 'hybrid'",)
-
-        stable_spot_group = argparser.add_argument_group("stable spot instance settings")
-        stable_spot_group.add_argument("--stable-maximum-bid-price-percentage",
-                                       dest="stable_maximum_bid_price_percentage",
-                                       type=float,
-                                       help="maximum value to bid for stable node spot instances" +
-                                       " expressed as a percentage of the base" +
-                                       " price for the master and slave node instance types",)
-        stable_spot_group.add_argument("--stable-timeout-for-spot-request",
-                                       dest="stable_timeout_for_request",
-                                       type=int,
-                                       help="timeout for a stable node spot instance request" +
-                                       " unit: minutes")
-        stable_spot_group.add_argument("--stable-allow-fallback",
-                                       dest="stable_allow_fallback", default=None,
-                                       type=str2bool,
-                                       help="whether to fallback to on-demand instances for stable nodes" +
-                                       " if spot instances aren't available")
-
+        if provider.lower() == "aws":
+            spot_group = argparser.add_argument_group("spot instance settings" +
+                                                      " (valid only when slave-request-type is hybrid or spot)")
+            spot_group.add_argument("--maximum-bid-price-percentage",
+                                    dest="maximum_bid_price_percentage",
+                                    type=float,
+                                    help="maximum value to bid for spot instances" +
+                                         " expressed as a percentage of the base" +
+                                         " price for the slave node instance type", )
+            spot_group.add_argument("--timeout-for-spot-request",
+                                    dest="timeout_for_request",
+                                    type=int,
+                                    help="timeout for a spot instance request" +
+                                         " unit: minutes")
+            spot_group.add_argument("--maximum-spot-instance-percentage",
+                                    dest="maximum_spot_instance_percentage",
+                                    type=int,
+                                    help="maximum percentage of instances that may" +
+                                         " be purchased from the aws spot market," +
+                                         " valid only when slave-request-type" +
+                                         " is 'hybrid'", )
+            stable_spot_group = argparser.add_argument_group("stable spot instance settings")
+            stable_spot_group.add_argument("--stable-maximum-bid-price-percentage",
+                                           dest="stable_maximum_bid_price_percentage",
+                                           type=float,
+                                           help="maximum value to bid for stable node spot instances" +
+                                                " expressed as a percentage of the base" +
+                                                " price for the master and slave node instance types", )
+            stable_spot_group.add_argument("--stable-timeout-for-spot-request",
+                                           dest="stable_timeout_for_request",
+                                           type=int,
+                                           help="timeout for a stable node spot instance request" +
+                                                " unit: minutes")
+            stable_spot_group.add_argument("--stable-allow-fallback",
+                                           dest="stable_allow_fallback", default=None,
+                                           type=str2bool,
+                                           help="whether to fallback to on-demand instances for stable nodes" +
+                                                " if spot instances aren't available")
         fairscheduler_group = argparser.add_argument_group(
-                              "fairscheduler configuration options")
+            "fairscheduler configuration options")
         fairscheduler_group.add_argument("--fairscheduler-config-xml",
                                          dest="fairscheduler_config_xml_file",
                                          help="location for file containing" +
                                               " xml with custom configuration" +
-                                              " for the fairscheduler",)
+                                              " for the fairscheduler", )
         fairscheduler_group.add_argument("--fairscheduler-default-pool",
                                          dest="default_pool",
                                          help="default pool for the" +
-                                              " fairscheduler",)
+                                              " fairscheduler", )
 
         security_group = argparser.add_argument_group("security setttings")
         ephemerals = security_group.add_mutually_exclusive_group()
         ephemerals.add_argument("--encrypted-ephemerals",
-                                 dest="encrypted_ephemerals",
-                                 action="store_true",
-                                 default=None,
-                                 help="encrypt the ephemeral drives on" +
-                                      " the instance",)
+                                dest="encrypted_ephemerals",
+                                action="store_true",
+                                default=None,
+                                help="encrypt the ephemeral drives on" +
+                                     " the instance", )
         ephemerals.add_argument("--no-encrypted-ephemerals",
-                                 dest="encrypted_ephemerals",
-                                 action="store_false",
-                                 default=None,
-                                 help="don't encrypt the ephemeral drives on" +
-                                      " the instance",)
+                                dest="encrypted_ephemerals",
+                                action="store_false",
+                                default=None,
+                                help="don't encrypt the ephemeral drives on" +
+                                     " the instance", )
         security_group.add_argument("--customer-ssh-key",
                                     dest="customer_ssh_key_file",
                                     help="location for ssh key to use to" +
@@ -283,15 +276,15 @@ class Cluster(Resource):
         presto_group = argparser.add_argument_group("presto settings")
         enabling_presto = presto_group.add_mutually_exclusive_group()
         enabling_presto.add_argument("--enable-presto",
-                                  dest="enable_presto",
-                                  action="store_true",
-                                  default=None,
-                                  help="Enable presto for this cluster",)
+                                     dest="enable_presto",
+                                     action="store_true",
+                                     default=None,
+                                     help="Enable presto for this cluster", )
         enabling_presto.add_argument("--disable-presto",
-                                  dest="enable_presto",
-                                  action="store_false",
-                                  default=None,
-                                  help="Disable presto for this cluster",)
+                                     dest="enable_presto",
+                                     action="store_false",
+                                     default=None,
+                                     help="Disable presto for this cluster", )
         presto_group.add_argument("--presto-custom-config",
                                   dest="presto_custom_config_file",
                                   help="location of file containg custom" +
@@ -303,7 +296,7 @@ class Cluster(Resource):
                                  action="store_true",
                                  default=None,
                                  help="don't auto-terminate idle clusters," +
-                                      " use this with extreme caution",)
+                                      " use this with extreme caution", )
         termination.add_argument("--allow-cluster-termination",
                                  dest="disallow_cluster_termination",
                                  action="store_false",
@@ -316,21 +309,38 @@ class Cluster(Resource):
                              action="store_true",
                              default=None,
                              help="enable ganglia monitoring for the" +
-                                  " cluster",)
+                                  " cluster", )
         ganglia.add_argument("--disable-ganglia-monitoring",
                              dest="enable_ganglia_monitoring",
                              action="store_false",
                              default=None,
                              help="disable ganglia monitoring for the" +
-                                  " cluster",)
-
+                                  " cluster", )
         argparser.add_argument("--node-bootstrap-file",
-                dest="node_bootstrap_file",
-                help="""name of the node bootstrap file for this cluster. It
+                               dest="node_bootstrap_file",
+                               help="""name of the node bootstrap file for this cluster. It
                 should be in stored in S3 at
                 <account-default-location>/scripts/hadoop/NODE_BOOTSTRAP_FILE
-                """,)
+                """, )
 
+    @classmethod
+    def _parse_create_update(cls, args, provider):
+        """
+        Parse command line arguments to determine cluster parameters that can
+        be used to create or update a cluster.
+
+        Args:
+            `args`: sequence of arguments
+        Returns:
+            Object that contains cluster parameters
+        """
+        argparser = ArgumentParser(prog="cluster")
+        action_parser = argparser.add_subparsers()
+        create_parser = action_parser.add_parser("create", help="create a cluster")
+        update_parser = action_parser.add_parser("update", help="update existing cluster")
+
+        cls.configure_parser(create_parser, create=True, provider=provider)
+        cls.configure_parser(update_parser, create=False, provider=provider)
         arguments = argparser.parse_args(args)
         return arguments
 
