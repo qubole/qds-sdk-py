@@ -219,6 +219,24 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_disallow_cluster_termination_gce(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--disallow-cluster-termination']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'gce_settings': {'client_email': 'someone@example.com',
+                                      'private_key' : '/path/to/key.pem',
+                                      'project_id'  : 'mycompany-gce',
+                                      'region'      : 'us-central1'},
+                     'disallow_cluster_termination': True
+                    }
+                })
+
     def test_allow_cluster_termination(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -231,6 +249,24 @@ class TestClusterCreate(QdsCliTestCase):
                     {'label': ['test_label'],
                      'ec2_settings': {'compute_secret_key': 'sak',
                                       'compute_access_key': 'aki'},
+                     'disallow_cluster_termination': False
+                    }
+                })
+
+    def test_allow_cluster_termination_gce(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--allow-cluster-termination']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'gce_settings': {'client_email': 'someone@example.com',
+                                      'private_key' : '/path/to/key.pem',
+                                      'project_id'  : 'mycompany-gce',
+                                      'region'      : 'us-central1'},
                      'disallow_cluster_termination': False
                     }
                 })
@@ -433,6 +469,40 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_gce_region_us_central1(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--region', 'us-central1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'gce_settings': {'client_email'  : 'someone@example.com',
+                                      'private_key'   : '/path/to/key.pem',
+                                      'project_id'    : 'mycompany-gce',
+                                      'region'        : 'us-central1'},
+                    }
+                })
+
+    def test_gce_region_europe_west1(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--region', 'europe-west1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'gce_settings': {'client_email'  : 'someone@example.com',
+                                      'private_key'   : '/path/to/key.pem',
+                                      'project_id'    : 'mycompany-gce',
+                                      'region'        : 'europe-west1'},
+                    }
+                })
+
     def test_aws_availability_zone(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -446,6 +516,25 @@ class TestClusterCreate(QdsCliTestCase):
                      'ec2_settings': {'compute_secret_key': 'sak',
                                       'compute_access_key': 'aki',
                                       'aws_preferred_availability_zone': 'us-east-1a'},
+                    }
+                })
+
+    def test_gce_availability_zone(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--region', 'europe-west1',
+                '-z', 'europe-west1-b']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'gce_settings': {'client_email'  : 'someone@example.com',
+                                      'private_key'   : '/path/to/key.pem',
+                                      'project_id'    : 'mycompany-gce',
+                                      'region'        : 'europe-west1',
+                                      'availability_zone' : 'europe-west1-b'},
                     }
                 })
 
@@ -482,6 +571,24 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_master_instance_type_gce(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--master-instance-type', 'n1-standard-1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'gce_settings': {'client_email'  : 'someone@example.com',
+                                      'private_key'   : '/path/to/key.pem',
+                                      'project_id'    : 'mycompany-gce',
+                                      'region'        : 'us-central1'},
+                     'hadoop_settings': {'master_instance_type' : 'n1-standard-1'}
+                    }
+                })
+
     def test_slave_instance_type(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -495,6 +602,24 @@ class TestClusterCreate(QdsCliTestCase):
                      'ec2_settings': {'compute_secret_key': 'sak',
                                       'compute_access_key': 'aki'},
                      'hadoop_settings': {'slave_instance_type': 'm1.large'}
+                    }
+                })
+
+    def test_slave_instance_type_gce(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--slave-instance-type', 'n1-standard-1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'gce_settings': {'client_email'  : 'someone@example.com',
+                                      'private_key'   : '/path/to/key.pem',
+                                      'project_id'    : 'mycompany-gce',
+                                      'region'        : 'us-central1'},
+                     'hadoop_settings': {'slave_instance_type' : 'n1-standard-1'}
                     }
                 })
 
