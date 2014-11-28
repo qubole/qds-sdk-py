@@ -843,6 +843,15 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_aws_spot_market_on_gce(self):
+        sys.argv = ['qds.py', '--provider=gce', 'cluster', 'create', '--label', 'test_label',
+                '--client-email', 'someone@example.com', '--private-key', '/path/to/key.pem',
+                '--project-id', 'mycompany-gce', '--maximum-bid-price-percentage', '80']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
     def test_encrypted_ephemerals(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
