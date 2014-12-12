@@ -92,42 +92,42 @@ class TestRoleCheck(QdsCliTestCase):
             qds.main()
 
     def test_assign_role(self):
-        sys.argv = ['qds.py', 'role', 'assign_role', '123', '--group-id', '456']
+        sys.argv = ['qds.py', 'role', 'assign-role', '123', '--group-id', '456']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call("PUT", "groups/456/roles/123/assign", None))
 
     def test_assign_role_neg(self):
-        sys.argv = ['qds.py', 'role', 'assign_role', '123', '--group-id']
+        sys.argv = ['qds.py', 'role', 'assign-role', '123', '--group-id']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_unassign_role(self):
-        sys.argv = ['qds.py', 'role', 'unassign_role', '123', "--group-id", "456"]
+        sys.argv = ['qds.py', 'role', 'unassign-role', '123', "--group-id", "456"]
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call("PUT", "groups/456/roles/123/unassign", None))
 
     def test_unassign_role_neg(self):
-        sys.argv = ['qds.py', 'role', 'unassign_role', '123', "--group-id"]
+        sys.argv = ['qds.py', 'role', 'unassign-role', '123', "--group-id"]
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_list_groups(self):
-        sys.argv = ['qds.py', 'role', 'list_groups', '123']
+        sys.argv = ['qds.py', 'role', 'list-groups', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call("GET", "roles/123/groups", params=None))
 
     def test_list_groups_neg(self):
-        sys.argv = ['qds.py', 'role', 'list_groups']
+        sys.argv = ['qds.py', 'role', 'list-groups']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):

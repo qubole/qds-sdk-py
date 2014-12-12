@@ -56,19 +56,19 @@ class RoleCmdLine:
         duplicate.set_defaults(func=RoleCmdLine.duplicate)
 
         #Assign Role
-        assign_role = subparsers.add_parser("assign_role", help="Assigns a Role to a Group")
+        assign_role = subparsers.add_parser("assign-role", help="Assigns a Role to a Group")
         assign_role.add_argument("id", help="Numeric id of the Role")
         assign_role.add_argument("--group-id", dest="group_id", required=True, help="Numeric Id of the Group")
         assign_role.set_defaults(func=RoleCmdLine.assign_role)
 
         #UnAssign Role
-        unassign_role = subparsers.add_parser("unassign_role", help="Unassigna a Role from a Group")
+        unassign_role = subparsers.add_parser("unassign-role", help="Unassigna a Role from a Group")
         unassign_role.add_argument("id", help="Numeric id of the Role")
         unassign_role.add_argument("--group-id", dest="group_id", required=True, help="Numeric Id of the Group")
         unassign_role.set_defaults(func=RoleCmdLine.unassign_role)
 
         #List groups
-        list_groups = subparsers.add_parser("list_groups", help="List all Groups for a Role ")
+        list_groups = subparsers.add_parser("list-groups", help="List all Groups for a Role ")
         list_groups.add_argument("id", help="Numeric id of the Role")
         list_groups.set_defaults(func=RoleCmdLine.list_groups)
 

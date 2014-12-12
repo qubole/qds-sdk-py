@@ -57,36 +57,36 @@ class GroupCmdLine:
         duplicate.set_defaults(func=GroupCmdLine.duplicate)
         
         #Add user
-        add_user = subparsers.add_parser("add_users", help="Add Users to the Group")
+        add_user = subparsers.add_parser("add-users", help="Add Users to the Group")
         add_user.add_argument("id", help="Numeric id of the group")
         add_user.add_argument("user_ids", help="User IDs of the Users to be added in this Group")
         add_user.set_defaults(func=GroupCmdLine.add_users)
 
         #Remove user
-        remove_user = subparsers.add_parser("remove_users", help="Remove Users from the Group")
+        remove_user = subparsers.add_parser("remove-users", help="Remove Users from the Group")
         remove_user.add_argument("id", help="Numeric id of the group")
         remove_user.add_argument("user_ids", help="User IDs of the Users to be removed from this Group")
         remove_user.set_defaults(func=GroupCmdLine.remove_users)
 
         #List roles for a group
-        list_roles = subparsers.add_parser("list_roles", help="List all Roles of a Group ")
+        list_roles = subparsers.add_parser("list-roles", help="List all Roles of a Group ")
         list_roles.add_argument("id", help="Numeric id of the group")
         list_roles.set_defaults(func=GroupCmdLine.list_roles)
 
         #Add role
-        add_role = subparsers.add_parser("add_roles", help="Attach Roles to the Group")
+        add_role = subparsers.add_parser("add-roles", help="Attach Roles to the Group")
         add_role.add_argument("id", help="Numeric id of the group")
         add_role.add_argument("role_id", help="Please provide the Role IDs, which you likes to attach with this Group.")
         add_role.set_defaults(func=GroupCmdLine.add_roles)
 
         #Remove role
-        remove_role = subparsers.add_parser("remove_roles", help="Detach Roles from the Group")
+        remove_role = subparsers.add_parser("remove-roles", help="Detach Roles from the Group")
         remove_role.add_argument("id", help="Numeric id of the group")
         remove_role.add_argument("role_id", help="Please provide the Role IDs, which you likes to detach from this Group.")
         remove_role.set_defaults(func=GroupCmdLine.remove_roles)
 
         #List users for a group
-        list_users = subparsers.add_parser("list_users", help="List all Users of a Group ")
+        list_users = subparsers.add_parser("list-users", help="List all Users of a Group ")
         list_users.add_argument("id", help="Numeric id of the group")
         list_users.set_defaults(func=GroupCmdLine.list_users)
 

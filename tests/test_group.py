@@ -88,84 +88,84 @@ class TestGroupCheck(QdsCliTestCase):
             qds.main()
 
     def test_add_users(self):
-        sys.argv = ['qds.py', 'group', 'add_users', '123', '456,789']
+        sys.argv = ['qds.py', 'group', 'add-users', '123', '456,789']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call('PUT', 'groups/123', {'members': '456,789'}))
 
     def test_add_users_neg(self):
-        sys.argv = ['qds.py', 'group', 'add_users', '123']
+        sys.argv = ['qds.py', 'group', 'add-users', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_remove_users(self):
-        sys.argv = ['qds.py', 'group', 'remove_users', '123', '456,789']
+        sys.argv = ['qds.py', 'group', 'remove-users', '123', '456,789']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call('PUT', 'groups/123', {'removed_members': '456,789'}))
 
     def test_remove_users_neg(self):
-        sys.argv = ['qds.py', 'group', 'remove_users', '123']
+        sys.argv = ['qds.py', 'group', 'remove-users', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_list_roles(self):
-        sys.argv = ['qds.py', 'group', 'list_roles', '123']
+        sys.argv = ['qds.py', 'group', 'list-roles', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call("GET", "groups/123/roles", params=None))
 
     def test_list_roles_neg(self):
-        sys.argv = ['qds.py', 'group', 'list_roles']
+        sys.argv = ['qds.py', 'group', 'list-roles']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_list_users(self):
-        sys.argv = ['qds.py', 'group', 'list_users', '123']
+        sys.argv = ['qds.py', 'group', 'list-users', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call("GET", "groups/123/qbol_users", params=None))
 
     def test_list_users_neg(self):
-        sys.argv = ['qds.py', 'group', 'list_users']
+        sys.argv = ['qds.py', 'group', 'list-users']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_add_roles(self):
-        sys.argv = ['qds.py', 'group', 'add_roles', '123', '456,789']
+        sys.argv = ['qds.py', 'group', 'add-roles', '123', '456,789']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call("PUT", "groups/123", {'roles':'456,789'}))
 
     def test_add_roles_neg(self):
-        sys.argv = ['qds.py', 'group', 'add_roles', '123']
+        sys.argv = ['qds.py', 'group', 'add-roles', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_remove_roles(self):
-        sys.argv = ['qds.py', 'group', 'remove_roles', '123', '456,789']
+        sys.argv = ['qds.py', 'group', 'remove-roles', '123', '456,789']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_has_calls(call("PUT", "groups/123", {'removed_roles':'456,789'}))
 
     def test_remove_roles_neg(self):
-        sys.argv = ['qds.py', 'group', 'remove_roles', '123']
+        sys.argv = ['qds.py', 'group', 'remove-roles', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
