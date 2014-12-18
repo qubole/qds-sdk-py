@@ -70,6 +70,8 @@ class Command(Resource):
         conn = Qubole.agent()
         if kwargs.get('command_type') is None:
             kwargs['command_type'] = cls.__name__
+        if kwargs.get('tags') is not None:
+            kwargs['tags'] = kwargs['tags'].split(',')
 
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
 
@@ -184,6 +186,9 @@ class HiveCommand(Command):
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
+
     optparser.add_option("--sample_size", dest="sample_size",
                          help="size of sample in bytes on which to run query")
 
@@ -262,6 +267,9 @@ class PrestoCommand(Command):
 
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
+
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
 
     optparser.add_option("--cluster-label", dest="label",
                          help="the label of the cluster to run the command on")
@@ -405,6 +413,9 @@ class ShellCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
+
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
@@ -491,6 +502,9 @@ class PigCommand(Command):
 
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
+
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
@@ -601,6 +615,9 @@ class DbExportCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
+
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
@@ -695,6 +712,9 @@ class DbImportCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
+
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
@@ -776,6 +796,8 @@ class DbTapQueryCommand(Command):
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
