@@ -187,7 +187,7 @@ class HiveCommand(Command):
                          help="expressions to expand macros used in query")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
 
     optparser.add_option("--sample_size", dest="sample_size",
                          help="size of sample in bytes on which to run query")
@@ -269,7 +269,7 @@ class PrestoCommand(Command):
                          help="expressions to expand macros used in query")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
 
     optparser.add_option("--cluster-label", dest="label",
                          help="the label of the cluster to run the command on")
@@ -348,7 +348,7 @@ class HadoopCommand(Command):
                          help="Assign a name to this command")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
 
     optparser.disable_interspersed_args()
 
@@ -418,7 +418,7 @@ class ShellCommand(Command):
                          default=False, help="sends an email on command completion")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
@@ -508,7 +508,7 @@ class PigCommand(Command):
                          default=False, help="sends an email on command completion")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
@@ -620,7 +620,7 @@ class DbExportCommand(Command):
                          default=False, help="sends an email on command completion")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
@@ -717,7 +717,7 @@ class DbImportCommand(Command):
                          default=False, help="sends an email on command completion")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
@@ -762,7 +762,7 @@ class DbImportCommand(Command):
 
 class CompositeCommand(Command):
     @classmethod
-    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False, name=None):
+    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False, name=None, tags=None):
         """
         Args:
             `sub_commands`: list of sub-command dicts
@@ -783,6 +783,7 @@ class CompositeCommand(Command):
                 "command_type": "CompositeCommand",
                 "macros": macros,
                 "label": cluster_label,
+                "tags": tags,
                 "can_notify": notify,
                 "name": name
                }
@@ -801,7 +802,7 @@ class DbTapQueryCommand(Command):
                          help="expressions to expand macros used in query")
 
     optparser.add_option("--tags", dest="tags",
-                         help="tags to be associated in query")
+                         help="tags to be associated with the query")
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
