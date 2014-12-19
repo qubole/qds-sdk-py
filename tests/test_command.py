@@ -429,6 +429,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -448,6 +449,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'--src' 'source' '--dest' 'destincation'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -472,6 +474,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'-files' 's3n://location-of-mapper.py,s3n://location-of-reducer.py' '-input' 'myInputDirs' '-output' 'myOutputDir' '-mapper' 'mapper.py' '-reducer' 'reducer.py'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -491,6 +494,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': None,
                  'label': 'test_label',
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -504,6 +508,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': 'test_name',
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -517,8 +522,23 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': True})
+
+    def test_submit_tags(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--name', 'test_name',  '--tags', 'abc,def', 'jar', 's3://bucket/path-to-jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'jar',
+                 'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'name': 'test_name',
+                 'tags': ['abc', 'def'],
+                 'label': None,
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False})
 
 
 class TestShellCommand(QdsCliTestCase):

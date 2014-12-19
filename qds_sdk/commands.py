@@ -347,6 +347,9 @@ class HadoopCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="tags to be associated in query")
+
     optparser.disable_interspersed_args()
 
     @classmethod
@@ -376,6 +379,7 @@ class HadoopCommand(Command):
         parsed['label'] = options.label
         parsed['can_notify'] = options.can_notify
         parsed['name'] = options.name
+        parsed['tags'] = options.tags
         parsed["command_type"] = "HadoopCommand"
 
         if len(args) < 2:
