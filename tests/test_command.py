@@ -341,7 +341,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'program': None,
                  'commandline':None,
-                 'command_type': 'HiveCommand',
+                 'command_type': 'SparkCommand',
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script'})
 
@@ -470,12 +470,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'label_program' : None,
                  'language' : None,
                  'tags': None,
-                 'sample_size': 1024,
+                 'sample_size': '1024',
                  'name': None,
                  'program': None,
                  'commandline': 'show tables',
                  'command_type': 'SparkCommand',
-                 'can_notify': True,
+                 'can_notify': False,
                  'script_location': None})
 
 
