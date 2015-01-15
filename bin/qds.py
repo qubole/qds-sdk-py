@@ -134,7 +134,7 @@ def getlogaction(cmdclass, args):
 def cmdmain(cmd, args):
     cmdclass = CommandClasses[cmd]
 
-    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
+    actionset = {"submit", "run", "check", "cancel", "getresult", "getlog"}
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
@@ -322,7 +322,7 @@ def clustermain(dummy, args, provider):
                          " removed in the next version. Please use 'cluster status'" \
                          " instead.\n")
         clusterclass = HadoopCluster
-        actionset = set(["check"])
+        actionset = {"check"}
 
         if len(args) < 1:
             sys.stderr.write("missing argument containing action\n")
@@ -336,7 +336,7 @@ def clustermain(dummy, args, provider):
 
     else:
         clusterclass = Cluster
-        actionset = set(["create", "delete", "update", "list", "start", "terminate", "status", "reassign_label"])
+        actionset = {"create", "delete", "update", "list", "start", "terminate", "status", "reassign_label"}
 
         if len(args) < 1:
             sys.stderr.write("missing argument containing action\n")
@@ -393,7 +393,7 @@ def main():
                          default=False,
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
-    optparser.add_option("--provider", dest="provider", default="aws",
+    optparser.add_option("--provider", dest="provider", default="aws", choices=["aws", "gce", "azure"],
                          help="IaaS cloud provider you are using with Qubole. Default: AWS")
 
     optparser.add_option("-v", dest="verbose", action="store_true",

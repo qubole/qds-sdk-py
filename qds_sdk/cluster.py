@@ -648,10 +648,7 @@ class GceClusterInfo(ClusterInfo):
         self.label = label
         super(GceClusterInfo, self).__init__()
         # Google Cloud Platform settings
-        self.gce_settings = {}
-        self.gce_settings['client_email'] = client_email
-        self.gce_settings['private_key'] = private_key
-        self.gce_settings['project_id'] = project_id
+        self.gce_settings = {'client_email': client_email, 'private_key': private_key, 'project_id': project_id}
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file
