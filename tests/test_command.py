@@ -407,7 +407,7 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': 'test_label',
-                 'label_proogram': None,
+                 'label_program': None,
                  'language' : None,
                  'commandline': 'show tables',
                  'tags': None,
