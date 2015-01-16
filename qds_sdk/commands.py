@@ -340,8 +340,8 @@ class SparkCommand(Command):
             if options.language is not None:
                 raise ParseError("Both commandline/script location and language cannot be specified together", cls.optparser.form)
         elif options.language not in allowedlanglist:
-            raise ParseError("Please use one of ".join(allowedlanglist), cls.optparser.format_help())
-        if options.macros is not None:
+            raise ParseError("Please use one of [ "+",".join(allowedlanglist)+"]", cls.optparser.format_help())
+        if options.macros is not None: 
             options.macros = json.loads(options.macros)
         v = vars(options)
         v["command_type"] = "SparkCommand"

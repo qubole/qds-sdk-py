@@ -357,6 +357,20 @@ class TestSparkCommand(QdsCliTestCase):
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
+    
+    def test_submit_all_three(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
+                    '--script_location', 's3://bucket/path-to-script', 'program', 'dummy program']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+    
+    def test_language(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--program', 'show tables',
+                    '--language', 'java']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
 
     def test_submit_macros(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script',
