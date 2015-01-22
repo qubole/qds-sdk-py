@@ -192,7 +192,7 @@ class Cluster(Resource):
                                   choices=["ondemand", "spot", "hybrid"],
                                   help="purchasing option for slave instaces",)
         hadoop_group.add_argument("--use-hbase", dest="use_hbase",
-                                  action="store_true", default=False,
+                                  action="store_true", default=None,
                                   help="Use hbase on this cluster",)
 
         spot_group = argparser.add_argument_group("spot instance settings" +
