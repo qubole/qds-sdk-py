@@ -191,6 +191,9 @@ class Cluster(Resource):
                                   dest="slave_request_type",
                                   choices=["ondemand", "spot", "hybrid"],
                                   help="purchasing option for slave instaces",)
+        hadoop_group.add_argument("--use-hbase", dest="use_hbase",
+                                  action="store_true", default=False,
+                                  help="Use hbase on this cluster",)
 
         spot_group = argparser.add_argument_group("spot instance settings" +
                     " (valid only when slave-request-type is hybrid or spot)")
