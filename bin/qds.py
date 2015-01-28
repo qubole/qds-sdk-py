@@ -7,6 +7,7 @@ from qds_sdk.cluster import *
 from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
 from qds_sdk.scheduler import SchedulerCmdLine
+from qds_sdk.command_templates import CommandTemplateCmdLine
 from qds_sdk.actions import ActionCmdLine
 from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
@@ -23,6 +24,7 @@ from optparse import OptionParser
 log = logging.getLogger("qds")
 CommandClasses = {
     "hivecmd": HiveCommand,
+    "sparkcmd": SparkCommand,
     "dbtapquerycmd": DbTapQueryCommand,
     "pigcmd":  PigCommand,
     "hadoopcmd": HadoopCommand,
@@ -35,7 +37,7 @@ CommandClasses = {
 usage_str = ("Usage: \n"
              "qds [options] <CmdArgs|ClusterArgs|ReportArgs>\n"
              "\nCmdArgs:\n" +
-             "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbtapquerycmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
+             "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbtapquerycmd|sparkcmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
              "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
              "  run [cmd-specific-args .. ] : submit cmd & wait. print results \n"
              "  check <id> : print the cmd object for this Id\n"
@@ -354,6 +356,10 @@ def schedulermain(args):
     result = SchedulerCmdLine.run(args)
     print(result)
 
+def commandtemplatesmain(args):
+    result = CommandTemplateCmdLine.run(args)
+    print(result)
+
 def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
@@ -447,6 +453,9 @@ def main():
 
     if a0 == "scheduler":
         return schedulermain(args)
+
+    if a0 == "commandtemplates":
+        return commandtemplatesmain(args)
 
     if a0 == "report":
         return reportmain(args)
