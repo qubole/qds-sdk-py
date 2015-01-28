@@ -6,7 +6,7 @@ import json
 from requests.adapters import HTTPAdapter
 try:
     from requests.packages.urllib3.poolmanager import PoolManager
-except ImportError
+except ImportError:
     from urllib3.poolmanager import PoolManager
 from qds_sdk.retry import retry
 from qds_sdk.exception import *
