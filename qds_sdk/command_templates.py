@@ -5,10 +5,11 @@ from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 from qds_sdk.commands import *
 from qds_sdk.actions import *
-
+import argparse
 
 class CommandTemplateCmdLine:
-
+    hiveparser = None
+    prestoparser = None
     @staticmethod
     def parsers():
         argparser = ArgumentParser(prog="qds.py commandtemplates",
@@ -17,6 +18,8 @@ class CommandTemplateCmdLine:
 
         #Hive Command
         hivecmd = subparsers.add_parser("hivecmd", help="Create a new hive command template")
+        
+        hivecmd.add_argument("name", help="Hive query name")
 
         hivecmd.add_argument("--input_vars",
             help="Add names and values for input variables", dest="input_vars", nargs="*")
@@ -27,11 +30,12 @@ class CommandTemplateCmdLine:
 
         hivecmdgroup.add_argument("--script_location", dest="script_location", help="S3 path of script")
 
-        hivecmd.add_argument("--name", dest="name", help="Hive query name")
 
         hivecmd.add_argument("--macros", dest="macros", help="Hive macros")
 
         hivecmd.set_defaults(func=CommandTemplateCmdLine.hivecmd)
+        
+        CommandTemplateCmdLine.hiveparser = hivecmd
 
         #Presto Command
         prestocmd = subparsers.add_parser("prestocmd", help="Create a new presto command template")
@@ -45,11 +49,13 @@ class CommandTemplateCmdLine:
 
         prestocmdgroup.add_argument("--script_location", dest="script_location", help="S3 path of script")
 
-        prestocmd.add_argument("--name", dest="name", help="Presto query name")
+        prestocmd.add_argument("name", help="Presto query name")
 
         prestocmd.add_argument("--macros", dest="macros", help="Presto macros")
 
         prestocmd.set_defaults(func=CommandTemplateCmdLine.prestocmd)
+        
+        CommandTemplateCmdLine.prestoparser = prestocmd
 
         list_all = subparsers.add_parser("list", help="List all available command templates")
 
@@ -94,7 +100,14 @@ class CommandTemplateCmdLine:
 
         return argparser
 
+    @staticmethod
+    def get_hivecmd_help():
+        return CommandTemplateCmdLine.hiveparser.format_help()
 
+    @staticmethod
+    def get_prestocmd_help():
+        return CommandTemplateCmdLine.prestoparser.format_help()
+    
     @staticmethod
     def run(args):
         parser = CommandTemplateCmdLine.parsers()
@@ -166,7 +179,8 @@ class CommandTemplateCmdLine:
 class CommandTemplate(Resource):
 
     rest_entity_path = "command_templates"
-
+    
+     
     @staticmethod
     def hivecmd(args):
         conn = Qubole.agent()
@@ -186,24 +200,35 @@ class CommandTemplate(Resource):
                     input_var_data['default_value'] = a[1]
                 data['input_vars'].append(input_var_data)
         data['command'] = {}
-        if args.query:
-            data['command']['query'] = args.query
-        else:
-            if ((args.script_location.find("s3://") != 0) and
-                (args.script_location.find("s3n://") != 0)):
-
-                # script location is local file
-
-                try:
-                    q = open(args.script_location).read()
-                except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
-                                     str(e),
-                                     cls.optparser.format_help())
-                data['command']['query'] = q
+        
+        hivecmd_help = CommandTemplateCmdLine.get_hivecmd_help()
+        
+        if args.query is None and args.script_location is None:
+            raise ParseError("One of Query or Script Location must be specified ",hivecmd_help )
+        
+        
+        if args.script_location is not None:
+            if args.query is not None:
+                raise ParseError("Both Query and Script_location can't be specified:",
+                                 hivecmd_help)
             else:
-                data['command']['script_location'] = args.script_location
+                if ((args.script_location.find("s3://") != 0) and
+                    (args.script_location.find("s3n://") != 0)):
 
+                    # script location is local file
+
+                    try:
+                        q = open(args.script_location).read()
+                    except IOError as e:
+                        raise ParseError("Unable to open script location: %s" %
+                                         str(e),
+                                         hivecmd_help)
+                    data['command']['query'] = q
+                else:
+                    data['command']['script_location'] = args.script_location
+        
+        if args.query is not None:
+            data['command']['query'] = args.query
         data['command']['command_type'] = "HiveCommand"
         data['command_type'] = "HiveCommand"
 
@@ -230,24 +255,37 @@ class CommandTemplate(Resource):
                     input_var_data['default_value'] = a[1]
                 data['input_vars'].append(input_var_data)
         data['command'] = {}
-        if args.query:
-            data['command']['query'] = args.query
-        else:
-            if ((args.script_location.find("s3://") != 0) and
-                (args.script_location.find("s3n://") != 0)):
-
-                # script location is local file
-
-                try:
-                    q = open(args.script_location).read()
-                except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
-                                     str(e),
-                                     cls.optparser.format_help())
-                data['command']['query'] = q
+        
+        prestocmd_help = CommandTemplateCmdLine.get_prestocmd_help()
+        
+        if args.query is None and args.script_location is None:
+            raise ParseError("One of Query or Script Location must be specified ",
+                             prestocmd_help)
+        
+        
+        if args.script_location is not None:
+            if args.query is not None:
+                raise ParseError("Both Query and Script_location can't be specified:",
+                                 prestocmd_help)
             else:
-                data['command']['script_location'] = args.script_location
+                if ((args.script_location.find("s3://") != 0) and
+                    (args.script_location.find("s3n://") != 0)):
 
+                    # script location is local file
+
+                    try:
+                        q = open(args.script_location).read()
+                    except IOError as e:
+                        raise ParseError("Unable to open script location: %s" %
+                                         str(e),
+                                         prestocmd_help)
+                    data['command']['query'] = q
+                else:
+                    data['command']['script_location'] = args.script_location
+        
+        if args.query is not None:
+            data['command']['query'] = args.query
+        
         data['command']['command_type'] = "PrestoCommand"
         data['command_type'] = "PrestoCommand"
 

@@ -24,6 +24,13 @@ class TestCommandCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET", "commands/123", params=None)
 
+    def test_sparkcmd(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'check', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+    
     def test_hadoopcmd(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'check', '123']
         print_command()
@@ -78,6 +85,14 @@ class TestCommandCancel(QdsCliTestCase):
 
     def test_hivecmd(self):
         sys.argv = ['qds.py', 'hivecmd', 'cancel', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'kill_succeeded': True})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "commands/123",
+                {'status': 'kill'})
+
+    def test_sparkcmd(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'cancel', '123']
         print_command()
         Connection._api_call = Mock(return_value={'kill_succeeded': True})
         qds.main()
@@ -151,6 +166,7 @@ class TestHiveCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'tags': None,
                  'sample_size': None,
                  'name': None,
                  'query': 'show tables',
@@ -166,6 +182,7 @@ class TestHiveCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'tags': None,
                  'sample_size': None,
                  'name': None,
                  'query': None,
@@ -195,6 +212,24 @@ class TestHiveCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
                  'label': None,
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'query': None,
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_tags(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+                    '--tags', 'abc,def']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'tags': ["abc", "def"],
                  'sample_size': None,
                  'name': None,
                  'query': None,
@@ -211,6 +246,7 @@ class TestHiveCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': 'test_label',
+                 'tags': None,
                  'sample_size': None,
                  'name': None,
                  'query': 'show tables',
@@ -227,6 +263,7 @@ class TestHiveCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'tags': None,
                  'sample_size': None,
                  'name': 'test_name',
                  'query': 'show tables',
@@ -243,6 +280,7 @@ class TestHiveCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'tags': None,
                  'sample_size': None,
                  'name': None,
                  'query': 'show tables',
@@ -259,10 +297,198 @@ class TestHiveCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'tags': None,
                  'sample_size': '1024',
                  'name': None,
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+class TestSparkCommand(QdsCliTestCase):
+
+    def test_submit_query(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'label_program': None,
+                 'language': None,
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'program': None,
+                 'commandline':'show tables',
+                 'command_type': 'SparkCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_script_location(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'label_program':None,
+                 'language':None,
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'program': None,
+                 'commandline':None,
+                 'command_type': 'SparkCommand',
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_none(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_both(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
+                    '--script_location', 's3://bucket/path-to-script']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+    
+    def test_submit_all_three(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
+                    '--script_location', 's3://bucket/path-to-script', 'program', 'dummy program']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+    
+    def test_language(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--program', 'show tables',
+                    '--language', 'java']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_macros(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+                    '--macros', '[{"key1":"11","key2":"22"}, {"key3":"key1+key2"}]']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
+                 'label': None,
+                 'label_program': None,
+                 'language': None,
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'program': None,
+                 'command_type': 'SparkCommand',
+                 'commandline': None,
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_tags(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+                    '--tags', 'abc,def']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'label_program': None,
+                 'language': None,
+                 'tags': ["abc", "def"],
+                 'sample_size': None,
+                 'name': None,
+                 'program': None,
+                 'command_type': 'SparkCommand',
+                 'commandline': None,
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_cluster_label(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
+                    '--cluster-label', 'test_label']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': 'test_label',
+                 'label_program': None,
+                 'language' : None,
+                 'commandline': 'show tables',
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'program' : None,
+                 'command_type': 'SparkCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_name(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
+                    '--name', 'test_name']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'label_program' : None,
+                 'language' : None,
+                 'commandline' : 'show tables',
+                 'tags': None,
+                 'sample_size': None,
+                 'name': 'test_name',
+                 'program': None,
+                 'command_type': 'SparkCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_notify(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
+                    '--notify']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'label_program' : None,
+                 'language' : None,
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'program': None,
+                 'commandline': 'show tables',
+                 'command_type': 'SparkCommand',
+                 'can_notify': True,
+                 'script_location': None})
+
+    def test_submit_sample_size(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
+                    '--sample_size', '1024']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'label_program' : None,
+                 'language' : None,
+                 'tags': None,
+                 'sample_size': '1024',
+                 'name': None,
+                 'program': None,
+                 'commandline': 'show tables',
+                 'command_type': 'SparkCommand',
                  'can_notify': False,
                  'script_location': None})
 
@@ -276,6 +502,7 @@ class TestPrestoCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'tags': None,
                  'label': None,
                  'name': None,
                  'query': 'show tables',
@@ -291,6 +518,7 @@ class TestPrestoCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
+                 'tags': None,
                  'name': None,
                  'query': None,
                  'command_type': 'PrestoCommand',
@@ -318,6 +546,23 @@ class TestPrestoCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
+                 'tags': None,
+                 'label': None,
+                 'name': None,
+                 'query': None,
+                 'command_type': 'PrestoCommand',
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script'})
+
+    def test_submit_tags(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+                    '--tags', 't1,t2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'tags': ["t1", "t2"],
                  'label': None,
                  'name': None,
                  'query': None,
@@ -334,6 +579,7 @@ class TestPrestoCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': 'test_label',
+                 'tags': None,
                  'name': None,
                  'query': 'show tables',
                  'command_type': 'PrestoCommand',
@@ -348,6 +594,7 @@ class TestPrestoCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'tags': None,
                  'label': None,
                  'name': 'test_name',
                  'query': 'show tables',
@@ -363,6 +610,7 @@ class TestPrestoCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'tags': None,
                  'label': None,
                  'name': None,
                  'query': 'show tables',
@@ -383,6 +631,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -402,6 +651,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'--src' 'source' '--dest' 'destincation'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -426,6 +676,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'-files' 's3n://location-of-mapper.py,s3n://location-of-reducer.py' '-input' 'myInputDirs' '-output' 'myOutputDir' '-mapper' 'mapper.py' '-reducer' 'reducer.py'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -445,6 +696,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': None,
                  'label': 'test_label',
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -458,6 +710,7 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': 'test_name',
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': False})
 
@@ -471,8 +724,23 @@ class TestHadoopCommand(QdsCliTestCase):
                  'sub_command_args': "'s3://bucket/path-to-jar'",
                  'name': None,
                  'label': None,
+                 'tags': None,
                  'command_type': 'HadoopCommand',
                  'can_notify': True})
+
+    def test_submit_tags(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--name', 'test_name',  '--tags', 'abc,def', 'jar', 's3://bucket/path-to-jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'jar',
+                 'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'name': 'test_name',
+                 'tags': ['abc', 'def'],
+                 'label': None,
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False})
 
 
 class TestShellCommand(QdsCliTestCase):
@@ -510,6 +778,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                 {'db_tap_id': 1,
                                                  'query': 'show tables',
                                                  'name': None,
+                                                 'tags': None,
                                                  'macros': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
@@ -540,6 +809,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
          Connection._api_call.assert_called_with('POST', 'commands',
                                                  {'db_tap_id': 1,
                                                   'query': 'show tables',
+                                                  'tags': None,
                                                   'name': None,
                                                   'macros': None,
                                                   'command_type': 'DbTapQueryCommand',
@@ -553,6 +823,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
          Connection._api_call.assert_called_with('POST', 'commands',
                                                  {'db_tap_id': 1,
                                                   'query': 'show tables',
+                                                  'tags': None,
                                                   'name': 'test_name',
                                                   'macros': None,
                                                   'command_type': 'DbTapQueryCommand',
@@ -568,6 +839,22 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                 {'macros': [{"a": "1", "b" : "4", "limit":"a + b"}],
                                                  'db_tap_id': 1,
                                                  'query': "select * from table_1 limit  \$limit\$",
+                                                 'tags': None,
+                                                 'name': None,
+                                                 'command_type': 'DbTapQueryCommand',
+                                                 'can_notify': False})
+
+    def test_submit_with_tags(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', "select * from table_1 limit  \$limit\$",
+                    '--db_tap_id', 1, '--tags', 'tag1,tag2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'macros': None,
+                                                 'db_tap_id': 1,
+                                                 'query': "select * from table_1 limit  \$limit\$",
+                                                 'tags': ["tag1", "tag2"],
                                                  'name': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
