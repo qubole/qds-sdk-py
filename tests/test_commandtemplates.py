@@ -25,7 +25,7 @@ def view_templates_side_effect(*args, **kwargs):
 class TestCommandTemplate(QdsCliTestCase):
 
     def test_hivecmd(self):
-        sys.argv = ['qds.py', 'commandtemplates', 'hivecmd', '--name', 'cmdtest',
+        sys.argv = ['qds.py', 'commandtemplates', 'hivecmd', 'cmdtest',
          '--query', 'select * from \$table_name\$', '--input_vars', "table_name='doctors'"]
         print_command()
         Connection._api_call = Mock(return_value={})
