@@ -11,6 +11,8 @@ from qds_sdk.command_templates import CommandTemplateCmdLine
 from qds_sdk.actions import ActionCmdLine
 from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
+from qds_sdk.role import RoleCmdLine
+from qds_sdk.group import GroupCmdLine
 
 import os
 import sys
@@ -55,7 +57,11 @@ usage_str = ("Usage: \n"
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
              "  report (<report-name> [options] | list)\n" +
-             "\nScheduler:\n" +
+             "\nGroup:\n" +
+             "  group --help\n" +
+             "\nRole:\n" +
+             "  role --help\n" +
+            "\nScheduler:\n" +
              "  scheduler --help\n")
 
 
@@ -197,7 +203,8 @@ def _create_cluster_info(arguments):
                                      arguments.initial_nodes,
                                      arguments.max_nodes,
                                      custom_config,
-                                     arguments.slave_request_type)
+                                     arguments.slave_request_type,
+                                     arguments.use_hbase)
 
     cluster_info.set_spot_instance_settings(
           arguments.maximum_bid_price_percentage,
@@ -356,6 +363,14 @@ def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
 
+def rolemain(args):
+    result = RoleCmdLine.run(args)
+    print(result)
+
+def groupmain(args):
+    result = GroupCmdLine.run(args)
+    print(result)
+
 def main():
 
     optparser = OptionParser(usage=usage_str)
@@ -447,9 +462,16 @@ def main():
     if a0 == "dbtap":
         return dbtapmain(args)
 
+    if a0 == "group":
+        return groupmain(args)
+
+    if a0 == "role":
+        return rolemain(args)
+
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
-                     "|".join(cmdset.union(["cluster", "scheduler", "report", "dbtap"])))
+                     "|".join(cmdset.union(["cluster", "scheduler", "report",
+                       "dbtap", "role", "group"])))
     usage(optparser)
 
 
