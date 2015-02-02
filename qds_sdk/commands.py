@@ -201,6 +201,9 @@ class HiveCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this query")
 
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+
     @classmethod
     def parse(cls, args):
         """
@@ -280,6 +283,9 @@ class PrestoCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this query")
 
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+
     @classmethod
     def parse(cls, args):
         """
@@ -350,6 +356,9 @@ class HadoopCommand(Command):
     optparser.add_option("--tags", dest="tags",
                          help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
 
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+
     optparser.disable_interspersed_args()
 
     @classmethod
@@ -381,6 +390,7 @@ class HadoopCommand(Command):
         parsed['name'] = options.name
         parsed['tags'] = options.tags
         parsed["command_type"] = "HadoopCommand"
+        parsed['print_logs'] = options.print_logs
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
@@ -422,6 +432,9 @@ class ShellCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -512,6 +525,9 @@ class PigCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -625,6 +641,9 @@ class DbExportCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+
     @classmethod
     def parse(cls, args):
         """
@@ -722,6 +741,9 @@ class DbImportCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+
     @classmethod
     def parse(cls, args):
         """
@@ -805,6 +827,9 @@ class DbTapQueryCommand(Command):
                          help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
