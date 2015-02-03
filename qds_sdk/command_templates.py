@@ -19,7 +19,7 @@ class CommandTemplateCmdLine:
         #Hive Command
         hivecmd = subparsers.add_parser("hivecmd", help="Create a new hive command template")
         
-        hivecmd.add_argument("name", help="Hive query name")
+        hivecmd.add_argument("--name", dest="name", help="Hive query name", required=True)
 
         hivecmd.add_argument("--input_vars",
             help="Add names and values for input variables", dest="input_vars", nargs="*")
@@ -49,9 +49,9 @@ class CommandTemplateCmdLine:
 
         prestocmdgroup.add_argument("--script_location", dest="script_location", help="S3 path of script")
 
-        prestocmd.add_argument("name", help="Presto query name")
+        prestocmd.add_argument("--name", dest = "name", help="Presto query name", required = True)
 
-        prestocmd.add_argument("--macros", dest="macros", help="Presto macros")
+        prestocmd.add_argument("--macros", dest = "macros", help="Presto macros")
 
         prestocmd.set_defaults(func=CommandTemplateCmdLine.prestocmd)
         
@@ -209,6 +209,9 @@ class CommandTemplate(Resource):
         
         if args.script_location is not None:
             if args.query is not None:
+                # this part is actually redundant because we are using mutually exclusive group
+                # unreachable code
+                # actaul error raised would system.exit
                 raise ParseError("Both Query and Script_location can't be specified:",
                                  hivecmd_help)
             else:
