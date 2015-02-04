@@ -80,8 +80,8 @@ def checkargs_id(args):
 
 def submitaction(cmdclass, args):
     args = cmdclass.parse(args)
-    args.pop("print_logs") # This is only useful while using the 'run' action.
     if args is not None:
+        args.pop("print_logs") # This is only useful while using the 'run' action.
         cmd = cmdclass.create(**args)
         print("Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id))
         return 0
@@ -99,8 +99,8 @@ def _getresult(cmdclass, cmd):
 
 def runaction(cmdclass, args):
     args = cmdclass.parse(args)
-    print_logs = args.pop("print_logs") # We don't want to send this to the API.
     if args is not None:
+        print_logs = args.pop("print_logs") # We don't want to send this to the API.
         cmd = cmdclass.run(**args)
         if print_logs:
             sys.stderr.write(cmd.get_log())
