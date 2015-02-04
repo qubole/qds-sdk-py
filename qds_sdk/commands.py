@@ -19,7 +19,7 @@ import logging
 import sys
 import re
 import pipes
-
+import os
 import json
 
 log = logging.getLogger("qds_commands")
@@ -262,7 +262,7 @@ class SparkCommand(Command):
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--program", dest="program", help="program code")
     
-    optparser.add_option("--cmdline", dest="commandline", help="command line for Spark")
+    optparser.add_option("--cmdline", dest="cmdline", help="command line for Spark")
         
     optparser.add_option("-f", "--script_location", dest="script_location",
                          help="Path where spark program to run is stored. Can be S3 URI or local file path")
@@ -272,9 +272,6 @@ class SparkCommand(Command):
 	
     optparser.add_option("--tags", dest="tags",
                          help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
-
-    optparser.add_option("--sample_size", dest="sample_size",
-                         help="size of sample in bytes on which to run query")
 
     optparser.add_option("--cluster-label", dest="label", help="the label of the cluster to run the command on")
 	
@@ -286,6 +283,9 @@ class SparkCommand(Command):
 
     optparser.add_option("--name", dest="name", help="Assign a name to this query")
            
+    optparser.add_option("--arguments", dest = "arguments", help = "Spark Submit Command Line Options")
+
+    optparser.add_option("--user_program_arguments", dest = "user_program_arguments", help = "Arguments for User Program")
 
     @classmethod
     def parse(cls, args):
@@ -309,9 +309,9 @@ class SparkCommand(Command):
         except OptionParsingExit as e:
             return None
         
-        if options.program is not None and options.script_location is not None and options.commandline is not None:
-            raise ParseError("Exactly One of script location or program or commandline should be specified", cls.optparser.format_help())
-        elif (options.program is None) ^ (options.script_location is None) ^ (options.commandline is not None):
+        if options.program is not None and options.script_location is not None and options.cmdline is not None:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        elif (options.program is None) ^ (options.script_location is None) ^ (options.cmdline is not None):
             if options.script_location is not None:
                 if ((options.script_location.find("s3://") != 0) and
                     (options.script_location.find("s3n://") != 0)):
@@ -324,11 +324,19 @@ class SparkCommand(Command):
                         raise ParseError("Unable to open script location: %s" %
                                          str(e),
                                          cls.optparser.format_help())
+                    fileName, fileExtension = os.path.splitext(options.script_location)
+                    if fileExtension == ".py":
+                        options.language = "python"
+                    elif fileExtension == ".scala":
+                        options.language = "scala"
+                    else:
+                        raise ParseError("Invalid program type, Please choose one from python or scala %s" %str(fileExtension),
+                                         cls.optparser.format_help())
                     options.script_location = None
-                    options.query = q
-            if options.commandline is not None or options.script_location is not None:
+                    options.program = q
+            if options.cmdline is not None or options.script_location is not None:
                 if options.language is not None:
-                    raise ParseError("Both commandline/script location and language cannot be specified together", cls.optparser.format_help())
+                    raise ParseError("Both cmdline/script location and language cannot be specified together", cls.optparser.format_help())
             elif options.program is not None and options.language is None:
                 raise ParseError("Unspecified language for Program", cls.optparser.format_help())
             if options.macros is not None: 
@@ -337,7 +345,7 @@ class SparkCommand(Command):
             v["command_type"] = "SparkCommand"
             return v 
         else:    
-            raise ParseError("Exactly One of script location or program or commandline should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
 
 
 class PrestoCommand(Command):

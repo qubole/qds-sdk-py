@@ -318,11 +318,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'label_program': None,
                  'language': None,
                  'tags': None,
-                 'sample_size': None,
                  'name': None,
                  'program': None,
-                 'commandline':'show tables',
+                 'cmdline':'show tables',
                  'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None})
 
@@ -337,11 +338,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'label_program':None,
                  'language':None,
                  'tags': None,
-                 'sample_size': None,
                  'name': None,
                  'program': None,
-                 'commandline':None,
+                 'cmdline':None,
                  'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script'})
 
@@ -391,11 +393,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'label_program': None,
                  'language': None,
                  'tags': None,
-                 'sample_size': None,
                  'name': None,
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'program': None,
                  'command_type': 'SparkCommand',
-                 'commandline': None,
+                 'cmdline': None,
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script'})
 
@@ -411,11 +414,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'label_program': None,
                  'language': None,
                  'tags': ["abc", "def"],
-                 'sample_size': None,
                  'name': None,
                  'program': None,
                  'command_type': 'SparkCommand',
-                 'commandline': None,
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'cmdline': None,
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script'})
 
@@ -430,11 +434,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'label': 'test_label',
                  'label_program': None,
                  'language' : None,
-                 'commandline': 'show tables',
+                 'cmdline': 'show tables',
                  'tags': None,
-                 'sample_size': None,
                  'name': None,
                  'program' : None,
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'command_type': 'SparkCommand',
                  'can_notify': False,
                  'script_location': None})
@@ -450,10 +455,11 @@ class TestSparkCommand(QdsCliTestCase):
                  'label': None,
                  'label_program' : None,
                  'language' : None,
-                 'commandline' : 'show tables',
+                 'cmdline' : 'show tables',
                  'tags': None,
-                 'sample_size': None,
                  'name': 'test_name',
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'program': None,
                  'command_type': 'SparkCommand',
                  'can_notify': False,
@@ -471,17 +477,17 @@ class TestSparkCommand(QdsCliTestCase):
                  'label_program' : None,
                  'language' : None,
                  'tags': None,
-                 'sample_size': None,
                  'name': None,
                  'program': None,
-                 'commandline': 'show tables',
+                 'cmdline': 'show tables',
                  'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'can_notify': True,
                  'script_location': None})
 
-    def test_submit_sample_size(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables',
-                    '--sample_size', '1024']
+    def test_submit_user_program_arguments(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', 'show tables']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
@@ -491,11 +497,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'label_program' : None,
                  'language' : None,
                  'tags': None,
-                 'sample_size': '1024',
                  'name': None,
                  'program': None,
-                 'commandline': 'show tables',
+                 'cmdline': 'show tables',
                  'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None})
 
