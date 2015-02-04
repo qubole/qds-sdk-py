@@ -256,9 +256,9 @@ class HiveCommand(Command):
 
 class SparkCommand(Command):
 	
-	#{"program":prog,"language":"python","command_type":"SparkCommand","label":"praveen-spark"} 
     usage = ("sparkcmd <submit|run> [options]")
-    allowedlandlist = ["python", "scala"]
+    allowedlanglist = ["python", "scala"]
+    
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--program", dest="program", help="program code")
     
@@ -278,7 +278,7 @@ class SparkCommand(Command):
 
     optparser.add_option("--cluster-label", dest="label", help="the label of the cluster to run the command on")
 	
-    optparser.add_option("--language", dest="language", help="the language used in the spark program, supported languages are scala and python")
+    optparser.add_option("--language", dest="language", choices = allowedlanglist, help="the language used in the spark program, supported languages are scala and python")
     
     optparser.add_option("--label", dest="label_program",help="the label for the program")
 	
@@ -302,50 +302,43 @@ class SparkCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-        allowedlanglist = ["python", "scala"]
         try:
             (options, args) = cls.optparser.parse_args(args)
-            if options.program is None and options.script_location is None and options.commandline is None:
-                raise ParseError("One of script location or program or commandline must be specified", cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
             return None
+        
+        if options.program is not None and options.script_location is not None and options.commandline is not None:
+            raise ParseError("Exactly One of script location or program or commandline should be specified", cls.optparser.format_help())
+        elif (options.program is None) ^ (options.script_location is None) ^ (options.commandline is not None):
+            if options.script_location is not None:
+                if ((options.script_location.find("s3://") != 0) and
+                    (options.script_location.find("s3n://") != 0)):
 
-        if options.script_location is not None:
-            if options.program is not None:
-                if options.commandline is not None:
-                    raise ParseError("All the three parameters program, script_location, and cmdline cannot be specified together", cls.optparser.format_help())
-                else:
-                    raise ParseError("Both Program and script_location cannot be specified", cls.optparser.format_help())
-            elif options.commandline is not None:
-                    raise ParseError("Both commandline and script_location cannot be specified together", cls.optparser.format_help())
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+                    # script location is local file
 
-                # script location is local file
+                    try:
+                        q = open(options.script_location).read()
+                    except IOError as e:
+                        raise ParseError("Unable to open script location: %s" %
+                                         str(e),
+                                         cls.optparser.format_help())
+                    options.script_location = None
+                    options.query = q
+            if options.commandline is not None or options.script_location is not None:
+                if options.language is not None:
+                    raise ParseError("Both commandline/script location and language cannot be specified together", cls.optparser.format_help())
+            elif options.program is not None and options.language is None:
+                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+            if options.macros is not None: 
+                options.macros = json.loads(options.macros)
+            v = vars(options)
+            v["command_type"] = "SparkCommand"
+            return v 
+        else:    
+            raise ParseError("Exactly One of script location or program or commandline should be specified", cls.optparser.format_help())
 
-                try:
-                    q = open(options.script_location).read()
-                except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
-                                     str(e),
-                                     cls.optparser.format_help())
-                options.script_location = None
-                options.query = q
-        elif options.program is not None:
-            if options.commandline is not None:
-                raise ParseError("Both commandline and program cannot be specified together", cls.optparser.format_help())
-        if options.commandline is not None or options.script_location is not None:
-            if options.language is not None:
-                raise ParseError("Both commandline/script location and language cannot be specified together", cls.optparser.form)
-        elif options.language not in allowedlanglist:
-            raise ParseError("Please use one of [ "+",".join(allowedlanglist)+"]", cls.optparser.format_help())
-        if options.macros is not None: 
-            options.macros = json.loads(options.macros)
-        v = vars(options)
-        v["command_type"] = "SparkCommand"
-        return v
 
 class PrestoCommand(Command):
 
