@@ -25,6 +25,7 @@ setup(
     classifiers=[
         "Environment :: Console",
         "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
