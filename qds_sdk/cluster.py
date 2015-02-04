@@ -191,6 +191,9 @@ class Cluster(Resource):
                                   dest="slave_request_type",
                                   choices=["ondemand", "spot", "hybrid"],
                                   help="purchasing option for slave instaces",)
+        hadoop_group.add_argument("--use-hbase", dest="use_hbase",
+                                  action="store_true", default=None,
+                                  help="Use hbase on this cluster",)
 
         spot_group = argparser.add_argument_group("spot instance settings" +
                     " (valid only when slave-request-type is hybrid or spot)")
@@ -448,7 +451,8 @@ class ClusterInfo():
                             initial_nodes=None,
                             max_nodes=None,
                             custom_config=None,
-                            slave_request_type=None):
+                            slave_request_type=None,
+                            use_hbase=None):
         """
         Kwargs:
 
@@ -467,6 +471,8 @@ class ClusterInfo():
 
         `slave_request_type`: Purchasing option for slave instances.
             Valid values: "ondemand", "hybrid", "spot".
+
+        `use_hbase`: Start hbase daemons on the cluster. Uses Hadoop2
         """
         self.hadoop_settings['master_instance_type'] = master_instance_type
         self.hadoop_settings['slave_instance_type'] = slave_instance_type
@@ -474,6 +480,7 @@ class ClusterInfo():
         self.hadoop_settings['max_nodes'] = max_nodes
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
+        self.hadoop_settings['use_hbase'] = use_hbase
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
