@@ -12,7 +12,7 @@ def read(fname):
 
 setup(
     name="qds_sdk",
-    version="1.3.2",
+    version="1.3.4",
     author="Qubole",
     author_email="dev@qubole.com",
     description=("Python SDK for coding to the Qubole Data Service API"),
@@ -25,6 +25,7 @@ setup(
     classifiers=[
         "Environment :: Console",
         "Intended Audience :: Developers",
+        "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 2.6",
