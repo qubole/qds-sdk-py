@@ -144,7 +144,7 @@ def getlogaction(cmdclass, args):
 def cmdmain(cmd, args):
     cmdclass = CommandClasses[cmd]
 
-    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
+    actionset = {"submit", "run", "check", "cancel", "getresult", "getlog"}
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
@@ -163,34 +163,59 @@ def checkargs_cluster_id_label(args):
         usage()
 
 
-def cluster_create_action(clusterclass, args):
-    arguments = clusterclass._parse_create_update(args, action="create")
-    cluster_info = _create_cluster_info(arguments)
+def cluster_create_action(clusterclass, args, provider):
+    arguments = clusterclass._parse_create_update(args, provider)
+    cluster_info = _create_cluster_info(arguments, provider)
     result = clusterclass.create(cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
 
 
-def cluster_update_action(clusterclass, args):
-    arguments = clusterclass._parse_create_update(args, action="update")
-    cluster_info = _create_cluster_info(arguments)
+def cluster_update_action(clusterclass, args, provider):
+    arguments = clusterclass._parse_create_update(args, provider)
+    cluster_info = _create_cluster_info(arguments, provider)
     result = clusterclass.update(arguments.cluster_id_label, cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
 
 
-def _create_cluster_info(arguments):
-    cluster_info = ClusterInfo(arguments.label,
-                               arguments.aws_access_key_id,
-                               arguments.aws_secret_access_key,
+def _create_cluster_info(arguments, provider):
+    if provider.lower() == "gce":
+        # provider is google cloud
+        cluster_info = GceClusterInfo(arguments.label,
+                               arguments.client_email,
+                               arguments.private_key,
+                               arguments.project_id,
                                arguments.disallow_cluster_termination,
                                arguments.enable_ganglia_monitoring,
                                arguments.node_bootstrap_file,)
 
-    cluster_info.set_ec2_settings(arguments.aws_region,
-                                  arguments.aws_availability_zone,
-                                  arguments.vpc_id,
-                                  arguments.subnet_id)
+        cluster_info.set_gce_settings(arguments.region,
+                                  arguments.availability_zone)
+    else:
+        # defaults to AWS EC2 provider
+        cluster_info = AwsClusterInfo(arguments.label,
+                                   arguments.aws_access_key_id,
+                                   arguments.aws_secret_access_key,
+                                   arguments.disallow_cluster_termination,
+                                   arguments.enable_ganglia_monitoring,
+                                   arguments.node_bootstrap_file,)
+
+        cluster_info.set_ec2_settings(arguments.aws_region,
+                                      arguments.aws_availability_zone,
+                                      arguments.vpc_id,
+                                      arguments.subnet_id)
+
+        cluster_info.set_spot_instance_settings(
+              arguments.maximum_bid_price_percentage,
+              arguments.timeout_for_request,
+              arguments.maximum_spot_instance_percentage)
+
+        cluster_info.set_stable_spot_instance_settings(
+              arguments.stable_maximum_bid_price_percentage,
+              arguments.stable_timeout_for_request,
+              arguments.stable_allow_fallback)
+
 
     custom_config = None
     if arguments.custom_config_file is not None:
@@ -208,16 +233,6 @@ def _create_cluster_info(arguments):
                                      custom_config,
                                      arguments.slave_request_type,
                                      arguments.use_hbase)
-
-    cluster_info.set_spot_instance_settings(
-          arguments.maximum_bid_price_percentage,
-          arguments.timeout_for_request,
-          arguments.maximum_spot_instance_percentage)
-
-    cluster_info.set_stable_spot_instance_settings(
-          arguments.stable_maximum_bid_price_percentage,
-          arguments.stable_timeout_for_request,
-          arguments.stable_allow_fallback)
 
     fairscheduler_config_xml = None
     if arguments.fairscheduler_config_xml_file is not None:
@@ -255,14 +270,14 @@ def _create_cluster_info(arguments):
     return cluster_info
 
 
-def cluster_delete_action(clusterclass, args):
+def cluster_delete_action(clusterclass, args, provider):
     checkargs_cluster_id_label(args)
     result = clusterclass.delete(args.pop(0))
     print(json.dumps(result, indent=4))
     return 0
 
 
-def cluster_list_action(clusterclass, args):
+def cluster_list_action(clusterclass, args, provider):
     arguments = clusterclass._parse_list(args)
     if arguments['cluster_id'] is not None:
         result = clusterclass.show(arguments['cluster_id'])
@@ -276,28 +291,28 @@ def cluster_list_action(clusterclass, args):
     return 0
 
 
-def cluster_start_action(clusterclass, args):
+def cluster_start_action(clusterclass, args, provider):
     checkargs_cluster_id_label(args)
     result = clusterclass.start(args.pop(0))
     print(json.dumps(result, indent=4))
     return 0
 
 
-def cluster_terminate_action(clusterclass, args):
+def cluster_terminate_action(clusterclass, args, provider):
     checkargs_cluster_id_label(args)
     result = clusterclass.terminate(args.pop(0))
     print(json.dumps(result, indent=4))
     return 0
 
 
-def cluster_status_action(clusterclass, args):
+def cluster_status_action(clusterclass, args, provider):
     checkargs_cluster_id_label(args)
     result = clusterclass.status(args.pop(0))
     print(json.dumps(result, indent=4))
     return 0
 
 
-def cluster_reassign_label_action(clusterclass, args):
+def cluster_reassign_label_action(clusterclass, args, provider):
     arguments = clusterclass._parse_reassign_label(args)
     result = clusterclass.reassign_label(arguments.destination_cluster,
                                          arguments.label)
@@ -305,20 +320,20 @@ def cluster_reassign_label_action(clusterclass, args):
     return 0
 
 
-def cluster_check_action(clusterclass, args):
+def cluster_check_action(clusterclass, args, provider):
     name = args.pop(0) if (len(args) >= 1) else None
     o = clusterclass.find(name=name)
     print(str(o))
     return 0
 
 
-def clustermain(dummy, args):
+def clustermain(dummy, args, provider):
     if dummy == "hadoop_cluster":
         log.warn("'hadoop_cluster check' command is deprecated and will be" \
                          " removed in the next version. Please use 'cluster status'" \
                          " instead.\n")
         clusterclass = HadoopCluster
-        actionset = set(["check"])
+        actionset = {"check"}
 
         if len(args) < 1:
             sys.stderr.write("missing argument containing action\n")
@@ -332,17 +347,21 @@ def clustermain(dummy, args):
 
     else:
         clusterclass = Cluster
-        actionset = set(["create", "delete", "update", "list", "start", "terminate", "status", "reassign_label"])
+        actionset = {"create", "delete", "update", "list", "start", "terminate", "status", "reassign_label"}
 
         if len(args) < 1:
             sys.stderr.write("missing argument containing action\n")
             usage()
 
         action = args.pop(0)
+        if action in ["create", "update"]:
+            # create and update use argparser.subparsers to determine action
+            args.insert(0, action)
+
         if action not in actionset:
             sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
             usage()
-        return globals()["cluster_" + action + "_action"](clusterclass, args)
+        return globals()["cluster_" + action + "_action"](clusterclass, args, provider)
 
 
 def reportmain(args):
@@ -393,6 +412,9 @@ def main():
                          default=False,
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
+    optparser.add_option("--provider", dest="provider", default="aws", choices=["aws", "gce", "azure"],
+                         help="IaaS cloud provider you are using with Qubole. Default: AWS")
+
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
                          help="verbose mode - info level logging")
@@ -400,6 +422,7 @@ def main():
     optparser.add_option("--vv", dest="chatty", action="store_true",
                          default=False,
                          help="very verbose mode - debug level logging")
+
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
@@ -444,7 +467,8 @@ def main():
         return cmdmain(a0, args)
 
     if a0 == "hadoop_cluster" or a0 == "cluster":
-        return clustermain(a0, args)
+        # This is to pass on the provider to the cluster configure phase
+        return clustermain(a0, args, options.provider)
 
     if a0 == "action":
         return actionmain(args)

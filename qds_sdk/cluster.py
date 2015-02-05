@@ -108,76 +108,88 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
-    def _parse_create_update(cls, args, action):
+    def configure_parser(cls, argparser, create, provider="aws"):
+        """ configures the parser arguments as per the provider IaaS
+
+        Defaults to AWS cloud provider. Supports GCE cluster provider
         """
-        Parse command line arguments to determine cluster parameters that can
-        be used to create or update a cluster.
-
-        Args:
-            `args`: sequence of arguments
-
-            `action`: "create" or "update"
-
-        Returns:
-            Object that contains cluster parameters
-        """
-        argparser = ArgumentParser(prog="cluster %s" % action)
-
-        create_required = False
-        if action == "create":
-            create_required = True
-        elif action == "update":
-            argparser.add_argument("cluster_id_label",
-                                   help="id/label of the cluster to update")
-
         argparser.add_argument("--label", dest="label",
-                               nargs="+", required=create_required,
+                               nargs="+", required=create,
                                help="list of label for the cluster" +
                                     " (atleast one label is required)")
+        if not create:
+            # all updates require a label for the cluster
+            argparser.add_argument("cluster_id_label",
+                                   help="id/label of the cluster to update",)
 
-        ec2_group = argparser.add_argument_group("ec2 settings")
-        ec2_group.add_argument("--access-key-id",
-                               dest="aws_access_key_id",
-                               required=create_required,
-                               help="access key id for customer's aws" +
-                                    " account. This is required while" +
-                                    " creating the cluster",)
-        ec2_group.add_argument("--secret-access-key",
-                               dest="aws_secret_access_key",
-                               required=create_required,
-                               help="secret access key for customer's aws" +
-                                    " account. This is required while" +
-                                    " creating the cluster",)
-        ec2_group.add_argument("--aws-region",
-                               dest="aws_region",
-                               choices=["us-east-1", "us-west-2", "ap-northeast-1",
-                                        "eu-west-1", "ap-southeast-1"],
-                               help="aws region to create the cluster in",)
-        ec2_group.add_argument("--aws-availability-zone",
-                               dest="aws_availability_zone",
-                               help="availability zone to" +
-                                    " create the cluster in",)
-        ec2_group.add_argument("--subnet-id",
-                               dest="subnet_id",
-                               help="subnet to create the cluster in",)
-        ec2_group.add_argument("--vpc-id",
-                               dest="vpc_id",
-                               help="vpc to create the cluster in",)
+        if provider.lower() == "gce":
+            gce_group = argparser.add_argument_group("gce settings")
+            gce_group.add_argument("--client-email",
+                                   dest="client_email",
+                                   help="email of the google cloud project account",
+                                   required=create)
+            gce_group.add_argument("--private-key",
+                                   dest="private_key",
+                                   help="path to the client private key file"
+                                        "of your google cloud project",
+                                   required=create)
+            gce_group.add_argument("--project-id",
+                                   dest="project_id",
+                                   help="name of your google cloud project",
+                                   required=create)
+            gce_group.add_argument("--region",
+                                   dest="region",
+                                   default="us-central1",
+                                   help="google cloud region")
+            gce_group.add_argument("-z", "--availability-zone",
+                                   dest="availability_zone",
+                                   help="optional availability zone "
+                                        "in the given region")
+
+        if provider.lower() == "aws":
+            ec2_group = argparser.add_argument_group("ec2 settings")
+            ec2_group.add_argument("--access-key-id",
+                                   dest="aws_access_key_id",
+                                   help="access key id for customer's aws" +
+                                        " account. This is required while" +
+                                        " creating the cluster",
+                                   required=create)
+            ec2_group.add_argument("--secret-access-key",
+                                   dest="aws_secret_access_key",
+                                   help="secret access key for customer's aws" +
+                                        " account. This is required while" +
+                                        " creating the cluster",
+                                   required=create)
+            ec2_group.add_argument("--aws-region",
+                                   dest="aws_region",
+                                   choices=["us-east-1", "us-west-2", "ap-northeast-1",
+                                            "eu-west-1", "ap-southeast-1"],
+                                   help="aws region to create the cluster in", )
+            ec2_group.add_argument("--aws-availability-zone",
+                                   dest="aws_availability_zone",
+                                   help="availability zone to" +
+                                        " create the cluster in", )
+            ec2_group.add_argument("--subnet-id",
+                                   dest="subnet_id",
+                                   help="subnet to create the cluster in", )
+            ec2_group.add_argument("--vpc-id",
+                                   dest="vpc_id",
+                                   help="vpc to create the cluster in", )
 
         hadoop_group = argparser.add_argument_group("hadoop settings")
         hadoop_group.add_argument("--master-instance-type",
                                   dest="master_instance_type",
                                   help="instance type to use for the hadoop" +
-                                       " master node",)
+                                       " master node", )
         hadoop_group.add_argument("--slave-instance-type",
                                   dest="slave_instance_type",
                                   help="instance type to use for the hadoop" +
-                                       " slave nodes",)
+                                       " slave nodes", )
         hadoop_group.add_argument("--initial-nodes",
                                   dest="initial_nodes",
                                   type=int,
                                   help="number of nodes to start the" +
-                                       " cluster with",)
+                                       " cluster with", )
         hadoop_group.add_argument("--max-nodes",
                                   dest="max_nodes",
                                   type=int,
@@ -188,78 +200,78 @@ class Cluster(Resource):
                                   help="location of file containg custom" +
                                        " hadoop configuration overrides")
         hadoop_group.add_argument("--slave-request-type",
-                                  dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid"],
-                                  help="purchasing option for slave instaces",)
+                                      dest="slave_request_type",
+                                      choices=["ondemand", "spot", "hybrid"],
+                                      help="purchasing option for slave instances", )
         hadoop_group.add_argument("--use-hbase", dest="use_hbase",
-                                  action="store_true", default=None,
-                                  help="Use hbase on this cluster",)
+                             action="store_true", default=None,
+                             help="Use hbase on this cluster",)
 
-        spot_group = argparser.add_argument_group("spot instance settings" +
-                    " (valid only when slave-request-type is hybrid or spot)")
-        spot_group.add_argument("--maximum-bid-price-percentage",
-                                dest="maximum_bid_price_percentage",
-                                type=float,
-                                help="maximum value to bid for spot instances" +
-                                     " expressed as a percentage of the base" +
-                                     " price for the slave node instance type",)
-        spot_group.add_argument("--timeout-for-spot-request",
-                                dest="timeout_for_request",
-                                type=int,
-                                help="timeout for a spot instance request" +
-                                     " unit: minutes")
-        spot_group.add_argument("--maximum-spot-instance-percentage",
-                                dest="maximum_spot_instance_percentage",
-                                type=int,
-                                help="maximum percentage of instances that may" +
-                                     " be purchased from the aws spot market," +
-                                     " valid only when slave-request-type" +
-                                     " is 'hybrid'",)
-
-        stable_spot_group = argparser.add_argument_group("stable spot instance settings")
-        stable_spot_group.add_argument("--stable-maximum-bid-price-percentage",
-                                       dest="stable_maximum_bid_price_percentage",
-                                       type=float,
-                                       help="maximum value to bid for stable node spot instances" +
-                                       " expressed as a percentage of the base" +
-                                       " price for the master and slave node instance types",)
-        stable_spot_group.add_argument("--stable-timeout-for-spot-request",
-                                       dest="stable_timeout_for_request",
-                                       type=int,
-                                       help="timeout for a stable node spot instance request" +
-                                       " unit: minutes")
-        stable_spot_group.add_argument("--stable-allow-fallback",
-                                       dest="stable_allow_fallback", default=None,
-                                       type=str2bool,
-                                       help="whether to fallback to on-demand instances for stable nodes" +
-                                       " if spot instances aren't available")
+        if provider.lower() == "aws":
+            spot_group = argparser.add_argument_group("spot instance settings" +
+                                                      " (valid only when slave-request-type is hybrid or spot)")
+            spot_group.add_argument("--maximum-bid-price-percentage",
+                                    dest="maximum_bid_price_percentage",
+                                    type=float,
+                                    help="maximum value to bid for spot instances" +
+                                         " expressed as a percentage of the base" +
+                                         " price for the slave node instance type", )
+            spot_group.add_argument("--timeout-for-spot-request",
+                                    dest="timeout_for_request",
+                                    type=int,
+                                    help="timeout for a spot instance request" +
+                                         " unit: minutes")
+            spot_group.add_argument("--maximum-spot-instance-percentage",
+                                    dest="maximum_spot_instance_percentage",
+                                    type=int,
+                                    help="maximum percentage of instances that may" +
+                                         " be purchased from the aws spot market," +
+                                         " valid only when slave-request-type" +
+                                         " is 'hybrid'", )
+            stable_spot_group = argparser.add_argument_group("stable spot instance settings")
+            stable_spot_group.add_argument("--stable-maximum-bid-price-percentage",
+                                           dest="stable_maximum_bid_price_percentage",
+                                           type=float,
+                                           help="maximum value to bid for stable node spot instances" +
+                                                " expressed as a percentage of the base" +
+                                                " price for the master and slave node instance types", )
+            stable_spot_group.add_argument("--stable-timeout-for-spot-request",
+                                           dest="stable_timeout_for_request",
+                                           type=int,
+                                           help="timeout for a stable node spot instance request" +
+                                                " unit: minutes")
+            stable_spot_group.add_argument("--stable-allow-fallback",
+                                           dest="stable_allow_fallback", default=None,
+                                           type=str2bool,
+                                           help="whether to fallback to on-demand instances for stable nodes" +
+                                                " if spot instances aren't available")
 
         fairscheduler_group = argparser.add_argument_group(
-                              "fairscheduler configuration options")
+            "fairscheduler configuration options")
         fairscheduler_group.add_argument("--fairscheduler-config-xml",
                                          dest="fairscheduler_config_xml_file",
                                          help="location for file containing" +
                                               " xml with custom configuration" +
-                                              " for the fairscheduler",)
+                                              " for the fairscheduler", )
         fairscheduler_group.add_argument("--fairscheduler-default-pool",
                                          dest="default_pool",
                                          help="default pool for the" +
-                                              " fairscheduler",)
+                                              " fairscheduler", )
 
         security_group = argparser.add_argument_group("security setttings")
         ephemerals = security_group.add_mutually_exclusive_group()
         ephemerals.add_argument("--encrypted-ephemerals",
-                                 dest="encrypted_ephemerals",
-                                 action="store_true",
-                                 default=None,
-                                 help="encrypt the ephemeral drives on" +
-                                      " the instance",)
+                                dest="encrypted_ephemerals",
+                                action="store_true",
+                                default=None,
+                                help="encrypt the ephemeral drives on" +
+                                     " the instance", )
         ephemerals.add_argument("--no-encrypted-ephemerals",
-                                 dest="encrypted_ephemerals",
-                                 action="store_false",
-                                 default=None,
-                                 help="don't encrypt the ephemeral drives on" +
-                                      " the instance",)
+                                dest="encrypted_ephemerals",
+                                action="store_false",
+                                default=None,
+                                help="don't encrypt the ephemeral drives on" +
+                                     " the instance", )
         security_group.add_argument("--customer-ssh-key",
                                     dest="customer_ssh_key_file",
                                     help="location for ssh key to use to" +
@@ -268,15 +280,15 @@ class Cluster(Resource):
         presto_group = argparser.add_argument_group("presto settings")
         enabling_presto = presto_group.add_mutually_exclusive_group()
         enabling_presto.add_argument("--enable-presto",
-                                  dest="enable_presto",
-                                  action="store_true",
-                                  default=None,
-                                  help="Enable presto for this cluster",)
+                                     dest="enable_presto",
+                                     action="store_true",
+                                     default=None,
+                                     help="Enable presto for this cluster", )
         enabling_presto.add_argument("--disable-presto",
-                                  dest="enable_presto",
-                                  action="store_false",
-                                  default=None,
-                                  help="Disable presto for this cluster",)
+                                     dest="enable_presto",
+                                     action="store_false",
+                                     default=None,
+                                     help="Disable presto for this cluster", )
         presto_group.add_argument("--presto-custom-config",
                                   dest="presto_custom_config_file",
                                   help="location of file containg custom" +
@@ -288,7 +300,7 @@ class Cluster(Resource):
                                  action="store_true",
                                  default=None,
                                  help="don't auto-terminate idle clusters," +
-                                      " use this with extreme caution",)
+                                      " use this with extreme caution", )
         termination.add_argument("--allow-cluster-termination",
                                  dest="disallow_cluster_termination",
                                  action="store_false",
@@ -301,21 +313,38 @@ class Cluster(Resource):
                              action="store_true",
                              default=None,
                              help="enable ganglia monitoring for the" +
-                                  " cluster",)
+                                  " cluster", )
         ganglia.add_argument("--disable-ganglia-monitoring",
                              dest="enable_ganglia_monitoring",
                              action="store_false",
                              default=None,
                              help="disable ganglia monitoring for the" +
-                                  " cluster",)
-
+                                  " cluster", )
         argparser.add_argument("--node-bootstrap-file",
-                dest="node_bootstrap_file",
-                help="""name of the node bootstrap file for this cluster. It
+                               dest="node_bootstrap_file",
+                               help="""name of the node bootstrap file for this cluster. It
                 should be in stored in S3 at
                 <account-default-location>/scripts/hadoop/NODE_BOOTSTRAP_FILE
-                """,)
+                """, )
 
+    @classmethod
+    def _parse_create_update(cls, args, provider):
+        """
+        Parse command line arguments to determine cluster parameters that can
+        be used to create or update a cluster.
+
+        Args:
+            `args`: sequence of arguments
+        Returns:
+            Object that contains cluster parameters
+        """
+        argparser = ArgumentParser(prog="cluster")
+        action_parser = argparser.add_subparsers()
+        create_parser = action_parser.add_parser("create", help="create a cluster")
+        update_parser = action_parser.add_parser("update", help="update existing cluster")
+
+        cls.configure_parser(create_parser, create=True, provider=provider)
+        cls.configure_parser(update_parser, create=False, provider=provider)
         arguments = argparser.parse_args(args)
         return arguments
 
@@ -379,72 +408,19 @@ class Cluster(Resource):
         return conn.delete(cls.element_path(cluster_id_label))
 
 
-class ClusterInfo():
+class ClusterInfo(object):
     """
     qds_sdk.ClusterInfo is the class which stores information about a cluster.
     You can use objects of this class to create or update a cluster.
     """
 
-    def __init__(self, label, aws_access_key_id, aws_secret_access_key,
-                 disallow_cluster_termination=None,
-                 enable_ganglia_monitoring=None,
-                 node_bootstrap_file=None):
-        """
-        Args:
-
-        `label`: A list of labels that identify the cluster. At least one label
-            must be provided when creating a cluster.
-
-        `aws_access_key_id`: The access key id for customer's aws account. This
-            is required for creating the cluster.
-
-        `aws_secret_access_key`: The secret access key for customer's aws
-            account. This is required for creating the cluster.
-
-        `disallow_cluster_termination`: Set this to True if you don't want
-            qubole to auto-terminate idle clusters. Use this option with
-            extreme caution.
-
-        `enable_ganglia_monitoring`: Set this to True if you want to enable
-            ganglia monitoring for the cluster.
-
-        `node_bootstrap_file`: name of the node bootstrap file for this
-            cluster. It should be in stored in S3 at
-            <your-default-location>/scripts/hadoop/
-        """
-        self.label = label
-        self.ec2_settings = {}
-        self.ec2_settings['compute_access_key'] = aws_access_key_id
-        self.ec2_settings['compute_secret_key'] = aws_secret_access_key
-        self.disallow_cluster_termination = disallow_cluster_termination
-        self.enable_ganglia_monitoring = enable_ganglia_monitoring
-        self.node_bootstrap_file = node_bootstrap_file
+    def __init__(self):
+        self.disallow_cluster_termination = False
+        self.enable_ganglia_monitoring = False
+        self.node_bootstrap_file = None
         self.hadoop_settings = {}
         self.security_settings = {}
         self.presto_settings = {}
-
-    def set_ec2_settings(self,
-                         aws_region=None,
-                         aws_availability_zone=None,
-                         vpc_id=None,
-                         subnet_id=None):
-        """
-        Kwargs:
-
-        `aws_region`: AWS region to create the cluster in.
-
-        `aws_availability_zone`: The availability zone to create the cluster
-            in.
-
-        `vpc_id`: The vpc to create the cluster in.
-
-        `subnet_id`: The subnet to create the cluster in.
-        """
-        self.ec2_settings['aws_region'] = aws_region
-        self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
-        self.ec2_settings['vpc_id'] = vpc_id
-        self.ec2_settings['subnet_id'] = subnet_id
-
 
     def set_hadoop_settings(self, master_instance_type=None,
                             slave_instance_type=None,
@@ -481,51 +457,6 @@ class ClusterInfo():
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
         self.hadoop_settings['use_hbase'] = use_hbase
-
-    def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
-                                   timeout_for_request=None,
-                                   maximum_spot_instance_percentage=None):
-        """
-        Purchase options for spot instances. Valid only when
-        `slave_request_type` is hybrid or spot.
-
-        `maximum_bid_price_percentage`: Maximum value to bid for spot
-            instances, expressed as a percentage of the base price for the
-            slave node instance type.
-
-        `timeout_for_request`: Timeout for a spot instance request (Unit:
-            minutes)
-
-        `maximum_spot_instance_percentage`: Maximum percentage of instances
-            that may be purchased from the AWS Spot market. Valid only when
-            slave_request_type is "hybrid".
-        """
-        self.hadoop_settings['spot_instance_settings'] = {
-               'maximum_bid_price_percentage': maximum_bid_price_percentage,
-               'timeout_for_request': timeout_for_request,
-               'maximum_spot_instance_percentage': maximum_spot_instance_percentage}
-
-
-    def set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
-                                          timeout_for_request=None,
-                                          allow_fallback=True):
-        """
-        Purchase options for stable spot instances.
-
-        `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
-            instances, expressed as a percentage of the base price 
-            (applies to both master and slave nodes).
-
-        `timeout_for_request`: Timeout for a stable node spot instance request (Unit:
-            minutes)
-
-        `allow_fallback`: Whether to fallback to on-demand instances for
-            stable nodes if spot instances are not available
-        """
-        self.hadoop_settings['stable_spot_instance_settings'] = {
-               'maximum_bid_price_percentage': maximum_bid_price_percentage,
-               'timeout_for_request': timeout_for_request,
-               'allow_fallback': allow_fallback}
 
 
     def set_fairscheduler_settings(self, fairscheduler_config_xml=None,
@@ -573,6 +504,187 @@ class ClusterInfo():
         """
         payload = {"cluster": self.__dict__}
         return _make_minimal(payload)
+
+
+class AwsClusterInfo(ClusterInfo):
+    """
+    qds_sdk.GceClusterInfo is the class specific to the Google Cloud Clusters
+    launched from the Qubole SDK
+    """
+
+
+    def __init__(self, label, aws_access_key_id=None, aws_secret_access_key=None,
+                 disallow_cluster_termination=None,
+                 enable_ganglia_monitoring=None,
+                 node_bootstrap_file=None):
+            """
+            Args:
+
+            `label`: A list of labels that identify the cluster. At least one label
+                must be provided when creating a cluster.
+
+            `aws_access_key_id`: The access key id for customer's aws account. This
+                is required for creating the cluster.
+
+            `aws_secret_access_key`: The secret access key for customer's aws
+                account. This is required for creating the cluster.
+
+            `disallow_cluster_termination`: Set this to True if you don't want
+                qubole to auto-terminate idle clusters. Use this option with
+                extreme caution.
+
+            `enable_ganglia_monitoring`: Set this to True if you want to enable
+                ganglia monitoring for the cluster.
+
+            `node_bootstrap_file`: name of the node bootstrap file for this
+                cluster. It should be in stored in S3 at
+                <your-default-location>/scripts/hadoop/
+            """
+            super(AwsClusterInfo, self).__init__()
+            self.label = label
+            # AWS EC2 specific settings
+            self.ec2_settings = {}
+            self.ec2_settings['compute_access_key'] = aws_access_key_id
+            self.ec2_settings['compute_secret_key'] = aws_secret_access_key
+            self.disallow_cluster_termination = disallow_cluster_termination
+            self.enable_ganglia_monitoring = enable_ganglia_monitoring
+            self.node_bootstrap_file = node_bootstrap_file
+
+    def set_ec2_settings(self,
+                         aws_region=None,
+                         aws_availability_zone=None,
+                         vpc_id=None,
+                         subnet_id=None):
+        """
+        Kwargs:
+
+        `aws_region`: AWS region to create the cluster in.
+
+        `aws_availability_zone`: The availability zone to create the cluster
+            in.
+
+        `vpc_id`: The vpc to create the cluster in.
+
+        `subnet_id`: The subnet to create the cluster in.
+        """
+        self.ec2_settings['aws_region'] = aws_region
+        self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
+        self.ec2_settings['vpc_id'] = vpc_id
+        self.ec2_settings['subnet_id'] = subnet_id
+
+    def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
+                                   timeout_for_request=None,
+                                   maximum_spot_instance_percentage=None):
+        """
+        Purchase options for spot instances. Valid only when
+        `slave_request_type` is hybrid or spot.
+
+        `maximum_bid_price_percentage`: Maximum value to bid for spot
+            instances, expressed as a percentage of the base price for the
+            slave node instance type.
+
+        `timeout_for_request`: Timeout for a spot instance request (Unit:
+            minutes)
+
+        `maximum_spot_instance_percentage`: Maximum percentage of instances
+            that may be purchased from the AWS Spot market. Valid only when
+            slave_request_type is "hybrid".
+        """
+        self.hadoop_settings['spot_instance_settings'] = {
+               'maximum_bid_price_percentage': maximum_bid_price_percentage,
+               'timeout_for_request': timeout_for_request,
+               'maximum_spot_instance_percentage': maximum_spot_instance_percentage}
+
+
+    def set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
+                                          timeout_for_request=None,
+                                          allow_fallback=True):
+        """
+        Purchase options for stable spot instances.
+
+        `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
+            instances, expressed as a percentage of the base price
+            (applies to both master and slave nodes).
+
+        `timeout_for_request`: Timeout for a stable node spot instance request (Unit:
+            minutes)
+
+        `allow_fallback`: Whether to fallback to on-demand instances for
+            stable nodes if spot instances are not available
+        """
+        self.hadoop_settings['stable_spot_instance_settings'] = {
+               'maximum_bid_price_percentage': maximum_bid_price_percentage,
+               'timeout_for_request': timeout_for_request,
+               'allow_fallback': allow_fallback}
+
+
+class GceClusterInfo(ClusterInfo):
+    """
+    qds_sdk.GceClusterInfo is the class specific to the Google Cloud Clusters
+    launched from the Qubole SDK
+    """
+
+
+    def __init__(self, label, client_email=None, private_key=None, project_id=None,
+                 disallow_cluster_termination=None, enable_ganglia_monitoring=None,
+                 node_bootstrap_file=None):
+        """
+        Args:
+
+        `label`: A list of labels that identify the cluster. At least one label
+            must be provided when creating a cluster.
+
+        `client_email`: The email in the google cloud project with `project_id`. This
+            is required for creating a cluster in google cloud
+
+        `private_key`: The client's private key file for google cloud. This is
+            required for creating a cluster in the google cloud
+
+        `project_id`: The project in your google cloud account where clusters will be spawned
+
+        `disallow_cluster_termination`: Set this to True if you don't want
+            qubole to auto-terminate idle clusters. Use this option with
+            extreme caution.
+
+        `enable_ganglia_monitoring`: Set this to True if you want to enable
+            ganglia monitoring for the cluster.
+
+        `node_bootstrap_file`: name of the node bootstrap file for this
+            cluster. It should be in stored in S3 at
+            <your-default-location>/scripts/hadoop/
+        """
+        self.label = label
+        super(GceClusterInfo, self).__init__()
+
+        # Read the PKCS12 format key
+        try:
+            key_file = open(private_key, 'r')
+            try:
+                pkc12_key = key_file.read()
+            except IOError, io:
+                raise "Error reading private key %s" % io
+            finally:
+                key_file.close()
+        except IOError, opex:
+            raise "Error opening private key %s" % opex
+
+        # Google Cloud Platform settings
+        self.gce_settings = {'client_email': client_email, 'private_key': pkc12_key, 'project_id': project_id}
+        self.disallow_cluster_termination = disallow_cluster_termination
+        self.enable_ganglia_monitoring = enable_ganglia_monitoring
+        self.node_bootstrap_file = node_bootstrap_file
+
+    def set_gce_settings(self, region=None, availability_zone=None):
+        """
+        Kwargs:
+
+        `region`: GCE region to create the cluster in.
+
+        `availability_zone`: The availability zone to create the cluster
+            in.
+        """
+        self.gce_settings['region'] = region
+        self.gce_settings['availability_zone'] = availability_zone
 
 
 def _make_minimal(dictionary):
