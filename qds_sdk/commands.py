@@ -289,6 +289,9 @@ class SparkCommand(Command):
     optparser.add_option("--arguments", dest = "arguments", help = "Spark Submit Command Line Options")
 
     optparser.add_option("--user_program_arguments", dest = "user_program_arguments", help = "Arguments for User Program")
+    
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
