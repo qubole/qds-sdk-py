@@ -202,7 +202,7 @@ class Cluster(Resource):
         hadoop_group.add_argument("--slave-request-type",
                                       dest="slave_request_type",
                                       choices=["ondemand", "spot", "hybrid"],
-                                      help="purchasing option for slave instaces", )
+                                      help="purchasing option for slave instances", )
 
         if provider.lower() == "aws":
             spot_group = argparser.add_argument_group("spot instance settings" +
@@ -647,8 +647,21 @@ class GceClusterInfo(ClusterInfo):
         """
         self.label = label
         super(GceClusterInfo, self).__init__()
+
+        # Read the PKCS12 format key
+        try:
+            key_file = open(private_key, 'r')
+            try:
+                pkc12_key = key_file.read()
+            except IOError, io:
+                raise "Error reading private key %s" % io
+            finally:
+                key_file.close()
+        except IOError, opex:
+            raise "Error opening private key %s" % opex
+
         # Google Cloud Platform settings
-        self.gce_settings = {'client_email': client_email, 'private_key': private_key, 'project_id': project_id}
+        self.gce_settings = {'client_email': client_email, 'private_key': pkc12_key, 'project_id': project_id}
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file

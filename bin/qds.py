@@ -155,7 +155,7 @@ def checkargs_cluster_id_label(args):
 
 def cluster_create_action(clusterclass, args, provider):
     arguments = clusterclass._parse_create_update(args, provider)
-    cluster_info = _create_cluster_info(arguments)
+    cluster_info = _create_cluster_info(arguments, provider)
     result = clusterclass.create(cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
@@ -163,14 +163,14 @@ def cluster_create_action(clusterclass, args, provider):
 
 def cluster_update_action(clusterclass, args, provider):
     arguments = clusterclass._parse_create_update(args, provider)
-    cluster_info = _create_cluster_info(arguments)
+    cluster_info = _create_cluster_info(arguments, provider)
     result = clusterclass.update(arguments.cluster_id_label, cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
 
 
-def _create_cluster_info(arguments):
-    if hasattr(arguments, 'client_email'):
+def _create_cluster_info(arguments, provider):
+    if provider.lower() == "gce":
         # provider is google cloud
         cluster_info = GceClusterInfo(arguments.label,
                                arguments.client_email,
