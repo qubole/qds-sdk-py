@@ -10,6 +10,8 @@ from qds_sdk.scheduler import SchedulerCmdLine
 from qds_sdk.actions import ActionCmdLine
 from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
+from qds_sdk.role import RoleCmdLine
+from qds_sdk.group import GroupCmdLine
 
 import os
 import sys
@@ -54,7 +56,11 @@ usage_str = ("Usage: \n"
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
              "  report (<report-name> [options] | list)\n" +
-             "\nScheduler:\n" +
+             "\nGroup:\n" +
+             "  group --help\n" +
+             "\nRole:\n" +
+             "  role --help\n" +
+            "\nScheduler:\n" +
              "  scheduler --help\n")
 
 
@@ -75,6 +81,7 @@ def checkargs_id(args):
 def submitaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
+        args.pop("print_logs") # This is only useful while using the 'run' action.
         cmd = cmdclass.create(**args)
         print("Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id))
         return 0
@@ -93,7 +100,10 @@ def _getresult(cmdclass, cmd):
 def runaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
+        print_logs = args.pop("print_logs") # We don't want to send this to the API.
         cmd = cmdclass.run(**args)
+        if print_logs:
+            sys.stderr.write(cmd.get_log())
         return _getresult(cmdclass, cmd)
 
 
@@ -221,7 +231,8 @@ def _create_cluster_info(arguments, provider):
                                      arguments.initial_nodes,
                                      arguments.max_nodes,
                                      custom_config,
-                                     arguments.slave_request_type)
+                                     arguments.slave_request_type,
+                                     arguments.use_hbase)
 
     fairscheduler_config_xml = None
     if arguments.fairscheduler_config_xml_file is not None:
@@ -370,6 +381,14 @@ def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
 
+def rolemain(args):
+    result = RoleCmdLine.run(args)
+    print(result)
+
+def groupmain(args):
+    result = GroupCmdLine.run(args)
+    print(result)
+
 def main():
 
     optparser = OptionParser(usage=usage_str)
@@ -463,9 +482,16 @@ def main():
     if a0 == "dbtap":
         return dbtapmain(args)
 
+    if a0 == "group":
+        return groupmain(args)
+
+    if a0 == "role":
+        return rolemain(args)
+
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
-                     "|".join(cmdset.union(["cluster", "scheduler", "report", "dbtap"])))
+                     "|".join(cmdset.union(["cluster", "scheduler", "report",
+                       "dbtap", "role", "group"])))
     usage(optparser)
 
 

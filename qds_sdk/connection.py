@@ -4,7 +4,10 @@ import logging
 import ssl
 import json
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.poolmanager import PoolManager
+try:
+    from requests.packages.urllib3.poolmanager import PoolManager
+except ImportError:
+    from urllib3.poolmanager import PoolManager
 from qds_sdk.retry import retry
 from qds_sdk.exception import *
 
@@ -14,6 +17,8 @@ log = logging.getLogger("qds_connection")
 """
 see http://stackoverflow.com/questions/14102416/python-requests-requests-exceptions-sslerror-errno-8-ssl-c504-eof-occurred
 """
+
+
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize,
                          block=False):
@@ -39,7 +44,7 @@ class Connection:
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry(RetryWithDelay, tries=5, delay=20, backoff=2)
+    @retry(RetryWithDelay, tries=6, delay=30, backoff=2)
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
