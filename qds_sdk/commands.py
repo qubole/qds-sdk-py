@@ -294,10 +294,7 @@ class SparkCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     @classmethod
     def validate_program(cls, options):
-        # bool flag set to True if program is not None else False
         bool_program = options.program is not None
-        
-        # bool flag set to true if atleast of the other options is not None
         bool_other_options = options.script_location is not None or options.cmdline is not None 
         
         # if both are false then no option is specified ==> raise ParseError
@@ -310,10 +307,7 @@ class SparkCommand(Command):
     
     @classmethod
     def validate_cmdline(cls, options):
-        # bool flag set to true if cmdline is not None else False
         bool_cmdline = options.cmdline is not None
-
-        # bool flag set to true if atleast of the other options is not None
         bool_other_options = options.script_location is not None or options.program is not None
         
         # if both are false then no option is specified ==> raise ParseError
@@ -326,10 +320,7 @@ class SparkCommand(Command):
 
     @classmethod
     def validate_script_location(cls, options):
-        # bool flag set to true if script_location is not None else False
         bool_script_location = options.script_location is not None
-        
-        # bool flag set to true if atleast one of the other options is not None
         bool_other_options = options.program is not None or options.cmdline is not None
         
         # if both are false then no option is specified ==> raise ParseError
