@@ -292,6 +292,64 @@ class SparkCommand(Command):
     
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    @classmethod
+    def validate_program(cls, options):
+        if options.program is None:
+            return True
+        else:
+            if options.script_location is not None or options.cmdline is not None:
+                raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+            if options.language is None:
+                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+            return True
+    
+    @classmethod
+    def validate_cmdline(cls, options):
+        if options.cmdline is None:
+            return True
+        else:
+            if options.script_location is not None or options.program is not None:
+                raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+            if options.language is not None:
+                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+            return True
+
+    @classmethod
+    def validate_script_location(cls, options):
+        if options.script_location is None:
+            return True
+        else:
+            if options.program is not None or options.cmdline is not None:
+                raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+            if options.language is not None:
+                raise ParseError("Both script location and language cannot be specified together", cls.optparser.format_help())
+            if ((options.script_location.find("s3://") != 0) and
+                (options.script_location.find("s3n://") != 0)):
+
+                # script location is local file
+
+                try:
+                    q = open(options.script_location).read()
+                except IOError as e:
+                    raise ParseError("Unable to open script location: %s" %
+                                     str(e),
+                                     cls.optparser.format_help())
+                
+                
+                fileName, fileExtension = os.path.splitext(options.script_location)
+                # getting the language of the program from the file extension
+                if fileExtension == ".py":
+                    options.language = "python"
+                elif fileExtension == ".scala":
+                    options.language = "scala"
+                else:
+                    raise ParseError("Invalid program type, Please choose one from python or scala %s" %str(fileExtension),
+                                     cls.optparser.format_help())
+                
+                options.script_location = None
+                options.program = q
+            
+            return True
 
     @classmethod
     def parse(cls, args):
@@ -314,44 +372,15 @@ class SparkCommand(Command):
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
             return None
-        
-        if options.program is not None and options.script_location is not None and options.cmdline is not None:
-            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
-        elif (options.program is None) ^ (options.script_location is None) ^ (options.cmdline is not None):
-            if options.script_location is not None:
-                if ((options.script_location.find("s3://") != 0) and
-                    (options.script_location.find("s3n://") != 0)):
-
-                    # script location is local file
-
-                    try:
-                        q = open(options.script_location).read()
-                    except IOError as e:
-                        raise ParseError("Unable to open script location: %s" %
-                                         str(e),
-                                         cls.optparser.format_help())
-                    fileName, fileExtension = os.path.splitext(options.script_location)
-                    if fileExtension == ".py":
-                        options.language = "python"
-                    elif fileExtension == ".scala":
-                        options.language = "scala"
-                    else:
-                        raise ParseError("Invalid program type, Please choose one from python or scala %s" %str(fileExtension),
-                                         cls.optparser.format_help())
-                    options.script_location = None
-                    options.program = q
-            if options.cmdline is not None or options.script_location is not None:
-                if options.language is not None:
-                    raise ParseError("Both cmdline/script location and language cannot be specified together", cls.optparser.format_help())
-            elif options.program is not None and options.language is None:
-                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+        if options.program is None and options.script_location is None and options.cmdline is None:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())    
+        if SparkCommand.validate_program(options) and SparkCommand.validate_script_location(options) and SparkCommand.validate_cmdline(options):
             if options.macros is not None: 
                 options.macros = json.loads(options.macros)
             v = vars(options)
             v["command_type"] = "SparkCommand"
             return v 
-        else:    
-            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+
 
 
 class PrestoCommand(Command):
