@@ -294,39 +294,57 @@ class SparkCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     @classmethod
     def validate_program(cls, options):
-        if options.program is None:
-            return True
-        else:
-            if options.script_location is not None or options.cmdline is not None:
-                raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        # bool flag set to True if program is not None else False
+        bool_program = options.program is not None
+        
+        # bool flag set to true if atleast of the other options is not None
+        bool_other_options = options.script_location is not None or options.cmdline is not None 
+        
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_program == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help()) 
+        if bool_program: 
             if options.language is None:
                 raise ParseError("Unspecified language for Program", cls.optparser.format_help())
-            return True
     
     @classmethod
     def validate_cmdline(cls, options):
-        if options.cmdline is None:
-            return True
-        else:
-            if options.script_location is not None or options.program is not None:
-                raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        # bool flag set to true if cmdline is not None else False
+        bool_cmdline = options.cmdline is not None
+
+        # bool flag set to true if atleast of the other options is not None
+        bool_other_options = options.script_location is not None or options.program is not None
+        
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_cmdline == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        if bool_cmdline:
             if options.language is not None:
-                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
-            return True
+                raise ParseError("Language cannot be specified with the commandline option", cls.optparser.format_help())
 
     @classmethod
     def validate_script_location(cls, options):
-        if options.script_location is None:
-            return True
-        else:
-            if options.program is not None or options.cmdline is not None:
-                raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        # bool flag set to true if script_location is not None else False
+        bool_script_location = options.script_location is not None
+        
+        # bool flag set to true if atleast one of the other options is not None
+        bool_other_options = options.program is not None or options.cmdline is not None
+        
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_script_location == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        
+        if bool_script_location:
             if options.language is not None:
                 raise ParseError("Both script location and language cannot be specified together", cls.optparser.format_help())
+            # haven't tested this if script_location is not a local file 
             if ((options.script_location.find("s3://") != 0) and
                 (options.script_location.find("s3n://") != 0)):
 
-                # script location is local file
+                # script location is local file so set the program as the text from the file
 
                 try:
                     q = open(options.script_location).read()
@@ -348,8 +366,6 @@ class SparkCommand(Command):
                 
                 options.script_location = None
                 options.program = q
-            
-            return True
 
     @classmethod
     def parse(cls, args):
@@ -372,14 +388,17 @@ class SparkCommand(Command):
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
             return None
-        if options.program is None and options.script_location is None and options.cmdline is None:
-            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())    
-        if SparkCommand.validate_program(options) and SparkCommand.validate_script_location(options) and SparkCommand.validate_cmdline(options):
-            if options.macros is not None: 
-                options.macros = json.loads(options.macros)
-            v = vars(options)
-            v["command_type"] = "SparkCommand"
-            return v 
+        
+        SparkCommand.validate_program(options)
+        SparkCommand.validate_script_location(options)
+        SparkCommand.validate_cmdline(options)
+        
+        if options.macros is not None: 
+            options.macros = json.loads(options.macros)
+        
+        v = vars(options)
+        v["command_type"] = "SparkCommand"
+        return v 
 
 
 
