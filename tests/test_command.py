@@ -326,26 +326,12 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None})
-
-    def test_submit_script_location(self):
+ 
+    def test_submit_script_location_aws(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script']
-        print_command()
-        Connection._api_call = Mock(return_value={'id': 1234})
-        qds.main()
-        Connection._api_call.assert_called_with('POST', 'commands',
-                {'macros': None,
-                 'label': None,
-                 'label_program':None,
-                 'language':None,
-                 'tags': None,
-                 'name': None,
-                 'program': None,
-                 'cmdline':None,
-                 'command_type': 'SparkCommand',
-                 'arguments': None,
-                 'user_program_arguments': None,
-                 'can_notify': False,
-                 'script_location': 's3://bucket/path-to-script'})
+        print_command()      
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
 
     def test_submit_none(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit']
@@ -355,14 +341,14 @@ class TestSparkCommand(QdsCliTestCase):
 
     def test_submit_both(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
-                    '--script_location', 's3://bucket/path-to-script']
+                    '--script_location', 'home/path-to-script']
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
     
     def test_submit_all_three(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
-                    '--script_location', 's3://bucket/path-to-script', 'program', 'println("hello, world!")']
+                    '--script_location', '/home/path-to-script', 'program', 'println("hello, world!")']
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
@@ -382,7 +368,7 @@ class TestSparkCommand(QdsCliTestCase):
 
 
     def test_submit_macros(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--program',"println(\"hello, world!\")" ,'--language', 'scala',
                     '--macros', '[{"key1":"11","key2":"22"}, {"key3":"key1+key2"}]']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
@@ -391,19 +377,19 @@ class TestSparkCommand(QdsCliTestCase):
                 {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
                  'label': None,
                  'label_program': None,
-                 'language': None,
+                 'language': "scala",
                  'tags': None,
                  'name': None,
                  'arguments': None,
                  'user_program_arguments': None,
-                 'program': None,
+                 'program': "println(\"hello, world!\")",
                  'command_type': 'SparkCommand',
                  'cmdline': None,
                  'can_notify': False,
-                 'script_location': 's3://bucket/path-to-script'})
+                 'script_location': None})
 
     def test_submit_tags(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program',"println(\"hello, world!\")",
                     '--tags', 'abc,def']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
@@ -412,16 +398,16 @@ class TestSparkCommand(QdsCliTestCase):
                 {'macros': None,
                  'label': None,
                  'label_program': None,
-                 'language': None,
+                 'language': 'scala',
                  'tags': ["abc", "def"],
                  'name': None,
-                 'program': None,
+                 'program':"println(\"hello, world!\")" ,
                  'command_type': 'SparkCommand',
                  'arguments': None,
                  'user_program_arguments': None,
                  'cmdline': None,
                  'can_notify': False,
-                 'script_location': 's3://bucket/path-to-script'})
+                 'script_location': None})
 
     def test_submit_cluster_label(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',

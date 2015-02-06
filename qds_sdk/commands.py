@@ -331,7 +331,7 @@ class SparkCommand(Command):
         if bool_script_location:
             if options.language is not None:
                 raise ParseError("Both script location and language cannot be specified together", cls.optparser.format_help())
-            # haven't tested this if script_location is not a local file 
+            # for now, aws script_location is not supported and throws an error
             if ((options.script_location.find("s3://") != 0) and
                 (options.script_location.find("s3n://") != 0)):
 
@@ -354,7 +354,10 @@ class SparkCommand(Command):
                 else:
                     raise ParseError("Invalid program type, Please choose one from python or scala %s" %str(fileExtension),
                                      cls.optparser.format_help())
-                
+            else:
+                raise ParseError("Invalid location, Please choose a local file location",
+                                 cls.optparser.format_help())
+
                 options.script_location = None
                 options.program = q
 
