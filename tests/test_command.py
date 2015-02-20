@@ -6,7 +6,6 @@ if sys.version_info > (2, 7, 0):
 else:
     import unittest2 as unittest
 from mock import Mock
-import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
 import qds_sdk
@@ -139,6 +138,28 @@ class TestCommandCancel(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("PUT", "commands/123",
                 {'status': 'kill'})
+
+
+class TestCommandGetJobs(QdsCliTestCase):
+
+    def test_running(self):
+        sys.argv = ['qds.py', 'hivecmd', 'getjobs', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'id':123, 'status': 'running'})
+        Connection._api_call_raw = Mock()
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'commands/123', params=None),
+        assert not Connection._api_call_raw.called
+
+    def test_done(self):
+        sys.argv = ['qds.py', 'hivecmd', 'getjobs', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'id':123, 'status': "done"})
+        jobs_response = Mock(text='[{"url":"https://blah","job_stats":{},"job_id":"job_blah"}]')
+        Connection._api_call_raw = Mock(return_value=jobs_response)
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'commands/123', params=None),
+        Connection._api_call_raw.assert_called_with('GET', 'commands/123/jobs', params=None),
 
 
 class TestHiveCommand(QdsCliTestCase):

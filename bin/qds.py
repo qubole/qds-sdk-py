@@ -141,10 +141,22 @@ def getlogaction(cmdclass, args):
     return 0
 
 
+def getjobsaction(cmdclass, args):
+    checkargs_id(args)
+    cmd = cmdclass.find(args.pop(0))
+    if Command.is_done(cmd.status):
+        log.info("Fetching jobs for %s, Id: %s" % (cmdclass.__name__, cmd.id))
+        print(cmdclass.get_jobs_id(cmd.id))
+        return 0
+    else:
+        log.error("Cannot fetch jobs - command Id: %s is not done. Status: %s" % (cmd.id, cmd.status))
+        return 1
+
+
 def cmdmain(cmd, args):
     cmdclass = CommandClasses[cmd]
 
-    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog"])
+    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog", "getjobs"])
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
