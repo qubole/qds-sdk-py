@@ -1445,6 +1445,22 @@ class TestClusterUpdate(QdsCliTestCase):
                     }
                 })
 
+    def test_custom_ec2_tags(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                    '--custom-ec2-tags', '{"foo":"bar", "bar":"baz"}']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster': {
+                                                    'hadoop_settings': {
+                                                        "custom_ec2_tags": {
+                                                            "foo": "bar",
+                                                            "bar": "baz"
+                                                        }
+                                                    }
+                                                }})
+
 
 if __name__ == '__main__':
     unittest.main()
