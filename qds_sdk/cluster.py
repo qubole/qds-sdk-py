@@ -8,6 +8,7 @@ from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 
 import logging
+import json
 
 log = logging.getLogger("qds_cluster")
 
@@ -489,7 +490,10 @@ class ClusterInfo():
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
         self.hadoop_settings['use_hbase'] = use_hbase
-        self.hadoop_settings['custom_ec2_tags'] = custom_ec2_tags
+        try:
+            self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags)
+        except Exception as e:
+            raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
