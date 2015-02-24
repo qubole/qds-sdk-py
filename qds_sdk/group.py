@@ -55,7 +55,7 @@ class GroupCmdLine:
         duplicate.add_argument("id", help="Numeric id of the Group to be Cloned")
         duplicate.add_argument("--name", dest="name", required=False, help="Name of the new group")
         duplicate.set_defaults(func=GroupCmdLine.duplicate)
-        
+
         #Add user
         add_user = subparsers.add_parser("add-users", help="Add Users to the Group")
         add_user.add_argument("id", help="Numeric id of the group")

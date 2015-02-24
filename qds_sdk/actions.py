@@ -82,7 +82,7 @@ class ActionCmdLine:
         for field in fields:
             filtered[field] = act[field]
         return filtered
-    
+
     @staticmethod
     def list(args):
         actionlist = Action.list(args.page, args.per_page)
@@ -128,14 +128,14 @@ class Action(Resource):
 
     """all actions use the /actions endpoint"""
     rest_entity_path = "actions"
-   
+
     def getcommand(self):
-        cmd = self.attributes["command"] 
+        cmd = self.attributes["command"]
         if cmd is None:
             return None
         cmdclass = globals()[cmd["command_type"]]
         obj = cmdclass(cmd)
-        return obj 
+        return obj
 
     @staticmethod
     def list(page = None, per_page = None):
@@ -143,9 +143,9 @@ class Action(Resource):
         url_path = Action.rest_entity_path
         params = {}
         if page is not None:
-            params['page'] = page  
+            params['page'] = page
         if per_page is not None:
-            params['per_page'] = per_page  
+            params['per_page'] = per_page
 
         #Todo Page numbers are thrown away right now
         actjson = conn.get(url_path, params)
@@ -153,7 +153,7 @@ class Action(Resource):
         for a in actjson["actions"]:
             actlist.append(Action(a))
         return actlist
-    
+
     def kill(self):
         conn = Qubole.agent()
         return conn.put(self.element_path(self.id) + "/kill", data=None)
@@ -166,25 +166,25 @@ class Action(Resource):
         return self.attributes["status"]
 
     def logs(self):
-        if self.status().lower() == "submitted":   
+        if self.status().lower() == "submitted":
             return "Logs for action are not yet available. Action is waiting for underlying command to be created."
-        if self.status().lower() == "waiting":  
+        if self.status().lower() == "waiting":
             return "Logs for action are not yet available. Waiting for dependencies to be met."
-        if self.status().lower() == "not_found":  
+        if self.status().lower() == "not_found":
             return "Logs for action are not available. Dependencies not found."
-        if self.status().lower() == "cancelled":  
+        if self.status().lower() == "cancelled":
             return "Logs for action are not available. Action was cancelled before underlying command gets created."
         cmd = self.getcommand()
         if cmd is None:
             return "Logs for action are not yet available."
         else:
-            return cmd.get_log() 
+            return cmd.get_log()
 
     def results(self):
         cmd = self.getcommand()
         if cmd is None:
             print("Results for action are not yet available.")
         else:
-            cmd.get_results() 
+            cmd.get_results()
 
 

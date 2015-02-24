@@ -529,7 +529,7 @@ class ClusterInfo():
         Purchase options for stable spot instances.
 
         `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
-            instances, expressed as a percentage of the base price 
+            instances, expressed as a percentage of the base price
             (applies to both master and slave nodes).
 
         `timeout_for_request`: Timeout for a stable node spot instance request (Unit:

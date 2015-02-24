@@ -39,7 +39,7 @@ class TestSchedulerCheck(QdsCliTestCase):
         Connection._api_call.side_effect = list_actions_side_effect
         qds.main()
         Connection._api_call.assert_has_calls([call("GET", "scheduler/123",params=None), call("GET", "scheduler/123/actions/123", params={})])
-    
+
     def test_list_actions_pages(self):
         sys.argv = ['qds.py', 'scheduler', 'list-actions', '123', '--per-page', '2']
         print_command()
