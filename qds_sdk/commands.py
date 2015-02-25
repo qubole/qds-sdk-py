@@ -136,6 +136,24 @@ class Command(Resource):
         r = conn.get_raw(log_path)
         return r.text
 
+
+    @classmethod
+    def get_jobs_id(cls, id):
+        """
+        Fetches information about the hadoop jobs which were started by this
+        command id. This information is only available for commands which have
+        completed (i.e. Status = 'done', 'cancelled' or 'error'.) Also, the
+        cluster which ran this command should be running for this information
+        to be available. Otherwise only the URL and job_id is shown.
+
+        Args:
+            `id`: command id
+        """
+        conn = Qubole.agent()
+        r = conn.get_raw(cls.element_path(id) + "/jobs")
+        return r.text
+
+
     def get_results(self, fp=sys.stdout, inline=True, delim=None):
         """
         Fetches the result for the command represented by this object
