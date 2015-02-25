@@ -1,6 +1,5 @@
 import re
 import optparse
-from optparse import SUPPRESS_HELP as SUPPRESS_HELP
 class OptionParsingError(RuntimeError):
     def __init__(self, msg):
         self.msg = msg

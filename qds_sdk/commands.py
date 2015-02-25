@@ -11,7 +11,7 @@ from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
-from qds_sdk.util import SUPPRESS_HELP
+from optparse import SUPPRESS_HELP
 import boto
 
 import time
