@@ -158,9 +158,17 @@ class Command(Resource):
         """
         Fetches the result for the command represented by this object
 
+        get_results will retrieve results of the command and write to stdout by default.
+        Optionally one can write to a filestream specified in `fp`. The `inline` argument
+        decides whether the result can be returned as a CRLF separated string. In cases where
+        the results are greater than 20MB, get_results will attempt to read from s3 and write
+        to fp. The retrieval of results from s3 can be turned off by the `fetch` argument
+
         Args:
             `fp`: a file object to write the results to directly
-            `fetch`: fetches the result if it is small, else returns the s3 bucket location
+            `inline`: whether or not results are returned inline as CRLF separated string
+            `fetch`: True to fetch the result even if it is greater than 20MB, False to
+                     only get the result location on s3
         """
         result_path = self.meta_data['results_resource']
 
@@ -192,7 +200,6 @@ class Command(Resource):
                     # In Python 3, in this case, `fp` should always be binary mode.
                     _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
             else:
-                log.info("Returning Result Locations: [%s]" % ",".join(r['result_location']))
                 fp.write(",".join(r['result_location']))
 
 
