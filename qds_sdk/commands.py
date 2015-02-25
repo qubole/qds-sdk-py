@@ -11,7 +11,7 @@ from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
-
+from qds_sdk.util import SUPPRESS_HELP
 import boto
 
 import time
@@ -263,12 +263,12 @@ class SparkCommand(Command):
     allowedlanglist = ["python", "scala"]
     
     optparser = GentleOptionParser(usage=usage)
-    optparser.add_option("--program", dest="program", help="program code")
+    optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
     
     optparser.add_option("--cmdline", dest="cmdline", help="command line for Spark")
         
     optparser.add_option("-f", "--script_location", dest="script_location",
-                         help="Path where spark program to run is stored. Can be S3 URI or local file path")
+                         help="Path where spark program to run is stored. Has to be a local file path")
 
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
@@ -278,10 +278,8 @@ class SparkCommand(Command):
 
     optparser.add_option("--cluster-label", dest="label", help="the label of the cluster to run the command on")
 	
-    optparser.add_option("--language", dest="language", choices = allowedlanglist, help="the language used in the spark program, supported languages are scala and python")
+    optparser.add_option("--language", dest="language", choices = allowedlanglist, help=SUPPRESS_HELP)
     
-    optparser.add_option("--label", dest="label_program",help="the label for the program")
-	
     optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
 
     optparser.add_option("--name", dest="name", help="Assign a name to this query")
@@ -358,8 +356,8 @@ class SparkCommand(Command):
                 raise ParseError("Invalid location, Please choose a local file location",
                                  cls.optparser.format_help())
 
-                options.script_location = None
-                options.program = q
+            options.script_location = None
+            options.program = q
 
     @classmethod
     def parse(cls, args):

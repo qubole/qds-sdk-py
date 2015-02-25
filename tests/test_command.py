@@ -315,7 +315,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
-                 'label_program': None,
                  'language': None,
                  'tags': None,
                  'name': None,
@@ -332,6 +331,59 @@ class TestSparkCommand(QdsCliTestCase):
         print_command()      
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
+
+    def test_submit_script_location_local_py(self):
+        with tempfile.NamedTemporaryFile(suffix=".py") as tmp:
+            tmp.write('print "Hello World!"')
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'label': None,
+                     'language': "python",
+                     'tags': None,
+                     'name': None,
+                     'program':'print "Hello World!"',
+                     'cmdline':None,
+                     'command_type': 'SparkCommand',
+                     'arguments': None,
+                     'user_program_arguments': None,
+                     'can_notify': False,
+                     'script_location': None})
+    
+    def test_submit_script_location_local_scala(self):
+        with tempfile.NamedTemporaryFile(suffix=".scala") as tmp:
+            tmp.write('println("hello, world!")')
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'label': None,
+                     'language': "scala",
+                     'tags': None,
+                     'name': None,
+                     'program': "println(\"hello, world!\")",
+                     'cmdline':None,
+                     'command_type': 'SparkCommand',
+                     'arguments': None,
+                     'user_program_arguments': None,
+                     'can_notify': False,
+                     'script_location': None})
+    
+    def test_submit_script_location_local_java(self):
+        with tempfile.NamedTemporaryFile(suffix=".java") as tmp:
+            tmp.write('println("hello, world!")')
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
+            print_command()
+            with self.assertRaises(qds_sdk.exception.ParseError):
+                qds.main()    
 
     def test_submit_none(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit']
@@ -366,7 +418,6 @@ class TestSparkCommand(QdsCliTestCase):
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
-
     def test_submit_macros(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--program',"println(\"hello, world!\")" ,'--language', 'scala',
                     '--macros', '[{"key1":"11","key2":"22"}, {"key3":"key1+key2"}]']
@@ -376,7 +427,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
                  'label': None,
-                 'label_program': None,
                  'language': "scala",
                  'tags': None,
                  'name': None,
@@ -397,7 +447,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
-                 'label_program': None,
                  'language': 'scala',
                  'tags': ["abc", "def"],
                  'name': None,
@@ -418,7 +467,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': 'test_label',
-                 'label_program': None,
                  'language' : None,
                  'cmdline': '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
                  'tags': None,
@@ -439,7 +487,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
-                 'label_program' : None,
                  'language' : None,
                  'cmdline' : '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
                  'tags': None,
@@ -460,7 +507,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
-                 'label_program' : None,
                  'language' : None,
                  'tags': None,
                  'name': None,
@@ -480,7 +526,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
-                 'label_program' : None,
                  'language' : 'python',
                  'tags': None,
                  'name': None,
@@ -503,7 +548,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
-                 'label_program' : None,
                  'language' : 'scala',
                  'tags': None,
                  'name': None,
@@ -523,7 +567,6 @@ class TestSparkCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
                  'label': None,
-                 'label_program' : None,
                  'language' : 'scala',
                  'tags': None,
                  'name': None,
