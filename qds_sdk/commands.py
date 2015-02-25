@@ -154,12 +154,21 @@ class Command(Resource):
         return r.text
 
 
-    def get_results(self, fp=sys.stdout, inline=True, delim=None):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True):
         """
         Fetches the result for the command represented by this object
 
+        get_results will retrieve results of the command and write to stdout by default.
+        Optionally one can write to a filestream specified in `fp`. The `inline` argument
+        decides whether the result can be returned as a CRLF separated string. In cases where
+        the results are greater than 20MB, get_results will attempt to read from s3 and write
+        to fp. The retrieval of results from s3 can be turned off by the `fetch` argument
+
         Args:
             `fp`: a file object to write the results to directly
+            `inline`: whether or not results are returned inline as CRLF separated string
+            `fetch`: True to fetch the result even if it is greater than 20MB, False to
+                     only get the result location on s3
         """
         result_path = self.meta_data['results_resource']
 
@@ -179,16 +188,20 @@ class Command(Resource):
                     # Can this happen? Don't know what's the right thing to do in this case.
                     pass
         else:
-            acc = Account.find()
-            boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
-                                        aws_secret_access_key=acc.storage_secret_key)
+            if fetch:
+                acc = Account.find()
+                boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
+                                            aws_secret_access_key=acc.storage_secret_key)
 
-            log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
-            #fetch latest value of num_result_dir
-            num_result_dir = Command.find(self.id).num_result_dir
-            for s3_path in r['result_location']:
-                # In Python 3, in this case, `fp` should always be binary mode.
-                _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
+                log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
+                #fetch latest value of num_result_dir
+                num_result_dir = Command.find(self.id).num_result_dir
+                for s3_path in r['result_location']:
+                    # In Python 3, in this case, `fp` should always be binary mode.
+                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
+            else:
+                fp.write(",".join(r['result_location']))
+
 
 
 class HiveCommand(Command):
