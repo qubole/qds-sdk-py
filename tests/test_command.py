@@ -356,7 +356,7 @@ class TestSparkCommand(QdsCliTestCase):
 
     def test_submit_script_location_local_py(self):
         with NamedTemporaryFile(suffix=".py") as tmp:
-            tmp.write('print "Hello World!"')
+            tmp.write('print "Hello World!"'.encode("utf8"))
             tmp.seek(0)
             sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
             print_command()
@@ -378,7 +378,7 @@ class TestSparkCommand(QdsCliTestCase):
     
     def test_submit_script_location_local_scala(self):
         with NamedTemporaryFile(suffix=".scala") as tmp:
-            tmp.write('println("hello, world!")')
+            tmp.write('println("hello, world!")'.encode("utf8"))
             tmp.seek(0)
             sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
             print_command()
@@ -400,7 +400,7 @@ class TestSparkCommand(QdsCliTestCase):
     
     def test_submit_script_location_local_java(self):
         with NamedTemporaryFile(suffix=".java") as tmp:
-            tmp.write('println("hello, world!")')
+            tmp.write('println("hello, world!")'.encode("utf8"))
             tmp.seek(0)
             sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
             print_command()
