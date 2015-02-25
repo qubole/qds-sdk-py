@@ -11,7 +11,7 @@ from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
-
+from optparse import SUPPRESS_HELP
 import boto
 
 import time
@@ -19,7 +19,7 @@ import logging
 import sys
 import re
 import pipes
-
+import os
 import json
 
 log = logging.getLogger("qds_commands")
@@ -274,6 +274,142 @@ class HiveCommand(Command):
         v = vars(options)
         v["command_type"] = "HiveCommand"
         return v
+
+class SparkCommand(Command):
+	
+    usage = ("sparkcmd <submit|run> [options]")
+    allowedlanglist = ["python", "scala"]
+    
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
+    
+    optparser.add_option("--cmdline", dest="cmdline", help="command line for Spark")
+        
+    optparser.add_option("-f", "--script_location", dest="script_location",
+                         help="Path where spark program to run is stored. Has to be a local file path")
+
+    optparser.add_option("--macros", dest="macros",
+                         help="expressions to expand macros used in query")
+	
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
+    optparser.add_option("--cluster-label", dest="label", help="the label of the cluster to run the command on")
+	
+    optparser.add_option("--language", dest="language", choices = allowedlanglist, help=SUPPRESS_HELP)
+    
+    optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
+
+    optparser.add_option("--name", dest="name", help="Assign a name to this query")
+           
+    optparser.add_option("--arguments", dest = "arguments", help = "Spark Submit Command Line Options")
+
+    optparser.add_option("--user_program_arguments", dest = "user_program_arguments", help = "Arguments for User Program")
+    
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+    @classmethod
+    def validate_program(cls, options):
+        bool_program = options.program is not None
+        bool_other_options = options.script_location is not None or options.cmdline is not None 
+        
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_program == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help()) 
+        if bool_program: 
+            if options.language is None:
+                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+    
+    @classmethod
+    def validate_cmdline(cls, options):
+        bool_cmdline = options.cmdline is not None
+        bool_other_options = options.script_location is not None or options.program is not None
+        
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_cmdline == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        if bool_cmdline:
+            if options.language is not None:
+                raise ParseError("Language cannot be specified with the commandline option", cls.optparser.format_help())
+
+    @classmethod
+    def validate_script_location(cls, options):
+        bool_script_location = options.script_location is not None
+        bool_other_options = options.program is not None or options.cmdline is not None
+        
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_script_location == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline should be specified", cls.optparser.format_help())
+        
+        if bool_script_location:
+            if options.language is not None:
+                raise ParseError("Both script location and language cannot be specified together", cls.optparser.format_help())
+            # for now, aws script_location is not supported and throws an error
+            if ((options.script_location.find("s3://") != 0) and
+                (options.script_location.find("s3n://") != 0)):
+
+                # script location is local file so set the program as the text from the file
+
+                try:
+                    q = open(options.script_location).read()
+                except IOError as e:
+                    raise ParseError("Unable to open script location: %s" %
+                                     str(e),
+                                     cls.optparser.format_help())
+                
+                
+                fileName, fileExtension = os.path.splitext(options.script_location)
+                # getting the language of the program from the file extension
+                if fileExtension == ".py":
+                    options.language = "python"
+                elif fileExtension == ".scala":
+                    options.language = "scala"
+                else:
+                    raise ParseError("Invalid program type, Please choose one from python or scala %s" %str(fileExtension),
+                                     cls.optparser.format_help())
+            else:
+                raise ParseError("Invalid location, Please choose a local file location",
+                                 cls.optparser.format_help())
+
+            options.script_location = None
+            options.program = q
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args`: sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+        
+        SparkCommand.validate_program(options)
+        SparkCommand.validate_script_location(options)
+        SparkCommand.validate_cmdline(options)
+        
+        if options.macros is not None: 
+            options.macros = json.loads(options.macros)
+        
+        v = vars(options)
+        v["command_type"] = "SparkCommand"
+        return v 
+
 
 
 class PrestoCommand(Command):
