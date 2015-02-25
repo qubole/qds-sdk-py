@@ -323,6 +323,7 @@ class Cluster(Resource):
                                dest="custom_ec2_tags",
                                help="""Custom ec2 tags to be set on all instances
                                of the cluster. Specified as JSON object (key-value pairs)
+                               e.g. --custom-ec2-tags '{"key1":"value1", "key2":"value2"}'
                                """,)
 
         arguments = argparser.parse_args(args)
