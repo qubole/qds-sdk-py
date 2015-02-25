@@ -1,7 +1,5 @@
 import re
 import optparse
-
-
 class OptionParsingError(RuntimeError):
     def __init__(self, msg):
         self.msg = msg
