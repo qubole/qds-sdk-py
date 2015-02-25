@@ -6,7 +6,7 @@ if sys.version_info > (2, 7, 0):
 else:
     import unittest2 as unittest
 from mock import Mock
-import tempfile
+from tempfile import NamedTemporaryFile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
 import qds_sdk
@@ -333,7 +333,7 @@ class TestSparkCommand(QdsCliTestCase):
             qds.main()
 
     def test_submit_script_location_local_py(self):
-        with tempfile.NamedTemporaryFile(suffix=".py") as tmp:
+        with NamedTemporaryFile(suffix=".py") as tmp:
             tmp.write('print "Hello World!"')
             tmp.seek(0)
             sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
@@ -355,7 +355,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'script_location': None})
     
     def test_submit_script_location_local_scala(self):
-        with tempfile.NamedTemporaryFile(suffix=".scala") as tmp:
+        with NamedTemporaryFile(suffix=".scala") as tmp:
             tmp.write('println("hello, world!")')
             tmp.seek(0)
             sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
@@ -377,7 +377,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'script_location': None})
     
     def test_submit_script_location_local_java(self):
-        with tempfile.NamedTemporaryFile(suffix=".java") as tmp:
+        with NamedTemporaryFile(suffix=".java") as tmp:
             tmp.write('println("hello, world!")')
             tmp.seek(0)
             sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
