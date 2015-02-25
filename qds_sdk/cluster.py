@@ -8,11 +8,14 @@ from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 
 import logging
+import json
 
 log = logging.getLogger("qds_cluster")
 
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
+
 
 class Cluster(Resource):
     """
@@ -316,6 +319,13 @@ class Cluster(Resource):
                 <account-default-location>/scripts/hadoop/NODE_BOOTSTRAP_FILE
                 """,)
 
+        argparser.add_argument("--custom-ec2-tags",
+                               dest="custom_ec2_tags",
+                               help="""Custom ec2 tags to be set on all instances
+                               of the cluster. Specified as JSON object (key-value pairs)
+                               e.g. --custom-ec2-tags '{"key1":"value1", "key2":"value2"}'
+                               """,)
+
         arguments = argparser.parse_args(args)
         return arguments
 
@@ -445,14 +455,14 @@ class ClusterInfo():
         self.ec2_settings['vpc_id'] = vpc_id
         self.ec2_settings['subnet_id'] = subnet_id
 
-
     def set_hadoop_settings(self, master_instance_type=None,
                             slave_instance_type=None,
                             initial_nodes=None,
                             max_nodes=None,
                             custom_config=None,
                             slave_request_type=None,
-                            use_hbase=None):
+                            use_hbase=None,
+                            custom_ec2_tags=None):
         """
         Kwargs:
 
@@ -481,6 +491,12 @@ class ClusterInfo():
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
         self.hadoop_settings['use_hbase'] = use_hbase
+
+        if custom_ec2_tags and custom_ec2_tags.strip():
+            try:
+                self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
+            except Exception as e:
+                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
