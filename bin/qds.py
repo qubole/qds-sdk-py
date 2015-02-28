@@ -48,6 +48,7 @@ usage_str = ("Usage: \n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
+             "  clone [cmd-specific-args ..] : clone a cluster from an existing one\n"
              "  list [cmd-specific-args ..] : list existing cluster(s)\n"
              "  start [cmd-specific-args ..] : start an existing cluster\n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
@@ -191,6 +192,12 @@ def cluster_update_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
+def cluster_clone_action(clusterclass, args):
+    arguments = clusterclass._parse_create_update(args, action="clone")
+    cluster_info = _create_cluster_info(arguments)
+    result = clusterclass.clone(arguments.cluster_id_label, cluster_info.minimal_payload())
+    print(json.dumps(result, indent=4))
+    return 0
 
 def _create_cluster_info(arguments):
     cluster_info = ClusterInfo(arguments.label,
@@ -346,7 +353,7 @@ def clustermain(dummy, args):
 
     else:
         clusterclass = Cluster
-        actionset = set(["create", "delete", "update", "list", "start", "terminate", "status", "reassign_label"])
+        actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label"])
 
         if len(args) < 1:
             sys.stderr.write("missing argument containing action\n")
