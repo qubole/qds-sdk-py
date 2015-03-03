@@ -119,7 +119,7 @@ class Cluster(Resource):
         Args:
             `args`: sequence of arguments
 
-            `action`: "create" or "update"
+            `action`: "create", "update" or "clone"
 
         Returns:
             Object that contains cluster parameters
@@ -127,15 +127,21 @@ class Cluster(Resource):
         argparser = ArgumentParser(prog="cluster %s" % action)
 
         create_required = False
+        label_required = False
+        
         if action == "create":
             create_required = True
         elif action == "update":
             argparser.add_argument("cluster_id_label",
                                    help="id/label of the cluster to update")
+        elif action == "clone":
+            argparser.add_argument("cluster_id_label",
+                                   help="id/label of the cluster to update")
+            label_required = True
 
         argparser.add_argument("--label", dest="label",
-                               nargs="+", required=create_required,
-                               help="list of label for the cluster" +
+                               nargs="+", required=(create_required or label_required),
+                               help="list of labels for the cluster" +
                                     " (atleast one label is required)")
 
         ec2_group = argparser.add_argument_group("ec2 settings")
@@ -154,7 +160,7 @@ class Cluster(Resource):
         ec2_group.add_argument("--aws-region",
                                dest="aws_region",
                                choices=["us-east-1", "us-west-2", "ap-northeast-1",
-                                        "eu-west-1", "ap-southeast-1"],
+                                        "eu-west-1", "ap-southeast-1", "us-west-1"],
                                help="aws region to create the cluster in",)
         ec2_group.add_argument("--aws-availability-zone",
                                dest="aws_availability_zone",
@@ -345,6 +351,15 @@ class Cluster(Resource):
         """
         conn = Qubole.agent()
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
+
+    @classmethod
+    def clone(cls, cluster_id_label, cluster_info):
+        """
+        Update the cluster with id/label `cluster_id_label` using information provided in
+        `cluster_info`.
+        """
+        conn = Qubole.agent()
+        return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
     def _parse_reassign_label(cls, args):
