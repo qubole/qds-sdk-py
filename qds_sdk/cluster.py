@@ -128,7 +128,7 @@ class Cluster(Resource):
 
         create_required = False
         label_required = False
-        
+
         if action == "create":
             create_required = True
         elif action == "update":
