@@ -4,7 +4,6 @@ from __future__ import print_function
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
-from qds_sdk.hadoop_cluster import *
 import qds_sdk.exception
 from qds_sdk.scheduler import SchedulerCmdLine
 from qds_sdk.actions import ActionCmdLine
@@ -333,37 +332,19 @@ def cluster_check_action(clusterclass, args):
     return 0
 
 
-def clustermain(dummy, args):
-    if dummy == "hadoop_cluster":
-        log.warn("'hadoop_cluster check' command is deprecated and will be" \
-                         " removed in the next version. Please use 'cluster status'" \
-                         " instead.\n")
-        clusterclass = HadoopCluster
-        actionset = set(["check"])
+def clustermain(args):
+    clusterclass = Cluster
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label"])
 
-        if len(args) < 1:
-            sys.stderr.write("missing argument containing action\n")
-            usage()
+    if len(args) < 1:
+        sys.stderr.write("missing argument containing action\n")
+        usage()
 
-        action = args.pop(0)
-        if action not in actionset:
-            sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
-            usage()
-        return globals()["cluster_" + action + "_action"](clusterclass, args)
-
-    else:
-        clusterclass = Cluster
-        actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label"])
-
-        if len(args) < 1:
-            sys.stderr.write("missing argument containing action\n")
-            usage()
-
-        action = args.pop(0)
-        if action not in actionset:
-            sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
-            usage()
-        return globals()["cluster_" + action + "_action"](clusterclass, args)
+    action = args.pop(0)
+    if action not in actionset:
+        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+        usage()
+    return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 
 def reportmain(args):
@@ -464,8 +445,8 @@ def main():
     if a0 in CommandClasses:
         return cmdmain(a0, args)
 
-    if a0 == "hadoop_cluster" or a0 == "cluster":
-        return clustermain(a0, args)
+    if a0 == "cluster":
+        return clustermain(args)
 
     if a0 == "action":
         return actionmain(args)
