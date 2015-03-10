@@ -325,13 +325,6 @@ def cluster_reassign_label_action(clusterclass, args):
     return 0
 
 
-def cluster_check_action(clusterclass, args):
-    name = args.pop(0) if (len(args) >= 1) else None
-    o = clusterclass.find(name=name)
-    print(str(o))
-    return 0
-
-
 def clustermain(args):
     clusterclass = Cluster
     actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label"])
