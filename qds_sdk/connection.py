@@ -10,6 +10,7 @@ except ImportError:
     from urllib3.poolmanager import PoolManager
 from qds_sdk.retry import retry
 from qds_sdk.exception import *
+from setup import __version__
 
 
 log = logging.getLogger("qds_connection")
@@ -34,7 +35,7 @@ class Connection:
         self.auth = auth
         self.base_url = base_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
-        self._headers = {'Content-Type': 'application/json'}
+        self._headers = {'User-Agent': 'Qubole SDK/Python %s' % __version__, 'Content-Type': 'application/json'}
 
         self.reuse = reuse
         if reuse:
