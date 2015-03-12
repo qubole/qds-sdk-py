@@ -10,7 +10,7 @@ except ImportError:
     from urllib3.poolmanager import PoolManager
 from qds_sdk.retry import retry
 from qds_sdk.exception import *
-from setup import __version__
+from qds_sdk.setup import __version__
 
 
 log = logging.getLogger("qds_connection")
