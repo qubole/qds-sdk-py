@@ -10,10 +10,9 @@ if sys.version_info < (2, 7, 0):
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
-__version__ = "1.4.1"
 setup(
     name="qds_sdk",
-    version=__version__,
+    version="1.4.1",
     author="Qubole",
     author_email="dev@qubole.com",
     description=("Python SDK for coding to the Qubole Data Service API"),

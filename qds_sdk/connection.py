@@ -35,7 +35,7 @@ class Connection:
         self.auth = auth
         self.base_url = base_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
-        self._headers = {'User-Agent': 'Qubole SDK/Python %s' % pkg_resources.get_distribution("qds-sdk").version,
+        self._headers = {'User-Agent': 'qds-sdk-py-%s' % pkg_resources.get_distribution("qds-sdk").version,
                          'Content-Type': 'application/json'}
 
         self.reuse = reuse
