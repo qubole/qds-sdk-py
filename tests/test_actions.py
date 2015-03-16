@@ -84,7 +84,7 @@ class TestActionCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET", "actions/123", params=None)
         Connection._api_call_raw.assert_called_with("GET", "commands/123/logs", params=None)
-    
+
     def test_results(self):
         sys.argv = ['qds.py', 'action', 'results', '123']
         print_command()

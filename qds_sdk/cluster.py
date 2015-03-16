@@ -8,11 +8,14 @@ from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 
 import logging
+import json
 
 log = logging.getLogger("qds_cluster")
 
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
+
 
 class Cluster(Resource):
     """
@@ -116,7 +119,7 @@ class Cluster(Resource):
         Args:
             `args`: sequence of arguments
 
-            `action`: "create" or "update"
+            `action`: "create", "update" or "clone"
 
         Returns:
             Object that contains cluster parameters
@@ -124,15 +127,21 @@ class Cluster(Resource):
         argparser = ArgumentParser(prog="cluster %s" % action)
 
         create_required = False
+        label_required = False
+
         if action == "create":
             create_required = True
         elif action == "update":
             argparser.add_argument("cluster_id_label",
                                    help="id/label of the cluster to update")
+        elif action == "clone":
+            argparser.add_argument("cluster_id_label",
+                                   help="id/label of the cluster to update")
+            label_required = True
 
         argparser.add_argument("--label", dest="label",
-                               nargs="+", required=create_required,
-                               help="list of label for the cluster" +
+                               nargs="+", required=(create_required or label_required),
+                               help="list of labels for the cluster" +
                                     " (atleast one label is required)")
 
         ec2_group = argparser.add_argument_group("ec2 settings")
@@ -151,7 +160,7 @@ class Cluster(Resource):
         ec2_group.add_argument("--aws-region",
                                dest="aws_region",
                                choices=["us-east-1", "us-west-2", "ap-northeast-1",
-                                        "eu-west-1", "ap-southeast-1"],
+                                        "eu-west-1", "ap-southeast-1", "us-west-1"],
                                help="aws region to create the cluster in",)
         ec2_group.add_argument("--aws-availability-zone",
                                dest="aws_availability_zone",
@@ -322,6 +331,13 @@ class Cluster(Resource):
                 <account-default-location>/scripts/hadoop/NODE_BOOTSTRAP_FILE
                 """,)
 
+        argparser.add_argument("--custom-ec2-tags",
+                               dest="custom_ec2_tags",
+                               help="""Custom ec2 tags to be set on all instances
+                               of the cluster. Specified as JSON object (key-value pairs)
+                               e.g. --custom-ec2-tags '{"key1":"value1", "key2":"value2"}'
+                               """,)
+
         arguments = argparser.parse_args(args)
         return arguments
 
@@ -341,6 +357,15 @@ class Cluster(Resource):
         """
         conn = Qubole.agent()
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
+
+    @classmethod
+    def clone(cls, cluster_id_label, cluster_info):
+        """
+        Update the cluster with id/label `cluster_id_label` using information provided in
+        `cluster_info`.
+        """
+        conn = Qubole.agent()
+        return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
     def _parse_reassign_label(cls, args):
@@ -451,14 +476,14 @@ class ClusterInfo():
         self.ec2_settings['vpc_id'] = vpc_id
         self.ec2_settings['subnet_id'] = subnet_id
 
-
     def set_hadoop_settings(self, master_instance_type=None,
                             slave_instance_type=None,
                             initial_nodes=None,
                             max_nodes=None,
                             custom_config=None,
                             slave_request_type=None,
-                            use_hbase=None):
+                            use_hbase=None,
+                            custom_ec2_tags=None):
         """
         Kwargs:
 
@@ -487,6 +512,12 @@ class ClusterInfo():
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
         self.hadoop_settings['use_hbase'] = use_hbase
+
+        if custom_ec2_tags and custom_ec2_tags.strip():
+            try:
+                self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
+            except Exception as e:
+                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
@@ -519,7 +550,7 @@ class ClusterInfo():
         Purchase options for stable spot instances.
 
         `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
-            instances, expressed as a percentage of the base price 
+            instances, expressed as a percentage of the base price
             (applies to both master and slave nodes).
 
         `timeout_for_request`: Timeout for a stable node spot instance request (Unit:

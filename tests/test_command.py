@@ -6,6 +6,7 @@ if sys.version_info > (2, 7, 0):
 else:
     import unittest2 as unittest
 from mock import Mock
+from tempfile import NamedTemporaryFile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
 import qds_sdk
@@ -18,6 +19,13 @@ class TestCommandCheck(QdsCliTestCase):
 
     def test_hivecmd(self):
         sys.argv = ['qds.py', 'hivecmd', 'check', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+
+    def test_sparkcmd(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -77,6 +85,14 @@ class TestCommandCancel(QdsCliTestCase):
 
     def test_hivecmd(self):
         sys.argv = ['qds.py', 'hivecmd', 'cancel', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'kill_succeeded': True})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "commands/123",
+                {'status': 'kill'})
+
+    def test_sparkcmd(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'cancel', '123']
         print_command()
         Connection._api_call = Mock(return_value={'kill_succeeded': True})
         qds.main()
@@ -308,6 +324,279 @@ class TestHiveCommand(QdsCliTestCase):
                  'name': None,
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+class TestSparkCommand(QdsCliTestCase):
+
+    def test_submit_query(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': None,
+                 'tags': None,
+                 'name': None,
+                 'program': None,
+                 'cmdline':'/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_script_location_aws(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_script_location_local_py(self):
+        with NamedTemporaryFile(suffix=".py") as tmp:
+            tmp.write('print "Hello World!"'.encode("utf8"))
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'label': None,
+                     'language': "python",
+                     'tags': None,
+                     'name': None,
+                     'program':'print "Hello World!"',
+                     'cmdline':None,
+                     'command_type': 'SparkCommand',
+                     'arguments': None,
+                     'user_program_arguments': None,
+                     'can_notify': False,
+                     'script_location': None})
+
+    def test_submit_script_location_local_scala(self):
+        with NamedTemporaryFile(suffix=".scala") as tmp:
+            tmp.write('println("hello, world!")'.encode("utf8"))
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'label': None,
+                     'language': "scala",
+                     'tags': None,
+                     'name': None,
+                     'program': "println(\"hello, world!\")",
+                     'cmdline':None,
+                     'command_type': 'SparkCommand',
+                     'arguments': None,
+                     'user_program_arguments': None,
+                     'can_notify': False,
+                     'script_location': None})
+
+    def test_submit_script_location_local_java(self):
+        with NamedTemporaryFile(suffix=".java") as tmp:
+            tmp.write('println("hello, world!")'.encode("utf8"))
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
+            print_command()
+            with self.assertRaises(qds_sdk.exception.ParseError):
+                qds.main()
+
+    def test_submit_none(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_both(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                    '--script_location', 'home/path-to-script']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_all_three(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                    '--script_location', '/home/path-to-script', 'program', 'println("hello, world!")']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_language(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--program', 'println("hello, world!")',
+                    '--language', 'java']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_program_no_language(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--program', 'println("hello, world!")']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_macros(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--program',"println(\"hello, world!\")" ,'--language', 'scala',
+                    '--macros', '[{"key1":"11","key2":"22"}, {"key3":"key1+key2"}]']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
+                 'label': None,
+                 'language': "scala",
+                 'tags': None,
+                 'name': None,
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'program': "println(\"hello, world!\")",
+                 'command_type': 'SparkCommand',
+                 'cmdline': None,
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_tags(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program',"println(\"hello, world!\")",
+                    '--tags', 'abc,def']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': 'scala',
+                 'tags': ["abc", "def"],
+                 'name': None,
+                 'program':"println(\"hello, world!\")" ,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'cmdline': None,
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_cluster_label(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                    '--cluster-label', 'test_label']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': 'test_label',
+                 'language' : None,
+                 'cmdline': '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                 'tags': None,
+                 'name': None,
+                 'program' : None,
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'command_type': 'SparkCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_name(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                    '--name', 'test_name']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language' : None,
+                 'cmdline' : '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                 'tags': None,
+                 'name': 'test_name',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'program': None,
+                 'command_type': 'SparkCommand',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_notify(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                    '--notify']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language' : None,
+                 'tags': None,
+                 'name': None,
+                 'program': None,
+                 'cmdline': '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': True,
+                 'script_location': None})
+
+    def test_submit_python_program(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','python','--program', 'print "hello, world!"']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language' : 'python',
+                 'tags': None,
+                 'name': None,
+                 'program': "print \"hello, world!\"",
+                 'cmdline': None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_user_program_arguments(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program',
+                    "object HelloWorld {\n\n    def main(args: Array[String]) {\n        \n        println(\"Hello, \" + args(0))\n    \n    }\n}\n",
+                    '--arguments', '--class HelloWorld',
+                    '--user_program_arguments', 'world']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language' : 'scala',
+                 'tags': None,
+                 'name': None,
+                 'program': "object HelloWorld {\n\n    def main(args: Array[String]) {\n        \n        println(\"Hello, \" + args(0))\n    \n    }\n}\n" ,
+                 'cmdline': None,
+                 'command_type': 'SparkCommand',
+                 'arguments': '--class HelloWorld',
+                 'user_program_arguments': 'world',
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_scala_program(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program', 'println("hello, world!")']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language' : 'scala',
+                 'tags': None,
+                 'name': None,
+                 'program': "println(\"hello, world!\")",
+                 'cmdline': None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None})
 

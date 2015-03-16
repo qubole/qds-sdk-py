@@ -245,9 +245,9 @@ class Scheduler(Resource):
             url_path = url_path + "/" +  str(sequence_id)
         params = {}
         if page is not None:
-            params['page'] = page  
+            params['page'] = page
         if per_page is not None:
-            params['per_page'] = per_page  
+            params['per_page'] = per_page
 
         #Todo Page numbers are thrown away right now
         actjson = conn.get(url_path, params)
