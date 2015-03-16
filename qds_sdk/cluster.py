@@ -265,6 +265,12 @@ class Cluster(Resource):
                                     help="location for ssh key to use to" +
                                          " login to the instance")
 
+        security_group.add_argument("--persistent-security-groups",
+                                    dest="persistent_security_groups",
+                                    help="a security group to associate with each" +
+                                         " node of the cluster. Typically used" +
+                                         " to provide access to external hosts")
+
         presto_group = argparser.add_argument_group("presto settings")
         enabling_presto = presto_group.add_mutually_exclusive_group()
         enabling_presto.add_argument("--enable-presto",
@@ -544,7 +550,8 @@ class ClusterInfo():
 
     def set_security_settings(self,
                               encrypted_ephemerals=None,
-                              customer_ssh_key=None):
+                              customer_ssh_key=None,
+                              persistent_security_groups=None):
         """
         Kwargs:
 
@@ -554,6 +561,7 @@ class ClusterInfo():
         """
         self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
         self.security_settings['customer_ssh_key'] = customer_ssh_key
+        self.security_settings['persistent_security_groups'] = persistent_security_groups
 
     def set_presto_settings(self, enable_presto=None, presto_custom_config=None):
         """
