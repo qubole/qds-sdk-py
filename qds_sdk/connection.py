@@ -3,6 +3,7 @@ import requests
 import logging
 import ssl
 import json
+import pkg_resources
 from requests.adapters import HTTPAdapter
 try:
     from requests.packages.urllib3.poolmanager import PoolManager
@@ -34,7 +35,8 @@ class Connection:
         self.auth = auth
         self.base_url = base_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
-        self._headers = {'Content-Type': 'application/json'}
+        self._headers = {'User-Agent': 'qds-sdk-py-%s' % pkg_resources.get_distribution("qds-sdk").version,
+                         'Content-Type': 'application/json'}
 
         self.reuse = reuse
         if reuse:
