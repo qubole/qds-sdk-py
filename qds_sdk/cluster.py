@@ -362,6 +362,33 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
+    def _parse_cluster_manage_command(cls, args):
+      """
+      Parse command line arguments for cluster manage commands.
+      """
+      argparser = ArgumentParser(prog="cluster_manage_command")
+
+      group = argparser.add_mutually_exclusive_group(required=True)
+
+      group.add_argument("--id", dest="cluster_id",
+                           help="execute on cluster with this id")
+
+      group.add_argument("--label", dest="label",
+                           help="execute on cluster with this label")
+
+      argparser.add_argument("--parameters",
+                 help="optional parameters to the manage command")
+
+      argparser.add_argument("--private_dns",
+                 help="the private_dns of the machine to be updated/removed")
+
+      argparser.add_argument("--command",
+                 help="the update command to be executed")
+
+      arguments = argparser.parse_args(args)
+      return arguments
+
+    @classmethod
     def _parse_reassign_label(cls, args):
         """
         Parse command line arguments for reassigning label.
@@ -403,7 +430,32 @@ class Cluster(Resource):
         conn = Qubole.agent()
         return conn.delete(cls.element_path(cluster_id_label))
 
+    @classmethod
+    def add_node(cls, cluster_id_label, parameters):
+        """
+        Add a node to an existing cluster
+        """
+        conn = Qubole.agent()
+        return conn.post(cls.element_path(cluster_id_label) + "/nodes", data={parameters : parameters})
 
+    @classmethod
+    def remove_node(cls, cluster_id_label, private_dns, parameters):
+        """
+        Add a node to an existing cluster
+        """
+        conn = Qubole.agent()
+        data = {"private_dns" : private_dns, "parameters" : parameters}
+        return conn.delete(cls.element_path(cluster_id_label) + "/nodes", data)
+    
+    @classmethod
+    def update_node(cls, cluster_id_label, command, private_dns, parameters):
+        """
+        Add a node to an existing cluster
+        """
+        conn = Qubole.agent()
+        data = {"command" : command, "private_dns" : private_dns, "parameters" : parameters}
+        return conn.put(cls.element_path(cluster_id_label) + "/nodes", data)
+    
 class ClusterInfo():
     """
     qds_sdk.ClusterInfo is the class which stores information about a cluster.
