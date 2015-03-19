@@ -324,10 +324,21 @@ def cluster_reassign_label_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
+def cluster_pause_snapshot_action(clusterclass, args):
+    checkargs_cluster_id_label(args)
+    result = clusterclass.pause_snapshot(args.pop(0))
+    print(json.dumps(result, indent=4))
+    return 0
+
+def cluster_resume_snapshot_action(clusterclass, args):
+    checkargs_cluster_id_label(args)
+    result = clusterclass.resume_snapshot(args.pop(0))
+    print(json.dumps(result, indent=4))
+    return 0
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "pause_snapshot", "resume_snapshot"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")

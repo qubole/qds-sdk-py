@@ -1478,5 +1478,20 @@ class TestClusterClone(QdsCliTestCase):
                                                     }
                                                 })
 
+class TestClusterHbaseSnapshot(QdsCliTestCase):
+    def  test_pause_snapshot(self):
+        sys.argv = ['qds.py', 'cluster', 'pause_snapshot', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123/pause_snapshot', {})
+
+    def  test_resume_snapshot(self):
+        sys.argv = ['qds.py', 'cluster', 'resume_snapshot', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123/resume_snapshot', {})
+
 if __name__ == '__main__':
     unittest.main()
