@@ -353,6 +353,27 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
+    def _parse_cluster_manage_command(cls, args):
+        """
+        Parse command line arguments for cluster manage commands.
+        """
+        argparser = ArgumentParser(prog="cluster_manage_command")
+        group = argparser.add_mutually_exclusive_group(required=True)
+        group.add_argument("--id", dest="cluster_id",
+                          help="execute on cluster with this id")
+        group.add_argument("--label", dest="label",
+                          help="execute on cluster with this label")
+        argparser.add_argument("--parameters",
+                          help="optional parameters to the manage command")
+        argparser.add_argument("--private_dns",
+                          help="the private_dns of the machine to be updated/removed")
+        argparser.add_argument("--command",
+                          help="the update command to be executed")
+        arguments = argparser.parse_args(args)
+
+        return arguments
+
+    @classmethod
     def clone(cls, cluster_id_label, cluster_info):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
@@ -423,6 +444,21 @@ class Cluster(Resource):
         
         return conn.put(cls.element_path(cluster_id_label) + "/resume_snapshot", {})
 
+    @classmethod
+    def snapshot(cls, cluster_id_label, parameters):
+        """
+        Create full hbase snapshot
+        """
+        conn = Qubole.agent()
+        return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={parameters : parameters})
+
+    @classmethod
+    def restore(cls, cluster_id_label, parameters):
+        """
+        Restoring cluster from a given hbase snapshot id
+        """
+        conn = Qubole.agent()
+        return conn.post(cls.element_path(cluster_id_label) + "/restore", data={parameters : parameters})
 
 class ClusterInfo():
     """

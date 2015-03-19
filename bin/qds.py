@@ -53,6 +53,8 @@ usage_str = ("Usage: \n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
+             "  snapshot [cmd-specific-args ..] : create hbase snapshot and store it to s3\n" +
+             "  restore [cmd-specific-args ..] : restore cluster from a particular snapshot\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
@@ -324,21 +326,21 @@ def cluster_reassign_label_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_pause_snapshot_action(clusterclass, args):
-    checkargs_cluster_id_label(args)
-    result = clusterclass.pause_snapshot(args.pop(0))
+def cluster_snapshot_action(clusterclass, args):
+    arguments = clusterclass._parse_cluster_manage_command(args)
+    result = clusterclass.snapshot(arguments.cluster_id or arguments.label, arguments.parameters)
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_resume_snapshot_action(clusterclass, args):
-    checkargs_cluster_id_label(args)
-    result = clusterclass.resume_snapshot(args.pop(0))
+def cluster_restore_action(clusterclass, args):
+    arguments = clusterclass._parse_cluster_manage_command(args)
+    result = clusterclass.restore(arguments.cluster_id or arguments.label, arguments.parameters)
     print(json.dumps(result, indent=4))
     return 0
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "pause_snapshot", "resume_snapshot"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "snapshot", "restore"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
