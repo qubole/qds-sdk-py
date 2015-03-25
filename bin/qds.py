@@ -227,7 +227,8 @@ def _create_cluster_info(arguments):
                                      custom_config,
                                      arguments.slave_request_type,
                                      arguments.use_hbase,
-                                     arguments.custom_ec2_tags)
+                                     arguments.custom_ec2_tags,
+                                     arguments.use_hadoop2)
 
     cluster_info.set_spot_instance_settings(
           arguments.maximum_bid_price_percentage,

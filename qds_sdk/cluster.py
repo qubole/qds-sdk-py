@@ -204,6 +204,18 @@ class Cluster(Resource):
                                   action="store_true", default=None,
                                   help="Use hbase on this cluster",)
 
+        hadoop2 = hadoop_group.add_mutually_exclusive_group()
+        hadoop2.add_argument("--use-hadoop2",
+                             dest="use_hadoop2",
+                             action="store_true",
+                             default=None,
+                             help="Use hadoop2 instead of hadoop1")
+        hadoop2.add_argument("--use-hadoop1",
+                             dest="use_hadoop2",
+                             action="store_false",
+                             default=None,
+                             help="Use hadoop1 instead of hadoop2. This is the default.")
+
         spot_group = argparser.add_argument_group("spot instance settings" +
                     " (valid only when slave-request-type is hybrid or spot)")
         spot_group.add_argument("--maximum-bid-price-percentage",
@@ -477,7 +489,8 @@ class ClusterInfo():
                             custom_config=None,
                             slave_request_type=None,
                             use_hbase=None,
-                            custom_ec2_tags=None):
+                            custom_ec2_tags=None,
+                            use_hadoop2=None):
         """
         Kwargs:
 
@@ -498,6 +511,8 @@ class ClusterInfo():
             Valid values: "ondemand", "hybrid", "spot".
 
         `use_hbase`: Start hbase daemons on the cluster. Uses Hadoop2
+
+        `use_hadoop2`: Use hadoop2 in this cluster
         """
         self.hadoop_settings['master_instance_type'] = master_instance_type
         self.hadoop_settings['slave_instance_type'] = slave_instance_type
@@ -506,6 +521,7 @@ class ClusterInfo():
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
         self.hadoop_settings['use_hbase'] = use_hbase
+        self.hadoop_settings['use_hadoop2'] = use_hadoop2
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
