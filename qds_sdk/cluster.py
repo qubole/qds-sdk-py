@@ -436,7 +436,8 @@ class Cluster(Resource):
         Add a node to an existing cluster
         """
         conn = Qubole.agent()
-        return conn.post(cls.element_path(cluster_id_label) + "/nodes", data={parameters : parameters})
+        parameters = {} if not parameters else parameters
+        return conn.post(cls.element_path(cluster_id_label) + "/nodes", data={"parameters" : parameters})
 
     @classmethod
     def remove_node(cls, cluster_id_label, private_dns, parameters):
@@ -444,6 +445,7 @@ class Cluster(Resource):
         Add a node to an existing cluster
         """
         conn = Qubole.agent()
+        parameters = {} if not parameters else parameters
         data = {"private_dns" : private_dns, "parameters" : parameters}
         return conn.delete(cls.element_path(cluster_id_label) + "/nodes", data)
     
@@ -453,6 +455,7 @@ class Cluster(Resource):
         Add a node to an existing cluster
         """
         conn = Qubole.agent()
+        parameters = {} if not parameters else parameters
         data = {"command" : command, "private_dns" : private_dns, "parameters" : parameters}
         return conn.put(cls.element_path(cluster_id_label) + "/nodes", data)
     
