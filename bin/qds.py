@@ -53,6 +53,9 @@ usage_str = ("Usage: \n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
+             "  add_node [cmd-specific-args ..] : add a node to existing cluster\n" +
+             "  remove_node [cmd-specific-args ..] : remove a node to existing cluster\n" + 
+             "  update_node [cmd-specific-args ..] : update a node on a existing cluster\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
@@ -325,10 +328,27 @@ def cluster_reassign_label_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
+def cluster_add_node_action(clusterclass, args):
+    arguments = clusterclass._parse_cluster_manage_command(args)
+    result = clusterclass.add_node(arguments.cluster_id or arguments.label, arguments.parameters)
+    print(json.dumps(result, indent=4))
+    return 0 
+
+def cluster_remove_node_action(clusterclass, args):
+    arguments = clusterclass._parse_cluster_manage_command(args)
+    result = clusterclass.remove_node(arguments.cluster_id or arguments.label, arguments.private_dns, arguments.parameters)
+    print(json.dumps(result, indent=4))
+    return 0 
+
+def cluster_update_node_action(clusterclass, args):
+    arguments = clusterclass._parse_cluster_manage_command(args)
+    result = clusterclass.update_node(arguments.cluster_id or arguments.label, arguments.command, arguments.private_dns, arguments.parameters)
+    print(json.dumps(result, indent=4))
+    return 0 
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
