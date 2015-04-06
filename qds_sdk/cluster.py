@@ -370,6 +370,7 @@ class Cluster(Resource):
         argparser.add_argument("--command",
                           help="the update command to be executed")
         arguments = argparser.parse_args(args)
+        arguments.parameters=json.loads(arguments.parameters.strip())
 
         return arguments
 
@@ -450,6 +451,7 @@ class Cluster(Resource):
         Create full hbase snapshot
         """
         conn = Qubole.agent()
+        print parameters
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
     @classmethod
