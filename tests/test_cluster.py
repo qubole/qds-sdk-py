@@ -1479,6 +1479,7 @@ class TestClusterClone(QdsCliTestCase):
                                                 })
 
 class TestClusterHbaseSnapshot(QdsCliTestCase):
+    
     def test_snapshot(self):
         sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--parameters', ' {"s3_location":"myString", "backup_type":"full"}']
         print_command()
