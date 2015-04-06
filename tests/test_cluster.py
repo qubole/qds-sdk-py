@@ -1485,14 +1485,14 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters': {u'backup_type': u'full', u's3_location': u'myString'}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters': {'backup_type': 'full', 's3_location': 'myString'}})
 
     def test_restore(self):
         sys.argv = ['qds.py', 'cluster', 'restore', '--label', '1234', '--parameters', ' {"s3_location":"myString", "backup_id":"abcd", "table_names":"tablename"}']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore', {'parameters': {u'backup_id': u'abcd', u's3_location': u'myString', u'table_names': u'tablename'}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore', {'parameters': {'backup_id': 'abcd', 's3_location': 'myString', 'table_names': 'tablename'}})
 
 if __name__ == '__main__':
     unittest.main()
