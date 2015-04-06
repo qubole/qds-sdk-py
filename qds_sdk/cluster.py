@@ -426,29 +426,9 @@ class Cluster(Resource):
         return conn.delete(cls.element_path(cluster_id_label))
 
     @classmethod
-    def  pause_snapshot(cls, cluster_id_label):
-        """
-        Pause a running hbase snapshot
-
-        """
-        conn = Qubole.agent()
-        
-        return conn.put(cls.element_path(cluster_id_label) + "/pause_snapshot", {})
-
-    @classmethod
-    def resume_snapshot(cls, cluster_id_label):
-        """
-        Resume a running hbase snapshot
-
-        """
-        conn = Qubole.agent()
-        
-        return conn.put(cls.element_path(cluster_id_label) + "/resume_snapshot", {})
-
-    @classmethod
     def snapshot(cls, cluster_id_label, parameters):
         """
-        Create full hbase snapshot
+        Create hbase snapshot full/incremental
         """
         conn = Qubole.agent()
         print parameters
