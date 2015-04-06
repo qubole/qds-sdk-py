@@ -53,8 +53,8 @@ usage_str = ("Usage: \n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
-             "  snapshot [cmd-specific-args ..] : create hbase snapshot and store it to s3\n" +
-             "  restore [cmd-specific-args ..] : restore cluster from a particular snapshot\n" +
+             "  snapshot [cmd-specific-args ..] : take snapshot of cluster\n" +
+             "  restore [cmd-specific-args ..] : restore cluster from snapshot\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
