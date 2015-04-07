@@ -434,12 +434,12 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
     @classmethod
-    def restore(cls, cluster_id_label, parameters):
+    def restore_point(cls, cluster_id_label, parameters):
         """
         Restoring cluster from a given hbase snapshot id
         """
         conn = Qubole.agent()
-        return conn.post(cls.element_path(cluster_id_label) + "/restore", data={"parameters" : parameters})
+        return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
 
 class ClusterInfo():
     """

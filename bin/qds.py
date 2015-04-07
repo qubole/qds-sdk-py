@@ -54,7 +54,7 @@ usage_str = ("Usage: \n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
              "  snapshot [cmd-specific-args ..] : take snapshot of cluster\n" +
-             "  restore [cmd-specific-args ..] : restore cluster from snapshot\n" +
+             "  restore_point [cmd-specific-args ..] : restore cluster from snapshot\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
@@ -332,15 +332,15 @@ def cluster_snapshot_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_restore_action(clusterclass, args):
+def cluster_restore_point_action(clusterclass, args):
     arguments = clusterclass._parse_cluster_manage_command(args)
-    result = clusterclass.restore(arguments.cluster_id or arguments.label, arguments.parameters)
+    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.parameters)
     print(json.dumps(result, indent=4))
     return 0
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "snapshot", "restore"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "snapshot", "restore_point"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
