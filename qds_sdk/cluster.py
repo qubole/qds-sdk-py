@@ -431,7 +431,6 @@ class Cluster(Resource):
         Create hbase snapshot full/incremental
         """
         conn = Qubole.agent()
-        print parameters
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
     @classmethod
