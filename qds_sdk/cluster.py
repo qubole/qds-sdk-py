@@ -426,19 +426,71 @@ class Cluster(Resource):
         return conn.delete(cls.element_path(cluster_id_label))
 
     @classmethod
-    def snapshot(cls, cluster_id_label, parameters):
+    def _parse_snapshot(cls, args):
+        """
+        Parse command line arguments for snapshot command.
+        """
+        argparser = ArgumentParser(prog="snapshot")
+        
+        group = argparser.add_mutually_exclusive_group(required=True)
+        group.add_argument("--id", dest="cluster_id",
+                          help="execute on cluster with this id")
+        group.add_argument("--label", dest="label",
+                          help="execute on cluster with this label")
+        argparser.add_argument("--s3_location",
+                          help="s3_location where backup is stored", required=True)
+        argparser.add_argument("--backup_type",
+                          help="backup_type: full/incremental, default is full")
+        
+        arguments = argparser.parse_args(args)
+        arguments.parameters=json.loads(arguments.parameters.strip())
+
+        return arguments
+
+    @classmethod
+    def snapshot(cls, cluster_id_label, s3_location, backup_type):
         """
         Create hbase snapshot full/incremental
         """
         conn = Qubole.agent()
+        parameters = {}
+        parameters['s3_location'] = s3_location
+        parameters['backup_type'] = backup_type
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
+    def _parse_restore_point(cls, args):
+        """
+        Parse command line arguments for restore command.
+        """
+        argparser = ArgumentParser(prog="restore_point")
+        
+        group = argparser.add_mutually_exclusive_group(required=True)
+        group.add_argument("--id", dest="cluster_id",
+                          help="execute on cluster with this id")
+        group.add_argument("--label", dest="label",
+                          help="execute on cluster with this label")
+        argparser.add_argument("--s3_location",
+                          help="s3_location where backup is stored", required=True)
+        argparser.add_argument("--backup_id",
+                          help="back_id from which restoration will be done", required=True)
+        argparser.add_argument("--table_names",
+                          help="table(s) which are to be restored", required=True)
+        
+        arguments = argparser.parse_args(args)
+        arguments.parameters=json.loads(arguments.parameters.strip())
+
+        return arguments
+
     @classmethod
-    def restore_point(cls, cluster_id_label, parameters):
+    def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names):
         """
         Restoring cluster from a given hbase snapshot id
         """
         conn = Qubole.agent()
+        parameters = {}
+        parameters['s3_location'] = s3_location
+        parameters['backup_id'] = backup_id
+        parameters['table_names'] = table_names
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
 
 class ClusterInfo():

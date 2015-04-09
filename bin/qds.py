@@ -43,7 +43,7 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  cluster <create|delete|update|list|start|terminate|status|reassign_label> [args .. ]\n"
+             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
@@ -327,14 +327,14 @@ def cluster_reassign_label_action(clusterclass, args):
     return 0
 
 def cluster_snapshot_action(clusterclass, args):
-    arguments = clusterclass._parse_cluster_manage_command(args)
-    result = clusterclass.snapshot(arguments.cluster_id or arguments.label, arguments.parameters)
+    arguments = clusterclass._parse_snapshot(args)
+    result = clusterclass.snapshot(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_type)
     print(json.dumps(result, indent=4))
     return 0
 
 def cluster_restore_point_action(clusterclass, args):
-    arguments = clusterclass._parse_cluster_manage_command(args)
-    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.parameters)
+    arguments = clusterclass._parse_restore_point(args)
+    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_id, arguments.table_names)
     print(json.dumps(result, indent=4))
     return 0
 
