@@ -454,7 +454,8 @@ class Cluster(Resource):
         conn = Qubole.agent()
         parameters = {}
         parameters['s3_location'] = s3_location
-        parameters['backup_type'] = backup_type
+        if backup_type:
+            parameters['backup_type'] = backup_type
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
     @classmethod
