@@ -443,7 +443,6 @@ class Cluster(Resource):
                           help="backup_type: full/incremental, default is full")
         
         arguments = argparser.parse_args(args)
-        arguments.parameters=json.loads(arguments.parameters.strip())
 
         return arguments
 
@@ -458,6 +457,7 @@ class Cluster(Resource):
         parameters['backup_type'] = backup_type
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
+    @classmethod
     def _parse_restore_point(cls, args):
         """
         Parse command line arguments for restore command.
@@ -477,7 +477,6 @@ class Cluster(Resource):
                           help="table(s) which are to be restored", required=True)
         
         arguments = argparser.parse_args(args)
-        arguments.parameters=json.loads(arguments.parameters.strip())
 
         return arguments
 
