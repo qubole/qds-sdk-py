@@ -1519,5 +1519,70 @@ class TestClusterClone(QdsCliTestCase):
                                                     }
                                                 })
 
+class TestClusterHbaseSnapshot(QdsCliTestCase):
+    
+    def test_snapshot(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--s3_location', 'myString', '--backup_type', 'full']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters':  {'s3_location':'myString', 'backup_type':'full'}})
+
+    def test_snapshot_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--s3_location', 'myString', '--backup_type', 'full']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_snapshot_with_no_s3_location(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--backup_type', 'full']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_snapshot_with_no_backup_type(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--s3_location', 'myString']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters':  {'s3_location':'myString'}})
+
+    def test_restore_point(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename'}})
+
+    def test_restore_point_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_restore_point_with_no_s3_location(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--backup_id', 'abcd', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_restore_point_with_no_backup_id(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234','--s3_location', 'myString', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_restore_point_with_no_table_names(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234','--s3_location', 'myString', '--backup_id', 'abcd']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 if __name__ == '__main__':
     unittest.main()
