@@ -353,28 +353,6 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
-    def _parse_cluster_manage_command(cls, args):
-        """
-        Parse command line arguments for cluster manage commands.
-        """
-        argparser = ArgumentParser(prog="cluster_manage_command")
-        group = argparser.add_mutually_exclusive_group(required=True)
-        group.add_argument("--id", dest="cluster_id",
-                          help="execute on cluster with this id")
-        group.add_argument("--label", dest="label",
-                          help="execute on cluster with this label")
-        argparser.add_argument("--parameters",
-                          help="optional parameters to the manage command")
-        argparser.add_argument("--private_dns",
-                          help="the private_dns of the machine to be updated/removed")
-        argparser.add_argument("--command",
-                          help="the update command to be executed")
-        arguments = argparser.parse_args(args)
-        arguments.parameters=json.loads(arguments.parameters.strip())
-
-        return arguments
-
-    @classmethod
     def clone(cls, cluster_id_label, cluster_info):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
@@ -426,11 +404,11 @@ class Cluster(Resource):
         return conn.delete(cls.element_path(cluster_id_label))
 
     @classmethod
-    def _parse_snapshot(cls, args):
+    def _parse_snapshot_restore_command(cls, args, action):
         """
         Parse command line arguments for snapshot command.
         """
-        argparser = ArgumentParser(prog="snapshot")
+        argparser = ArgumentParser(prog="cluster %s" % action)
         
         group = argparser.add_mutually_exclusive_group(required=True)
         group.add_argument("--id", dest="cluster_id",
@@ -439,8 +417,14 @@ class Cluster(Resource):
                           help="execute on cluster with this label")
         argparser.add_argument("--s3_location",
                           help="s3_location where backup is stored", required=True)
-        argparser.add_argument("--backup_type",
+        if action == "snapshot":
+            argparser.add_argument("--backup_type",
                           help="backup_type: full/incremental, default is full")
+        elif action == "restore_point":
+            argparser.add_argument("--backup_id",
+                          help="back_id from which restoration will be done", required=True)
+            argparser.add_argument("--table_names",
+                          help="table(s) which are to be restored", required=True)
         
         arguments = argparser.parse_args(args)
 
@@ -457,29 +441,6 @@ class Cluster(Resource):
         if backup_type:
             parameters['backup_type'] = backup_type
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
-
-    @classmethod
-    def _parse_restore_point(cls, args):
-        """
-        Parse command line arguments for restore command.
-        """
-        argparser = ArgumentParser(prog="restore_point")
-        
-        group = argparser.add_mutually_exclusive_group(required=True)
-        group.add_argument("--id", dest="cluster_id",
-                          help="execute on cluster with this id")
-        group.add_argument("--label", dest="label",
-                          help="execute on cluster with this label")
-        argparser.add_argument("--s3_location",
-                          help="s3_location where backup is stored", required=True)
-        argparser.add_argument("--backup_id",
-                          help="back_id from which restoration will be done", required=True)
-        argparser.add_argument("--table_names",
-                          help="table(s) which are to be restored", required=True)
-        
-        arguments = argparser.parse_args(args)
-
-        return arguments
 
     @classmethod
     def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names):

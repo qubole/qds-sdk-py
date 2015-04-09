@@ -1543,7 +1543,5 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
-
-
 if __name__ == '__main__':
     unittest.main()

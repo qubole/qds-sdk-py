@@ -327,13 +327,13 @@ def cluster_reassign_label_action(clusterclass, args):
     return 0
 
 def cluster_snapshot_action(clusterclass, args):
-    arguments = clusterclass._parse_snapshot(args)
+    arguments = clusterclass._parse_snapshot_restore_command(args, "snapshot")
     result = clusterclass.snapshot(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_type)
     print(json.dumps(result, indent=4))
     return 0
 
 def cluster_restore_point_action(clusterclass, args):
-    arguments = clusterclass._parse_restore_point(args)
+    arguments = clusterclass._parse_snapshot_restore_command(args, "restore_point")
     result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_id, arguments.table_names)
     print(json.dumps(result, indent=4))
     return 0
