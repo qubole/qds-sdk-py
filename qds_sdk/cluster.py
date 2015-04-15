@@ -425,9 +425,9 @@ class Cluster(Resource):
                           help="back_id from which restoration will be done", required=True)
             argparser.add_argument("--table_names",
                           help="table(s) which are to be restored", required=True)
-            argparser.add_argument("--overwrite", action="store_true",
+            argparser.add_argument("--overwrite", action="store_false",
                           help="With this option, restore overwrites to the existing table if theres any in restore target")
-            argparser.add_argument("--automatic", action="store_true",
+            argparser.add_argument("--automatic", action="store_false",
                           help="With this option, all the dependencies are automatically restored together with this backup image following the correct order")
         
         arguments = argparser.parse_args(args)
