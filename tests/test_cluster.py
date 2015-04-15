@@ -1515,6 +1515,28 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': True}})
 
+    def test_restore_point_no_overwrite(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-overwrite']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': False}})
+
+    def test_restore_point_no_automatic(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-automatic']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': True}})
+
+    def test_restore_point_no_overwrite_and_no_automatic(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-overwrite', '--no-automatic']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': False}})
+
+
     def test_restore_point_with_no_label(self):
         sys.argv = ['qds.py', 'cluster', 'restore_point', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
         print_command()
