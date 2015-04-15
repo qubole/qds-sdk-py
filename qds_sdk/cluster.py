@@ -425,6 +425,10 @@ class Cluster(Resource):
                           help="back_id from which restoration will be done", required=True)
             argparser.add_argument("--table_names",
                           help="table(s) which are to be restored", required=True)
+            argparser.add_argument("--overwrite", action="store_true",
+                          help="With this option, restore overwrites to the existing table if theres any in restore target")
+            argparser.add_argument("--automatic", action="store_true",
+                          help="With this option, all the dependencies are automatically restored together with this backup image following the correct order")
         
         arguments = argparser.parse_args(args)
 
@@ -443,7 +447,7 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
     @classmethod
-    def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names):
+    def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names, overwrite, automatic):
         """
         Restoring cluster from a given hbase snapshot id
         """
@@ -452,6 +456,8 @@ class Cluster(Resource):
         parameters['s3_location'] = s3_location
         parameters['backup_id'] = backup_id
         parameters['table_names'] = table_names
+        parameters['overwrite'] = overwrite
+        parameters['automatic'] = automatic
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
 
 class ClusterInfo():
