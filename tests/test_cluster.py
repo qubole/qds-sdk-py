@@ -1520,7 +1520,7 @@ class TestClusterClone(QdsCliTestCase):
                                                 })
 
 class TestClusterHbaseSnapshot(QdsCliTestCase):
-    
+
     def test_snapshot(self):
         sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--s3_location', 'myString', '--backup_type', 'full']
         print_command()
@@ -1582,6 +1582,56 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
+            qds.main()
+
+class TestClusterManageCommands(QdsCliTestCase):
+    def test_add_command(self):
+        sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/nodes', {'parameters' : {}})
+
+    def test_add_node_label_id_exclusivity(self):
+	sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--label', 'dummy_label']
+	print_command()
+        Connection._api_call = Mock(return_value={})
+	with self.assertRaises(SystemExit):
+	    qds.main()
+   
+    def test_add_node_with_private_dns(self):
+        sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--private_dns', 'test_dns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+	with self.assertRaises(SystemExit):
+	    qds.main()
+
+    def test_replace_command(self):
+        sys.argv = ['qds.py', 'cluster', 'update_node', '--id', '1234', '--command', 'replace','--private_dns', 'test_private_dns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/nodes', {'parameters' : {}, 'private_dns' : "test_private_dns", 'command' : "replace"})
+
+    def test_update(self):
+        sys.argv = ['qds.py', 'cluster', 'update_node', '--id', '1234', '--command', 'replace']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+	with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_remove_command(self):
+        sys.argv = ['qds.py', 'cluster', 'remove_node', '--id', '1234', '--private_dns', 'test_private_dns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with(r'DELETE', 'clusters/1234/nodes', {'parameters' : {}, 'private_dns' : "test_private_dns"})
+
+    def test_update(self):
+        sys.argv = ['qds.py', 'cluster', 'remove_node', '--id', '1234' ]
+        print_command()
+        Connection._api_call = Mock(return_value={})
+	with self.assertRaises(SystemExit):
             qds.main()
 
 if __name__ == '__main__':

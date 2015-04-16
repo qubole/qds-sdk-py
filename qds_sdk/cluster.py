@@ -374,6 +374,32 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
+    def _parse_cluster_manage_command(cls, args, action):
+      """
+      Parse command line arguments for cluster manage commands.
+      """
+
+      argparser = ArgumentParser(prog="cluster_manage_command")
+
+      group = argparser.add_mutually_exclusive_group(required=True)
+
+      group.add_argument("--id", dest="cluster_id",
+                           help="execute on cluster with this id")
+
+      group.add_argument("--label", dest="label",
+                           help="execute on cluster with this label")
+
+      if action == "remove" or action == "update":
+        argparser.add_argument("--private_dns",
+                           help="the private_dns of the machine to be updated/removed", required=True)
+      if action == "update":
+        argparser.add_argument("--command",
+                           help="the update command to be executed", required=True, choices=["replace"])
+
+      arguments = argparser.parse_args(args)
+      return arguments
+
+    @classmethod
     def _parse_reassign_label(cls, args):
         """
         Parse command line arguments for reassigning label.
@@ -421,7 +447,7 @@ class Cluster(Resource):
         Parse command line arguments for snapshot command.
         """
         argparser = ArgumentParser(prog="cluster %s" % action)
-        
+
         group = argparser.add_mutually_exclusive_group(required=True)
         group.add_argument("--id", dest="cluster_id",
                           help="execute on cluster with this id")
@@ -437,7 +463,7 @@ class Cluster(Resource):
                           help="back_id from which restoration will be done", required=True)
             argparser.add_argument("--table_names",
                           help="table(s) which are to be restored", required=True)
-        
+
         arguments = argparser.parse_args(args)
 
         return arguments
@@ -465,6 +491,35 @@ class Cluster(Resource):
         parameters['backup_id'] = backup_id
         parameters['table_names'] = table_names
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
+
+    @classmethod
+    def add_node(cls, cluster_id_label, parameters=None):
+	"""
+	Add a node to an existing cluster
+	"""
+	conn = Qubole.agent()
+	parameters = {} if not parameters else parameters
+	return conn.post(cls.element_path(cluster_id_label) + "/nodes", data={"parameters" : parameters})
+
+    @classmethod
+    def remove_node(cls, cluster_id_label, private_dns, parameters=None):
+        """
+        Add a node to an existing cluster
+        """
+        conn = Qubole.agent()
+        parameters = {} if not parameters else parameters
+        data = {"private_dns" : private_dns, "parameters" : parameters}
+        return conn.delete(cls.element_path(cluster_id_label) + "/nodes", data)
+
+    @classmethod
+    def update_node(cls, cluster_id_label, command, private_dns, parameters=None):
+        """
+        Add a node to an existing cluster
+        """
+        conn = Qubole.agent()
+        parameters = {} if not parameters else parameters
+        data = {"command" : command, "private_dns" : private_dns, "parameters" : parameters}
+        return conn.put(cls.element_path(cluster_id_label) + "/nodes", data)
 
 class ClusterInfo():
     """
