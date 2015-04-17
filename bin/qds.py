@@ -43,7 +43,7 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  cluster <create|delete|update|list|start|terminate|status|reassign_label> [args .. ]\n"
+             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
@@ -53,6 +53,8 @@ usage_str = ("Usage: \n"
              "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
              "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
              "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
+             "  snapshot [cmd-specific-args ..] : take snapshot of cluster\n" +
+             "  restore_point [cmd-specific-args ..] : restore cluster from snapshot\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
@@ -325,10 +327,21 @@ def cluster_reassign_label_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
+def cluster_snapshot_action(clusterclass, args):
+    arguments = clusterclass._parse_snapshot_restore_command(args, "snapshot")
+    result = clusterclass.snapshot(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_type)
+    print(json.dumps(result, indent=4))
+    return 0
+
+def cluster_restore_point_action(clusterclass, args):
+    arguments = clusterclass._parse_snapshot_restore_command(args, "restore_point")
+    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_id, arguments.table_names)
+    print(json.dumps(result, indent=4))
+    return 0
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "snapshot", "restore_point"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
