@@ -11,6 +11,8 @@ from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
+from qds_sdk.qbuckets import QbucketCmdLine
+from qds_sdk.qbucket_subscribers import QbucketSubscriberCmdLine
 
 import os
 import sys
@@ -358,6 +360,14 @@ def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
 
+def qbucketmain(args):
+    result = QbucketCmdLine.run(args)
+    print(result)
+
+def qbucketsubscribermain(args):
+    result = QbucketSubscriberCmdLine.run(args)
+    print(result)
+
 def rolemain(args):
     result = RoleCmdLine.run(args)
     print(result)
@@ -453,6 +463,12 @@ def main():
 
     if a0 == "dbtap":
         return dbtapmain(args)
+
+    if a0 == "qbucket":
+        return qbucketmain(args)
+
+    if a0 == "qbucket_subscriber":
+        return qbucketsubscribermain(args)
 
     if a0 == "group":
         return groupmain(args)
