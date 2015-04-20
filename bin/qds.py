@@ -13,6 +13,8 @@ from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
 from qds_sdk.qbuckets import QbucketCmdLine
 from qds_sdk.qbucket_subscribers import QbucketSubscriberCmdLine
+from qds_sdk.published_hivetables import PublishedHivetableCmdLine
+from qds_sdk.subscribed_hivetables import SubscribedHivetableCmdLine
 
 import os
 import sys
@@ -368,6 +370,14 @@ def qbucketsubscribermain(args):
     result = QbucketSubscriberCmdLine.run(args)
     print(result)
 
+def publishedhivetablemain(args):
+    result = PublishedHivetableCmdLine.run(args)
+    print(result)
+
+def subscribedhivetablemain(args):
+    result = PublishedHivetableCmdLine.run(args)
+    print(result)
+
 def rolemain(args):
     result = RoleCmdLine.run(args)
     print(result)
@@ -469,6 +479,12 @@ def main():
 
     if a0 == "qbucket_subscriber":
         return qbucketsubscribermain(args)
+
+    if a0 == "published_hivetable":
+        return publishedhivetablemain(args)
+
+    if a0 == "subscribed_hivetable":
+        return publishedhivetablemain(args)
 
     if a0 == "group":
         return groupmain(args)
