@@ -1593,12 +1593,12 @@ class TestClusterManageCommands(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'clusters/1234/nodes', {'parameters' : {}})
 
     def test_add_node_label_id_exclusivity(self):
-	sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--label', 'dummy_label']
-	print_command()
-        Connection._api_call = Mock(return_value={})
-	with self.assertRaises(SystemExit):
-	    qds.main()
-   
+        sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--label', 'dummy_label']
+        print_command()
+            Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
     def test_add_node_with_private_dns(self):
         sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--private_dns', 'test_dns']
         print_command()
