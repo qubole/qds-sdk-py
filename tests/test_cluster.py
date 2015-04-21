@@ -1603,8 +1603,8 @@ class TestClusterManageCommands(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--private_dns', 'test_dns']
         print_command()
         Connection._api_call = Mock(return_value={})
-	with self.assertRaises(SystemExit):
-	    qds.main()
+    with self.assertRaises(SystemExit):
+        qds.main()
 
     def test_replace_command(self):
         sys.argv = ['qds.py', 'cluster', 'update_node', '--id', '1234', '--command', 'replace','--private_dns', 'test_private_dns']
