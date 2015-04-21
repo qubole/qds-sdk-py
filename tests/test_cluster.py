@@ -1595,7 +1595,7 @@ class TestClusterManageCommands(QdsCliTestCase):
     def test_add_node_label_id_exclusivity(self):
         sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--label', 'dummy_label']
         print_command()
-            Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
