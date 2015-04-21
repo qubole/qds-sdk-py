@@ -1617,7 +1617,7 @@ class TestClusterManageCommands(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'update_node', '--id', '1234', '--command', 'replace']
         print_command()
         Connection._api_call = Mock(return_value={})
-    with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit):
             qds.main()
 
     def test_remove_command(self):
@@ -1631,7 +1631,7 @@ class TestClusterManageCommands(QdsCliTestCase):
         sys.argv = ['qds.py', 'cluster', 'remove_node', '--id', '1234' ]
         print_command()
         Connection._api_call = Mock(return_value={})
-    with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit):
             qds.main()
 
 if __name__ == '__main__':
