@@ -71,9 +71,9 @@ class PublishedHivetableCmdLine:
 
         # Delete
         delete = subparsers.add_parser("unpublish",
-                                       help="Delete a specific Qbucket Subscriber")
+                                       help="Unpublish a specific Published Hivetable")
         delete.add_argument("id",
-                            help="Numeric id of the Qbucket Subscriber")
+                            help="Numeric id of the Published Hivetable")
         delete.set_defaults(func=PublishedHivetableCmdLine.delete)
 
         return argparser
@@ -118,7 +118,7 @@ class PublishedHivetableCmdLine:
         return json.dumps(published_hivetable.delete(), sort_keys=True, indent=4)
 
 
-class PublishedHivetable:
+class PublishedHivetable(Resource):
     """
     qds_sdk.PublishedHivetable is the base Qubole PublishedHivetable class.
     """

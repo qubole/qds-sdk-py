@@ -375,7 +375,7 @@ def publishedhivetablemain(args):
     print(result)
 
 def subscribedhivetablemain(args):
-    result = PublishedHivetableCmdLine.run(args)
+    result = SubscribedHivetableCmdLine.run(args)
     print(result)
 
 def rolemain(args):
@@ -484,7 +484,7 @@ def main():
         return publishedhivetablemain(args)
 
     if a0 == "subscribed_hivetable":
-        return publishedhivetablemain(args)
+        return subscribedhivetablemain(args)
 
     if a0 == "group":
         return groupmain(args)
