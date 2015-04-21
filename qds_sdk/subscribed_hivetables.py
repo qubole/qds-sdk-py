@@ -59,6 +59,11 @@ class SubscribedHivetableCmdLine:
                           help="Numeric id of the Subscribed hivetable")
         view.set_defaults(func=SubscribedHivetableCmdLine.view)
 
+        # Available for subscription
+        available = subparsers.add_parser("available_subscription",
+                                          help="Get all available hivetables for subscribe")
+        available.set_defaults(func=SubscribedHivetableCmdLine.available)
+
         # Edit
         edit = subparsers.add_parser("edit",
                                      help="Edit a specific Subscribed hivetable")
@@ -96,8 +101,12 @@ class SubscribedHivetableCmdLine:
     @staticmethod
     def view(args):
         subscribed_hivetable = SubscribedHivetable.find(args.id)
-        print(subscribed_hivetable)
         return json.dumps(subscribed_hivetable.attributes, sort_keys=True, indent=4)
+
+    @staticmethod
+    def available(args):
+        subscribed_hivetable = SubscribedHivetable.available()
+        return json.dumps(subscribed_hivetable, sort_keys=True, indent=4)
 
     @staticmethod
     def edit(args):
@@ -124,6 +133,12 @@ class SubscribedHivetable(Resource):
     def list():
         conn = Qubole.agent()
         url_path = SubscribedHivetable.rest_entity_path
+        return conn.get(url_path)
+
+    @staticmethod
+    def available():
+        conn = Qubole.agent()
+        url_path = SubscribedHivetable.rest_entity_path + "/available"
         return conn.get(url_path)
 
     def edit(self, **kwargs):
