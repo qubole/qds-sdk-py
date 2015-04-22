@@ -80,13 +80,13 @@ class Connection:
         log.info("Params: %s" % params)
 
         if req_type == 'GET':
-            r = x.get(url, timeout=(30, 300), **kwargs)
+            r = x.get(url, timeout=300, **kwargs)
         elif req_type == 'POST':
-            r = x.post(url, timeout=(30, 300), **kwargs)
+            r = x.post(url, timeout=300, **kwargs)
         elif req_type == 'PUT':
-            r = x.put(url, timeout=(30, 300), **kwargs)
+            r = x.put(url, timeout=300, **kwargs)
         elif req_type == 'DELETE':
-            r = x.delete(url, timeout=(30, 300), **kwargs)
+            r = x.delete(url, timeout=300, **kwargs)
         else:
             raise NotImplemented
 
