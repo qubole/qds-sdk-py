@@ -447,7 +447,7 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
     @classmethod
-    def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names, overwrite, automatic):
+    def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names, overwrite=True, automatic=True):
         """
         Restoring cluster from a given hbase snapshot id
         """
