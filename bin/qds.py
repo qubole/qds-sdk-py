@@ -362,7 +362,6 @@ def cluster_update_node_action(clusterclass, args):
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "snapshot", "restore_point"])
     actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point"])
 
     if len(args) < 1:
