@@ -197,7 +197,11 @@ class Command(Resource):
                 #fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
                 for s3_path in r['result_location']:
-                    # In Python 3, in this case, `fp` should always be binary mode.
+                    # In Python 3,
+                    # If the delim is None, fp should be in binary mode because
+                    # boto expects it to be.
+                    # If the delim is not None, then both text and binary modes
+                    # work.
                     _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
             else:
                 fp.write(",".join(r['result_location']))
@@ -1040,7 +1044,17 @@ def _read_iteratively(key_instance, fp, delim):
         try:
             # Default buffer size is 8192 bytes
             data = next(key_instance)
-            fp.write(str(data).replace(chr(1), delim))
+            if sys.version_info < (3, 0, 0):
+                fp.write(str(data).replace(chr(1), delim))
+            else:
+                import io
+                if isinstance(fp, io.TextIOBase):
+                    fp.buffer.write(data.decode('utf-8').replace(chr(1), delim).encode('utf8'))
+                elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                    fp.write(data.decode('utf8').replace(chr(1), delim).encode('utf8'))
+                else:
+                    # Can this happen? Don't know what's the right thing to do in this case.
+                    pass
         except StopIteration:
             # Stream closes itself when the exception is raised
             return

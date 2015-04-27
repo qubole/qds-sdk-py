@@ -14,7 +14,7 @@ def retry(ExceptionToCheck, tries=4, delay=3, backoff=2):
                 try:
                     return f(*args, **kwargs)
                 except ExceptionToCheck as e:
-                    msg = "%s, Retrying in %d seconds..." % (ExceptionToCheck.__name__, mdelay)
+                    msg = "%s, Retrying in %d seconds..." % (e.__class__.__name__, mdelay)
                     log.info(msg)
                     time.sleep(mdelay)
                     mtries -= 1
