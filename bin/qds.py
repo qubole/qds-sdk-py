@@ -338,7 +338,7 @@ def cluster_snapshot_action(clusterclass, args):
 
 def cluster_restore_point_action(clusterclass, args):
     arguments = clusterclass._parse_snapshot_restore_command(args, "restore_point")
-    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_id, arguments.table_names)
+    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_id, arguments.table_names, arguments.no_overwrite, arguments.no_automatic)
     print(json.dumps(result, indent=4))
     return 0
 
