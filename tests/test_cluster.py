@@ -673,6 +673,40 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_use_spark(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-spark']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'use_spark': True}
+                    }
+                })
+
+    def test_use_spark_on_hadoop2(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-spark', '--use-hadoop2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_use_spark_on_hadoop1(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-spark', '--use-hadoop1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
     @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
     def test_conflict_hadoop21_hadoop2(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',

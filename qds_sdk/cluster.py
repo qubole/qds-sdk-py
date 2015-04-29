@@ -215,9 +215,7 @@ class Cluster(Resource):
                              action="store_false",
                              default=None,
                              help="Use hadoop1 instead of hadoop2. This is the default.")
-
-        spark = hadoop_group.add_mutually_exclusive_group()
-        spark.add_argument("--use-spark",
+        hadoop2.add_argument("--use-spark",
                            dest="use_spark",
                            action="store_true",
                            default=None,
