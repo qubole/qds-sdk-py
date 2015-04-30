@@ -689,6 +689,7 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
     def test_use_spark_on_hadoop2(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -698,6 +699,7 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
     def test_use_spark_on_hadoop1(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
