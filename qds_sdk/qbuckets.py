@@ -38,10 +38,8 @@ class QbucketCmdLine:
                                        help="Create a new qbucket")
         create.add_argument("--name", dest="name",
                             help="create qbucket with the this name")
-        create.add_argument("--path", dest="path",
+        create.add_argument("--uri", dest="uri",
                             help="create qbucket on this path")
-        create.add_argument("--object_store_type", dest="object_store_type", default="s3",
-                            help="create qbucket of this store type")
         create.add_argument("--acl", dest="acl", default="private",
                             help="create qbucket with this acl")
         create.set_defaults(func=QbucketCmdLine.create)
@@ -69,8 +67,7 @@ class QbucketCmdLine:
     @staticmethod
     def create(args):
         qbucket = Qbucket.create(name=args.name,
-                                 path=args.path,
-                                 object_store_type=args.object_store_type,
+                                 uri=args.uri,
                                  acl=args.acl)
 
         return json.dumps(qbucket.attributes, sort_keys=True, indent=4)

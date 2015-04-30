@@ -19,11 +19,11 @@ from test_base import QdsCliTestCase
 class TestQbucket(QdsCliTestCase):
 
     def test_create(self):
-        sys.argv = ['qds.py', 'qbucket', 'create', '--name', 'test_qbucket', '--path', 's3://dev.canopydata.com/unittest', '--acl', 'private', '--object_store_type', 's3']
+        sys.argv = ['qds.py', 'qbucket', 'create', '--name', 'test_qbucket', '--uri', 's3://dev.canopydata.com/unittest', '--acl', 'private']
         print_command()
         Connection._api_call = Mock(return_value={"qbuckets":[]})
         qds.main()
-        Connection._api_call.assert_called_with("POST", "qbuckets", {'name': 'test_qbucket', 'path': 's3://dev.canopydata.com/unittest', 'acl': 'private', 'object_store_type': 's3'})
+        Connection._api_call.assert_called_with("POST", "qbuckets", {'name': 'test_qbucket', 'uri': 's3://dev.canopydata.com/unittest', 'acl': 'private'})
 
     def test_list(self):
         sys.argv = ['qds.py', 'qbucket', 'list']
