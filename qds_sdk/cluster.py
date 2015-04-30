@@ -204,6 +204,18 @@ class Cluster(Resource):
                                   action="store_true", default=None,
                                   help="Use hbase on this cluster",)
 
+        hadoop2 = hadoop_group.add_mutually_exclusive_group()
+        hadoop2.add_argument("--use-hadoop2",
+                             dest="use_hadoop2",
+                             action="store_true",
+                             default=None,
+                             help="Use hadoop2 instead of hadoop1")
+        hadoop2.add_argument("--use-hadoop1",
+                             dest="use_hadoop2",
+                             action="store_false",
+                             default=None,
+                             help="Use hadoop1 instead of hadoop2. This is the default.")
+
         spot_group = argparser.add_argument_group("spot instance settings" +
                     " (valid only when slave-request-type is hybrid or spot)")
         spot_group.add_argument("--maximum-bid-price-percentage",
@@ -362,6 +374,32 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
+    def _parse_cluster_manage_command(cls, args, action):
+      """
+      Parse command line arguments for cluster manage commands.
+      """
+
+      argparser = ArgumentParser(prog="cluster_manage_command")
+
+      group = argparser.add_mutually_exclusive_group(required=True)
+
+      group.add_argument("--id", dest="cluster_id",
+                           help="execute on cluster with this id")
+
+      group.add_argument("--label", dest="label",
+                           help="execute on cluster with this label")
+
+      if action == "remove" or action == "update":
+        argparser.add_argument("--private_dns",
+                           help="the private_dns of the machine to be updated/removed", required=True)
+      if action == "update":
+        argparser.add_argument("--command",
+                           help="the update command to be executed", required=True, choices=["replace"])
+
+      arguments = argparser.parse_args(args)
+      return arguments
+
+    @classmethod
     def _parse_reassign_label(cls, args):
         """
         Parse command line arguments for reassigning label.
@@ -409,13 +447,14 @@ class Cluster(Resource):
         Parse command line arguments for snapshot command.
         """
         argparser = ArgumentParser(prog="cluster %s" % action)
-        
+
         group = argparser.add_mutually_exclusive_group(required=True)
         group.add_argument("--id", dest="cluster_id",
                           help="execute on cluster with this id")
         group.add_argument("--label", dest="label",
                           help="execute on cluster with this label")
-        argparser.add_argument("--s3_location",
+        if action == "snapshot" or action == "restore_point":
+            argparser.add_argument("--s3_location",
                           help="s3_location where backup is stored", required=True)
         if action == "snapshot":
             argparser.add_argument("--backup_type",
@@ -425,7 +464,11 @@ class Cluster(Resource):
                           help="back_id from which restoration will be done", required=True)
             argparser.add_argument("--table_names",
                           help="table(s) which are to be restored", required=True)
-        
+
+            argparser.add_argument("--no-overwrite", action="store_false",
+                          help="With this option, restore overwrites to the existing table if theres any in restore target")
+            argparser.add_argument("--no-automatic", action="store_false",
+                          help="With this option, all the dependencies are automatically restored together with this backup image following the correct order")
         arguments = argparser.parse_args(args)
 
         return arguments
@@ -443,7 +486,7 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
 
     @classmethod
-    def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names):
+    def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names, overwrite=True, automatic=True):
         """
         Restoring cluster from a given hbase snapshot id
         """
@@ -452,7 +495,54 @@ class Cluster(Resource):
         parameters['s3_location'] = s3_location
         parameters['backup_id'] = backup_id
         parameters['table_names'] = table_names
+        parameters['overwrite'] = overwrite
+        parameters['automatic'] = automatic
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
+    
+    @classmethod
+    def pause_snapshot(cls, cluster_id_label):
+        """
+        Restoring cluster from a given hbase snapshot id
+        """
+        conn = Qubole.agent()
+        return conn.put(cls.element_path(cluster_id_label) + "/pause_snapshot", data={})
+
+    @classmethod
+    def resume_snapshot(cls, cluster_id_label):
+        """
+        Restoring cluster from a given hbase snapshot id
+        """
+        conn = Qubole.agent()
+        return conn.put(cls.element_path(cluster_id_label) + "/resume_snapshot", data={})
+
+    @classmethod
+    def add_node(cls, cluster_id_label, parameters=None):
+      """
+      Add a node to an existing cluster
+      """
+      conn = Qubole.agent()
+      parameters = {} if not parameters else parameters
+      return conn.post(cls.element_path(cluster_id_label) + "/nodes", data={"parameters" : parameters})
+
+    @classmethod
+    def remove_node(cls, cluster_id_label, private_dns, parameters=None):
+        """
+        Add a node to an existing cluster
+        """
+        conn = Qubole.agent()
+        parameters = {} if not parameters else parameters
+        data = {"private_dns" : private_dns, "parameters" : parameters}
+        return conn.delete(cls.element_path(cluster_id_label) + "/nodes", data)
+
+    @classmethod
+    def update_node(cls, cluster_id_label, command, private_dns, parameters=None):
+        """
+        Add a node to an existing cluster
+        """
+        conn = Qubole.agent()
+        parameters = {} if not parameters else parameters
+        data = {"command" : command, "private_dns" : private_dns, "parameters" : parameters}
+        return conn.put(cls.element_path(cluster_id_label) + "/nodes", data)
 
 class ClusterInfo():
     """
@@ -527,7 +617,8 @@ class ClusterInfo():
                             custom_config=None,
                             slave_request_type=None,
                             use_hbase=None,
-                            custom_ec2_tags=None):
+                            custom_ec2_tags=None,
+                            use_hadoop2=None):
         """
         Kwargs:
 
@@ -548,6 +639,8 @@ class ClusterInfo():
             Valid values: "ondemand", "hybrid", "spot".
 
         `use_hbase`: Start hbase daemons on the cluster. Uses Hadoop2
+
+        `use_hadoop2`: Use hadoop2 in this cluster
         """
         self.hadoop_settings['master_instance_type'] = master_instance_type
         self.hadoop_settings['slave_instance_type'] = slave_instance_type
@@ -556,6 +649,7 @@ class ClusterInfo():
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['slave_request_type'] = slave_request_type
         self.hadoop_settings['use_hbase'] = use_hbase
+        self.hadoop_settings['use_hadoop2'] = use_hadoop2
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
