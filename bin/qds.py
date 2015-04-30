@@ -234,6 +234,11 @@ def _create_cluster_info(arguments):
                                      arguments.use_hbase,
                                      arguments.custom_ec2_tags,
                                      arguments.use_hadoop2)
+    cluster_info.set_hbase_backup_settings(arguments.frequency_num,
+                                            arguments.frequency_unit,
+                                            arguments.s3_location,
+                                            arguments.ttl,
+                                            arguments.ttl_hdfs)
 
     cluster_info.set_spot_instance_settings(
           arguments.maximum_bid_price_percentage,

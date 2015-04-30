@@ -895,6 +895,30 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_hbase_backup_settings(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--frequency-num', '5', '--frequency-unit', 'hours', '--s3-location', 's3://testing.com', 
+                '--ttl', '10', '--ttl-hdfs', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters', 
+            {'cluster': 
+                {'ec2_settings': 
+                    {'compute_secret_key': 'sak', 
+                    'compute_access_key': 'aki'}, 
+                'hbase_settings': 
+                    {'backup': 
+                        {'ttl_hdfs': '2', 
+                        's3_location': 's3://testing.com', 
+                        'frequency_unit': 'hours', 
+                        'frequency_num': 5, 
+                        'ttl': '10'}
+                    }, 
+                'label': ['test_label']
+                }
+            })
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -1501,6 +1525,30 @@ class TestClusterUpdate(QdsCliTestCase):
                                                         }
                                                     }
                                                 }})
+
+    def test_hbase_backup_settings(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--frequency-num', '5', '--frequency-unit', 'hours', '--s3-location', 's3://testing.com', 
+                '--ttl', '10', '--ttl-hdfs', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123', 
+            {'cluster': 
+                {'ec2_settings': 
+                    {'compute_secret_key': 'sak', 
+                    'compute_access_key': 'aki'}, 
+                'hbase_settings': 
+                    {'backup': 
+                        {'ttl_hdfs': '2', 
+                        's3_location': 's3://testing.com', 
+                        'frequency_unit': 'hours', 
+                        'frequency_num': 5, 
+                        'ttl': '10'}
+                    }
+                }
+            })
 
 
 class TestClusterClone(QdsCliTestCase):

@@ -204,6 +204,24 @@ class Cluster(Resource):
                                   action="store_true", default=None,
                                   help="Use hbase on this cluster",)
 
+        hbase_group = argparser.add_argument_group("hbase settings")
+        hbase_group.add_argument("--frequency-num",
+                                  dest="frequency_num",
+                                  type=int,
+                                  help="number of times to schedule backup")
+        hbase_group.add_argument("--frequency-unit",
+                                  dest="frequency_unit",
+                                  help="unit of frequency")
+        hbase_group.add_argument("--s3-location",
+                                  dest="s3_location",
+                                  help="location of where to store snapshot")
+        hbase_group.add_argument("--ttl",
+                                  dest="ttl",
+                                  help="ttl")
+        hbase_group.add_argument("--ttl-hdfs",
+                                  dest="ttl_hdfs",
+                                  help="ttl hdfs")
+
         hadoop2 = hadoop_group.add_mutually_exclusive_group()
         hadoop2.add_argument("--use-hadoop2",
                              dest="use_hadoop2",
@@ -587,6 +605,8 @@ class ClusterInfo():
         self.hadoop_settings = {}
         self.security_settings = {}
         self.presto_settings = {}
+        self.hbase_settings = {}
+        self.hbase_settings['backup'] = {}
 
     def set_ec2_settings(self,
                          aws_region=None,
@@ -656,6 +676,27 @@ class ClusterInfo():
                 self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
             except Exception as e:
                 raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
+
+    def set_hbase_backup_settings(self, frequency_num=None, frequency_unit=None, s3_location=None, ttl=None, ttl_hdfs=None):
+        """
+        Kwargs:
+
+        `frequency_num`: number of times to schedule the backup
+
+        `frequency_unit`: frequency unit like hours/minutes/week
+
+        `s3_location`: S3 location where snapshot is to be stored
+
+        `ttl`: ttl
+
+        `ttl_hdfs`: ttl-hdfs
+        """
+        self.hbase_settings['backup'] = {
+                  'frequency_unit' : frequency_unit,
+                  'frequency_num': frequency_num,
+                  's3_location': s3_location,
+                  'ttl': ttl,
+                  'ttl_hdfs': ttl_hdfs }
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
