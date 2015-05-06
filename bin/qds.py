@@ -15,6 +15,8 @@ from qds_sdk.qbuckets import QbucketCmdLine
 from qds_sdk.qbucket_subscribers import QbucketSubscriberCmdLine
 from qds_sdk.published_hivetables import PublishedHivetableCmdLine
 from qds_sdk.subscribed_hivetables import SubscribedHivetableCmdLine
+from qds_sdk.cloud_creds import CloudCredCmdLine
+from qds_sdk.cross_account_configs import CrossAccountConfigCmdLine
 
 import os
 import sys
@@ -378,6 +380,14 @@ def subscribedhivetablemain(args):
     result = SubscribedHivetableCmdLine.run(args)
     print(result)
 
+def cloudcredmain(args):
+    result = CloudCredCmdLine.run(args)
+    print(result)
+
+def crossaccountconfigmain(args):
+    result = CrossAccountConfigCmdLine.run(args)
+    print(result)
+
 def rolemain(args):
     result = RoleCmdLine.run(args)
     print(result)
@@ -485,6 +495,12 @@ def main():
 
     if a0 == "subscribed_hivetable":
         return subscribedhivetablemain(args)
+
+    if a0 == "cloud_cred":
+        return cloudcredmain(args)
+
+    if a0 == "cross_acc_config":
+        return crossaccountconfigmain(args)
 
     if a0 == "group":
         return groupmain(args)

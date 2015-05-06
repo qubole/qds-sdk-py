@@ -41,8 +41,6 @@ class SubscribedHivetableCmdLine:
                                        help="Subscribe a new hivetable")
         create.add_argument("--published_hivetable_id", dest="published_hivetable_id",
                             help="Numeric id of the hivetable to subscribe")
-        create.add_argument("--table_name", dest="table_name",
-                            help="Name of the hivetable to subscribe")
         create.add_argument("--schema_name", dest="schema_name", default="default",
                             help="Name of the schema")
         create.set_defaults(func=SubscribedHivetableCmdLine.create)
@@ -88,8 +86,7 @@ class SubscribedHivetableCmdLine:
 
     @staticmethod
     def create(args):
-        subscribed_hivetable = SubscribedHivetable.create(published_hivetable_id=args.qbucket_id,
-                                                          table_name=args.table_name,
+        subscribed_hivetable = SubscribedHivetable.create(published_hivetable_id=args.published_hivetable_id,
                                                           schema_name=args.schema_name)
         return json.dumps(subscribed_hivetable.attributes, sort_keys=True, indent=4)
 

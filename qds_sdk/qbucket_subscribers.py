@@ -41,10 +41,8 @@ class QbucketSubscriberCmdLine:
                                        help="Create a new qbucket subscriber")
         create.add_argument("--qbucket_id", dest="qbucket_id",
                             help="id of the qbucket for subscription")
-        create.add_argument("--storage_access_key", dest="storage_access_key",
-                            help="Access key of the qbucket")
-        create.add_argument("--storage_secret_key", dest="storage_secret_key",
-                            help="Secret key of the qbucket")
+        create.add_argument("--cross_account_config_id", dest="cross_account_config_id",
+                            help="Access keys of the qbucket")
         create.set_defaults(func=QbucketSubscriberCmdLine.create)
 
         # List
@@ -64,10 +62,8 @@ class QbucketSubscriberCmdLine:
                                      help="Edit a specific Qbucket Subscriber")
         edit.add_argument("id",
                           help="Numeric id of the Qbucket Subscriber")
-        edit.add_argument("--storage_access_key", dest="storage_access_key",
-                          help="Access key of the qbucket")
-        edit.add_argument("--storage_secret_key", dest="storage_secret_key",
-                          help="Secret key of the qbucket")
+        edit.add_argument("--cross_account_config_id", dest="cross_account_config_id",
+                          help="Access keys of the qbucket")
         edit.set_defaults(func=QbucketSubscriberCmdLine.edit)
 
         # Delete
@@ -88,8 +84,7 @@ class QbucketSubscriberCmdLine:
     @staticmethod
     def create(args):
         qbucket_subscriber = QbucketSubscriber.create(qbucket_id=args.qbucket_id,
-                                                      storage_access_key=args.storage_access_key,
-                                                      storage_secret_key=args.storage_secret_key)
+                                                      cross_account_config_id=args.cross_account_config_id)
         return json.dumps(qbucket_subscriber.attributes, sort_keys=True, indent=4)
 
     @staticmethod
@@ -105,11 +100,7 @@ class QbucketSubscriberCmdLine:
     @staticmethod
     def edit(args):
         qbucket_subscriber = QbucketSubscriber.find(args.id)
-        options = {}
-        if args.storage_access_key is not None:
-            options["storage_access_key"] = args.storage_access_key
-        if args.storage_secret_key is not None:
-            options["storage_secret_key"]=args.storage_secret_key
+        options = {'cross_account_config_id': args.cross_account_config_id}
         qbucket_subscriber = qbucket_subscriber.edit(**options)
         return json.dumps(qbucket_subscriber.attributes, sort_keys=True, indent=4)
 
