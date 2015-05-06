@@ -920,6 +920,36 @@ class TestClusterCreate(QdsCliTestCase):
                 }
             })
 
+    def test_hbase_backup_settings_with_no_frequency_unit(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--frequency-num', '5', '--s3-location', 's3://testing.com', 
+                '--ttl', '10', '--ttl-hdfs', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_hbase_backup_settings_with_no_frequency_num(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--frequency-unit', 'hours', '--s3-location', 's3://testing.com', 
+                '--ttl', '10', '--ttl-hdfs', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_hbase_backup_settings_with_no_s3_location(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--frequency-num', '5', '--frequency-unit', 'hours',
+                '--ttl', '10', '--ttl-hdfs', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123']
@@ -1549,7 +1579,6 @@ class TestClusterUpdate(QdsCliTestCase):
                     }
                 }
             })
-
 
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):

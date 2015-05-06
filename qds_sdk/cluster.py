@@ -207,13 +207,16 @@ class Cluster(Resource):
         hbase_group = argparser.add_argument_group("hbase settings")
         hbase_group.add_argument("--frequency-num",
                                   dest="frequency_num",
+                                  required=create_required,
                                   type=int,
                                   help="number of times to schedule backup")
         hbase_group.add_argument("--frequency-unit",
                                   dest="frequency_unit",
+                                  required=create_required,
                                   help="unit of frequency")
         hbase_group.add_argument("--s3-location",
                                   dest="s3_location",
+                                  required=create_required,
                                   help="location of where to store snapshot")
         hbase_group.add_argument("--ttl",
                                   dest="ttl",
@@ -677,15 +680,15 @@ class ClusterInfo():
             except Exception as e:
                 raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
-    def set_hbase_backup_settings(self, frequency_num=None, frequency_unit=None, s3_location=None, ttl=None, ttl_hdfs=None):
+    def set_hbase_backup_settings(self, frequency_num, frequency_unit, s3_location, ttl=None, ttl_hdfs=None):
         """
         Kwargs:
 
-        `frequency_num`: number of times to schedule the backup
+        `frequency_num`: number of times to schedule the backup, required
 
-        `frequency_unit`: frequency unit like hours/minutes/week
+        `frequency_unit`: frequency unit like hours/minutes/week, required
 
-        `s3_location`: S3 location where snapshot is to be stored
+        `s3_location`: S3 location where snapshot is to be stored, required
 
         `ttl`: ttl
 
