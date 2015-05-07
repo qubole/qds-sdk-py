@@ -43,7 +43,7 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|pause_snapshot|resume_snapshot|add_node|remove_node|update_node> [args .. ]\n"
+             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|snapshots|add_node|remove_node|update_node> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
@@ -58,6 +58,7 @@ usage_str = ("Usage: \n"
              "  add_node [cmd-specific-args ..] : add a node to existing cluster\n" +
              "  remove_node [cmd-specific-args ..] : remove a node to existing cluster\n" +
              "  update_node [cmd-specific-args ..] : update a node on a existing cluster\n" +
+             "  snapshots [cmd-specific-args ..] : pause or resume snapshots based on parameter passed\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
@@ -234,12 +235,7 @@ def _create_cluster_info(arguments):
                                      arguments.use_hbase,
                                      arguments.custom_ec2_tags,
                                      arguments.use_hadoop2)
-    cluster_info.set_hbase_backup_settings(arguments.frequency_num,
-                                            arguments.frequency_unit,
-                                            arguments.s3_location,
-                                            arguments.ttl,
-                                            arguments.ttl_hdfs)
-
+    
     cluster_info.set_spot_instance_settings(
           arguments.maximum_bid_price_percentage,
           arguments.timeout_for_request,
@@ -347,15 +343,15 @@ def cluster_restore_point_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_pause_snapshot_action(clusterclass, args):
-    arguments = clusterclass._parse_snapshot_restore_command(args, "pause_snapshot")
-    result = clusterclass.pause_snapshot(arguments.cluster_id or arguments.label)
+def cluster_snapshots_action(clusterclass, args):
+    arguments = clusterclass._parse_snapshot_restore_command(args, "snapshots")
+    result = clusterclass.snapshots(arguments.cluster_id or arguments.label, arguments.status)
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_resume_snapshot_action(clusterclass, args):
-    arguments = clusterclass._parse_snapshot_restore_command(args, "resume_snapshot")
-    result = clusterclass.resume_snapshot(arguments.cluster_id or arguments.label)
+def cluster_snapshot_schedule_action(clusterclass, args):
+    arguments = clusterclass._parse_snapshot_schedule(args)
+    result = clusterclass.snapshot_schedule(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.frequency_unit, arguments.frequency_num)
     print(json.dumps(result, indent=4))
     return 0
 
@@ -379,7 +375,7 @@ def cluster_update_node_action(clusterclass, args):
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "pause_snapshot", "resume_snapshot"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "snapshots", "snapshot_schedule"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")

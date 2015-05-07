@@ -895,61 +895,6 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
-    def test_hbase_backup_settings(self):
-        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
-                '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                '--frequency-num', '5', '--frequency-unit', 'hours', '--s3-location', 's3://testing.com', 
-                '--ttl', '10', '--ttl-hdfs', '2']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters', 
-            {'cluster': 
-                {'ec2_settings': 
-                    {'compute_secret_key': 'sak', 
-                    'compute_access_key': 'aki'}, 
-                'hbase_settings': 
-                    {'backup': 
-                        {'ttl_hdfs': '2', 
-                        's3_location': 's3://testing.com', 
-                        'frequency_unit': 'hours', 
-                        'frequency_num': 5, 
-                        'ttl': '10'}
-                    }, 
-                'label': ['test_label']
-                }
-            })
-
-    def test_hbase_backup_settings_with_no_frequency_unit(self):
-        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
-                '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                '--frequency-num', '5', '--s3-location', 's3://testing.com', 
-                '--ttl', '10', '--ttl-hdfs', '2']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        with self.assertRaises(SystemExit):
-            qds.main()
-
-    def test_hbase_backup_settings_with_no_frequency_num(self):
-        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
-                '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                '--frequency-unit', 'hours', '--s3-location', 's3://testing.com', 
-                '--ttl', '10', '--ttl-hdfs', '2']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        with self.assertRaises(SystemExit):
-            qds.main()
-
-    def test_hbase_backup_settings_with_no_s3_location(self):
-        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
-                '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                '--frequency-num', '5', '--frequency-unit', 'hours',
-                '--ttl', '10', '--ttl-hdfs', '2']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        with self.assertRaises(SystemExit):
-            qds.main()
-
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123']
@@ -1556,30 +1501,6 @@ class TestClusterUpdate(QdsCliTestCase):
                                                     }
                                                 }})
 
-    def test_hbase_backup_settings(self):
-        sys.argv = ['qds.py', 'cluster', 'update', '123',
-                '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                '--frequency-num', '5', '--frequency-unit', 'hours', '--s3-location', 's3://testing.com', 
-                '--ttl', '10', '--ttl-hdfs', '2']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        qds.main()
-        Connection._api_call.assert_called_with('PUT', 'clusters/123', 
-            {'cluster': 
-                {'ec2_settings': 
-                    {'compute_secret_key': 'sak', 
-                    'compute_access_key': 'aki'}, 
-                'hbase_settings': 
-                    {'backup': 
-                        {'ttl_hdfs': '2', 
-                        's3_location': 's3://testing.com', 
-                        'frequency_unit': 'hours', 
-                        'frequency_num': 5, 
-                        'ttl': '10'}
-                    }
-                }
-            })
-
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'clone', '1234', '--label', 'test_label1', 'test_label2' ]
@@ -1682,42 +1603,55 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
-    def test_pause_snapshot(self):
-        sys.argv = ['qds.py', 'cluster', 'pause_snapshot', '--label', '1234']
+    def test_snapshots_with_suspended(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshots', '--label', '1234', '--status', 'SUSPENDED']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('PUT', 'clusters/1234/pause_snapshot', {})
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshots', {"status":"SUSPENDED"})
 
-    def test_pause_snapshot_with_no_label(self):
-        sys.argv = ['qds.py', 'cluster', 'pause_snapshot']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        with self.assertRaises(SystemExit):
-            qds.main()
-
-    def test_resume_snapshot(self):
-        sys.argv = ['qds.py', 'cluster', 'resume_snapshot', '--label', '1234']
+    def test_snapshots_with_running(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshots', '--label', '1234', '--status', 'RUNNING']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('PUT', 'clusters/1234/resume_snapshot', {})
-
-    def test_resume_snapshot_with_no_label(self):
-        sys.argv = ['qds.py', 'cluster', 'resume_snapshot']
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshots', {"status":"RUNNING"})
+    
+    def test_snapshots_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshots', '--status', 'SUSPENDED']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
-    def test_pause_snapshot_label_id_exclusivity(self):
-        sys.argv = ['qds.py', 'cluster', 'pause_snapshot', '--label', 'default', '--id', '1234']
+    def test_snapshots_with_no_status(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshots', '--label', '1234']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
-
+    def test_get_snapshot_schedule(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'clusters/1234/snapshot_schedule', params=None)
+    
+    def test_snapshot_schedule_with_s3_location(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--s3-location', 'mysite.com']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshot_schedule', {"s3_location":"mysite.com"})
+    
+    def test_update_snapshot_schedule(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--s3-location', 'mysite.com', '--frequency-unit', 'days', '--frequency-num', '30']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshot_schedule', {"s3_location":"mysite.com", "frequency_num":"30", "frequency_unit":"days"})
+    
 class TestClusterManageCommands(QdsCliTestCase):
     def test_add_command(self):
         sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234']

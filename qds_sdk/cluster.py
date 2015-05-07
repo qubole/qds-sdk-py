@@ -204,27 +204,6 @@ class Cluster(Resource):
                                   action="store_true", default=None,
                                   help="Use hbase on this cluster",)
 
-        hbase_group = argparser.add_argument_group("hbase settings")
-        hbase_group.add_argument("--frequency-num",
-                                  dest="frequency_num",
-                                  required=create_required,
-                                  type=int,
-                                  help="number of times to schedule backup")
-        hbase_group.add_argument("--frequency-unit",
-                                  dest="frequency_unit",
-                                  required=create_required,
-                                  help="unit of frequency")
-        hbase_group.add_argument("--s3-location",
-                                  dest="s3_location",
-                                  required=create_required,
-                                  help="location of where to store snapshot")
-        hbase_group.add_argument("--ttl",
-                                  dest="ttl",
-                                  help="ttl")
-        hbase_group.add_argument("--ttl-hdfs",
-                                  dest="ttl_hdfs",
-                                  help="ttl hdfs")
-
         hadoop2 = hadoop_group.add_mutually_exclusive_group()
         hadoop2.add_argument("--use-hadoop2",
                              dest="use_hadoop2",
@@ -474,9 +453,14 @@ class Cluster(Resource):
                           help="execute on cluster with this id")
         group.add_argument("--label", dest="label",
                           help="execute on cluster with this label")
+
+
         if action == "snapshot" or action == "restore_point":
             argparser.add_argument("--s3_location",
                           help="s3_location where backup is stored", required=True)
+        elif action == "snapshots":
+            argparser.add_argument("--status",
+                          help="status of periodic job you want to change to", required=True)
         if action == "snapshot":
             argparser.add_argument("--backup_type",
                           help="backup_type: full/incremental, default is full")
@@ -490,6 +474,29 @@ class Cluster(Resource):
                           help="With this option, restore overwrites to the existing table if theres any in restore target")
             argparser.add_argument("--no-automatic", action="store_false",
                           help="With this option, all the dependencies are automatically restored together with this backup image following the correct order")
+        arguments = argparser.parse_args(args)
+
+        return arguments
+
+    @classmethod
+    def _parse_snapshot_schedule(cls, args):
+        """
+        Parse command line arguments for updating hbase snapshot schedule or to get details.
+        """
+        argparser = ArgumentParser(prog="cluster snapshot_schedule")
+
+        group = argparser.add_mutually_exclusive_group(required=True)
+        group.add_argument("--id", dest="cluster_id",
+                          help="execute on cluster with this id")
+        group.add_argument("--label", dest="label",
+                          help="execute on cluster with this label")
+
+        argparser.add_argument("--frequency-num",
+                          help="frequency number")
+        argparser.add_argument("--frequency-unit",
+                          help="frequency unit")
+        argparser.add_argument("--s3-location",
+                          help="s3_location about where to store snapshots")
         arguments = argparser.parse_args(args)
 
         return arguments
@@ -521,20 +528,33 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
     
     @classmethod
-    def pause_snapshot(cls, cluster_id_label):
+    def snapshots(cls, cluster_id_label, status):
         """
-        Restoring cluster from a given hbase snapshot id
-        """
+        Resuming/Pausing a hbase snapshot periodic job        """
         conn = Qubole.agent()
-        return conn.put(cls.element_path(cluster_id_label) + "/pause_snapshot", data={})
+        return conn.put(cls.element_path(cluster_id_label) + "/snapshots", data={"status":status})
 
     @classmethod
-    def resume_snapshot(cls, cluster_id_label):
+    def snapshot_schedule(cls, cluster_id_label, s3_location=None, frequency_unit=None, frequency_num=None):
         """
-        Restoring cluster from a given hbase snapshot id
+        Either update or get details for snapshot schedule
         """
         conn = Qubole.agent()
-        return conn.put(cls.element_path(cluster_id_label) + "/resume_snapshot", data={})
+        
+        if (s3_location == None) and (frequency_num == None) and (frequency_unit == None):
+            return conn.get(cls.element_path(cluster_id_label) + "/snapshot_schedule")
+
+        data = {}
+        if s3_location != None:
+            data["s3_location"] = s3_location
+        if frequency_unit != None:
+            data["frequency_unit"] = frequency_unit
+        if frequency_num != None:
+            data["frequency_num"] = frequency_num
+        
+        return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data)        
+
+
 
     @classmethod
     def add_node(cls, cluster_id_label, parameters=None):
@@ -608,8 +628,6 @@ class ClusterInfo():
         self.hadoop_settings = {}
         self.security_settings = {}
         self.presto_settings = {}
-        self.hbase_settings = {}
-        self.hbase_settings['backup'] = {}
 
     def set_ec2_settings(self,
                          aws_region=None,
@@ -679,27 +697,6 @@ class ClusterInfo():
                 self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
             except Exception as e:
                 raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
-
-    def set_hbase_backup_settings(self, frequency_num, frequency_unit, s3_location, ttl=None, ttl_hdfs=None):
-        """
-        Kwargs:
-
-        `frequency_num`: number of times to schedule the backup, required
-
-        `frequency_unit`: frequency unit like hours/minutes/week, required
-
-        `s3_location`: S3 location where snapshot is to be stored, required
-
-        `ttl`: ttl
-
-        `ttl_hdfs`: ttl-hdfs
-        """
-        self.hbase_settings['backup'] = {
-                  'frequency_unit' : frequency_unit,
-                  'frequency_num': frequency_num,
-                  's3_location': s3_location,
-                  'ttl': ttl,
-                  'ttl_hdfs': ttl_hdfs }
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
