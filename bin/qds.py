@@ -43,7 +43,7 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|snapshots|add_node|remove_node|update_node> [args .. ]\n"
+             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|snapshots|add_node|remove_node|update_node|snapshot_schedule> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
@@ -59,6 +59,7 @@ usage_str = ("Usage: \n"
              "  remove_node [cmd-specific-args ..] : remove a node to existing cluster\n" +
              "  update_node [cmd-specific-args ..] : update a node on a existing cluster\n" +
              "  snapshots [cmd-specific-args ..] : pause or resume snapshots based on parameter passed\n" +
+             "  snapshot_schedule [cmd-specific-args ..] : get or update details of bakup running on hbase cluster\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
