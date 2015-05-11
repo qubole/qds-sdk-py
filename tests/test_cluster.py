@@ -1625,6 +1625,13 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_snapshot_schedule_with_kill(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--status', 'KILL']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
     def test_get_snapshot_schedule(self):
         sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234']
         print_command()
