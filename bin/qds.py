@@ -43,7 +43,7 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|add_node|remove_node|update_node> [args .. ]\n"
+             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|add_node|remove_node|update_node|snapshot_schedule> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
@@ -58,6 +58,7 @@ usage_str = ("Usage: \n"
              "  add_node [cmd-specific-args ..] : add a node to existing cluster\n" +
              "  remove_node [cmd-specific-args ..] : remove a node to existing cluster\n" +
              "  update_node [cmd-specific-args ..] : update a node on a existing cluster\n" +
+             "  snapshot_schedule [cmd-specific-args ..] : get or update details of bakup running on hbase cluster\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
              "\nReportArgs:\n" +
@@ -343,6 +344,12 @@ def cluster_restore_point_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
+def cluster_snapshot_schedule_action(clusterclass, args):
+    arguments = clusterclass._parse_snapshot_schedule(args)
+    result = clusterclass.snapshot_schedule(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.frequency_unit, arguments.frequency_num, arguments.status)
+    print(json.dumps(result, indent=4))
+    return 0
+
 def cluster_add_node_action(clusterclass, args):
     arguments = clusterclass._parse_cluster_manage_command(args, action = "add")
     result = clusterclass.add_node(arguments.cluster_id or arguments.label)
@@ -363,7 +370,7 @@ def cluster_update_node_action(clusterclass, args):
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "snapshot_schedule"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
