@@ -453,12 +453,8 @@ class Cluster(Resource):
                           help="execute on cluster with this id")
         group.add_argument("--label", dest="label",
                           help="execute on cluster with this label")
-
-
-        if action == "snapshot" or action == "restore_point":
-            argparser.add_argument("--s3_location",
+        argparser.add_argument("--s3_location",
                           help="s3_location where backup is stored", required=True)
-
         if action == "snapshot":
             argparser.add_argument("--backup_type",
                           help="backup_type: full/incremental, default is full")
@@ -496,7 +492,7 @@ class Cluster(Resource):
         argparser.add_argument("--s3-location",
                           help="s3_location about where to store snapshots")
         argparser.add_argument("--status",
-                          help="status of periodic job you want to change to")
+                          help="status of periodic job you want to change to", choices = ["RUNNING", "SUSPENDED"])
         arguments = argparser.parse_args(args)
 
         return arguments
@@ -534,9 +530,7 @@ class Cluster(Resource):
         """
         conn = Qubole.agent()
 
-        if status != None:
-            return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data={"status": status})
-        elif (s3_location == None) and (frequency_num == None) and (frequency_unit == None):
+        if (s3_location == None) and (frequency_num == None) and (frequency_unit == None) and (status == None):
             return conn.get(cls.element_path(cluster_id_label) + "/snapshot_schedule")
 
         data = {}
@@ -546,7 +540,8 @@ class Cluster(Resource):
             data["frequency_unit"] = frequency_unit
         if frequency_num != None:
             data["frequency_num"] = frequency_num
-        
+        if status != None:
+            data["status"] = status
         return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data)
 
 

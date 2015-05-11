@@ -895,6 +895,7 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123']
@@ -1501,6 +1502,7 @@ class TestClusterUpdate(QdsCliTestCase):
                                                     }
                                                 }})
 
+
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'clone', '1234', '--label', 'test_label1', 'test_label2' ]
@@ -1518,7 +1520,6 @@ class TestClusterClone(QdsCliTestCase):
                                                 })
 
 class TestClusterHbaseSnapshot(QdsCliTestCase):
-
     def test_snapshot(self):
         sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--s3_location', 'myString', '--backup_type', 'full']
         print_command()
