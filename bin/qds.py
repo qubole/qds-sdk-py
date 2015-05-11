@@ -43,7 +43,7 @@ usage_str = ("Usage: \n"
              "  getresult <id> : get the results for the cmd with this Id\n"
              "  getlog <id> : get the logs for the cmd with this Id\n"
              "\nClusterArgs:\n" +
-             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|snapshots|add_node|remove_node|update_node|snapshot_schedule> [args .. ]\n"
+             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|add_node|remove_node|update_node|snapshot_schedule> [args .. ]\n"
              "  create [cmd-specific-args ..] : create a new cluster\n"
              "  delete [cmd-specific-args ..] : delete an existing cluster\n"
              "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
@@ -58,7 +58,6 @@ usage_str = ("Usage: \n"
              "  add_node [cmd-specific-args ..] : add a node to existing cluster\n" +
              "  remove_node [cmd-specific-args ..] : remove a node to existing cluster\n" +
              "  update_node [cmd-specific-args ..] : update a node on a existing cluster\n" +
-             "  snapshots [cmd-specific-args ..] : pause or resume snapshots based on parameter passed\n" +
              "  snapshot_schedule [cmd-specific-args ..] : get or update details of bakup running on hbase cluster\n" +
              "\nDbTap:\n" +
              "  dbtap --help\n" +
@@ -344,15 +343,9 @@ def cluster_restore_point_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_snapshots_action(clusterclass, args):
-    arguments = clusterclass._parse_snapshot_restore_command(args, "snapshots")
-    result = clusterclass.snapshots(arguments.cluster_id or arguments.label, arguments.status)
-    print(json.dumps(result, indent=4))
-    return 0
-
 def cluster_snapshot_schedule_action(clusterclass, args):
     arguments = clusterclass._parse_snapshot_schedule(args)
-    result = clusterclass.snapshot_schedule(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.frequency_unit, arguments.frequency_num)
+    result = clusterclass.snapshot_schedule(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.frequency_unit, arguments.frequency_num, arguments.status)
     print(json.dumps(result, indent=4))
     return 0
 
@@ -376,7 +369,7 @@ def cluster_update_node_action(clusterclass, args):
 
 def clustermain(args):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "snapshots", "snapshot_schedule"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "snapshot_schedule"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")

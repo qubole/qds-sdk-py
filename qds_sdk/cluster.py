@@ -458,9 +458,7 @@ class Cluster(Resource):
         if action == "snapshot" or action == "restore_point":
             argparser.add_argument("--s3_location",
                           help="s3_location where backup is stored", required=True)
-        elif action == "snapshots":
-            argparser.add_argument("--status",
-                          help="status of periodic job you want to change to", required=True)
+
         if action == "snapshot":
             argparser.add_argument("--backup_type",
                           help="backup_type: full/incremental, default is full")
@@ -497,6 +495,8 @@ class Cluster(Resource):
                           help="frequency unit")
         argparser.add_argument("--s3-location",
                           help="s3_location about where to store snapshots")
+        argparser.add_argument("--status",
+                          help="status of periodic job you want to change to")
         arguments = argparser.parse_args(args)
 
         return arguments
@@ -526,22 +526,17 @@ class Cluster(Resource):
         parameters['overwrite'] = overwrite
         parameters['automatic'] = automatic
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
-    
-    @classmethod
-    def snapshots(cls, cluster_id_label, status):
-        """
-        Resuming/Pausing a hbase snapshot periodic job        """
-        conn = Qubole.agent()
-        return conn.put(cls.element_path(cluster_id_label) + "/snapshots", data={"status":status})
 
     @classmethod
-    def snapshot_schedule(cls, cluster_id_label, s3_location=None, frequency_unit=None, frequency_num=None):
+    def snapshot_schedule(cls, cluster_id_label, s3_location=None, frequency_unit=None, frequency_num=None, status=None):
         """
         Either update or get details for snapshot schedule
         """
         conn = Qubole.agent()
-        
-        if (s3_location == None) and (frequency_num == None) and (frequency_unit == None):
+
+        if status != None:
+            return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data={"status": status})
+        elif (s3_location == None) and (frequency_num == None) and (frequency_unit == None):
             return conn.get(cls.element_path(cluster_id_label) + "/snapshot_schedule")
 
         data = {}
@@ -552,7 +547,7 @@ class Cluster(Resource):
         if frequency_num != None:
             data["frequency_num"] = frequency_num
         
-        return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data)        
+        return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data)
 
 
 

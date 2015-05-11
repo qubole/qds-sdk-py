@@ -1603,29 +1603,22 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
-    def test_snapshots_with_suspended(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshots', '--label', '1234', '--status', 'SUSPENDED']
+    def test_snapshot_schedule_with_suspended(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--status', 'SUSPENDED']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshots', {"status":"SUSPENDED"})
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshot_schedule', {"status":"SUSPENDED"})
 
-    def test_snapshots_with_running(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshots', '--label', '1234', '--status', 'RUNNING']
+    def test_snapshot_schedule_with_running(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--status', 'RUNNING']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshots', {"status":"RUNNING"})
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshot_schedule', {"status":"RUNNING"})
     
-    def test_snapshots_with_no_label(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshots', '--status', 'SUSPENDED']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        with self.assertRaises(SystemExit):
-            qds.main()
-
-    def test_snapshots_with_no_status(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshots', '--label', '1234']
+    def test_snapshot_schedule_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--status', 'SUSPENDED']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
