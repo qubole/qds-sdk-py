@@ -1605,49 +1605,56 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
             qds.main()
 
     def test_snapshot_schedule_with_suspended(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--status', 'SUSPENDED']
+        sys.argv = ['qds.py', 'cluster', 'update_snapshot_schedule', '--label', '1234', '--status', 'SUSPENDED']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshot_schedule', {"status":"SUSPENDED"})
 
     def test_snapshot_schedule_with_running(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--status', 'RUNNING']
+        sys.argv = ['qds.py', 'cluster', 'update_snapshot_schedule', '--label', '1234', '--status', 'RUNNING']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshot_schedule', {"status":"RUNNING"})
     
-    def test_snapshot_schedule_with_no_label(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--status', 'SUSPENDED']
+    def test_update_snapshot_schedule_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'update_snapshot_schedule', '--status', 'SUSPENDED']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_snapshot_schedule_with_kill(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--status', 'KILL']
+        sys.argv = ['qds.py', 'cluster', 'update_snapshot_schedule', '--label', '1234', '--status', 'KILL']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_get_snapshot_schedule_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'get_snapshot_schedule']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
 
     def test_get_snapshot_schedule(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234']
+        sys.argv = ['qds.py', 'cluster', 'get_snapshot_schedule', '--label', '1234']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters/1234/snapshot_schedule', params=None)
     
     def test_snapshot_schedule_with_s3_location(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--s3-location', 'mysite.com']
+        sys.argv = ['qds.py', 'cluster', 'update_snapshot_schedule', '--label', '1234', '--s3-location', 'mysite.com']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/1234/snapshot_schedule', {"s3_location":"mysite.com"})
     
     def test_update_snapshot_schedule(self):
-        sys.argv = ['qds.py', 'cluster', 'snapshot_schedule', '--label', '1234', '--s3-location', 'mysite.com', '--frequency-unit', 'days', '--frequency-num', '30']
+        sys.argv = ['qds.py', 'cluster', 'update_snapshot_schedule', '--label', '1234', '--s3-location', 'mysite.com', '--frequency-unit', 'days', '--frequency-num', '30']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()

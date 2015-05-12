@@ -473,7 +473,23 @@ class Cluster(Resource):
         return arguments
 
     @classmethod
-    def _parse_snapshot_schedule(cls, args):
+    def _parse_get_snapshot_schedule(cls, args):
+        """
+        Parse command line arguments for updating hbase snapshot schedule or to get details.
+        """
+        argparser = ArgumentParser(prog="cluster snapshot_schedule")
+
+        group = argparser.add_mutually_exclusive_group(required=True)
+        group.add_argument("--id", dest="cluster_id",
+                          help="execute on cluster with this id")
+        group.add_argument("--label", dest="label",
+                          help="execute on cluster with this label")
+        arguments = argparser.parse_args(args)
+
+        return arguments
+
+    @classmethod
+    def _parse_update_snapshot_schedule(cls, args):
         """
         Parse command line arguments for updating hbase snapshot schedule or to get details.
         """
@@ -524,23 +540,28 @@ class Cluster(Resource):
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
 
     @classmethod
-    def snapshot_schedule(cls, cluster_id_label, s3_location=None, frequency_unit=None, frequency_num=None, status=None):
+    def get_snapshot_schedule(cls, cluster_id_label):
         """
-        Either update or get details for snapshot schedule
+        Get details for snapshot schedule
+        """
+        conn = Qubole.agent()
+        return conn.get(cls.element_path(cluster_id_label) + "/snapshot_schedule")
+
+    @classmethod
+    def update_snapshot_schedule(cls, cluster_id_label, s3_location=None, frequency_unit=None, frequency_num=None, status=None):
+        """
+        Update for snapshot schedule
         """
         conn = Qubole.agent()
 
-        if (s3_location == None) and (frequency_num == None) and (frequency_unit == None) and (status == None):
-            return conn.get(cls.element_path(cluster_id_label) + "/snapshot_schedule")
-
         data = {}
-        if s3_location != None:
+        if s3_location is not None:
             data["s3_location"] = s3_location
-        if frequency_unit != None:
+        if frequency_unit is not None:
             data["frequency_unit"] = frequency_unit
-        if frequency_num != None:
+        if frequency_num is not None:
             data["frequency_num"] = frequency_num
-        if status != None:
+        if status is not None:
             data["status"] = status
         return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data)
 
