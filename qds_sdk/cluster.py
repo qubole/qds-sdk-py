@@ -528,7 +528,7 @@ class Cluster(Resource):
         parameters['s3_location'] = s3_location
         if backup_type:
             parameters['backup_type'] = backup_type
-        return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
+        return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data=parameters)
 
     @classmethod
     def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names, overwrite=True, automatic=True):
@@ -542,7 +542,7 @@ class Cluster(Resource):
         parameters['table_names'] = table_names
         parameters['overwrite'] = overwrite
         parameters['automatic'] = automatic
-        return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
+        return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data=parameters)
 
     @classmethod
     def get_snapshot_schedule(cls, cluster_id_label):
