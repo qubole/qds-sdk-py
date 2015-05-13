@@ -468,11 +468,52 @@ class Cluster(Resource):
                           help="back_id from which restoration will be done", required=True)
             argparser.add_argument("--table_names",
                           help="table(s) which are to be restored", required=True)
+
             argparser.add_argument("--no-overwrite", action="store_false",
                           help="With this option, restore overwrites to the existing table if theres any in restore target")
             argparser.add_argument("--no-automatic", action="store_false",
                           help="With this option, all the dependencies are automatically restored together with this backup image following the correct order")
+        arguments = argparser.parse_args(args)
 
+        return arguments
+
+    @classmethod
+    def _parse_get_snapshot_schedule(cls, args):
+        """
+        Parse command line arguments for updating hbase snapshot schedule or to get details.
+        """
+        argparser = ArgumentParser(prog="cluster snapshot_schedule")
+
+        group = argparser.add_mutually_exclusive_group(required=True)
+        group.add_argument("--id", dest="cluster_id",
+                          help="execute on cluster with this id")
+        group.add_argument("--label", dest="label",
+                          help="execute on cluster with this label")
+        arguments = argparser.parse_args(args)
+
+        return arguments
+
+    @classmethod
+    def _parse_update_snapshot_schedule(cls, args):
+        """
+        Parse command line arguments for updating hbase snapshot schedule or to get details.
+        """
+        argparser = ArgumentParser(prog="cluster snapshot_schedule")
+
+        group = argparser.add_mutually_exclusive_group(required=True)
+        group.add_argument("--id", dest="cluster_id",
+                          help="execute on cluster with this id")
+        group.add_argument("--label", dest="label",
+                          help="execute on cluster with this label")
+
+        argparser.add_argument("--frequency-num",
+                          help="frequency number")
+        argparser.add_argument("--frequency-unit",
+                          help="frequency unit")
+        argparser.add_argument("--s3-location",
+                          help="s3_location about where to store snapshots")
+        argparser.add_argument("--status",
+                          help="status of periodic job you want to change to", choices = ["RUNNING", "SUSPENDED"])
         arguments = argparser.parse_args(args)
 
         return arguments
@@ -502,6 +543,34 @@ class Cluster(Resource):
         parameters['overwrite'] = overwrite
         parameters['automatic'] = automatic
         return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
+
+    @classmethod
+    def get_snapshot_schedule(cls, cluster_id_label):
+        """
+        Get details for snapshot schedule
+        """
+        conn = Qubole.agent()
+        return conn.get(cls.element_path(cluster_id_label) + "/snapshot_schedule")
+
+    @classmethod
+    def update_snapshot_schedule(cls, cluster_id_label, s3_location=None, frequency_unit=None, frequency_num=None, status=None):
+        """
+        Update for snapshot schedule
+        """
+        conn = Qubole.agent()
+
+        data = {}
+        if s3_location is not None:
+            data["s3_location"] = s3_location
+        if frequency_unit is not None:
+            data["frequency_unit"] = frequency_unit
+        if frequency_num is not None:
+            data["frequency_num"] = frequency_num
+        if status is not None:
+            data["status"] = status
+        return conn.put(cls.element_path(cluster_id_label) + "/snapshot_schedule", data)
+
+
 
     @classmethod
     def add_node(cls, cluster_id_label, parameters=None):
