@@ -474,7 +474,6 @@ class Cluster(Resource):
                           help="back_id from which restoration will be done", required=True)
             argparser.add_argument("--table_names",
                           help="table(s) which are to be restored", required=True)
-
             argparser.add_argument("--no-overwrite", action="store_false",
                           help="With this option, restore overwrites to the existing table if theres any in restore target")
             argparser.add_argument("--no-automatic", action="store_false",
@@ -520,6 +519,7 @@ class Cluster(Resource):
                           help="s3_location about where to store snapshots")
         argparser.add_argument("--status",
                           help="status of periodic job you want to change to", choices = ["RUNNING", "SUSPENDED"])
+
         arguments = argparser.parse_args(args)
 
         return arguments
@@ -534,7 +534,7 @@ class Cluster(Resource):
         parameters['s3_location'] = s3_location
         if backup_type:
             parameters['backup_type'] = backup_type
-        return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data={"parameters" : parameters})
+        return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data=parameters)
 
     @classmethod
     def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names, overwrite=True, automatic=True):
@@ -548,7 +548,7 @@ class Cluster(Resource):
         parameters['table_names'] = table_names
         parameters['overwrite'] = overwrite
         parameters['automatic'] = automatic
-        return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data={"parameters" : parameters})
+        return conn.post(cls.element_path(cluster_id_label) + "/restore_point", data=parameters)
 
     @classmethod
     def get_snapshot_schedule(cls, cluster_id_label):

@@ -1574,7 +1574,7 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters':  {'s3_location':'myString', 'backup_type':'full'}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'s3_location':'myString', 'backup_type':'full'})
 
     def test_snapshot_with_no_label(self):
         sys.argv = ['qds.py', 'cluster', 'snapshot', '--s3_location', 'myString', '--backup_type', 'full']
@@ -1595,35 +1595,35 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters':  {'s3_location':'myString'}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'s3_location':'myString'})
 
     def test_restore_point(self):
         sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': True}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': True})
 
     def test_restore_point_no_overwrite(self):
         sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-overwrite']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': False}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': False})
 
     def test_restore_point_no_automatic(self):
         sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-automatic']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': True}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': True})
 
     def test_restore_point_no_overwrite_and_no_automatic(self):
         sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-overwrite', '--no-automatic']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': False}})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': False})
 
     def test_restore_point_with_no_label(self):
         sys.argv = ['qds.py', 'cluster', 'restore_point', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
