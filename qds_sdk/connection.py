@@ -3,6 +3,7 @@ import requests
 import logging
 import ssl
 import json
+import pkg_resources
 from requests.adapters import HTTPAdapter
 try:
     from requests.packages.urllib3.poolmanager import PoolManager
@@ -34,17 +35,19 @@ class Connection:
         self.auth = auth
         self.base_url = base_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
-        self._headers = {'Content-Type': 'application/json'}
+        self._headers = {'User-Agent': 'qds-sdk-py-%s' % pkg_resources.get_distribution("qds-sdk").version,
+                         'Content-Type': 'application/json'}
 
         self.reuse = reuse
         if reuse:
             self.session = requests.Session()
             self.session.mount('https://', MyAdapter())
 
+    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry(RetryWithDelay, tries=6, delay=30, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
@@ -77,13 +80,13 @@ class Connection:
         log.info("Params: %s" % params)
 
         if req_type == 'GET':
-            r = x.get(url, **kwargs)
+            r = x.get(url, timeout=300, **kwargs)
         elif req_type == 'POST':
-            r = x.post(url, **kwargs)
+            r = x.post(url, timeout=300, **kwargs)
         elif req_type == 'PUT':
-            r = x.put(url, **kwargs)
+            r = x.put(url, timeout=300, **kwargs)
         elif req_type == 'DELETE':
-            r = x.delete(url, **kwargs)
+            r = x.delete(url, timeout=300, **kwargs)
         else:
             raise NotImplemented
 

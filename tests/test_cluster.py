@@ -641,6 +641,83 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_use_hadoop2(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-hadoop2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'use_hadoop2': True}
+                    }
+                })
+
+    def test_use_hadoop1(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-hadoop1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'use_hadoop2': False}
+                    }
+                })
+
+    def test_use_spark(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-spark']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'use_spark': True}
+                    }
+                })
+
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
+    def test_use_spark_on_hadoop2(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-spark', '--use-hadoop2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
+    def test_use_spark_on_hadoop1(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-spark', '--use-hadoop1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
+    def test_conflict_hadoop21_hadoop2(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--use-hadoop1', '--use-hadoop2']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
     def test_slave_request_type_invalid(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1492,6 +1569,141 @@ class TestClusterClone(QdsCliTestCase):
                                                         ]
                                                     }
                                                 })
+
+class TestClusterHbaseSnapshot(QdsCliTestCase):
+    def test_snapshot(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--s3_location', 'myString', '--backup_type', 'full']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters':  {'s3_location':'myString', 'backup_type':'full'}})
+
+    def test_snapshot_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--s3_location', 'myString', '--backup_type', 'full']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_snapshot_with_no_s3_location(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--backup_type', 'full']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_snapshot_with_no_backup_type(self):
+        sys.argv = ['qds.py', 'cluster', 'snapshot', '--label', '1234', '--s3_location', 'myString']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'parameters':  {'s3_location':'myString'}})
+
+    def test_restore_point(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': True}})
+
+    def test_restore_point_no_overwrite(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-overwrite']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': True, 'overwrite': False}})
+
+    def test_restore_point_no_automatic(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-automatic']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': True}})
+
+    def test_restore_point_no_overwrite_and_no_automatic(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename', '--no-overwrite', '--no-automatic']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/restore_point', {'parameters':  {'s3_location':'myString', 'backup_id':'abcd', 'table_names':'tablename', 'automatic': False, 'overwrite': False}})
+
+    def test_restore_point_with_no_label(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_restore_point_with_no_s3_location(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--backup_id', 'abcd', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_restore_point_with_no_backup_id(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234','--s3_location', 'myString', '--table_names', 'tablename']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_restore_point_with_no_table_names(self):
+        sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234','--s3_location', 'myString', '--backup_id', 'abcd']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+class TestClusterManageCommands(QdsCliTestCase):
+    def test_add_command(self):
+        sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/nodes', {'parameters' : {}})
+
+    def test_add_node_label_id_exclusivity(self):
+        sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--label', 'dummy_label']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_add_node_with_private_dns(self):
+        sys.argv = ['qds.py', 'cluster', 'add_node', '--id', '1234', '--private_dns', 'test_dns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_replace_command(self):
+        sys.argv = ['qds.py', 'cluster', 'update_node', '--id', '1234', '--command', 'replace','--private_dns', 'test_private_dns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/1234/nodes', {'parameters' : {}, 'private_dns' : "test_private_dns", 'command' : "replace"})
+
+    def test_update(self):
+        sys.argv = ['qds.py', 'cluster', 'update_node', '--id', '1234', '--command', 'replace']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_remove_command(self):
+        sys.argv = ['qds.py', 'cluster', 'remove_node', '--id', '1234', '--private_dns', 'test_private_dns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with(r'DELETE', 'clusters/1234/nodes', {'parameters' : {}, 'private_dns' : "test_private_dns"})
+
+    def test_update(self):
+        sys.argv = ['qds.py', 'cluster', 'remove_node', '--id', '1234' ]
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
 
 if __name__ == '__main__':
     unittest.main()
