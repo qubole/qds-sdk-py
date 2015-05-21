@@ -1547,9 +1547,7 @@ class TestClusterUpdate(QdsCliTestCase):
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                                                 {'cluster': {
                                                     'security_settings': {
-                                                        "persistent_security_group": {
-                                                            "foopsg"
-                                                        }
+                                                        "persistent_security_group": "foopsg"
                                                     }
                                                 }})
 
