@@ -1574,7 +1574,7 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'s3_location':'myString', 'backup_type':'full'})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshots', {'s3_location':'myString', 'backup_type':'full'})
 
     def test_snapshot_with_no_label(self):
         sys.argv = ['qds.py', 'cluster', 'snapshot', '--s3_location', 'myString', '--backup_type', 'full']
@@ -1595,7 +1595,7 @@ class TestClusterHbaseSnapshot(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshot', {'s3_location':'myString'})
+        Connection._api_call.assert_called_with('POST', 'clusters/1234/snapshots', {'s3_location':'myString'})
 
     def test_restore_point(self):
         sys.argv = ['qds.py', 'cluster', 'restore_point', '--label', '1234', '--s3_location', 'myString', '--backup_id', 'abcd', '--table_names', 'tablename']
