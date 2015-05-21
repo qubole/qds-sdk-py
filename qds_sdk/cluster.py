@@ -528,7 +528,7 @@ class Cluster(Resource):
         parameters['s3_location'] = s3_location
         if backup_type:
             parameters['backup_type'] = backup_type
-        return conn.post(cls.element_path(cluster_id_label) + "/snapshot", data=parameters)
+        return conn.post(cls.element_path(cluster_id_label) + "/snapshots", data=parameters)
 
     @classmethod
     def restore_point(cls, cluster_id_label, s3_location, backup_id, table_names, overwrite=True, automatic=True):
