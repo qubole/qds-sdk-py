@@ -1538,6 +1538,19 @@ class TestClusterUpdate(QdsCliTestCase):
                                                     }
                                                 }})
 
+    def test_persistent_security_group(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                    '--persistent-security-group', 'foopsg']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster': {
+                                                    'security_settings': {
+                                                        "persistent_security_group": "foopsg"
+                                                    }
+                                                }})
+
 
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):
