@@ -266,7 +266,8 @@ def _create_cluster_info(arguments):
                              str(e))
             usage()
     cluster_info.set_security_settings(arguments.encrypted_ephemerals,
-                                       customer_ssh_key)
+                                       customer_ssh_key,
+                                       arguments.persistent_security_group)
 
     presto_custom_config = None
     if arguments.presto_custom_config_file is not None:
