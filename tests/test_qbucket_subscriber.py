@@ -18,11 +18,11 @@ from test_base import QdsCliTestCase
 class TestQbucket(QdsCliTestCase):
 
     def test_create(self):
-        sys.argv = ['qds.py', 'qbucket_subscriber', 'create', '--qbucket_id', '1', '--storage_access_key', '000000000000000000', '--storage_secret_key', '00000000000000000000']
+        sys.argv = ['qds.py', 'qbucket_subscriber', 'create', '--qbucket_id', '1', '--cross_account_config_id', '1']
         print_command()
         Connection._api_call = Mock(return_value={"qbucket_subscriber": []})
         qds.main()
-        Connection._api_call.assert_called_with("POST", "qbucket_subscribers", {'qbucket_id': '1', 'storage_access_key': '000000000000000000', 'storage_secret_key': '00000000000000000000'})
+        Connection._api_call.assert_called_with("POST", "qbucket_subscribers", {'qbucket_id': '1', 'cross_account_config_id': '1'})
 
     def test_list(self):
         sys.argv = ['qds.py', 'qbucket_subscriber', 'list']
