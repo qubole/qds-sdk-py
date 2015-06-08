@@ -411,14 +411,14 @@ class TestSparkCommand(QdsCliTestCase):
                 qds.main()
 
     def test_submit_sql(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show dummy', '--language', 'sql']
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show dummy']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                     {'macros': None,
                      'label': None,
-                     'language': 'sql',
+                     'language': None,
                      'tags': None,
                      'name': None,
                      'sql': 'show dummy',
@@ -430,8 +430,8 @@ class TestSparkCommand(QdsCliTestCase):
                      'can_notify': False,
                      'script_location': None})
 
-    def test_submit_sql_no_program(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show dummy']
+    def test_submit_sql_with_language(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','python', '--sql', 'show dummy']
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()

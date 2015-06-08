@@ -295,7 +295,7 @@ class HiveCommand(Command):
 class SparkCommand(Command):
 
     usage = ("sparkcmd <submit|run> [options]")
-    allowedlanglist = ["python", "scala", "sql"]
+    allowedlanglist = ["python", "scala"]
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
@@ -363,8 +363,8 @@ class SparkCommand(Command):
         if bool_sql == bool_other_options:
             raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
         if bool_sql:
-            if options.language is None:
-                raise ParseError("Unspecified language for Sql query", cls.optparser.format_help())
+            if options.language is not None:
+                raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
 
     @classmethod
     def validate_script_location(cls, options):
