@@ -902,14 +902,144 @@ class TestPigCommand(QdsCliTestCase):
 
 class TestDbExportCommand(QdsCliTestCase):
 
-    def test_stub(self):
-        pass
+    def test_submit_command(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'export_dir': None,
+                 'name': None,
+                 'db_update_keys': None,
+                 'partition_spec': None,
+                 'fields_terminated_by': None,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbExportCommand',
+                 'dbtap_id': '1',
+                 'can_notify': False,
+                 'db_update_mode': None})
+
+    def test_submit_fail_with_no_parameters(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_with_notify(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--notify']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'export_dir': None,
+                 'name': None,
+                 'db_update_keys': None,
+                 'partition_spec': None,
+                 'fields_terminated_by': None,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbExportCommand',
+                 'dbtap_id': '1',
+                 'can_notify': True,
+                 'db_update_mode': None})
+
+    def test_submit_with_name(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--name', 'commandname']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'export_dir': None,
+                 'name': 'commandname',
+                 'db_update_keys': None,
+                 'partition_spec': None,
+                 'fields_terminated_by': None,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbExportCommand',
+                 'dbtap_id': '1',
+                 'can_notify': False,
+                 'db_update_mode': None})
+
+    def test_submit_with_update_mode_and_keys(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable',
+          '--db_update_mode', 'updateonly', '--db_update_keys', 'key1']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'export_dir': None,
+                 'name': None,
+                 'db_update_keys': 'key1',
+                 'partition_spec': None,
+                 'fields_terminated_by': None,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbExportCommand',
+                 'dbtap_id': '1',
+                 'can_notify': False,
+                 'db_update_mode': 'updateonly'})
+
+    def test_submit_with_mode_2(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '2', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable',
+           '--export_dir', 's3:///export-path/']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'export_dir': 's3:///export-path/',
+                 'name': None,
+                 'db_update_keys': None,
+                 'partition_spec': None,
+                 'fields_terminated_by': None,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'mode': '2',
+                 'tags': None,
+                 'command_type': 'DbExportCommand',
+                 'dbtap_id': '1',
+                 'can_notify': False,
+                 'db_update_mode': None})
 
 
 class TestDbImportCommand(QdsCliTestCase):
 
-    def test_stub(self):
-        pass
+    # Not much point adding more test cases as the semantic check in main code is still remaining.
+    # The test cases might give false positivies
+    def test_submit_command(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'db_parallelism': None,
+                 'name': None,
+                 'dbtap_id': '1',
+                 'db_where': None,
+                 'db_boundary_query': None,
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbImportCommand',
+                 'db_split_column': None,
+                 'can_notify': False,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'db_extract_query': None})
 
 
 class TestDbTapQueryCommand(QdsCliTestCase):
