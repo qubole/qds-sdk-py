@@ -102,7 +102,7 @@ class CommandTemplateCmdLine:
         try:
             for field in fields:
                 filtered[field] = schedule[field]
-        except KeyError, e:
+        except KeyError as e:
             raise ParseError("Incorrect field name ",CommandTemplateCmdLine.get_list_all_help() )
         return filtered
 
