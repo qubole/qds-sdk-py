@@ -11,6 +11,7 @@ from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
+from qds_sdk.command_templates import CommandTemplateCmdLine
 
 import os
 import sys
@@ -404,6 +405,10 @@ def schedulermain(args):
     result = SchedulerCmdLine.run(args)
     print(result)
 
+def commandtemplatesmain(args):
+    result = CommandTemplateCmdLine.run(args)
+    print(result)
+
 def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
@@ -500,6 +505,9 @@ def main():
 
     if a0 == "report":
         return reportmain(args)
+
+    if a0 == "commandtemplates":
+        return commandtemplatesmain(args)
 
     if a0 == "dbtap":
         return dbtapmain(args)
