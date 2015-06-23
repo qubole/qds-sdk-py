@@ -123,7 +123,7 @@ class CommandTemplateCmdLine:
         else:
             raise ParseError("Either template id or template name must be specified",CommandTemplateCmdLine.get_view_help() ) 
         if args.fields:
-            commandtemplate.attributes = CommandTemplateCmdLine.filter_fields(schedule.attributes, args.fields)
+            commandtemplate.attributes = CommandTemplateCmdLine.filter_fields(commandtemplate.attributes, args.fields)
         return json.dumps(commandtemplate.attributes, sort_keys=True, indent=4)
 
     @staticmethod
@@ -175,10 +175,7 @@ class CommandTemplate(Resource):
     def find_by_name(name):
         conn = Qubole.agent()
         if name is not None:
-            # s = "%s?template_name=%s" % (CommandTemplate.rest_entity_path, str(name))
             result_json = (conn.get(CommandTemplate.rest_entity_path, params={"template_name":name}))
-            # result_json = (conn.get(s))
-            # print result_json["command_templates"][0]
             if result_json["command_templates"]:
                 return CommandTemplate(result_json["command_templates"][0])
         return None
@@ -193,8 +190,8 @@ class CommandTemplate(Resource):
         conn = Qubole.agent()
         run_url = "%s/run" % self.element_path(self.id)
         data = {}
+        data['input_vars'] = []
         if args.input_vars is not None:
-            data['input_vars'] = []
             for input_var in args.input_vars:
                 a = input_var.split("=")
                 input_var_data = {a[0]:a[1]}
