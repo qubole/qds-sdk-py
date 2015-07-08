@@ -11,7 +11,7 @@ from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
-from qds_sdk.qbuckets import QbucketCmdLine
+from qds_sdk.spaces import SpaceCmdLine
 from qds_sdk.qbucket_subscribers import QbucketSubscriberCmdLine
 from qds_sdk.published_hivetables import PublishedHivetableCmdLine
 from qds_sdk.subscribed_hivetables import SubscribedHivetableCmdLine
@@ -364,8 +364,8 @@ def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
 
-def qbucketmain(args):
-    result = QbucketCmdLine.run(args)
+def spacemain(args):
+    result = SpaceCmdLine.run(args)
     print(result)
 
 def qbucketsubscribermain(args):
@@ -484,8 +484,8 @@ def main():
     if a0 == "dbtap":
         return dbtapmain(args)
 
-    if a0 == "qbucket":
-        return qbucketmain(args)
+    if a0 == "space":
+        return spacemain(args)
 
     if a0 == "qbucket_subscriber":
         return qbucketsubscribermain(args)
