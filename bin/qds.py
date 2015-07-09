@@ -12,7 +12,7 @@ from qds_sdk.dbtaps import DbTapCmdLine
 from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
 from qds_sdk.spaces import SpaceCmdLine
-from qds_sdk.qbucket_subscribers import QbucketSubscriberCmdLine
+from qds_sdk.space_subscribers import SpaceSubscriberCmdLine
 from qds_sdk.published_hivetables import PublishedHivetableCmdLine
 from qds_sdk.subscribed_hivetables import SubscribedHivetableCmdLine
 from qds_sdk.cloud_creds import CloudCredCmdLine
@@ -368,8 +368,8 @@ def spacemain(args):
     result = SpaceCmdLine.run(args)
     print(result)
 
-def qbucketsubscribermain(args):
-    result = QbucketSubscriberCmdLine.run(args)
+def spacesubscribermain(args):
+    result = SpaceSubscriberCmdLine.run(args)
     print(result)
 
 def publishedhivetablemain(args):
@@ -487,8 +487,8 @@ def main():
     if a0 == "space":
         return spacemain(args)
 
-    if a0 == "qbucket_subscriber":
-        return qbucketsubscribermain(args)
+    if a0 == "space_subscriber":
+        return spacesubscribermain(args)
 
     if a0 == "published_hivetable":
         return publishedhivetablemain(args)

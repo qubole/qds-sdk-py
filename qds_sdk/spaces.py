@@ -90,8 +90,8 @@ class SpaceCmdLine:
 
     @staticmethod
     def hivetables(args):
-        tap = Space.hivetables(args.id)
-        return json.dumps(tap, sort_keys=True, indent=4)
+        res = Space.hivetables(args.id)
+        return json.dumps(res, sort_keys=True, indent=4)
 
 
 class Space(Resource):
