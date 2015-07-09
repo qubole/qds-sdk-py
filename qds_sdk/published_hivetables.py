@@ -23,28 +23,28 @@ class PublishedHivetableCmdLine:
     def parsers():
         """
         Parse command line arguments to construct a dictionary of hivetables
-        parameters that can be used to publish a hivetable in a qbucket.
+        parameters that can be used to publish a hivetable in a space.
 
         Args:
             `args`: sequence of arguments
 
         Returns:
-            Dictionary that can be used to create a qbucket
+            Dictionary that can be used to create a space
         """
         argparser = ArgumentParser(prog="qds.py published_hivetables",
-                                        description="Published hivetables client for Qubole Data Service.")
+                                   description="Published hivetables client for Qubole Data Service.")
         subparsers = argparser.add_subparsers()
 
-        # Create
-        create = subparsers.add_parser("publish",
-                                       help="Publish a new hivetable")
-        create.add_argument("--qbucket_id", dest="qbucket_id",
-                            help="publish the hivetable in the given qbucket id")
-        create.add_argument("--table_name", dest="table_name",
-                            help="Name of the hivetable to be published")
-        create.add_argument("--schema_name", dest="schema_name", default="default",
-                            help="Name of the schema")
-        create.set_defaults(func=PublishedHivetableCmdLine.create)
+        # Publish
+        publish = subparsers.add_parser("publish",
+                                        help="Publish a new hivetable")
+        publish.add_argument("--space_id", dest="space_id",
+                             help="publish the hivetable in the given space id")
+        publish.add_argument("--table_name", dest="table_name",
+                             help="Name of the hivetable to be published")
+        publish.add_argument("--schema_name", dest="schema_name", default="default",
+                             help="Name of the schema")
+        publish.set_defaults(func=PublishedHivetableCmdLine.publish)
 
         # List
         list = subparsers.add_parser("list",
@@ -56,18 +56,16 @@ class PublishedHivetableCmdLine:
                                      help="View a specific published hivetable")
         view.add_argument("id",
                           help="Numeric id of the Published hivetable")
+        view.add_argument("--meta_data", dest="meta_data", default=False,
+                          help="Meta data of the published hivetable")
         view.set_defaults(func=PublishedHivetableCmdLine.view)
 
-        # Edit
-        edit = subparsers.add_parser("edit",
-                                     help="Edit a specific Published hivetable")
-        edit.add_argument("id",
-                          help="Numeric id of the Published hivetable")
-        edit.add_argument("--table_name", dest="table_name",
-                          help="Name of the hivetable to be published")
-        edit.add_argument("--schema_name", dest="schema_name", default="default",
-                          help="Name of the schema")
-        edit.set_defaults(func=PublishedHivetableCmdLine.edit)
+        # Update
+        update = subparsers.add_parser("update",
+                                       help="Update a specific Published hivetable")
+        update.add_argument("id",
+                            help="Numeric id of the Published hivetable")
+        update.set_defaults(func=PublishedHivetableCmdLine.update)
 
         # Delete
         delete = subparsers.add_parser("unpublish",
@@ -85,8 +83,8 @@ class PublishedHivetableCmdLine:
         return parsed.func(parsed)
 
     @staticmethod
-    def create(args):
-        published_hivetable = PublishedHivetable.create(qbucket_id=args.qbucket_id,
+    def publish(args):
+        published_hivetable = PublishedHivetable.create(space_id=args.space_id,
                                                         table_name=args.table_name,
                                                         schema_name=args.schema_name)
         return json.dumps(published_hivetable.attributes, sort_keys=True, indent=4)
@@ -102,14 +100,10 @@ class PublishedHivetableCmdLine:
         return json.dumps(tap.attributes, sort_keys=True, indent=4)
 
     @staticmethod
-    def edit(args):
+    def update(args):
         published_hivetable = PublishedHivetable.find(args.id)
         options = {}
-        if args.table_name is not None:
-            options["table_name"] = args.table_name
-        if args.schema_name is not None:
-            options["schema_name"]=args.schema_name
-        published_hivetable = published_hivetable.edit(**options)
+        published_hivetable = published_hivetable.update(**options)
         return json.dumps(published_hivetable.attributes, sort_keys=True, indent=4)
 
     @staticmethod
@@ -123,7 +117,7 @@ class PublishedHivetable(Resource):
     qds_sdk.PublishedHivetable is the base Qubole PublishedHivetable class.
     """
 
-    """ all commands use the /qbucket endpoint"""
+    """ all commands use the /space endpoint"""
     rest_entity_path = "published_hivetables"
 
     @staticmethod
@@ -132,7 +126,7 @@ class PublishedHivetable(Resource):
         url_path = PublishedHivetable.rest_entity_path
         return conn.get(url_path)
 
-    def edit(self, **kwargs):
+    def update(self, **kwargs):
         conn = Qubole.agent()
         return PublishedHivetable(conn.put(self.element_path(self.id), data=kwargs))
 
