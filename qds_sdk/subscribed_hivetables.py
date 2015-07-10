@@ -56,11 +56,6 @@ class SubscribedHivetableCmdLine:
                           help="Numeric id of the Subscribed hivetable")
         view.set_defaults(func=SubscribedHivetableCmdLine.view)
 
-        # Available for subscription
-        available = subparsers.add_parser("available_subscription",
-                                          help="Get all available hivetables for subscribe")
-        available.set_defaults(func=SubscribedHivetableCmdLine.available)
-
         # Update
         update = subparsers.add_parser("update",
                                        help="Update a specific Subscribed hivetable")
@@ -100,21 +95,14 @@ class SubscribedHivetableCmdLine:
         return json.dumps(subscribed_hivetable.attributes, sort_keys=True, indent=4)
 
     @staticmethod
-    def available(args):
-        subscribed_hivetable = SubscribedHivetable.available()
-        return json.dumps(subscribed_hivetable, sort_keys=True, indent=4)
-
-    @staticmethod
     def update(args):
-        subscribed_hivetable = SubscribedHivetable.find(args.id)
         options = {}
-        subscribed_hivetable = subscribed_hivetable.update(**options)
+        subscribed_hivetable = SubscribedHivetable.update(args.id, **options)
         return json.dumps(subscribed_hivetable.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def delete(args):
-        subscribed_hivetable = SubscribedHivetable.find(args.id)
-        return json.dumps(subscribed_hivetable.delete(), sort_keys=True, indent=4)
+        return json.dumps(SubscribedHivetable.delete(args.id), sort_keys=True, indent=4)
 
 
 class SubscribedHivetable(Resource):
@@ -132,15 +120,13 @@ class SubscribedHivetable(Resource):
         return conn.get(url_path)
 
     @staticmethod
-    def available():
+    def update(id, **kwargs):
         conn = Qubole.agent()
-        url_path = SubscribedHivetable.rest_entity_path + "/available"
-        return conn.get(url_path)
+        url_path = SubscribedHivetable.rest_entity_path + "/" + str(id)
+        return SubscribedHivetable(conn.put(url_path, data=kwargs))
 
-    def update(self, **kwargs):
+    @staticmethod
+    def delete(id):
         conn = Qubole.agent()
-        return SubscribedHivetable(conn.put(self.element_path(self.id), data=kwargs))
-
-    def delete(self):
-        conn = Qubole.agent()
-        return conn.delete(self.element_path(self.id))
+        url_path = SubscribedHivetable.rest_entity_path + "/" + str(id)
+        return conn.delete(url_path)

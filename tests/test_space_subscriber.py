@@ -6,12 +6,9 @@ if sys.version_info > (2, 7, 0):
 else:
     import unittest2 as unittest
 from mock import *
-import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
-import qds_sdk
 from qds_sdk.connection import Connection
-from qds_sdk.resource import BaseResource
 from test_base import print_command
 from test_base import QdsCliTestCase
 

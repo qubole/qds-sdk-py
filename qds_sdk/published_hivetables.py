@@ -96,20 +96,18 @@ class PublishedHivetableCmdLine:
 
     @staticmethod
     def view(args):
-        tap = PublishedHivetable.find(args.id)
-        return json.dumps(tap.attributes, sort_keys=True, indent=4)
+        published_hivetable = PublishedHivetable.find(args)
+        return json.dumps(published_hivetable, sort_keys=True, indent=4)
 
     @staticmethod
     def update(args):
-        published_hivetable = PublishedHivetable.find(args.id)
         options = {}
-        published_hivetable = published_hivetable.update(**options)
+        published_hivetable = PublishedHivetable.update(args.id, **options)
         return json.dumps(published_hivetable.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def delete(args):
-        published_hivetable = PublishedHivetable.find(args.id)
-        return json.dumps(published_hivetable.delete(), sort_keys=True, indent=4)
+        return json.dumps(PublishedHivetable.delete(args.id), sort_keys=True, indent=4)
 
 
 class PublishedHivetable(Resource):
@@ -121,15 +119,27 @@ class PublishedHivetable(Resource):
     rest_entity_path = "published_hivetables"
 
     @staticmethod
+    def find(args):
+        conn = Qubole.agent()
+        url_path = PublishedHivetable.rest_entity_path + "/" + str(args.id)
+        if args.meta_data == 'true' or args.meta_data == 'True':
+            url_path += '?meta_data=true'
+        return conn.get(url_path)
+
+    @staticmethod
     def list():
         conn = Qubole.agent()
         url_path = PublishedHivetable.rest_entity_path
         return conn.get(url_path)
 
-    def update(self, **kwargs):
+    @staticmethod
+    def update(id, **kwargs):
         conn = Qubole.agent()
-        return PublishedHivetable(conn.put(self.element_path(self.id), data=kwargs))
+        url_path = PublishedHivetable.rest_entity_path + "/" + str(id)
+        return PublishedHivetable(conn.put(url_path, data=kwargs))
 
-    def delete(self):
+    @staticmethod
+    def delete(id):
         conn = Qubole.agent()
-        return conn.delete(self.element_path(self.id))
+        url_path = PublishedHivetable.rest_entity_path + "/" + str(id)
+        return conn.delete(url_path)
