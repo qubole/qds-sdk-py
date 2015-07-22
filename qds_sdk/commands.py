@@ -218,6 +218,18 @@ class HiveCommand(Command):
     optparser.add_option("-f", "--script_location", dest="script_location",
                          help="Path where hive query to run is stored. Can be S3 URI or local file path")
 
+    optparser.add_option("--template", dest="template", help="name of template")
+
+    optparser.add_option("--db_name", dest="db_name", help="name of database")
+
+    optparser.add_option("--hive_table", dest="hive_table", help="name of hive table")
+
+    optparser.add_option("--loader_stable", dest="loader_stable", help="sdasd")
+
+    optparser.add_option("--loader_stable_mult", dest="loader_stable_mult", help="asdsadda")
+
+    optparser.add_option("--create_loader", dest="create_loader", help="sadjvb")
+
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
@@ -257,10 +269,11 @@ class HiveCommand(Command):
 
         try:
             (options, args) = cls.optparser.parse_args(args)
-            if options.query is None and options.script_location is None:
-                raise ParseError("One of query or script location"
-                                 " must be specified",
-                                 cls.optparser.format_help())
+            if options.template is None:
+                if options.query is None and options.script_location is None:
+                    raise ParseError("One of query or script location"
+                                     " must be specified",
+                                     cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
