@@ -295,7 +295,7 @@ class HiveCommand(Command):
 class SparkCommand(Command):
 
     usage = ("sparkcmd <submit|run> [options]")
-    allowedlanglist = ["python", "scala"]
+    allowedlanglist = ["python", "scala","R"]
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
@@ -399,8 +399,10 @@ class SparkCommand(Command):
                     options.language = "python"
                 elif fileExtension == ".scala":
                     options.language = "scala"
+                elif fileExtension == ".R":
+                	options.language = "R"	
                 else:
-                    raise ParseError("Invalid program type, Please choose one from python or scala %s" %str(fileExtension),
+                    raise ParseError("Invalid program type, Please choose one from python or scala or R %s" %str(fileExtension),
                                      cls.optparser.format_help())
             else:
                 raise ParseError("Invalid location, Please choose a local file location",

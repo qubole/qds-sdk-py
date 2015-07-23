@@ -409,6 +409,29 @@ class TestSparkCommand(QdsCliTestCase):
             print_command()
             with self.assertRaises(qds_sdk.exception.ParseError):
                 qds.main()
+    
+    def test_submit_script_location_local_R(self):
+        with NamedTemporaryFile(suffix=".R") as tmp:
+            tmp.write('cat("hello, world!")'.encode("utf8"))
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd' , 'submit', '--script_location' , tmp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'label': None,
+                     'language': "R",
+                     'tags': None,
+                     'name': None,
+                     'sql': None,
+                     'program': "cat(\"hello, world!\")",
+                     'cmdline':None,
+                     'command_type': 'SparkCommand',
+                     'arguments': None,
+                     'user_program_arguments': None,
+                     'can_notify': False,
+                     'script_location': None})
 
     def test_submit_sql(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show dummy']
@@ -637,6 +660,25 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None})
 
+    def test_submit_R_program(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','R','--program', 'cat("hello, world!")']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language' : 'R',
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': "cat(\"hello, world!\")",
+                 'cmdline': None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': None})
 
 class TestPrestoCommand(QdsCliTestCase):
 
