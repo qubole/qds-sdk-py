@@ -227,9 +227,11 @@ class HiveCommand(Command):
     optparser.add_option("--loader_stable", dest="loader_stable",
                          help="Only load directories that have not changed for this specified time (in Minutes)")
 
-    optparser.add_option("--loader_stable_mult", dest="loader_stable_mult", help="Unit of time (e.g. Minutes for Refresh Table)")
+    optparser.add_option("--loader_stable_mult", dest="loader_stable_mult",
+                         help="Unit of time (e.g. Minutes for Refresh Table)")
 
-    optparser.add_option("--create_loader", dest="create_loader", help="1 for Refresh Table")
+    optparser.add_option("--create_loader", dest="create_loader",
+                         help="If loader is to be created, the value is 1 (e.g. for Refresh Table)")
 
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
