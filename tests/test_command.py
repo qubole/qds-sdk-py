@@ -246,7 +246,7 @@ class TestHiveCommand(QdsCliTestCase):
                  'db_name': None,
                  'hive_table': None})
 
-    def test_submit_none    (self):
+    def test_submit_none(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit']
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
