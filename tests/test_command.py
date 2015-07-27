@@ -180,6 +180,28 @@ class TestCommandGetJobs(QdsCliTestCase):
 
 class TestHiveCommand(QdsCliTestCase):
 
+    def test_submit_refresh_table(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--template', 's3import', '--db_name', 'db_name', '--hive_table', 'table_name', '--create_loader', '1', '--loader_stable', '1', '--loader_stable_mult', 'Minutes', '--cluster-label', 'test_label'] 
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': 'test_label',
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'query': None,
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None,
+                 'template': 's3import',
+                 'create_loader': '1',
+                 'loader_stable': '1',
+                 'loader_stable_mult': 'Minutes',
+                 'db_name': 'db_name',
+                 'hive_table': 'table_name'})
+
     def test_submit_query(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables']
         print_command()
@@ -194,7 +216,13 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': False,
-                 'script_location': None})
+                 'script_location': None,
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
     def test_submit_script_location(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script']
@@ -210,9 +238,15 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': None,
                  'command_type': 'HiveCommand',
                  'can_notify': False,
-                 'script_location': 's3://bucket/path-to-script'})
+                 'script_location': 's3://bucket/path-to-script',
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
-    def test_submit_none(self):
+    def test_submit_none    (self):
         sys.argv = ['qds.py', 'hivecmd', 'submit']
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
@@ -240,7 +274,13 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': None,
                  'command_type': 'HiveCommand',
                  'can_notify': False,
-                 'script_location': 's3://bucket/path-to-script'})
+                 'script_location': 's3://bucket/path-to-script',
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
     def test_submit_tags(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script',
@@ -257,7 +297,13 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': None,
                  'command_type': 'HiveCommand',
                  'can_notify': False,
-                 'script_location': 's3://bucket/path-to-script'})
+                 'script_location': 's3://bucket/path-to-script',
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
     def test_submit_cluster_label(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -274,7 +320,13 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': False,
-                 'script_location': None})
+                 'script_location': None,
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
     def test_submit_name(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -291,7 +343,13 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': False,
-                 'script_location': None})
+                 'script_location': None,
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
     def test_submit_notify(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -308,7 +366,13 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': True,
-                 'script_location': None})
+                 'script_location': None,
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
     def test_submit_sample_size(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -325,7 +389,13 @@ class TestHiveCommand(QdsCliTestCase):
                  'query': 'show tables',
                  'command_type': 'HiveCommand',
                  'can_notify': False,
-                 'script_location': None})
+                 'script_location': None,
+                 'template': None,
+                 'create_loader': None,
+                 'loader_stable': None,
+                 'loader_stable_mult': None,
+                 'db_name': None,
+                 'hive_table': None})
 
 class TestSparkCommand(QdsCliTestCase):
 

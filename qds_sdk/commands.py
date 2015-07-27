@@ -218,17 +218,18 @@ class HiveCommand(Command):
     optparser.add_option("-f", "--script_location", dest="script_location",
                          help="Path where hive query to run is stored. Can be S3 URI or local file path")
 
-    optparser.add_option("--template", dest="template", help="name of template")
+    optparser.add_option("--template", dest="template", help="Template name (e.g. s3import for Refresh Table)")
 
-    optparser.add_option("--db_name", dest="db_name", help="name of database")
+    optparser.add_option("--db_name", dest="db_name", help="Name of the database")
 
-    optparser.add_option("--hive_table", dest="hive_table", help="name of hive table")
+    optparser.add_option("--hive_table", dest="hive_table", help="Name of the hive table")
 
-    optparser.add_option("--loader_stable", dest="loader_stable", help="sdasd")
+    optparser.add_option("--loader_stable", dest="loader_stable",
+                         help="Only load directories that have not changed for this specified time (in Minutes)")
 
-    optparser.add_option("--loader_stable_mult", dest="loader_stable_mult", help="asdsadda")
+    optparser.add_option("--loader_stable_mult", dest="loader_stable_mult", help="Unit of time (e.g. Minutes for Refresh Table)")
 
-    optparser.add_option("--create_loader", dest="create_loader", help="sadjvb")
+    optparser.add_option("--create_loader", dest="create_loader", help="1 for Refresh Table")
 
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
