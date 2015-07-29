@@ -17,6 +17,7 @@ from qds_sdk.published_hivetables import PublishedHivetableCmdLine
 from qds_sdk.subscribed_hivetables import SubscribedHivetableCmdLine
 from qds_sdk.cloud_creds import CloudCredCmdLine
 from qds_sdk.cross_account_configs import CrossAccountConfigCmdLine
+from qds_sdk.accounts import AccountCmdLine
 
 import os
 import sys
@@ -396,6 +397,10 @@ def groupmain(args):
     result = GroupCmdLine.run(args)
     print(result)
 
+def accountmain(args):
+    result = AccountCmdLine.run(args)
+    print(result)
+
 def main():
 
     optparser = OptionParser(usage=usage_str)
@@ -507,6 +512,9 @@ def main():
 
     if a0 == "role":
         return rolemain(args)
+
+    if a0 == "account":
+        return accountmain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
