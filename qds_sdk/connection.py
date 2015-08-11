@@ -140,7 +140,7 @@ class Connection:
         elif code == 422:
             sys.stderr.write(response.text + "\n")
             raise ResourceInvalid(response)
-        elif code in (449, 503):
+        elif code in (449, 502, 503, 504):
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response)
         elif 401 <= code < 500:
