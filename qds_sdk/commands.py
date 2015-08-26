@@ -7,6 +7,7 @@ the specific commands
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
+from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
@@ -36,7 +37,6 @@ class Command(Resource):
 
     """all commands use the /commands endpoint"""
     rest_entity_path = "commands"
-    credentials_rest_entity_path = "accounts/get_creds"
 
     @staticmethod
     def is_done(status):
@@ -189,7 +189,7 @@ class Command(Resource):
                     pass
         else:
             if fetch:
-                storage_credentials = conn.get(Command.credentials_rest_entity_path)
+                storage_credentials = conn.get(Account.credentials_rest_entity_path)
                 boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                             aws_secret_access_key=storage_credentials['storage_secret_key'],
                                             security_token = storage_credentials['session_token'])
