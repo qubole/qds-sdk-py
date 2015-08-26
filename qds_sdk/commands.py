@@ -36,7 +36,7 @@ class Command(Resource):
 
     """all commands use the /commands endpoint"""
     rest_entity_path = "commands"
-    credentials_rest_entity_path = "accounts/storage-credentials"
+    credentials_rest_entity_path = "accounts/get_creds"
 
     @staticmethod
     def is_done(status):
