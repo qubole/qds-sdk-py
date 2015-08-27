@@ -189,9 +189,10 @@ class Command(Resource):
                     pass
         else:
             if fetch:
-                acc = Account.find()
-                boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
-                                            aws_secret_access_key=acc.storage_secret_key)
+                storage_credentials = conn.get(Account.credentials_rest_entity_path)
+                boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
+                                            aws_secret_access_key=storage_credentials['storage_secret_key'],
+                                            security_token = storage_credentials['session_token'])
 
                 log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                 #fetch latest value of num_result_dir
