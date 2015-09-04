@@ -183,107 +183,129 @@ def checkargs_cluster_id_label(args):
         usage()
 
 
-def cluster_create_action(clusterclass, args):
-    arguments = clusterclass._parse_create_update(args, action="create")
-    cluster_info = _create_cluster_info(arguments)
+def cluster_create_action(clusterclass, args, api_version=1.2):
+    arguments = clusterclass._parse_create_update(args, "create", api_version)
+    cluster_info = _create_cluster_info(arguments, api_version)
     result = clusterclass.create(cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
 
 
-def cluster_update_action(clusterclass, args):
-    arguments = clusterclass._parse_create_update(args, action="update")
-    cluster_info = _create_cluster_info(arguments)
+def cluster_update_action(clusterclass, args, api_version=1.2):
+    arguments = clusterclass._parse_create_update(args, "update", api_version)
+    cluster_info = _create_cluster_info(arguments, api_version)
     result = clusterclass.update(arguments.cluster_id_label, cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_clone_action(clusterclass, args):
-    arguments = clusterclass._parse_create_update(args, action="clone")
-    cluster_info = _create_cluster_info(arguments)
+def cluster_clone_action(clusterclass, args, api_version=1.2):
+    arguments = clusterclass._parse_create_update(args, "clone", api_version)
+    cluster_info = _create_cluster_info(arguments, api_version)
     result = clusterclass.clone(arguments.cluster_id_label, cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
 
-def _create_cluster_info(arguments):
-    cluster_info = ClusterInfo(arguments.label,
-                               arguments.aws_access_key_id,
-                               arguments.aws_secret_access_key,
-                               arguments.disallow_cluster_termination,
-                               arguments.enable_ganglia_monitoring,
-                               arguments.node_bootstrap_file,)
+def _create_cluster_info(arguments, api_version):
+    custom_config = _read_file(arguments.custom_config_file, "custom config file")
+    presto_custom_config = _read_file(arguments.presto_custom_config_file, "presto custom config file")
+    fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
+    ssh_public_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
 
-    cluster_info.set_ec2_settings(arguments.aws_region,
-                                  arguments.aws_availability_zone,
-                                  arguments.vpc_id,
-                                  arguments.subnet_id)
+    cluster_info = None
+    if api_version >= 1.3:
+        cluster_info = ClusterInfoV13(arguments.label, api_version)
+        cluster_info.set_cluster_info(aws_access_key_id=arguments.aws_access_key_id,
+                         aws_secret_access_key=arguments.aws_secret_access_key,
+                         aws_region=arguments.aws_region,
+                         disallow_cluster_termination=arguments.disallow_cluster_termination,
+                         enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
+                         node_bootstrap_file=arguments.node_bootstrap_file,
+                         aws_availability_zone=arguments.aws_availability_zone,
+                         vpc_id=arguments.vpc_id,
+                         subnet_id=arguments.subnet_id,
+                         master_instance_type=arguments.master_instance_type,
+                         slave_instance_type=arguments.slave_instance_type,
+                         initial_nodes=arguments.initial_nodes,
+                         max_nodes=arguments.max_nodes,
+                         slave_request_type=arguments.slave_request_type,
+                         fallback_to_ondemand=arguments.fallback_to_ondemand,
+                         custom_config=custom_config,
+                         use_hbase=arguments.use_hbase,
+                         custom_ec2_tags=arguments.custom_ec2_tags,
+                         use_hadoop2=arguments.use_hadoop2,
+                         use_spark=arguments.use_spark,
+                         use_qubole_placement_policy=arguments.use_qubole_placement_policy,
+                         maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
+                         timeout_for_request=arguments.timeout_for_request,
+                         maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
+                         stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
+                         stable_timeout_for_request=arguments.stable_timeout_for_request,
+                         stable_allow_fallback=arguments.stable_allow_fallback,
+                         ebs_volume_count=arguments.ebs_volume_count,
+                         ebs_volume_type=arguments.ebs_volume_type,
+                         ebs_volume_size=arguments.ebs_volume_size,
+                         fairscheduler_config_xml=fairscheduler_config_xml,
+                         default_pool=arguments.default_pool,
+                         encrypted_ephemerals=arguments.encrypted_ephemerals,
+                         ssh_public_key=ssh_public_key,
+                         persistent_security_group=arguments.persistent_security_group,
+                         enable_presto=arguments.enable_presto,
+                         presto_custom_config=presto_custom_config,)
+    else:
+        cluster_info = ClusterInfo(arguments.label,
+                                   arguments.aws_access_key_id,
+                                   arguments.aws_secret_access_key,
+                                   arguments.disallow_cluster_termination,
+                                   arguments.enable_ganglia_monitoring,
+                                   arguments.node_bootstrap_file,)
 
-    custom_config = None
-    if arguments.custom_config_file is not None:
-        try:
-            custom_config = open(arguments.custom_config_file).read()
-        except IOError as e:
-            sys.stderr.write("Unable to read custom config file: %s\n" %
-                             str(e))
-            usage()
+        cluster_info.set_ec2_settings(arguments.aws_region,
+                                      arguments.aws_availability_zone,
+                                      arguments.vpc_id,
+                                      arguments.subnet_id)
 
-    cluster_info.set_hadoop_settings(arguments.master_instance_type,
-                                     arguments.slave_instance_type,
-                                     arguments.initial_nodes,
-                                     arguments.max_nodes,
-                                     custom_config,
-                                     arguments.slave_request_type,
-                                     arguments.use_hbase,
-                                     arguments.custom_ec2_tags,
-                                     arguments.use_hadoop2,
-                                     arguments.use_spark)
+        cluster_info.set_hadoop_settings(arguments.master_instance_type,
+                                         arguments.slave_instance_type,
+                                         arguments.initial_nodes,
+                                         arguments.max_nodes,
+                                         custom_config,
+                                         arguments.slave_request_type,
+                                         arguments.use_hbase,
+                                         arguments.custom_ec2_tags,
+                                         arguments.use_hadoop2,
+                                         arguments.use_spark)
 
-    cluster_info.set_spot_instance_settings(
-          arguments.maximum_bid_price_percentage,
-          arguments.timeout_for_request,
-          arguments.maximum_spot_instance_percentage)
+        cluster_info.set_spot_instance_settings(
+              arguments.maximum_bid_price_percentage,
+              arguments.timeout_for_request,
+              arguments.maximum_spot_instance_percentage)
 
-    cluster_info.set_stable_spot_instance_settings(
-          arguments.stable_maximum_bid_price_percentage,
-          arguments.stable_timeout_for_request,
-          arguments.stable_allow_fallback)
+        cluster_info.set_stable_spot_instance_settings(
+              arguments.stable_maximum_bid_price_percentage,
+              arguments.stable_timeout_for_request,
+              arguments.stable_allow_fallback)
 
-    fairscheduler_config_xml = None
-    if arguments.fairscheduler_config_xml_file is not None:
-        try:
-            fairscheduler_config_xml = open(arguments.fairscheduler_config_xml_file).read()
-        except IOError as e:
-            sys.stderr.write("Unable to read config xml file: %s\n" %
-                             str(e))
-            usage()
-    cluster_info.set_fairscheduler_settings(fairscheduler_config_xml,
+        cluster_info.set_fairscheduler_settings(fairscheduler_config_xml,
                                             arguments.default_pool)
 
-    customer_ssh_key = None
-    if arguments.customer_ssh_key_file is not None:
-        try:
-            customer_ssh_key = open(arguments.customer_ssh_key_file).read()
-        except IOError as e:
-            sys.stderr.write("Unable to read customer ssh key file: %s\n" %
-                             str(e))
-            usage()
-    cluster_info.set_security_settings(arguments.encrypted_ephemerals,
-                                       customer_ssh_key,
-                                       arguments.persistent_security_group)
+        cluster_info.set_security_settings(arguments.encrypted_ephemerals,
+                                           ssh_public_key,
+                                           arguments.persistent_security_group)
 
-    presto_custom_config = None
-    if arguments.presto_custom_config_file is not None:
-        try:
-            presto_custom_config = open(arguments.presto_custom_config_file).read()
-        except IOError as e:
-            sys.stderr.write("Unable to read presto custom config file: %s\n" %
-                             str(e))
-            usage()
-    cluster_info.set_presto_settings(arguments.enable_presto,
-                                     presto_custom_config)
+        cluster_info.set_presto_settings(arguments.enable_presto,
+                                         presto_custom_config)
 
     return cluster_info
 
+def _read_file(file_path, file_name):
+    file_content = None
+    if file_path is not None:
+        try:
+            file_content = open(file_path).read()
+        except IOError as e:
+            sys.stderr.write("Unable to read %s: %s\n" % (file_name, str(e)))
+            usage()
+    return file_content
 
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id_label(args)
@@ -376,7 +398,7 @@ def cluster_update_node_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-def clustermain(args):
+def clustermain(args, api_version):
     clusterclass = Cluster
     actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule"])
 
@@ -388,7 +410,10 @@ def clustermain(args):
     if action not in actionset:
         sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
         usage()
-    return globals()["cluster_" + action + "_action"](clusterclass, args)
+    elif action in set(["create", "update", "clone"]):
+        return globals()["cluster_" + action + "_action"](clusterclass, args, api_version)
+    else:
+        return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 
 def reportmain(args):
@@ -490,7 +515,8 @@ def main():
         return cmdmain(a0, args)
 
     if a0 == "cluster":
-        return clustermain(args)
+        api_version_number = float(options.api_version[1:])
+        return clustermain(args, api_version_number)
 
     if a0 == "action":
         return actionmain(args)
