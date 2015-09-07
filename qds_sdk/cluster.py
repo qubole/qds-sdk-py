@@ -245,7 +245,7 @@ class Cluster(Resource):
                                        "'standard' (magnetic) and 'ssd'.",)
           ebs_volume_group.add_argument("--ebs-volume-size",
                                   dest="ebs_volume_size",
-                                  type=float,
+                                  type=int,
                                   help="Size of each EBS volume, in GB",)
 
         hadoop2 = hadoop_group.add_mutually_exclusive_group()
@@ -877,22 +877,8 @@ class ClusterInfoV13():
         `label`: A list of labels that identify the cluster. At least one label
             must be provided when creating a cluster.
 
-        `aws_access_key_id`: The access key id for customer's aws account. This
-            is required for creating the cluster.
+        `api_version`: api version to use
 
-        `aws_secret_access_key`: The secret access key for customer's aws
-            account. This is required for creating the cluster.
-
-        `disallow_cluster_termination`: Set this to True if you don't want
-            qubole to auto-terminate idle clusters. Use this option with
-            extreme caution.
-
-        `enable_ganglia_monitoring`: Set this to True if you want to enable
-            ganglia monitoring for the cluster.
-
-        `node_bootstrap_file`: name of the node bootstrap file for this
-            cluster. It should be in stored in S3 at
-            <your-default-location>/scripts/hadoop/
         """
         self.label = label
         self.api_version = api_version
@@ -905,12 +891,12 @@ class ClusterInfoV13():
     def set_cluster_info(self, aws_access_key_id=None,
                          aws_secret_access_key=None,
                          aws_region=None,
-                         disallow_cluster_termination=None,
-                         enable_ganglia_monitoring=None,
-                         node_bootstrap_file=None,
                          aws_availability_zone=None,
                          vpc_id=None,
                          subnet_id=None,
+                         disallow_cluster_termination=None,
+                         enable_ganglia_monitoring=None,
+                         node_bootstrap_file=None,
                          master_instance_type=None,
                          slave_instance_type=None,
                          initial_nodes=None,
@@ -939,6 +925,110 @@ class ClusterInfoV13():
                          persistent_security_group=None,
                          enable_presto=None,
                          presto_custom_config=None):
+        """
+        Kwargs:
+
+        `aws_access_key_id`: The access key id for customer's aws account. This
+            is required for creating the cluster.
+
+        `aws_secret_access_key`: The secret access key for customer's aws
+            account. This is required for creating the cluster.
+
+        `aws_region`: AWS region to create the cluster in.
+
+        `aws_availability_zone`: The availability zone to create the cluster
+            in.
+
+        `vpc_id`: The vpc to create the cluster in.
+
+        `subnet_id`: The subnet to create the cluster in.
+
+        `disallow_cluster_termination`: Set this to True if you don't want
+            qubole to auto-terminate idle clusters. Use this option with
+            extreme caution.
+
+        `enable_ganglia_monitoring`: Set this to True if you want to enable
+            ganglia monitoring for the cluster.
+
+        `node_bootstrap_file`: name of the node bootstrap file for this
+            cluster. It should be in stored in S3 at
+            <your-default-location>/scripts/hadoop/
+
+        `master_instance_type`: The instance type to use for the Hadoop master
+            node.
+
+        `slave_instance_type`: The instance type to use for the Hadoop slave
+            nodes.
+
+        `initial_nodes`: Number of nodes to start the cluster with.
+
+        `max_nodes`: Maximum number of nodes the cluster may be auto-scaled up
+            to.
+
+        `slave_request_type`: Purchasing option for slave instances.
+            Valid values: "ondemand", "hybrid", "spot".
+
+        `fallback_to_ondemand`: Fallback to on-demand nodes if spot nodes could not be
+            obtained. Valid only if slave_request_type is 'spot'.
+
+        `custom_config`: Custom Hadoop configuration overrides.
+
+        `use_hbase`: Start hbase daemons on the cluster. Uses Hadoop2
+
+        `use_hadoop2`: Use hadoop2 in this cluster
+
+        `use_spark`: Use spark in this cluster
+
+        `use_qubole_placement_policy`: Use Qubole Block Placement policy for 
+            clusters with spot nodes.
+
+        `maximum_bid_price_percentage`: ( Valid only when `slave_request_type` 
+            is hybrid or spot.) Maximum value to bid for spot
+            instances, expressed as a percentage of the base price 
+            for the slave node instance type.
+
+        `timeout_for_request`: Timeout for a spot instance request (Unit:
+            minutes)
+
+        `maximum_spot_instance_percentage`: Maximum percentage of instances
+            that may be purchased from the AWS Spot market. Valid only when
+            slave_request_type is "hybrid".
+
+        `stable_maximum_bid_price_percentage`: Maximum value to bid for stable node spot
+            instances, expressed as a percentage of the base price
+            (applies to both master and slave nodes).
+
+        `stable_timeout_for_request`: Timeout for a stable node spot instance request (Unit:
+            minutes)
+
+        `stable_allow_fallback`: Whether to fallback to on-demand instances for
+            stable nodes if spot instances are not available
+
+        `ebs_volume_count`: Number of EBS volumes to attach 
+            to each instance of the cluster.
+
+        `ebs_volume_type`: Type of the EBS volume. Valid 
+            values are 'standard' (magnetic) and 'ssd'.
+
+        `ebs_volume_size`: Size of each EBS volume, in GB. 
+
+        `fairscheduler_config_xml`: XML string with custom configuration
+            parameters for the fair scheduler.
+
+        `default_pool`: The default pool for the fair scheduler.
+
+        `encrypted_ephemerals`: Encrypt the ephemeral drives on the instance.
+
+        `ssh_public_key`: SSH key to use to login to the instances.
+
+        `persistent_security_group`: Comma-separated list of persistent 
+            security groups for the cluster.
+
+        `enable_presto`: Enable Presto on the cluster.
+
+        `presto_custom_config`: Custom Presto configuration overrides.
+
+        """
 
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
@@ -960,18 +1050,6 @@ class ClusterInfoV13():
                            aws_availability_zone=None,
                            vpc_id=None,
                            subnet_id=None):
-        """
-        Kwargs:
-
-        `aws_region`: AWS region to create the cluster in.
-
-        `aws_availability_zone`: The availability zone to create the cluster
-            in.
-
-        `vpc_id`: The vpc to create the cluster in.
-
-        `subnet_id`: The subnet to create the cluster in.
-        """
         self.ec2_settings['compute_access_key'] = aws_access_key_id
         self.ec2_settings['compute_secret_key'] = aws_secret_access_key
         self.ec2_settings['aws_region'] = aws_region
@@ -1013,21 +1091,6 @@ class ClusterInfoV13():
     def __set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
                                    maximum_spot_instance_percentage=None):
-        """
-        Purchase options for spot instances. Valid only when
-        `slave_request_type` is hybrid or spot.
-
-        `maximum_bid_price_percentage`: Maximum value to bid for spot
-            instances, expressed as a percentage of the base price for the
-            slave node instance type.
-
-        `timeout_for_request`: Timeout for a spot instance request (Unit:
-            minutes)
-
-        `maximum_spot_instance_percentage`: Maximum percentage of instances
-            that may be purchased from the AWS Spot market. Valid only when
-            slave_request_type is "hybrid".
-        """
         self.node_configuration['spot_instance_settings'] = {
                'maximum_bid_price_percentage': maximum_bid_price_percentage,
                'timeout_for_request': timeout_for_request,
@@ -1036,19 +1099,6 @@ class ClusterInfoV13():
     def __set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                           timeout_for_request=None,
                                           allow_fallback=True):
-        """
-        Purchase options for stable spot instances.
-
-        `maximum_bid_price_percentage`: Maximum value to bid for stable node spot
-            instances, expressed as a percentage of the base price
-            (applies to both master and slave nodes).
-
-        `timeout_for_request`: Timeout for a stable node spot instance request (Unit:
-            minutes)
-
-        `allow_fallback`: Whether to fallback to on-demand instances for
-            stable nodes if spot instances are not available
-        """
         self.node_configuration['stable_spot_instance_settings'] = {
                'maximum_bid_price_percentage': maximum_bid_price_percentage,
                'timeout_for_request': timeout_for_request,
@@ -1064,14 +1114,6 @@ class ClusterInfoV13():
 
     def __set_fairscheduler_settings(self, fairscheduler_config_xml=None,
                                    default_pool=None):
-        """
-        Fair scheduler configuration options.
-
-        `fairscheduler_config_xml`: XML string with custom configuration
-            parameters for the fair scheduler.
-
-        `default_pool`: The default pool for the fair scheduler.
-        """
         self.hadoop_settings['fairscheduler_settings'] = {
                'fairscheduler_config_xml': fairscheduler_config_xml,
                'default_pool': default_pool}
@@ -1080,25 +1122,11 @@ class ClusterInfoV13():
                               encrypted_ephemerals=None,
                               customer_ssh_key=None,
                               persistent_security_group=None):
-        """
-        Kwargs:
-
-        `encrypted_ephemerals`: Encrypt the ephemeral drives on the instance.
-
-        `customer_ssh_key`: SSH key to use to login to the instances.
-        """
         self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
         self.security_settings['ssh_public_key'] = customer_ssh_key
         self.security_settings['persistent_security_group'] = persistent_security_group
 
     def __set_presto_settings(self, enable_presto=None, presto_custom_config=None):
-        """
-        Kwargs:
-
-        `enable_presto`: Enable Presto on the cluster.
-
-        `presto_custom_config`: Custom Presto configuration overrides.
-        """
         self.presto_settings['enable_presto'] = enable_presto
         self.presto_settings['custom_config'] = presto_custom_config
 
