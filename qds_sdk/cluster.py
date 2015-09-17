@@ -331,8 +331,7 @@ class Cluster(Resource):
                                  help="don't encrypt the ephemeral drives on" +
                                       " the instance",)
 
-        customer_ssh_key_parameter = "--ssh-public-key" if (api_version >= 1.3) else "--customer-ssh-key"
-        security_group.add_argument(customer_ssh_key_parameter,
+        security_group.add_argument("--customer-ssh-key",
                                     dest="customer_ssh_key_file",
                                     help="location for ssh key to use to" +
                                          " login to the instance")
@@ -1120,10 +1119,10 @@ class ClusterInfoV13():
 
     def __set_security_settings(self,
                               encrypted_ephemerals=None,
-                              customer_ssh_key=None,
+                              ssh_public_key=None,
                               persistent_security_group=None):
         self.security_settings['encrypted_ephemerals'] = encrypted_ephemerals
-        self.security_settings['ssh_public_key'] = customer_ssh_key
+        self.security_settings['ssh_public_key'] = ssh_public_key
         self.security_settings['persistent_security_group'] = persistent_security_group
 
     def __set_presto_settings(self, enable_presto=None, presto_custom_config=None):

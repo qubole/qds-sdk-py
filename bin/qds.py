@@ -209,7 +209,7 @@ def _create_cluster_info(arguments, api_version):
     custom_config = _read_file(arguments.custom_config_file, "custom config file")
     presto_custom_config = _read_file(arguments.presto_custom_config_file, "presto custom config file")
     fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
-    ssh_public_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
+    customer_ssh_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
 
     cluster_info = None
     if api_version >= 1.3:
@@ -247,7 +247,7 @@ def _create_cluster_info(arguments, api_version):
                                       fairscheduler_config_xml=fairscheduler_config_xml,
                                       default_pool=arguments.default_pool,
                                       encrypted_ephemerals=arguments.encrypted_ephemerals,
-                                      ssh_public_key=ssh_public_key,
+                                      ssh_public_key=customer_ssh_key,
                                       persistent_security_group=arguments.persistent_security_group,
                                       enable_presto=arguments.enable_presto,
                                       presto_custom_config=presto_custom_config,)
@@ -289,7 +289,7 @@ def _create_cluster_info(arguments, api_version):
                                             arguments.default_pool)
 
         cluster_info.set_security_settings(arguments.encrypted_ephemerals,
-                                           ssh_public_key,
+                                           customer_ssh_key,
                                            arguments.persistent_security_group)
 
         cluster_info.set_presto_settings(arguments.enable_presto,

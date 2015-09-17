@@ -1275,7 +1275,7 @@ class TestClusterCreate(QdsCliTestCase):
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
                     '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                    '--ssh-public-key', temp.name]
+                    '--customer-ssh-key', temp.name]
             print_command()
             Connection._api_call = Mock(return_value={})
             qds.main()
@@ -1286,19 +1286,10 @@ class TestClusterCreate(QdsCliTestCase):
                      'security_settings': {'ssh_public_key': 'ssh-rsa Blah1/Blah2+BLAH3=='},
                     })
 
-    def test_ssh_public_key_with_old_key_v13(self):
-        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
-                '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                '--customer-ssh-key', 'some_non_existent_file']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        with self.assertRaises(SystemExit):
-            qds.main()
-
     def test_ssh_public_key_non_existent_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
-                '--ssh-public-key', 'some_non_existent_file']
+                '--customer-ssh-key', 'some_non_existent_file']
         print_command()
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
