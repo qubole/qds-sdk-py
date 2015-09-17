@@ -43,20 +43,23 @@ class Connection:
             self.session = requests.Session()
             self.session.mount('https://', MyAdapter())
 
-    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout), tries=12, delay=1, backoff=2, max_delay=32)
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout), tries=12, delay=1, backoff=2, max_delay=32)
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
+    @retry((RetryWithDelay, requests.Timeout), tries=12, delay=1, backoff=2, max_delay=32)
     def put(self, path, data=None):
         return self._api_call("PUT", path, data)
 
+    @retry((RetryWithDelay, requests.Timeout), tries=12, delay=1, backoff=2, max_delay=32)
     def post(self, path, data=None):
         return self._api_call("POST", path, data)
 
+    @retry((RetryWithDelay, requests.Timeout), tries=12, delay=1, backoff=2, max_delay=32)
     def delete(self, path, data=None):
         return self._api_call("DELETE", path, data)
 
