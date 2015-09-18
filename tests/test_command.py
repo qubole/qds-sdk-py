@@ -935,6 +935,12 @@ class TestShellCommand(QdsCliTestCase):
     def test_stub(self):
         pass
 
+    def test_run_with_incorrect_poll_interval(self):
+        sys.argv = ['qds.py', '--poll_interval', '1', 'shellcmd', 'run',  '-s', 'ls', '--cluster-label',  'default']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 
 class TestPigCommand(QdsCliTestCase):
 
