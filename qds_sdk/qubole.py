@@ -22,7 +22,7 @@ class Qubole:
     configuration parameters for QDS.
     """
 
-    MIN_POLL_INTERVAL = 5
+    MIN_POLL_INTERVAL = 1
 
     _auth = None
     api_token = None
