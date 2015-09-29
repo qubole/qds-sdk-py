@@ -432,7 +432,7 @@ def main():
                          help="version of REST API to access. defaults to v1.2")
 
     optparser.add_option("--poll_interval", dest="poll_interval",
-                         type=float,
+                         type=int,
                          default=os.getenv('QDS_POLL_INTERVAL'),
                          help="interval for polling API for completion and other events. defaults to 5s")
 
