@@ -239,6 +239,7 @@ class HiveCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
     def parse(cls, args):
@@ -328,6 +329,7 @@ class SparkCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+
     @classmethod
     def validate_program(cls, options):
         bool_program = options.program is not None
@@ -475,6 +477,7 @@ class PrestoCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
     def parse(cls, args):
@@ -548,6 +551,7 @@ class HadoopCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     optparser.disable_interspersed_args()
 
@@ -718,6 +722,7 @@ class PigCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
     def parse(cls, args):
@@ -833,6 +838,7 @@ class DbExportCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
     def parse(cls, args):
@@ -933,6 +939,7 @@ class DbImportCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
     def parse(cls, args):
