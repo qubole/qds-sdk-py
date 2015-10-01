@@ -3,6 +3,10 @@ import logging
 from qds_sdk.connection import Connection
 from qds_sdk.exception import ConfigError
 
+import sys
+import logging
+
+log = logging.getLogger("qds_qubole")
 
 log = logging.getLogger("qds_qubole")
 
