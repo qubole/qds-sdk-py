@@ -248,7 +248,7 @@ class HiveCommand(Command):
 
         Args:
             `args`: sequence of arguments
-l
+
         Returns:
             Dictionary that can be used in create method
 
