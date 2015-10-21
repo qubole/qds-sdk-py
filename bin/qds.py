@@ -11,6 +11,13 @@ from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
+from qds_sdk.spaces import SpaceCmdLine
+from qds_sdk.space_subscribers import SpaceSubscriberCmdLine
+from qds_sdk.published_hivetables import PublishedHivetableCmdLine
+from qds_sdk.subscribed_hivetables import SubscribedHivetableCmdLine
+from qds_sdk.cloud_creds import CloudCredCmdLine
+from qds_sdk.cross_account_configs import CrossAccountConfigCmdLine
+from qds_sdk.accounts import AccountCmdLine
 
 import os
 import sys
@@ -433,12 +440,40 @@ def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
 
+def spacemain(args):
+    result = SpaceCmdLine.run(args)
+    print(result)
+
+def spacesubscribermain(args):
+    result = SpaceSubscriberCmdLine.run(args)
+    print(result)
+
+def publishedhivetablemain(args):
+    result = PublishedHivetableCmdLine.run(args)
+    print(result)
+
+def subscribedhivetablemain(args):
+    result = SubscribedHivetableCmdLine.run(args)
+    print(result)
+
+def cloudcredmain(args):
+    result = CloudCredCmdLine.run(args)
+    print(result)
+
+def crossaccountconfigmain(args):
+    result = CrossAccountConfigCmdLine.run(args)
+    print(result)
+
 def rolemain(args):
     result = RoleCmdLine.run(args)
     print(result)
 
 def groupmain(args):
     result = GroupCmdLine.run(args)
+    print(result)
+
+def accountmain(args):
+    result = AccountCmdLine.run(args)
     print(result)
 
 def main():
@@ -531,11 +566,32 @@ def main():
     if a0 == "dbtap":
         return dbtapmain(args)
 
+    if a0 == "space":
+        return spacemain(args)
+
+    if a0 == "space_subscriber":
+        return spacesubscribermain(args)
+
+    if a0 == "published_hivetable":
+        return publishedhivetablemain(args)
+
+    if a0 == "subscribed_hivetable":
+        return subscribedhivetablemain(args)
+
+    if a0 == "cloud_cred":
+        return cloudcredmain(args)
+
+    if a0 == "cross_acc_config":
+        return crossaccountconfigmain(args)
+
     if a0 == "group":
         return groupmain(args)
 
     if a0 == "role":
         return rolemain(args)
+
+    if a0 == "account":
+        return accountmain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
