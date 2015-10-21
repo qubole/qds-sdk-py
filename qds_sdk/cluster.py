@@ -240,9 +240,9 @@ class Cluster(Resource):
                                        " each instance of the cluster",)
           ebs_volume_group.add_argument("--ebs-volume-type",
                                   dest="ebs_volume_type",
-                                  choices=["standard", "ssd"],
+                                  choices=["standard", "gp2"],
                                   help=" of the EBS volume. Valid values are " +
-                                       "'standard' (magnetic) and 'ssd'.",)
+                                       "'standard' (magnetic) and 'gp2' (ssd).",)
           ebs_volume_group.add_argument("--ebs-volume-size",
                                   dest="ebs_volume_size",
                                   type=int,
