@@ -33,7 +33,7 @@ CommandClasses = {
 }
 
 usage_str = ("Usage: \n"
-             "qds [options] <CmdArgs|ClusterArgs|ReportArgs>\n"
+             "qds [options] <CmdArgs|ClusterArgs|ReportArgs|AccountArgs>\n"
              "\nCmdArgs:\n" +
              "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbtapquerycmd|sparkcmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
              "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
@@ -69,7 +69,10 @@ usage_str = ("Usage: \n"
              "\nRole:\n" +
              "  role --help\n" +
             "\nScheduler:\n" +
-             "  scheduler --help\n")
+             "  scheduler --help\n" +
+             "\nAccountArgs:\n" +
+             "account <create> [args .. ]\n" +
+             "create [cmd-specific-args ..] : create a new account")
 
 
 def usage(parser=None):
@@ -390,6 +393,29 @@ def clustermain(args):
         usage()
     return globals()["cluster_" + action + "_action"](clusterclass, args)
 
+def account_create_action(accountclass, args):
+    arguments = accountclass._parse_account(args, action = "create")
+    if arguments is not None:
+        result = accountclass.create(**arguments)
+    return 0
+
+
+
+def accountmain(args):
+    accountclass = Account
+    actionset = set(["create"])
+
+    if len(args) < 1:
+        sys.stderr.write("missing argument containing action\n")
+        usage()
+
+    action = args.pop(0)
+    if action not in actionset:
+        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+        usage()
+
+    return globals()["account_" + action + "_action"](accountclass, args)
+
 
 def reportmain(args):
     result = ReportCmdLine.run(args)
@@ -489,6 +515,9 @@ def main():
     if a0 in CommandClasses:
         return cmdmain(a0, args)
 
+    if a0 == "account":
+        return accountmain(args)
+
     if a0 == "cluster":
         return clustermain(args)
 
@@ -513,7 +542,7 @@ def main():
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "scheduler", "report",
-                       "dbtap", "role", "group"])))
+                       "dbtap", "role", "group","account"])))
     usage(optparser)
 
 
