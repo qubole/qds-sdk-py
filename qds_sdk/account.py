@@ -8,50 +8,37 @@ from qds_sdk.exception import ParseError
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
+import argparse
 
 class Account(SingletonResource):
-    usage = ("account <create> [options]")
-    optparser = GentleOptionParser(usage=usage)
-    optparser.add_option("--name", dest="name", help="account name")
-    optparser.add_option("--location", dest="defloc", help="Default location of S3")
-    optparser.add_option("--access", dest = "acc_key", help="access key")
-    optparser.add_option("--secret", dest= "secret", help="secret key")
-    optparser.add_option("--compute_access", dest="compute_access_key", help="compute access key")
-    optparser.add_option("--compute_secret", dest="compute_secret_key", help="compute secret key")
-    optparser.add_option('--aws', dest="aws_region", help="aws region")
-    optparser.add_option("--account_plan", dest="use_previous_account_plan", help="use previous account plan")
-
 
     credentials_rest_entity_path = "accounts/get_creds"
     rest_entity_path = "account"
 
+    @classmethod
+    def _parse_account(cls, args, action):
+
+        argparser = argparse.ArgumentParser(prog="account create",
+                description="Account Creation for Qubole Data Service.")
+
+        argparser.add_argument("--name", dest="name", help="account name")
+        argparser.add_argument("--location", dest="defloc", help="Default location of S3")
+        argparser.add_argument("--access", dest = "acc_key", help="access key")
+        argparser.add_argument("--secret", dest= "secret", help="secret key")
+        argparser.add_argument("--compute_access", dest="compute_access_key", help="compute access key")
+        argparser.add_argument("--compute_secret", dest="compute_secret_key", help="compute secret key")
+        argparser.add_argument('--aws', dest="aws_region", help="aws region")
+        argparser.add_argument("--account_plan", dest="use_previous_account_plan", help="use previous account plan")
+        arguments = argparser.parse_args(args)
+        arguments.level = "free"
+        arguments.compute_type = "CUSTOMER_MANAGED"
+        arguments.storage_type = "CUSTOMER_MANAGED"
+        arguments.CacheQuotaSizeInGB = "25"
+        v = {}
+        v['account'] = vars(arguments)
+        return v
 
     @classmethod
     def create(cls, **kwargs):
         conn = Qubole.agent()
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
-
-    @classmethod
-    def _parse_account(cls, args, action):
-        if action == "create":
-            try:
-                (options, args) = cls.optparser.parse_args(args)
-            except OptionParsingError as e:
-                raise ParseError(e.msg, cls.optparser.format_help())
-            except OptionParsingExit as e:
-                return None
-        v = {}
-        options.level = "free"
-        options.compute_type = "CUSTOMER_MANAGED"
-        options.storage_type = "CUSTOMER_MANAGED"
-        options.CacheQuotaSizeInGB = "25"
-
-        v['account'] = vars(options)
-        return v
-
-
-
-
-
-
-
