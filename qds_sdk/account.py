@@ -28,7 +28,7 @@ class Account(SingletonResource):
         argparser.add_argument("--compute_access", dest="compute_access_key", help="compute access key")
         argparser.add_argument("--compute_secret", dest="compute_secret_key", help="compute secret key")
         argparser.add_argument('--aws', dest="aws_region", help="aws region")
-        argparser.add_argument("--account_plan", dest="use_previous_account_plan", help="use previous account plan")
+        argparser.add_argument("--previous_account_plan", dest="use_previous_account_plan", help="either true or false")
         arguments = argparser.parse_args(args)
         arguments.level = "free"
         arguments.compute_type = "CUSTOMER_MANAGED"
