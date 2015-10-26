@@ -11,6 +11,8 @@ from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
+from qds_sdk.account import AccountCmdLine
+
 
 import os
 import sys
@@ -71,8 +73,7 @@ usage_str = ("Usage: \n"
             "\nScheduler:\n" +
              "  scheduler --help\n" +
              "\nAccountArgs:\n" +
-             "account <create> [args .. ]\n" +
-             "create [cmd-specific-args ..] : create a new account")
+             "  account --help\n")
 
 
 def usage(parser=None):
@@ -393,29 +394,9 @@ def clustermain(args):
         usage()
     return globals()["cluster_" + action + "_action"](clusterclass, args)
 
-def account_create_action(accountclass, args):
-    arguments = accountclass._parse_account(args, action = "create")
-    if arguments is not None:
-        result = accountclass.create(**arguments)
-    return 0
-
-
-
 def accountmain(args):
-    accountclass = Account
-    actionset = set(["create"])
-
-    if len(args) < 1:
-        sys.stderr.write("missing argument containing action\n")
-        usage()
-
-    action = args.pop(0)
-    if action not in actionset:
-        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
-        usage()
-
-    return globals()["account_" + action + "_action"](accountclass, args)
-
+    result = AccountCmdLine.run(args)
+    print(result)
 
 def reportmain(args):
     result = ReportCmdLine.run(args)
