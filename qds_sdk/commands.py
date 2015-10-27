@@ -318,6 +318,8 @@ class SparkCommand(Command):
 
     optparser.add_option("--language", dest="language", choices = allowedlanglist, help=SUPPRESS_HELP)
 
+    optparser.add_option("--app-id", dest="app_id", type=int, help="The Spark Job Server app id to submit this snippet to.")
+
     optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
 
     optparser.add_option("--name", dest="name", help="Assign a name to this query")
@@ -353,6 +355,8 @@ class SparkCommand(Command):
         if bool_cmdline:
             if options.language is not None:
                 raise ParseError("Language cannot be specified with the commandline option", cls.optparser.format_help())
+            if options.app_id is not None:
+                raise ParseError("app_id cannot be specified with the commandline option", cls.optparser.format_help())
 
     @classmethod
     def validate_sql(cls, options):
