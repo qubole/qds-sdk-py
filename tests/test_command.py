@@ -342,6 +342,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program': None,
+                 'app_id': None,
                  'cmdline':'/usr/lib/spark/bin/spark-submit --class Test Test.jar',
                  'command_type': 'SparkCommand',
                  'arguments': None,
@@ -371,6 +372,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'name': None,
                      'sql': None,
                      'program':'print "Hello World!"',
+                     'app_id': None,
                      'cmdline':None,
                      'command_type': 'SparkCommand',
                      'arguments': None,
@@ -394,6 +396,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'name': None,
                      'sql': None,
                      'program': "println(\"hello, world!\")",
+                     'app_id': None,
                      'cmdline':None,
                      'command_type': 'SparkCommand',
                      'arguments': None,
@@ -426,6 +429,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'name': None,
                      'sql': None,
                      'program': "cat(\"hello, world!\")",
+                     'app_id': None,
                      'cmdline':None,
                      'command_type': 'SparkCommand',
                      'arguments': None,
@@ -446,6 +450,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'name': None,
                      'sql': 'show dummy',
                      'program': None,
+                     'app_id': None,
                      'cmdline':None,
                      'command_type': 'SparkCommand',
                      'arguments': None,
@@ -508,6 +513,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'program': "println(\"hello, world!\")",
+                 'app_id': None,
                  'command_type': 'SparkCommand',
                  'cmdline': None,
                  'can_notify': False,
@@ -527,6 +533,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program':"println(\"hello, world!\")" ,
+                 'app_id': None,
                  'command_type': 'SparkCommand',
                  'arguments': None,
                  'user_program_arguments': None,
@@ -549,6 +556,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program' : None,
+                 'app_id': None,
                  'arguments': None,
                  'user_program_arguments': None,
                  'command_type': 'SparkCommand',
@@ -572,6 +580,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'program': None,
+                 'app_id': None,
                  'command_type': 'SparkCommand',
                  'can_notify': False,
                  'script_location': None})
@@ -590,6 +599,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program': None,
+                 'app_id': None,
                  'cmdline': '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
                  'command_type': 'SparkCommand',
                  'arguments': None,
@@ -610,6 +620,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program': "print \"hello, world!\"",
+                 'app_id': None,
                  'cmdline': None,
                  'command_type': 'SparkCommand',
                  'arguments': None,
@@ -633,6 +644,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program': "object HelloWorld {\n\n    def main(args: Array[String]) {\n        \n        println(\"Hello, \" + args(0))\n    \n    }\n}\n" ,
+                 'app_id': None,
                  'cmdline': None,
                  'command_type': 'SparkCommand',
                  'arguments': '--class HelloWorld',
@@ -653,6 +665,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program': "println(\"hello, world!\")",
+                 'app_id': None,
                  'cmdline': None,
                  'command_type': 'SparkCommand',
                  'arguments': None,
@@ -673,12 +686,91 @@ class TestSparkCommand(QdsCliTestCase):
                  'name': None,
                  'sql': None,
                  'program': "cat(\"hello, world!\")",
+                 'app_id': None,
                  'cmdline': None,
                  'command_type': 'SparkCommand',
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None})
+
+    def test_submit_program_to_app(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language', 'scala',
+                    '--program', 'sc.version', '--app-id', '1']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': 'scala',
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': "sc.version",
+                 'app_id': 1,
+                 'cmdline': None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_sql_to_app(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show tables',
+                    '--app-id', '1']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': None,
+                 'tags': None,
+                 'name': None,
+                 'sql': 'show tables',
+                 'program': None,
+                 'app_id': 1,
+                 'cmdline': None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': None})
+
+    def test_submit_script_location_local_py_to_app(self):
+        with NamedTemporaryFile(suffix=".py") as tmp:
+            tmp.write('print "Hello World!"'.encode("utf8"))
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd', 'submit',
+                        '--script_location', tmp.name, '--app-id', '1']
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'label': None,
+                     'language': "python",
+                     'tags': None,
+                     'name': None,
+                     'sql': None,
+                     'program':'print "Hello World!"',
+                     'app_id': 1,
+                     'cmdline':None,
+                     'command_type': 'SparkCommand',
+                     'arguments': None,
+                     'user_program_arguments': None,
+                     'can_notify': False,
+                     'script_location': None})
+
+    def test_submit_cmdline_to_app(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline',
+                    '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                    '--app-id', '1']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
 
 class TestPrestoCommand(QdsCliTestCase):
 
