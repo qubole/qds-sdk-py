@@ -1,13 +1,8 @@
 """
 The Accounts module contains the base definition for a Qubole account object
 """
-import json
 from qds_sdk.resource import SingletonResource
 from qds_sdk.qubole import Qubole
-from qds_sdk.exception import ParseError
-from qds_sdk.util import GentleOptionParser
-from qds_sdk.util import OptionParsingError
-from qds_sdk.util import OptionParsingExit
 import argparse
 
 class AccountCmdLine:
@@ -22,14 +17,14 @@ class AccountCmdLine:
         #Create
         create = subparsers.add_parser("create",
                                        help="Create a new account")
-        create.add_argument("--name", dest="name", help="account name")
+        create.add_argument("--name", dest="name", help="Account name")
         create.add_argument("--location", dest="defloc", help="Default location of S3")
-        create.add_argument("--access", dest = "acc_key", help="access key")
-        create.add_argument("--secret", dest= "secret", help="secret key")
-        create.add_argument("--compute_access", dest="compute_access_key", help="compute access key")
-        create.add_argument("--compute_secret", dest="compute_secret_key", help="compute secret key")
-        create.add_argument('--aws', dest="aws_region", help="aws region")
-        create.add_argument("--previous_account_plan", dest="use_previous_account_plan",choices=["true", "false"], help="either true or false")
+        create.add_argument("--storage-access-key", dest = "acc_key", help="AWS Access Key for storage ")
+        create.add_argument("--storage-secret-key", dest= "secret", help="AWS Secret Key for storage")
+        create.add_argument("--compute-access-key", dest="compute_access_key", help="AWS Access Key for compute")
+        create.add_argument("--compute-secret-key", dest="compute_secret_key", help="AWS Secret Key for compute")
+        create.add_argument('--aws-region', dest="aws_region", help="AWS Region")
+        create.add_argument("--previous-account-plan", dest="use_previous_account_plan",choices=["true", "false"], help="Use previous account plan, either true or false")
         create.set_defaults(func=AccountCmdLine.create)
         return argparser
 
