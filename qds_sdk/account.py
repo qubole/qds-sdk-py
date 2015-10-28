@@ -11,7 +11,7 @@ class AccountCmdLine:
     @staticmethod
     def parsers():
         argparser = argparse.ArgumentParser(prog="qds.py account",
-                description="Account Creation for Qubole Data Service.")
+                                            description="Account Creation for Qubole Data Service.")
         subparsers = argparser.add_subparsers(title = "account operation")
 
         #Create

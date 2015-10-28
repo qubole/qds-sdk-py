@@ -70,7 +70,7 @@ usage_str = ("Usage: \n"
              "  group --help\n" +
              "\nRole:\n" +
              "  role --help\n" +
-            "\nScheduler:\n" +
+             "\nScheduler:\n" +
              "  scheduler --help\n" +
              "\nAccountArgs:\n" +
              "  account --help\n")
@@ -523,7 +523,7 @@ def main():
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "scheduler", "report",
-                       "dbtap", "role", "group","account"])))
+                                            "dbtap", "role", "group","account"])))
     usage(optparser)
 
 
