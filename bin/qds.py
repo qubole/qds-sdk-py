@@ -33,44 +33,48 @@ CommandClasses = {
     "prestocmd": PrestoCommand
 }
 
-usage_str = ("Usage: \n"
-             "qds [options] <CmdArgs|ClusterArgs|ReportArgs>\n"
-             "\nCmdArgs:\n" +
-             "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbtapquerycmd|sparkcmd> <submit|run|check|cancel|getresult|getlog> [args .. ]\n"
-             "  submit [cmd-specific-args .. ] : submit cmd & print id \n"
-             "  run [cmd-specific-args .. ] : submit cmd & wait. print results \n"
-             "  check <id> : print the cmd object for this Id\n"
-             "  cancel <id> : cancels the cmd with this Id\n"
-             "  getresult <id> : get the results for the cmd with this Id\n"
-             "  getlog <id> : get the logs for the cmd with this Id\n"
-             "\nClusterArgs:\n" +
-             "  cluster <create|delete|update|list|start|terminate|status|reassign_label|snapshot|restore_point|add_node|remove_node|update_node|get_snapshot_schedule|update_snapshot_schedule> [args .. ]\n"
-             "  create [cmd-specific-args ..] : create a new cluster\n"
-             "  delete [cmd-specific-args ..] : delete an existing cluster\n"
-             "  update [cmd-specific-args ..] : update the settings of an existing cluster\n"
-             "  clone [cmd-specific-args ..] : clone a cluster from an existing one\n"
-             "  list [cmd-specific-args ..] : list existing cluster(s)\n"
-             "  start [cmd-specific-args ..] : start an existing cluster\n"
-             "  terminate [cmd-specific-args ..] : terminate a running cluster\n"
-             "  status [cmd-specific-args ..] : show whether the cluster is up or down\n" +
-             "  reassign_label [cmd-specific-args ..] : reassign label from one cluster to another\n" +
-             "  snapshot [cmd-specific-args ..] : take snapshot of cluster\n" +
-             "  restore_point [cmd-specific-args ..] : restore cluster from snapshot\n" +
-             "  add_node [cmd-specific-args ..] : add a node to existing cluster\n" +
-             "  remove_node [cmd-specific-args ..] : remove a node to existing cluster\n" +
-             "  update_node [cmd-specific-args ..] : update a node on a existing cluster\n" +
-             "  get_snapshot_schedule [cmd-specific-args ..] : get details of scheduled snapshots on a hbase cluster\n" +
-             "  update_snapshot_schedule [cmd-specific-args ..] : update scheduled snapshots on a hbase cluster\n" +
-             "\nDbTap:\n" +
-             "  dbtap --help\n" +
-             "\nReportArgs:\n" +
-             "  report (<report-name> [options] | list)\n" +
-             "\nGroup:\n" +
-             "  group --help\n" +
-             "\nRole:\n" +
-             "  role --help\n" +
-            "\nScheduler:\n" +
-             "  scheduler --help\n")
+usage_str = (
+    "Usage: qds.py [options] <subcommand>\n"
+    "\nCommand subcommands:\n"
+    "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbimportcmd|dbtapquerycmd|sparkcmd> <action>\n"
+    "    submit [cmd-specific-args .. ] : submit cmd & print id\n"
+    "    run [cmd-specific-args .. ] : submit cmd & wait. print results\n"
+    "    check <id> : print the cmd object for this id\n"
+    "    cancel <id> : cancels the cmd with this id\n"
+    "    getresult <id> : get the results for the cmd with this id\n"
+    "    getlog <id> : get the logs for the cmd with this id\n"
+    "\nCluster subcommand:\n"
+    "  cluster <action>\n"
+    "    create: create a new cluster\n"
+    "    delete: delete an existing cluster\n"
+    "    update: update the settings of an existing cluster\n"
+    "    clone: clone a cluster from an existing one\n"
+    "    list: list existing cluster(s)\n"
+    "    start: start an existing cluster\n"
+    "    terminate: terminate a running cluster\n"
+    "    status: show whether the cluster is up or down\n"
+    "    reassign_label: reassign label from one cluster to another\n"
+    "    snapshot: take snapshot of cluster\n"
+    "    restore_point: restore cluster from snapshot\n"
+    "    add_node: add a node to existing cluster\n"
+    "    remove_node: remove a node to existing cluster\n"
+    "    update_node: update a node on a existing cluster\n"
+    "    get_snapshot_schedule: get details of scheduled snapshots on a hbase cluster\n"
+    "    update_snapshot_schedule: update scheduled snapshots on a hbase cluster\n"
+    "\nDbTap subcommand:\n"
+    "  dbtap --help\n"
+    "\nReport subcommand:\n"
+    "  report --help\n"
+    "\nGroup subcommand:\n"
+    "  group --help\n"
+    "\nRole subcommand:\n"
+    "  role --help\n"
+    "\nApp subcommand:\n"
+    "  app --help\n"
+    "\nAction subcommand:\n"
+    "  action --help\n"
+    "\nScheduler subcommand:\n"
+    "  scheduler --help\n")
 
 
 def usage(parser=None):
@@ -513,7 +517,7 @@ def main():
                      skip_ssl_cert_check=options.skip_ssl_cert_check)
 
     if len(args) < 1:
-        sys.stderr.write("Missing first argument containing command type\n")
+        sys.stderr.write("Missing first argument containing subcommand\n")
         usage(optparser)
 
     a0 = args.pop(0)
@@ -547,7 +551,7 @@ def main():
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
-                     "|".join(cmdset.union(["cluster", "scheduler", "report",
+                     "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
                        "dbtap", "role", "group", "app"])))
     usage(optparser)
 
