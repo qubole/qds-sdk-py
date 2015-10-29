@@ -11,6 +11,7 @@ from qds_sdk.report import ReportCmdLine
 from qds_sdk.dbtaps import DbTapCmdLine
 from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
+from qds_sdk.app import AppCmdLine
 
 import os
 import sys
@@ -441,6 +442,10 @@ def groupmain(args):
     result = GroupCmdLine.run(args)
     print(result)
 
+def appmain(args):
+    result = AppCmdLine.run(args)
+    print(result)
+
 def main():
 
     optparser = OptionParser(usage=usage_str)
@@ -536,6 +541,9 @@ def main():
 
     if a0 == "role":
         return rolemain(args)
+
+    if a0 == "app":
+        return appmain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
