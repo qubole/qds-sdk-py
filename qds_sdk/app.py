@@ -14,19 +14,20 @@ class AppCmdLine:
 
     @staticmethod
     def parsers():
-        argparser = argparse.ArgumentParser(prog="qds.py app",
-                description="Client for managing apps on Qubole Data Service.")
+        argparser = argparse.ArgumentParser(
+            prog="qds.py app",
+            description="Client for managing apps on Qubole Data Service.")
         subparsers = argparser.add_subparsers(title="app operations")
 
         # Show information about an app
-        show = subparsers.add_parser("show",
-                help="Show information about an app")
+        show = subparsers.add_parser(
+            "show", help="Show information about an app")
         show.add_argument("id", type=int, help="Numeric id of the app")
         show.set_defaults(func=AppCmdLine.show)
 
         # For listing information about all apps
-        index = subparsers.add_parser("list",
-                help="List all available apps")
+        index = subparsers.add_parser(
+            "list", help="List all available apps")
         index.set_defaults(func=AppCmdLine.index)
 
         def check_pair(pair):
@@ -34,18 +35,19 @@ class AppCmdLine:
                 key, value = pair.split("=")
             except Exception:
                 raise argparse.ArgumentTypeError(
-                        "%s is an invalid key=value pair." % pair)
+                    "%s is an invalid key=value pair." % pair)
             return key, value
 
         # Create a new app
         create = subparsers.add_parser("create", help="Create a new app")
         create.add_argument("--name", required=True,
-                help="""The name for the app""")
+                            help="The name for the app")
         create.add_argument("--kind", default="spark", choices=['spark'],
-                help="""The kind of the app. Default is spark""")
-        create.add_argument("--config", nargs="*", type=check_pair,
-                help="""Specify the config you want to set for this app as
-                key=value pairs separated by spaces""")
+                            help="The kind of the app. Default is spark")
+        create.add_argument(
+            "--config", nargs="*", type=check_pair,
+            help="""Specify the config you want to set for this app as
+            key=value pairs separated by spaces""")
         create.set_defaults(func=AppCmdLine.create)
 
         # Stop an app
@@ -135,7 +137,7 @@ class App(Resource):
         """
         conn = Qubole.agent()
         return conn.post(cls.rest_entity_path,
-               data={'name': name, 'config': config, 'kind': kind})
+                         data={'name': name, 'config': config, 'kind': kind})
 
     @classmethod
     def stop(cls, app_id):
@@ -143,7 +145,7 @@ class App(Resource):
         Stops an app by issuing a PUT request to the /apps/ID/stop endpoint.
         """
         conn = Qubole.agent()
-        return conn.put(cls.element_path(app_id)+"/stop")
+        return conn.put(cls.element_path(app_id) + "/stop")
 
     @classmethod
     def delete(cls, app_id):
