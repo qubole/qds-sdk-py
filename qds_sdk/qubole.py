@@ -1,7 +1,10 @@
 import requests
+import logging
 from qds_sdk.connection import Connection
 from qds_sdk.exception import ConfigError
 
+
+log = logging.getLogger("qds_qubole")
 
 class QuboleAuth(requests.auth.AuthBase):
     def __init__(self, token):
@@ -17,6 +20,8 @@ class Qubole:
     Singleton for storing authorization credentials and other
     configuration parameters for QDS.
     """
+
+    MIN_POLL_INTERVAL = 1
 
     _auth = None
     api_token = None
@@ -43,7 +48,11 @@ class Qubole:
         cls._auth = QuboleAuth(api_token)
         cls.api_token = api_token
         cls.base_url = api_url.rstrip('/') + '/' + version
-        cls.poll_interval = poll_interval
+        if poll_interval < Qubole.MIN_POLL_INTERVAL:
+            log.warn("Poll interval cannot be less than %s seconds. Setting it to %s seconds.\n" % (Qubole.MIN_POLL_INTERVAL, Qubole.MIN_POLL_INTERVAL))
+            cls.poll_interval = Qubole.MIN_POLL_INTERVAL
+        else:
+            cls.poll_interval = poll_interval
         cls.skip_ssl_cert_check = skip_ssl_cert_check
 
     cached_agent = None
