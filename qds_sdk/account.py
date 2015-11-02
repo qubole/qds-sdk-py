@@ -17,14 +17,14 @@ class AccountCmdLine:
         #Create
         create = subparsers.add_parser("create",
                                        help="Create a new account")
-        create.add_argument("--name", dest="name", help="Account name")
-        create.add_argument("--location", dest="defloc", help="Default location of S3")
-        create.add_argument("--storage-access-key", dest = "acc_key", help="AWS Access Key for storage ")
-        create.add_argument("--storage-secret-key", dest= "secret", help="AWS Secret Key for storage")
-        create.add_argument("--compute-access-key", dest="compute_access_key", help="AWS Access Key for compute")
-        create.add_argument("--compute-secret-key", dest="compute_secret_key", help="AWS Secret Key for compute")
-        create.add_argument('--aws-region', dest="aws_region", help="AWS Region")
-        create.add_argument("--previous-account-plan", dest="use_previous_account_plan",choices=["true", "false"], help="Use previous account plan, either true or false")
+        create.add_argument("--name", dest="name", required=True, help="Account name")
+        create.add_argument("--location", dest="defloc", required=True, help="Default location of S3")
+        create.add_argument("--storage-access-key", dest = "acc_key", required=True, help="AWS Access Key for storage ")
+        create.add_argument("--storage-secret-key", dest= "secret", required=True, help="AWS Secret Key for storage")
+        create.add_argument("--compute-access-key", dest="compute_access_key", required=True, help="AWS Access Key for compute")
+        create.add_argument("--compute-secret-key", dest="compute_secret_key", required=True, help="AWS Secret Key for compute")
+        create.add_argument('--aws-region', dest="aws_region", required=True, help="AWS Region")
+        create.add_argument("--previous-account-plan", dest="use_previous_account_plan",choices=["true", "false"], required=True, help="Use previous account plan, either true or false")
         create.set_defaults(func=AccountCmdLine.create)
         return argparser
 
