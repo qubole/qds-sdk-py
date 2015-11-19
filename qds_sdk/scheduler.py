@@ -5,9 +5,8 @@ from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 from qds_sdk.commands import *
 from qds_sdk.actions import *
-from qds_sdk.cmd_line import CmdLine
 
-class SchedulerCmdLine(CmdLine):
+class SchedulerCmdLine:
     """
     qds_sdk.ScheduleCmdLine is the interface used by qds.py.
     """
@@ -106,13 +105,35 @@ class SchedulerCmdLine(CmdLine):
     def run(args):
         parser = SchedulerCmdLine.parsers()
         parsed = parser.parse_args(args)
-        return parsed.func(Scheduler, parsed)
+        return parsed.func(parsed)
+
+    @staticmethod
+    def filter_fields(schedule, fields):
+        filtered = {}
+        for field in fields:
+            filtered[field] = schedule[field]
+        return filtered
 
     @staticmethod
     def create(args):
         with open(args.data) as f:
             spec = json.load(f)
         schedule = Scheduler(spec)
+        return json.dumps(schedule.attributes, sort_keys=True, indent=4)
+
+    @staticmethod
+    def list(args):
+        schedlist = Scheduler.list(args.page, args.per_page)
+        if args.fields:
+            for s in schedlist:
+                s.attributes = SchedulerCmdLine.filter_fields(s.attributes, args.fields)
+        return json.dumps(schedlist, default=lambda o: o.attributes, sort_keys=True, indent=4)
+
+    @staticmethod
+    def view(args):
+        schedule = Scheduler.find(args.id)
+        if args.fields:
+            schedule.attributes = SchedulerCmdLine.filter_fields(schedule.attributes, args.fields)
         return json.dumps(schedule.attributes, sort_keys=True, indent=4)
 
     @staticmethod
@@ -173,6 +194,25 @@ class Scheduler(Resource):
     """ all commands use the /scheduler endpoint"""
 
     rest_entity_path = "scheduler"
+
+    @staticmethod
+    def list(page = None, per_page = None):
+        conn = Qubole.agent()
+        url_path = Scheduler.rest_entity_path
+        page_attr = []
+        if page is not None:
+            page_attr.append("page=%s" % page)
+        if per_page is not None:
+            page_attr.append("per_page=%s" % per_page)
+        if page_attr:
+            url_path = "%s?%s" % (Scheduler.rest_entity_path, "&".join(page_attr))
+
+        #Todo Page numbers are thrown away right now
+        schedjson = conn.get(url_path)
+        schedlist = []
+        for s in schedjson["schedules"]:
+            schedlist.append(Scheduler(s))
+        return schedlist
 
     @staticmethod
     def find_by_name(name):
