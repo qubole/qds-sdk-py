@@ -5,6 +5,7 @@ cluster information.
 
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
+from qds_sdk.account import Account
 from argparse import ArgumentParser
 
 import logging
@@ -128,7 +129,7 @@ class Cluster(Resource):
 
         create_required = False
         label_required = False
-        is_role_enabled = True if is_aws_role_enabled() else False
+        is_role_enabled = True if Account.is_aws_role_enabled() else False
 
         if action == "create":
             create_required = True
@@ -1163,11 +1164,3 @@ def _make_minimal(dictionary):
             else:
                 new_dict[key] = value
     return new_dict
-
-def is_aws_role_enabled():
-    conn = Qubole.agent()
-    is_enabled = conn.get("account/is_aws_role_enabled")
-    if is_enabled is not None and is_enabled is True:
-        return True
-
-    return False
