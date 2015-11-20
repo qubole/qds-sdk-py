@@ -79,10 +79,6 @@ class Connection:
         log.info("Payload: %s" % json.dumps(data, indent=4))
         log.info("Params: %s" % params)
 
-        print("[%s] %s" % (req_type, url))
-        print("Payload: %s" % json.dumps(data, indent=4))
-        print("Params: %s" % params)
-
         if req_type == 'GET':
             r = x.get(url, timeout=300, **kwargs)
         elif req_type == 'POST':

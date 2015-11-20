@@ -128,7 +128,6 @@ class Cluster(Resource):
 
         create_required = False
         label_required = False
-
         is_role_enabled = True if is_aws_role_enabled() else False
 
         if action == "create":
