@@ -67,7 +67,6 @@ class AccountCmdLine:
 
 class Account(SingletonResource):
     credentials_rest_entity_path = "accounts/get_creds"
-    aws_role_enabled_rest_entity_path = "account/is_aws_role_enabled"
     rest_entity_path = "account"
 
     @classmethod
