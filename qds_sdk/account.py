@@ -74,12 +74,3 @@ class Account(SingletonResource):
     def create(cls, **kwargs):
         conn = Qubole.agent()
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
-
-    @classmethod
-    def is_aws_role_enabled(cls):
-        conn = Qubole.agent()
-        is_enabled = conn.get(cls.aws_role_enabled_rest_entity_path)
-        if is_enabled is not None and is_enabled is True:
-            return True
-
-        return False

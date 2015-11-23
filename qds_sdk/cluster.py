@@ -5,7 +5,6 @@ cluster information.
 
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
-from qds_sdk.account import Account
 from argparse import ArgumentParser
 
 import logging
@@ -129,7 +128,6 @@ class Cluster(Resource):
 
         create_required = False
         label_required = False
-        is_role_enabled = True if Account.is_aws_role_enabled() else False
 
         if action == "create":
             create_required = True
@@ -149,13 +147,11 @@ class Cluster(Resource):
         ec2_group = argparser.add_argument_group("ec2 settings")
         ec2_group.add_argument("--access-key-id",
                                dest="aws_access_key_id",
-                               required=create_required and not is_role_enabled,
                                help="access key id for customer's aws" +
                                     " account. This is required while" +
                                     " creating the cluster",)
         ec2_group.add_argument("--secret-access-key",
                                dest="aws_secret_access_key",
-                               required=create_required and not is_role_enabled,
                                help="secret access key for customer's aws" +
                                     " account. This is required while" +
                                     " creating the cluster",)
