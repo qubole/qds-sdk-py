@@ -258,6 +258,7 @@ def _create_cluster_info(arguments, api_version):
                                       ssh_public_key=customer_ssh_key,
                                       persistent_security_group=arguments.persistent_security_group,
                                       enable_presto=arguments.enable_presto,
+                                      role_instance_profile=arguments.role_instance_profile,
                                       presto_custom_config=presto_custom_config,)
     else:
         cluster_info = ClusterInfo(arguments.label,
@@ -270,7 +271,8 @@ def _create_cluster_info(arguments, api_version):
         cluster_info.set_ec2_settings(arguments.aws_region,
                                       arguments.aws_availability_zone,
                                       arguments.vpc_id,
-                                      arguments.subnet_id)
+                                      arguments.subnet_id,
+                                      arguments.role_instance_profile)
 
         cluster_info.set_hadoop_settings(arguments.master_instance_type,
                                          arguments.slave_instance_type,
