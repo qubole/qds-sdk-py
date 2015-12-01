@@ -412,7 +412,7 @@ class TestSparkCommand(QdsCliTestCase):
             print_command()
             with self.assertRaises(qds_sdk.exception.ParseError):
                 qds.main()
-    
+
     def test_submit_script_location_local_R(self):
         with NamedTemporaryFile(suffix=".R") as tmp:
             tmp.write('cat("hello, world!")'.encode("utf8"))
@@ -429,6 +429,30 @@ class TestSparkCommand(QdsCliTestCase):
                      'name': None,
                      'sql': None,
                      'program': "cat(\"hello, world!\")",
+                     'app_id': None,
+                     'cmdline':None,
+                     'command_type': 'SparkCommand',
+                     'arguments': None,
+                     'user_program_arguments': None,
+                     'can_notify': False,
+                     'script_location': None})
+
+    def test_submit_script_location_local_sql(self):
+        with NamedTemporaryFile(suffix=".sql") as tmp:
+            tmp.write('show tables'.encode("utf8"))
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', tmp.name]
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'label': None,
+                     'language': None,
+                     'tags': None,
+                     'name': None,
+                     'sql': "show tables",
+                     'program': None,
                      'app_id': None,
                      'cmdline':None,
                      'command_type': 'SparkCommand',
