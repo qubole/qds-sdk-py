@@ -259,7 +259,7 @@ def _create_cluster_info(arguments, api_version):
                                       persistent_security_group=arguments.persistent_security_group,
                                       enable_presto=arguments.enable_presto,
                                       presto_custom_config=presto_custom_config,
-                                      bastian_node_public_dns=arguments.bastian_node_public_dns)
+                                      bastion_node_public_dns=arguments.bastion_node_public_dns)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,
