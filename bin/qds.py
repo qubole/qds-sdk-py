@@ -80,7 +80,10 @@ usage_str = (
     "\nAccount subcommand:\n"
     "  account --help\n"
     "\nNezha subcommand:\n"
-    "  nezha_data_sources --help")
+    "  nezha <action>\n"
+    "    data_sources --help\n"
+    "    cubes --help\n"
+    "    partitions --help")
 
 
 def usage(parser=None):
@@ -565,7 +568,7 @@ def main():
     if a0 == "app":
         return appmain(args)
 
-    if a0 == "nezha_data_sources":
+    if a0 == "nezha":
         return nezhamain(args)
 
     cmdset = set(CommandClasses.keys())
