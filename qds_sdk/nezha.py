@@ -15,7 +15,8 @@ class NezhaCmdLine(CmdLine):
                         'measures' : 'NezhaMeasure',
                         'partitions' : 'NezhaPartition',
                         'dimensions' : 'NezhaDimension',
-                        'data_sources' : 'NezhaDataSource'}
+                        'data_sources' : 'NezhaDataSource',
+                        'default_data_source' : 'NezhaDefaultDS'}
     classname = ""
 
     @staticmethod
@@ -97,6 +98,9 @@ class NezhaCmdLine(CmdLine):
             update.add_argument("--destination_id", dest="destination_id", help="Data Source id acting as destiantion")
             update.add_argument("--query", dest="query", help="Query")
 
+        elif nezha_entity == "default_datasource":
+            update.add_argument("--id", help="Numeric id of the Default DataSource")
+
         update.set_defaults(func=NezhaCmdLine.update, default=None)
 
 
@@ -160,3 +164,21 @@ class NezhaMeasure(Resource):
     """ endpoint for data source is  /nezha_data_sources endpoint"""
 
     rest_entity_path = "nezha_cubes/"
+
+
+class NezhaDefaultDS(Resource):
+    """ 
+    Get/Set default-datasource for DSSet
+    """
+
+    rest_entity_path = "accounts/default_datasource"
+
+    @classmethod
+    def update(cls, **kwargs):
+        conn = Qubole.agent()
+        return conn.put(cls.rest_entity_path, data=kwargs)
+
+    @classmethod
+    def find(cls, **kwargs):
+        conn = Qubole.agent()
+        return cls(conn.get(cls.rest_entity_path))
