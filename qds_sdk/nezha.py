@@ -154,7 +154,7 @@ class NezhaDimension(Resource):
 
     """ endpoint for data source is  /nezha_data_sources endpoint"""
 
-    rest_entity_path = "nezha_cubes/"
+    rest_entity_path = ""
 
 class NezhaMeasure(Resource):
     """
@@ -163,7 +163,7 @@ class NezhaMeasure(Resource):
 
     """ endpoint for data source is  /nezha_data_sources endpoint"""
 
-    rest_entity_path = "nezha_cubes/"
+    rest_entity_path = ""
 
 
 class NezhaDefaultDS(Resource):
