@@ -87,9 +87,22 @@ class Command(Resource):
         Returns:
             Command object
         """
+        log_lines_consumed = 0
+
         cmd = cls.create(**kwargs)
+        print >>sys.stderr, "Command id %s" % cmd.id
         while not Command.is_done(cmd.status):
             time.sleep(Qubole.poll_interval)
+
+            if kwargs.get('print_logs_live', False):
+                # show error log.  it's inefficient, but how else?
+                log = cmd.get_log().strip().split('\n')
+                not_consumed = len(log) - log_lines_consumed
+                if not_consumed > 0:
+                    for line in log[log_lines_consumed:]:
+                        print >>sys.stderr, line
+                    log_lines_consumed += not_consumed
+
             cmd = cls.find(cmd.id)
 
         return cmd
@@ -239,6 +252,9 @@ class HiveCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr as the command is running.")
 
     @classmethod
     def parse(cls, args):
