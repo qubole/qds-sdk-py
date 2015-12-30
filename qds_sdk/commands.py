@@ -87,9 +87,14 @@ class Command(Resource):
         Returns:
             Command object
         """
+        err_pointer, tmp_pointer = 0, 0
         cmd = cls.create(**kwargs)
         while not Command.is_done(cmd.status):
             time.sleep(Qubole.poll_interval)
+            if kwargs.get('print_logs_live', False):
+                log, err_pointer, tmp_pointer = cmd.get_log_partial(err_pointer, tmp_pointer)
+                if len(log) > 0:
+                    print >>sys.stderr, log
             cmd = cls.find(cmd.id)
 
         return cmd
@@ -136,6 +141,19 @@ class Command(Resource):
         r = conn.get_raw(log_path)
         return r.text
 
+    def get_log_partial(self, err_pointer=0, tmp_pointer=0):
+        """
+        Fetches log for the command represented by this object
+
+        Returns:
+            The log as a string
+        """
+        log_path = self.meta_data['logs_resource']
+        conn = Qubole.agent()
+        r = conn.get_raw(log_path, params={'err_file_processed':err_pointer, 'tmp_file_processed':tmp_pointer})
+        if 'err_length' in r.headers.keys() and 'tmp_length' in r.headers.keys():
+            return [r.text, r.headers['err_length'], r.headers['tmp_length']]
+        return [r.text, 0, 0]    
 
     @classmethod
     def get_jobs_id(cls, id):
@@ -239,6 +257,8 @@ class HiveCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
 
     @classmethod
     def parse(cls, args):
@@ -330,6 +350,9 @@ class SparkCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
     @classmethod
     def validate_program(cls, options):
         bool_program = options.program is not None
@@ -485,6 +508,9 @@ class PrestoCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
 
     @classmethod
     def parse(cls, args):
@@ -558,6 +584,9 @@ class HadoopCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
 
     optparser.disable_interspersed_args()
 
@@ -635,6 +664,9 @@ class ShellCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
 
     @classmethod
     def parse(cls, args):
@@ -728,6 +760,9 @@ class PigCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
 
     @classmethod
     def parse(cls, args):
@@ -843,6 +878,9 @@ class DbExportCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
 
     @classmethod
     def parse(cls, args):
@@ -943,6 +981,9 @@ class DbImportCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
 
     @classmethod
     def parse(cls, args):
@@ -1030,6 +1071,9 @@ class DbTapQueryCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+
 
     @classmethod
     def parse(cls, args):
