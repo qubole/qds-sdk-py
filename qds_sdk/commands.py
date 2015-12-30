@@ -11,7 +11,7 @@ from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
-
+from optparse import SUPPRESS_HELP
 import boto
 
 import time
@@ -19,7 +19,7 @@ import logging
 import sys
 import re
 import pipes
-
+import os
 import json
 
 log = logging.getLogger("qds_commands")
@@ -70,6 +70,8 @@ class Command(Resource):
         conn = Qubole.agent()
         if kwargs.get('command_type') is None:
             kwargs['command_type'] = cls.__name__
+        if kwargs.get('tags') is not None:
+            kwargs['tags'] = kwargs['tags'].split(',')
 
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
 
@@ -134,12 +136,39 @@ class Command(Resource):
         r = conn.get_raw(log_path)
         return r.text
 
-    def get_results(self, fp=sys.stdout, inline=True, delim=None):
+
+    @classmethod
+    def get_jobs_id(cls, id):
+        """
+        Fetches information about the hadoop jobs which were started by this
+        command id. This information is only available for commands which have
+        completed (i.e. Status = 'done', 'cancelled' or 'error'.) Also, the
+        cluster which ran this command should be running for this information
+        to be available. Otherwise only the URL and job_id is shown.
+
+        Args:
+            `id`: command id
+        """
+        conn = Qubole.agent()
+        r = conn.get_raw(cls.element_path(id) + "/jobs")
+        return r.text
+
+
+    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True):
         """
         Fetches the result for the command represented by this object
 
+        get_results will retrieve results of the command and write to stdout by default.
+        Optionally one can write to a filestream specified in `fp`. The `inline` argument
+        decides whether the result can be returned as a CRLF separated string. In cases where
+        the results are greater than 20MB, get_results will attempt to read from s3 and write
+        to fp. The retrieval of results from s3 can be turned off by the `fetch` argument
+
         Args:
             `fp`: a file object to write the results to directly
+            `inline`: whether or not results are returned inline as CRLF separated string
+            `fetch`: True to fetch the result even if it is greater than 20MB, False to
+                     only get the result location on s3
         """
         result_path = self.meta_data['results_resource']
 
@@ -159,16 +188,25 @@ class Command(Resource):
                     # Can this happen? Don't know what's the right thing to do in this case.
                     pass
         else:
-            acc = Account.find()
-            boto_conn = boto.connect_s3(aws_access_key_id=acc.storage_access_key,
-                                        aws_secret_access_key=acc.storage_secret_key)
+            if fetch:
+                storage_credentials = conn.get(Account.credentials_rest_entity_path)
+                boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
+                                            aws_secret_access_key=storage_credentials['storage_secret_key'],
+                                            security_token = storage_credentials['session_token'])
 
-            log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
-            #fetch latest value of num_result_dir
-            num_result_dir = Command.find(self.id).num_result_dir
-            for s3_path in r['result_location']:
-                # In Python 3, in this case, `fp` should always be binary mode.
-                _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
+                log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
+                #fetch latest value of num_result_dir
+                num_result_dir = Command.find(self.id).num_result_dir
+                for s3_path in r['result_location']:
+                    # In Python 3,
+                    # If the delim is None, fp should be in binary mode because
+                    # boto expects it to be.
+                    # If the delim is not None, then both text and binary modes
+                    # work.
+                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
+            else:
+                fp.write(",".join(r['result_location']))
+
 
 
 class HiveCommand(Command):
@@ -184,6 +222,9 @@ class HiveCommand(Command):
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
     optparser.add_option("--sample_size", dest="sample_size",
                          help="size of sample in bytes on which to run query")
 
@@ -195,6 +236,9 @@ class HiveCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this query")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -249,6 +293,170 @@ class HiveCommand(Command):
         v["command_type"] = "HiveCommand"
         return v
 
+class SparkCommand(Command):
+
+    usage = ("sparkcmd <submit|run> [options]")
+    allowedlanglist = ["python", "scala","R"]
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
+
+    optparser.add_option("--cmdline", dest="cmdline", help="command line for Spark")
+
+    optparser.add_option("--sql", dest="sql", help="sql for Spark")
+
+    optparser.add_option("-f", "--script_location", dest="script_location",
+                         help="Path where spark program to run is stored. Has to be a local file path")
+
+    optparser.add_option("--macros", dest="macros",
+                         help="expressions to expand macros used in query")
+
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
+    optparser.add_option("--cluster-label", dest="label", help="the label of the cluster to run the command on")
+
+    optparser.add_option("--language", dest="language", choices = allowedlanglist, help=SUPPRESS_HELP)
+
+    optparser.add_option("--app-id", dest="app_id", type=int, help="The Spark Job Server app id to submit this snippet to.")
+
+    optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
+
+    optparser.add_option("--name", dest="name", help="Assign a name to this query")
+
+    optparser.add_option("--arguments", dest = "arguments", help = "Spark Submit Command Line Options")
+
+    optparser.add_option("--user_program_arguments", dest = "user_program_arguments", help = "Arguments for User Program")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+    @classmethod
+    def validate_program(cls, options):
+        bool_program = options.program is not None
+        bool_other_options = options.script_location is not None or options.cmdline is not None or options.sql is not None
+
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_program == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+        if bool_program:
+            if options.language is None:
+                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+
+    @classmethod
+    def validate_cmdline(cls, options):
+        bool_cmdline = options.cmdline is not None
+        bool_other_options = options.script_location is not None or options.program is not None or options.sql is not None
+
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_cmdline == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+        if bool_cmdline:
+            if options.language is not None:
+                raise ParseError("Language cannot be specified with the commandline option", cls.optparser.format_help())
+            if options.app_id is not None:
+                raise ParseError("app_id cannot be specified with the commandline option", cls.optparser.format_help())
+
+    @classmethod
+    def validate_sql(cls, options):
+        bool_sql = options.sql is not None
+        bool_other_options = options.script_location is not None or options.program is not None or options.cmdline is not None
+
+        # if both are false then no option is specified => raise PraseError
+        # if both are true then atleast two option specified => raise ParseError
+        if bool_sql == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+        if bool_sql:
+            if options.language is not None:
+                raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
+
+    @classmethod
+    def validate_script_location(cls, options):
+        bool_script_location = options.script_location is not None
+        bool_other_options = options.program is not None or options.cmdline is not None or options.sql is not None
+
+        # if both are false then no option is specified ==> raise ParseError
+        # if both are true then atleast two option specified ==> raise ParseError
+        if bool_script_location == bool_other_options:
+            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+
+        if bool_script_location:
+            if options.language is not None:
+                raise ParseError("Both script location and language cannot be specified together", cls.optparser.format_help())
+            # for now, aws script_location is not supported and throws an error
+            if ((options.script_location.find("s3://") != 0) and
+                (options.script_location.find("s3n://") != 0)):
+
+                # script location is local file so set the program as the text from the file
+
+                try:
+                    q = open(options.script_location).read()
+                except IOError as e:
+                    raise ParseError("Unable to open script location: %s" %
+                                     str(e),
+                                     cls.optparser.format_help())
+
+
+                fileName, fileExtension = os.path.splitext(options.script_location)
+                # getting the language of the program from the file extension
+                if fileExtension == ".py":
+                    options.language = "python"
+                elif fileExtension == ".scala":
+                    options.language = "scala"
+                elif fileExtension == ".R":
+                    options.language = "R"
+                elif fileExtension == ".sql":
+                    options.language = "sql"
+                else:
+                    raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
+                                     cls.optparser.format_help())
+            else:
+                raise ParseError("Invalid location, Please choose a local file location",
+                                 cls.optparser.format_help())
+
+            options.script_location = None
+            if options.language == "sql":
+                options.sql = q
+                options.language = None
+            else:
+                options.program = q
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args`: sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        SparkCommand.validate_program(options)
+        SparkCommand.validate_script_location(options)
+        SparkCommand.validate_cmdline(options)
+        SparkCommand.validate_sql(options)
+
+        if options.macros is not None:
+            options.macros = json.loads(options.macros)
+
+        v = vars(options)
+        v["command_type"] = "SparkCommand"
+        return v
+
+
 
 class PrestoCommand(Command):
 
@@ -263,6 +471,9 @@ class PrestoCommand(Command):
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
     optparser.add_option("--cluster-label", dest="label",
                          help="the label of the cluster to run the command on")
 
@@ -271,6 +482,9 @@ class PrestoCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this query")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -339,6 +553,12 @@ class HadoopCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+
     optparser.disable_interspersed_args()
 
     @classmethod
@@ -368,7 +588,9 @@ class HadoopCommand(Command):
         parsed['label'] = options.label
         parsed['can_notify'] = options.can_notify
         parsed['name'] = options.name
+        parsed['tags'] = options.tags
         parsed["command_type"] = "HadoopCommand"
+        parsed['print_logs'] = options.print_logs
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
@@ -405,8 +627,14 @@ class ShellCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -492,8 +720,14 @@ class PigCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -601,8 +835,14 @@ class DbExportCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -695,8 +935,14 @@ class DbImportCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -738,7 +984,7 @@ class DbImportCommand(Command):
 
 class CompositeCommand(Command):
     @classmethod
-    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False):
+    def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False, name=None, tags=None):
         """
         Args:
             `sub_commands`: list of sub-command dicts
@@ -759,7 +1005,9 @@ class CompositeCommand(Command):
                 "command_type": "CompositeCommand",
                 "macros": macros,
                 "label": cluster_label,
-                "can_notify": notify
+                "tags": tags,
+                "can_notify": notify,
+                "name": name
                }
 
 
@@ -775,8 +1023,13 @@ class DbTapQueryCommand(Command):
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
 
     @classmethod
     def parse(cls, args):
@@ -820,7 +1073,17 @@ def _read_iteratively(key_instance, fp, delim):
         try:
             # Default buffer size is 8192 bytes
             data = next(key_instance)
-            fp.write(str(data).replace(chr(1), delim))
+            if sys.version_info < (3, 0, 0):
+                fp.write(str(data).replace(chr(1), delim))
+            else:
+                import io
+                if isinstance(fp, io.TextIOBase):
+                    fp.buffer.write(data.decode('utf-8').replace(chr(1), delim).encode('utf8'))
+                elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                    fp.write(data.decode('utf8').replace(chr(1), delim).encode('utf8'))
+                else:
+                    # Can this happen? Don't know what's the right thing to do in this case.
+                    pass
         except StopIteration:
             # Stream closes itself when the exception is raised
             return

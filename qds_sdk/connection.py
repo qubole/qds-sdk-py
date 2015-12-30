@@ -3,8 +3,12 @@ import requests
 import logging
 import ssl
 import json
+import pkg_resources
 from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.poolmanager import PoolManager
+try:
+    from requests.packages.urllib3.poolmanager import PoolManager
+except ImportError:
+    from urllib3.poolmanager import PoolManager
 from qds_sdk.retry import retry
 from qds_sdk.exception import *
 
@@ -14,6 +18,8 @@ log = logging.getLogger("qds_connection")
 """
 see http://stackoverflow.com/questions/14102416/python-requests-requests-exceptions-sslerror-errno-8-ssl-c504-eof-occurred
 """
+
+
 class MyAdapter(HTTPAdapter):
     def init_poolmanager(self, connections, maxsize,
                          block=False):
@@ -29,17 +35,19 @@ class Connection:
         self.auth = auth
         self.base_url = base_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
-        self._headers = {'Content-Type': 'application/json'}
+        self._headers = {'User-Agent': 'qds-sdk-py-%s' % pkg_resources.get_distribution("qds-sdk").version,
+                         'Content-Type': 'application/json'}
 
         self.reuse = reuse
         if reuse:
             self.session = requests.Session()
             self.session.mount('https://', MyAdapter())
 
+    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry(RetryWithDelay, tries=5, delay=20, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
@@ -72,13 +80,13 @@ class Connection:
         log.info("Params: %s" % params)
 
         if req_type == 'GET':
-            r = x.get(url, **kwargs)
+            r = x.get(url, timeout=300, **kwargs)
         elif req_type == 'POST':
-            r = x.post(url, **kwargs)
+            r = x.post(url, timeout=300, **kwargs)
         elif req_type == 'PUT':
-            r = x.put(url, **kwargs)
+            r = x.put(url, timeout=300, **kwargs)
         elif req_type == 'DELETE':
-            r = x.delete(url, **kwargs)
+            r = x.delete(url, timeout=300, **kwargs)
         else:
             raise NotImplemented
 
@@ -132,7 +140,7 @@ class Connection:
         elif code == 422:
             sys.stderr.write(response.text + "\n")
             raise ResourceInvalid(response)
-        elif code in (449, 503):
+        elif code in (449, 502, 503, 504):
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response)
         elif 401 <= code < 500:

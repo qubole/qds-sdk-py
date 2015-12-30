@@ -11,11 +11,36 @@ and use the Qubole Data Service API.
 Installation
 ------------
 
-Run the following command (may need to do this as root):
+From PyPI
+~~~~~~~~~
+The SDK is available on `PyPI <https://pypi.python.org/pypi/qds_sdk>`_.
 
 ::
 
-    $ python setup.py install
+    $ pip install qds-sdk
+
+From source
+~~~~~~~~~~~
+* Download the source code:
+
+  - Either clone the project: ``git clone git@github.com:qubole/qds-sdk-py.git``
+  
+  - Or download one of the releases from https://github.com/qubole/qds-sdk-py/releases
+
+* Run the following command (may need to do this as root):
+
+  ::
+
+      $ python setup.py install
+
+* Alternatively, if you use virtualenv, you can do this:
+
+  ::
+
+      $ cd qds-sdk-py
+      $ virtualenv venv
+      $ source venv/bin/activate
+      $ python setup.py install
 
 This should place a command line utility ``qds.py`` somewhere in your
 path
@@ -25,19 +50,6 @@ path
     $ which qds.py
     /usr/bin/qds.py
 
-Alternate Virtualenv Installation
----------------------------------
-
-Alternatively, if you use virtualenv, you can do this:
-
-::
-
-    $ cd qds-sdk-py
-    $ virtualenv venv
-    $ source venv/bin/activate
-    $ python setup.py install
-
-Which will install ``qds.py`` within your virtualenv.
 
 CLI
 ---
