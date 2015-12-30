@@ -115,7 +115,7 @@ class NezhaCmdLine(CmdLine):
     @staticmethod
     def update(cls, args):
         args_dict = {}
-        for key, value in args.__dict__.iteritems():
+        for key, value in args.__dict__.items():
             if key != "func" and key != "id" and value is not None:
                 args_dict[key] = value
         return json.dumps(globals()[NezhaCmdLine.classname].update(args.id, **args_dict), sort_keys=True, indent=4)
