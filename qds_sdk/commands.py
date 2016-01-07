@@ -489,16 +489,22 @@ class SparkCommand(Command):
                 elif fileExtension == ".scala":
                     options.language = "scala"
                 elif fileExtension == ".R":
-                	options.language = "R"	
+                    options.language = "R"
+                elif fileExtension == ".sql":
+                    options.language = "sql"
                 else:
-                    raise ParseError("Invalid program type, Please choose one from python or scala or R %s" %str(fileExtension),
+                    raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
                                      cls.optparser.format_help())
             else:
                 raise ParseError("Invalid location, Please choose a local file location",
                                  cls.optparser.format_help())
 
             options.script_location = None
-            options.program = q
+            if options.language == "sql":
+                options.sql = q
+                options.language = None
+            else:
+                options.program = q
 
     @classmethod
     def parse(cls, args):
