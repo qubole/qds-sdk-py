@@ -87,15 +87,26 @@ class Command(Resource):
         Returns:
             Command object
         """
-        err_pointer, tmp_pointer = 0, 0
+        err_pointer, tmp_pointer, new_bytes = 0, 0, 0
         cmd = cls.create(**kwargs)
         while not Command.is_done(cmd.status):
             time.sleep(Qubole.poll_interval)
-            if kwargs.get('print_logs_live', False):
-                log, err_pointer, tmp_pointer = cmd.get_log_partial(err_pointer, tmp_pointer)
-                if len(log) > 0:
-                    print >>sys.stderr, log
             cmd = cls.find(cmd.id)
+            if kwargs.get('print_logs_live', False):
+                log, err_length, tmp_length = cmd.get_log_partial(err_pointer, tmp_pointer)
+
+                if err_length != "0":
+                    err_pointer += int(err_length)
+                    new_bytes = int(err_length) + int(tmp_length) - new_bytes - tmp_pointer
+                    tmp_pointer = int(tmp_length)
+
+                else:
+                    tmp_pointer += int(tmp_length)
+                    new_bytes = int(tmp_length)
+
+                if len(log) > 0 and new_bytes > 0:
+                    data = list(log)
+                    print >>sys.stderr, "".join(data[-new_bytes:])
 
         return cmd
 
