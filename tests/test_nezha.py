@@ -92,6 +92,16 @@ class TestNezhaCube(QdsCliTestCase):
         Connection._api_call.assert_called_with(
             "GET", "nezha_cubes/123", params=None)
 
+    def test_view_with_fields(self):
+        sys.argv = ['qds.py', 'nezha', 'view', 'cubes', '123',
+                    '--fields', 'id', 'table_name']
+        print_command()
+        Connection._api_call = Mock(return_value={
+            'name':'dummycubes', 'id':'1', 'table_name':'2'})
+        qds.main()
+        Connection._api_call.assert_called_with(
+            "GET", "nezha_cubes/123", params=None)
+
     def test_view_neg(self):
         sys.argv = ['qds.py', 'nezha', 'view', 'cubes']
         print_command()
