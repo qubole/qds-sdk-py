@@ -80,10 +80,7 @@ usage_str = (
     "\nAccount subcommand:\n"
     "  account --help\n"
     "\nNezha subcommand:\n"
-    "  nezha <action>\n"
-    "    data_sources --help\n"
-    "    cubes --help\n"
-    "    partitions --help")
+    "  nezha --help\n")
 
 
 def usage(parser=None):
@@ -576,7 +573,7 @@ def main():
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                       "dbtap", "role", "group", "app", "account"])))
+                       "dbtap", "role", "group", "app", "account", "nezha"])))
 
     usage(optparser)
 
