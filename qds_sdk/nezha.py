@@ -160,7 +160,7 @@ class NezhaCmdLine(CmdLine):
         parser_ds = update_subparsers.add_parser(
             "default_datasource", help="update default-datasource")
         parser_ds.add_argument(
-            "default_datasource_id", help="Numeric id of the DataSource")
+            "default_datasource_id", help="DataSource id which is to be made default-datasource")
 
         update.set_defaults(func=NezhaCmdLine.update, default=None)
 
