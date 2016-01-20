@@ -119,7 +119,10 @@ class Resource(BaseResource):
         if page_attr:
             url_path = "%s?%s" % (cls.rest_entity_path, "&".join(page_attr))
 
-        #Todo Page numbers are thrown away right now
+        # To get the required object-list from paginated result,
+        # (e.g. {nezha_data_sources:[], page:1, prev_page:nil, next_page:2}),
+        # Convert Object classname to plural and add '_' to fetch object-list 
+        # from result. (NezhaDataSource -> nezha_data_sources)
         resource_json = conn.get(url_path)
         resource_list = []
         for s in resource_json[inflection.pluralize(inflection.underscore(cls.__name__))]:

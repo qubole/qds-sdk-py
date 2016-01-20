@@ -576,7 +576,7 @@ def main():
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                       "dbtap", "role", "group", "app", "account"])))
+                       "dbtap", "role", "group", "app", "account", "nezha"])))
 
     usage(optparser)
 
