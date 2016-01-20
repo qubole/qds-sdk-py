@@ -2,12 +2,6 @@ import json
 
 class CmdLine:
     @staticmethod
-    def run(args):
-        parser = SchedulerCmdLine.parsers()
-        parsed = parser.parse_args(args)
-        return parsed.func(parsed)
-
-    @staticmethod
     def filter_fields(resource, fields):
         filtered = {}
         for field in fields:
