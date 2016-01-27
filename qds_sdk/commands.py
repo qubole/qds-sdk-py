@@ -237,6 +237,9 @@ class HiveCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this query")
 
+    optparser.add_option("--hive-version", dest="hive_version",
+                         help="Specifies the hive version to be used. eg: 0.13,1.2,etc.")
+
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
 
