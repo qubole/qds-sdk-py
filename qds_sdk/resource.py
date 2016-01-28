@@ -2,6 +2,7 @@
 qds_sdk.Resource represents a REST based resource with standard methods like
 create/find etc.
 """
+import inflection
 import json
 from six import add_metaclass
 from qds_sdk import util
@@ -105,6 +106,38 @@ class Resource(BaseResource):
     @property
     def my_element_path(self):
         return self.__class__.element_path(self.id)
+
+    @classmethod
+    def list(cls, page = None, per_page = None):
+        conn = Qubole.agent()
+        url_path = cls.rest_entity_path
+        page_attr = []
+        if page is not None:
+            page_attr.append("page=%s" % page)
+        if per_page is not None:
+            page_attr.append("per_page=%s" % per_page)
+        if page_attr:
+            url_path = "%s?%s" % (cls.rest_entity_path, "&".join(page_attr))
+
+        # To get the required object-list from paginated result,
+        # (e.g. {nezha_data_sources:[], page:1, prev_page:nil, next_page:2}),
+        # Convert Object classname to plural and add '_' to fetch object-list
+        # from result. (NezhaDataSource -> nezha_data_sources)
+        resource_json = conn.get(url_path)
+        resource_list = []
+        for s in resource_json[inflection.pluralize(inflection.underscore(cls.__name__))]:
+            resource_list.append(cls(s))
+        return resource_list
+
+    @classmethod
+    def update(cls, id, **kwargs):
+        conn = Qubole.agent()
+        return conn.put(cls.element_path(id), data=kwargs)
+
+    @classmethod
+    def delete(cls, id):
+        conn = Qubole.agent()
+        return conn.delete(cls.element_path(id))
 
 
 @add_metaclass(ResourceMetaSingleton)
