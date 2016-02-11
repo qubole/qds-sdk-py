@@ -324,6 +324,90 @@ class HiveCommand(Command):
         v["command_type"] = "HiveCommand"
         return v
 
+class SqlCommand(Command):
+
+    usage = ("sqlcmd <submit|run> [options]")
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("-q", "--query", dest="query", help="query string")
+
+    optparser.add_option("-f", "--script_location", dest="script_location",
+                         help="Path where hive query to run is stored. Can be S3 URI or local file path")
+
+    optparser.add_option("--macros", dest="macros",
+                         help="expressions to expand macros used in query")
+
+    optparser.add_option("--tags", dest="tags",
+                         help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
+
+    optparser.add_option("--sample_size", dest="sample_size",
+                         help="size of sample in bytes on which to run query")
+
+    optparser.add_option("--cluster-label", dest="label",
+                         help="the label of the cluster to run the command on")
+
+    optparser.add_option("--notify", action="store_true", dest="can_notify",
+                         default=False, help="sends an email on command completion")
+
+    optparser.add_option("--name", dest="name",
+                         help="Assign a name to this query")
+
+    optparser.add_option("--print-logs", action="store_true", dest="print_logs",
+                         default=False, help="Fetch logs and print them to stderr.")
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args`: sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if options.query is None and options.script_location is None:
+                raise ParseError("One of query or script location"
+                                 " must be specified",
+                                 cls.optparser.format_help())
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        if options.script_location is not None:
+            if options.query is not None:
+                raise ParseError(
+                    "Both query and script_location cannot be specified",
+                    cls.optparser.format_help())
+
+            if ((options.script_location.find("s3://") != 0) and
+                (options.script_location.find("s3n://") != 0)):
+
+                # script location is local file
+
+                try:
+                    q = open(options.script_location).read()
+                except IOError as e:
+                    raise ParseError("Unable to open script location: %s" %
+                                     str(e),
+                                     cls.optparser.format_help())
+                options.script_location = None
+                options.query = q
+
+        if options.macros is not None:
+            options.macros = json.loads(options.macros)
+        v = vars(options)
+        v["command_type"] = "SqlCommand"
+        return v
+
 class SparkCommand(Command):
 
     usage = ("sparkcmd <submit|run> [options]")
