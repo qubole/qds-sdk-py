@@ -164,7 +164,7 @@ class Command(Resource):
         r = conn.get_raw(log_path, params={'err_file_processed':err_pointer, 'tmp_file_processed':tmp_pointer})
         if 'err_length' in r.headers.keys() and 'tmp_length' in r.headers.keys():
             return [r.text, r.headers['err_length'], r.headers['tmp_length']]
-        return [r.text, 0, 0]    
+        return [r.text, 0, 0]
 
     @classmethod
     def get_jobs_id(cls, id):
@@ -269,7 +269,7 @@ class HiveCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
     @classmethod
     def parse(cls, args):
@@ -354,6 +354,8 @@ class SqlCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
     @classmethod
     def parse(cls, args):
@@ -446,7 +448,7 @@ class SparkCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
     @classmethod
     def validate_program(cls, options):
@@ -604,7 +606,7 @@ class PrestoCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
 
     @classmethod
@@ -680,7 +682,7 @@ class HadoopCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
 
     optparser.disable_interspersed_args()
@@ -715,6 +717,7 @@ class HadoopCommand(Command):
         parsed['tags'] = options.tags
         parsed["command_type"] = "HadoopCommand"
         parsed['print_logs'] = options.print_logs
+        parsed['print_logs_live'] = options.print_logs_live
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
@@ -760,7 +763,7 @@ class ShellCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
 
     @classmethod
@@ -856,7 +859,7 @@ class PigCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
 
     @classmethod
@@ -974,7 +977,7 @@ class DbExportCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
 
     @classmethod
@@ -1077,7 +1080,7 @@ class DbImportCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
 
     @classmethod
@@ -1167,7 +1170,7 @@ class DbTapQueryCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
-                         default=False, help="Fetch logs and print them to live to stderr while command is running.")
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
 
     @classmethod
