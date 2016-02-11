@@ -101,6 +101,7 @@ def submitaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
         args.pop("print_logs") # This is only useful while using the 'run' action.
+        args.pop("print_logs_live") # This is only useful while using the 'run' action.
         cmd = cmdclass.create(**args)
         print("Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id))
         return 0
