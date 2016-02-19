@@ -174,7 +174,7 @@ class Cluster(Resource):
                                help="vpc to create the cluster in",)
         ec2_group.add_argument("--bastion_node_public_dns",
                                dest="bastion_node_public_dns",
-                               help="public dns of the bastian node if the subnet is a private subnet")
+                               help="public dns name of the bastian node. Required only for private subnet")
 
         hadoop_group = argparser.add_argument_group("hadoop settings")
         node_config_group = argparser.add_argument_group("node configuration") if (api_version >= 1.3) else hadoop_group
@@ -1030,7 +1030,7 @@ class ClusterInfoV13():
         `enable_presto`: Enable Presto on the cluster.
 
         `presto_custom_config`: Custom Presto configuration overrides.
-        `bastion_node_public_dns`: Public dns of the bastian node if the subnet is private
+        `bastion_node_public_dns`: Public dns name of the bastian node. Required only for private subnet.
 
         """
 
