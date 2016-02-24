@@ -170,7 +170,7 @@ class Cluster(Resource):
         ec2_group.add_argument("--vpc-id",
                                dest="vpc_id",
                                help="vpc to create the cluster in",)
-        ec2_group.add_argument("--bastion_node_public_dns",
+        ec2_group.add_argument("--bastion-node-public-dns",
                                dest="bastion_node_public_dns",
                                help="public dns name of the bastian node. Required only if cluster is in private subnet",)
         ec2_group.add_argument("--role-instance-profile",
