@@ -3,6 +3,7 @@ from qds_sdk.resource import Resource
 import argparse
 import json
 
+
 class UserCmdLine:
     @staticmethod
     def parsers():
@@ -15,30 +16,30 @@ class UserCmdLine:
         invite = subparsers.add_parser(
             "invite", help="Invite a new user")
         invite.add_argument(
-            "--email", dest="invitee_email", required = True,
-            help = "Email address of the new user to be added to the Qubole account")
+            "--email", dest="invitee_email", required=True,
+            help="Email address of the new user to be added to the Qubole account")
         invite.add_argument(
-            "--accountid", dest="account", required = True,
-            help = "Account ID of the current user")
+            "--accountid", dest="account", required=True,
+            help="Account ID of the current user")
         invite.add_argument(
-            "--groups", dest="groups",required = False,
-            help = "Add groups to the new user, defaults to system-user")
+            "--groups", dest="groups", required=False,
+            help="Add groups to the new user, defaults to system-user")
         invite.set_defaults(func=UserCmdLine.invite)
 
-        #enable qbol user
+        # enable qbol user
         enable = subparsers.add_parser(
             "enable", help="Enable a qbol user")
         enable.add_argument(
-             "--qbol-user-id",dest="qbol_user_id",required = True,
-             help = "ID of the qbol_user, who should be enabled")
+            "--qbol-user-id", dest="qbol_user_id", required=True,
+            help="ID of the qbol_user, who should be enabled")
         enable.set_defaults(func=UserCmdLine.enable)
 
-        #disable qbol user
+        # disable qbol user
         disable = subparsers.add_parser(
-            "disable",help="Disable a qbol user")
+            "disable", help="Disable a qbol user")
         disable.add_argument(
-            "--qbol-user-id",dest="qbol_user_id",required=True,
-            help = "ID of the qbol_user, who should be disbaled")
+            "--qbol-user-id", dest="qbol_user_id", required=True,
+            help="ID of the qbol_user, who should be disbaled")
         disable.set_defaults(func=UserCmdLine.disable)
 
         return argparser
@@ -67,12 +68,14 @@ class UserCmdLine:
     def disable(args):
         data = vars(args)
         data.pop("func")
-        result = Account.enable_disable("disable_qbol_user",data)
+        result = Account.enable_disable("disable_qbol_user", data)
         return json.dumps(result, indent=4)
+
 
 class User(Resource):
 
     rest_entity_path = "users"
+
     @classmethod
     def invite(cls, path, data):
         conn = Qubole.agent()
@@ -83,6 +86,6 @@ class Account(Resource):
     rest_entity_path = "accounts"
 
     @classmethod
-    def enable_disable(cls,path,data):
+    def enable_disable(cls, path, data):
         conn = Qubole.agent()
         return conn.post(cls.element_path(path), data)

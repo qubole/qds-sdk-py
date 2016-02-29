@@ -14,6 +14,7 @@ from qds_sdk.connection import Connection
 from test_base import print_command
 from test_base import QdsCliTestCase
 
+
 class TestInviteUser(QdsCliTestCase):
     def test_invite_without_group(self):
         sys.argv = ['qds.py', 'user', 'invite',
@@ -27,7 +28,7 @@ class TestInviteUser(QdsCliTestCase):
             'account': '34',
             'groups': None})
 
-    def  test_invite_with_group(self):
+    def test_invite_with_group(self):
         sys.argv = ['qds.py', 'user', 'invite',
                     '--email', 'dev+1234@qubole.com',
                     '--accountid', '34',
@@ -68,7 +69,8 @@ class TestEnableUser(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
-class TestDisableUser(QdsCliTestCase) :
+
+class TestDisableUser(QdsCliTestCase):
     def test_disable_user_valid(self):
         sys.argv = ['qds.py', 'user', 'disable',
                     '--qbol-user-id', '4']
