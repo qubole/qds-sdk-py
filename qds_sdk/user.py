@@ -9,7 +9,7 @@ class UserCmdLine:
     def parsers():
         argparser = argparse.ArgumentParser(
             prog="qds.py user",
-            description="Account Creation for Qubole Data Service.")
+            description="User level operations for Qubole Data Service.")
         subparsers = argparser.add_subparsers(title="user operations")
 
         # To invite a new user
