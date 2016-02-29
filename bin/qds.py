@@ -276,7 +276,8 @@ def _create_cluster_info(arguments, api_version):
                                       arguments.aws_availability_zone,
                                       arguments.vpc_id,
                                       arguments.subnet_id,
-                                      arguments.role_instance_profile)
+                                      arguments.role_instance_profile,
+                                      arguments.bastion_node_public_dns)
 
         cluster_info.set_hadoop_settings(arguments.master_instance_type,
                                          arguments.slave_instance_type,
