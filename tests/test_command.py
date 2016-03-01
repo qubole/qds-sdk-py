@@ -335,10 +335,17 @@ class TestHiveCommand(QdsCliTestCase):
                  'script_location': None,
                  'retry': 0})
 
+    def test_retry_out_of_range(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
+                    '--retry', 4]
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
 class TestSparkCommand(QdsCliTestCase):
 
     def test_submit_query(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar', '--retry', 3]
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
@@ -356,8 +363,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 3})
+                 'script_location': None})
 
     def test_submit_script_location_aws(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script']
@@ -387,8 +393,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'arguments': None,
                      'user_program_arguments': None,
                      'can_notify': False,
-                     'script_location': None,
-                     'retry': 0})
+                     'script_location': None})
 
     def test_submit_script_location_local_scala(self):
         with NamedTemporaryFile(suffix=".scala") as tmp:
@@ -412,8 +417,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'arguments': None,
                      'user_program_arguments': None,
                      'can_notify': False,
-                     'script_location': None,
-                     'retry': 0})
+                     'script_location': None})
 
     def test_submit_script_location_local_java(self):
         with NamedTemporaryFile(suffix=".java") as tmp:
@@ -446,14 +450,13 @@ class TestSparkCommand(QdsCliTestCase):
                      'arguments': None,
                      'user_program_arguments': None,
                      'can_notify': False,
-                     'script_location': None,
-                     'retry': 0})
+                     'script_location': None})
 
     def test_submit_script_location_local_sql(self):
         with NamedTemporaryFile(suffix=".sql") as tmp:
             tmp.write('show tables'.encode("utf8"))
             tmp.seek(0)
-            sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', tmp.name, '--retry', 3]
+            sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', tmp.name ]
             print_command()
             Connection._api_call = Mock(return_value={'id': 1234})
             qds.main()
@@ -471,8 +474,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'arguments': None,
                      'user_program_arguments': None,
                      'can_notify': False,
-                     'script_location': None,
-                     'retry': 3})
+                     'script_location': None})
 
     def test_submit_sql(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show dummy']
@@ -493,8 +495,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'arguments': None,
                      'user_program_arguments': None,
                      'can_notify': False,
-                     'script_location': None,
-                     'retry': 0})
+                     'script_location': None})
 
     def test_submit_sql_with_language(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','python', '--sql', 'show dummy']
@@ -555,8 +556,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'command_type': 'SparkCommand',
                  'cmdline': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry' : 0})
+                 'script_location': None})
 
     def test_submit_tags(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program',"println(\"hello, world!\")",
@@ -578,8 +578,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'cmdline': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_cluster_label(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
@@ -601,8 +600,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'command_type': 'SparkCommand',
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_name(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
@@ -624,8 +622,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'app_id': None,
                  'command_type': 'SparkCommand',
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_notify(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
@@ -647,8 +644,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': True,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_python_program(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','python','--program', 'print "hello, world!"']
@@ -669,8 +665,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_user_program_arguments(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program',
@@ -694,8 +689,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': '--class HelloWorld',
                  'user_program_arguments': 'world',
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_scala_program(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program', 'println("hello, world!")']
@@ -716,8 +710,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_R_program(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','R','--program', 'cat("hello, world!")']
@@ -738,8 +731,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_program_to_app(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language', 'scala',
@@ -761,8 +753,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_sql_to_app(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show tables',
@@ -784,8 +775,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'arguments': None,
                  'user_program_arguments': None,
                  'can_notify': False,
-                 'script_location': None,
-                 'retry': 0})
+                 'script_location': None})
 
     def test_submit_script_location_local_py_to_app(self):
         with NamedTemporaryFile(suffix=".py") as tmp:
@@ -810,8 +800,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'arguments': None,
                      'user_program_arguments': None,
                      'can_notify': False,
-                     'script_location': None,
-                     'retry': 0})
+                     'script_location': None})
 
     def test_submit_cmdline_to_app(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline',
@@ -954,6 +943,12 @@ class TestPrestoCommand(QdsCliTestCase):
                  'script_location': None,
                  'retry': 0})
 
+    def test_retry_out_of_range(self):
+        sys.argv = ['qds.py', 'prestocmd', 'submit', '--query', 'show tables',
+                    '--retry', 5]
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
 
 class TestHadoopCommand(QdsCliTestCase):
 
@@ -1211,6 +1206,13 @@ class TestDbExportCommand(QdsCliTestCase):
                  'db_update_mode': None,
                  'retry': 0})
 
+    def test_retry_out_of_range(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+                    '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 5]
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
 
 class TestDbImportCommand(QdsCliTestCase):
 
@@ -1238,6 +1240,12 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_extract_query': None,
                  'retry': 2})
 
+    def test_retry_out_of_range(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 6]
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
 
 class TestDbTapQueryCommand(QdsCliTestCase):
 
