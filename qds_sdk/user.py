@@ -61,14 +61,14 @@ class UserCmdLine:
     def enable(args):
         data = vars(args)
         data.pop("func")
-        result = Account.enable_disable("enable_qbol_user", data)
+        result = Accounts.enable_disable("enable_qbol_user", data)
         return json.dumps(result, indent=4)
 
     @staticmethod
     def disable(args):
         data = vars(args)
         data.pop("func")
-        result = Account.enable_disable("disable_qbol_user", data)
+        result = Accounts.enable_disable("disable_qbol_user", data)
         return json.dumps(result, indent=4)
 
 
@@ -82,7 +82,7 @@ class User(Resource):
         return conn.post(cls.element_path(path), data)
 
 
-class Account(Resource):
+class Accounts(Resource):
     rest_entity_path = "accounts"
 
     @classmethod
