@@ -18,45 +18,54 @@ from test_base import QdsCliTestCase
 class TestInviteUser(QdsCliTestCase):
     def test_invite_without_group(self):
         sys.argv = ['qds.py', 'user', 'invite',
-                    '--email', 'dev+1234@qubole.com',
-                    '--accountid', '34']
+                    '--email', 'mock@qubole1.com',
+                    '--account-id', '34']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("POST", "users/invite_new", {
-            'invitee_email': 'dev+1234@qubole.com',
+            'invitee_email': 'mock@qubole1.com',
             'account': '34',
             'groups': None})
 
     def test_invite_with_group(self):
         sys.argv = ['qds.py', 'user', 'invite',
-                    '--email', 'dev+1234@qubole.com',
-                    '--accountid', '34',
+                    '--email', 'mock@qubole1.com',
+                    '--account-id', '34',
                     '--groups', "system-admin"]
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("POST", "users/invite_new", {
-            'invitee_email': 'dev+1234@qubole.com',
+            'invitee_email': 'mock@qubole1.com',
             'account': '34',
             'groups': 'system-admin'})
 
     def test_invite_with_multiple_groups(self):
         sys.argv = ['qds.py', 'user', 'invite',
-                    '--email', 'dev+1234@qubole.com',
-                    '--accountid', '34',
+                    '--email', 'mock@qubole1.com',
+                    '--account-id', '34',
                     '--groups', "system-admin,system-user"]
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("POST", "users/invite_new", {
-            'invitee_email': 'dev+1234@qubole.com',
+            'invitee_email': 'mock@qubole1.com',
             'account': '34',
             'groups': 'system-admin,system-user'})
 
     def test_invite_no_email(self):
         sys.argv = ['qds.py', 'user', 'invite',
-                    '--accountid', '34',
+                    '--account-id', '34',
+                    '--groups', "system-admin"]
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_invite_no_accountid(self):
+        sys.argv = ['qds.py', 'user', 'invite',
+                    'invitee_email', 'mock@qubole1.com',
                     '--groups', "system-admin"]
         print_command()
         Connection._api_call = Mock(return_value={})

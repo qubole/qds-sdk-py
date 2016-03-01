@@ -19,7 +19,7 @@ class UserCmdLine:
             "--email", dest="invitee_email", required=True,
             help="Email address of the new user to be added to the Qubole account")
         invite.add_argument(
-            "--accountid", dest="account", required=True,
+            "--account-id", dest="account", required=True,
             help="Account ID of the current user")
         invite.add_argument(
             "--groups", dest="groups", required=False,
@@ -39,7 +39,7 @@ class UserCmdLine:
             "disable", help="Disable a qbol user")
         disable.add_argument(
             "--qbol-user-id", dest="qbol_user_id", required=True,
-            help="ID of the qbol_user, who should be disbaled")
+            help="ID of the qbol_user, who should be disabled")
         disable.set_defaults(func=UserCmdLine.disable)
 
         return argparser
