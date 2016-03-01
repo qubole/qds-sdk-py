@@ -41,6 +41,19 @@ class TestInviteUser(QdsCliTestCase):
             'account': '34',
             'groups': 'system-admin'})
 
+    def test_invite_with_multiple_groups(self):
+        sys.argv = ['qds.py', 'user', 'invite',
+                    '--email', 'dev+1234@qubole.com',
+                    '--accountid', '34',
+                    '--groups', "system-admin,system-user"]
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("POST", "users/invite_new", {
+            'invitee_email': 'dev+1234@qubole.com',
+            'account': '34',
+            'groups': 'system-admin,system-user'})
+
     def test_invite_no_email(self):
         sys.argv = ['qds.py', 'user', 'invite',
                     '--accountid', '34',
