@@ -172,7 +172,7 @@ class Cluster(Resource):
                                help="vpc to create the cluster in",)
         ec2_group.add_argument("--bastion-node-public-dns",
                                dest="bastion_node_public_dns",
-                               help="public dns name of the bastian node. Required only if cluster is in private subnet",)
+                               help="public dns name of the bastion node. Required only if cluster is in private subnet of a EC2-VPC",)
         ec2_group.add_argument("--role-instance-profile",
                                dest="role_instance_profile",
                                help="IAM Role instance profile to attach on cluster",)
@@ -1040,7 +1040,7 @@ class ClusterInfoV13():
 
         `presto_custom_config`: Custom Presto configuration overrides.
 
-        `bastion_node_public_dns`: Public dns name of the bastian node. Required only if cluster is in private subnet.
+        `bastion_node_public_dns`: Public dns name of the bastion node. Required only if cluster is in private subnet.
 
         """
 
