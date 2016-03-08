@@ -14,6 +14,7 @@ from qds_sdk.group import GroupCmdLine
 from qds_sdk.account import AccountCmdLine
 from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
+from qds_sdk.user import UserCmdLine
 
 import os
 import sys
@@ -80,7 +81,9 @@ usage_str = (
     "\nAccount subcommand:\n"
     "  account --help\n"
     "\nNezha subcommand:\n"
-    "  nezha --help\n")
+    "  nezha --help\n"
+    "\nUser subcommad:\n"
+    "  user --help\n")
 
 
 def usage(parser=None):
@@ -432,6 +435,10 @@ def accountmain(args):
     result = AccountCmdLine.run(args)
     print(result)
 
+def usermain(args):
+    result = UserCmdLine.run(args)
+    print(result)
+
 def reportmain(args):
     result = ReportCmdLine.run(args)
     print(result)
@@ -570,10 +577,13 @@ def main():
     if a0 == "nezha":
         return nezhamain(args)
 
+    if a0 == "user":
+        return usermain(args)
+
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                       "dbtap", "role", "group", "app", "account", "nezha"])))
+                       "dbtap", "role", "group", "app", "account", "nezha", "user"])))
 
     usage(optparser)
 
