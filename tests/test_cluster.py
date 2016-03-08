@@ -2049,6 +2049,35 @@ class TestClusterUpdate(QdsCliTestCase):
                                                     "bastion_node_public_dns": "dummydns"
                                                 }})
 
+    def test_bastion_and_persistent_sg(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                    '--bastion-node-public-dns', 'dummydns', '--persistent-security-group', 'foopsg']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster': {
+                                                    'ec2_settings': {
+                                                       "bastion_node_public_dns": "dummydns"
+                                                     },
+                                                     'security_settings': {
+                                                         "persistent_security_group": "foopsg"
+                                                     }}})
+
+    def test_bastion_and_persistent_sg_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                     '--bastion-node-public-dns', 'dummydns', '--persistent-security-group', 'foopsg']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'ec2_settings': {
+                                                    "bastion_node_public_dns": "dummydns"
+                                                },
+                                                'security_settings': {
+                                                    "persistent_security_group": "foopsg"
+                                                }})
+
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'clone', '1234', '--label', 'test_label1', 'test_label2' ]
