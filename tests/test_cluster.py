@@ -466,6 +466,25 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_vpc_subnet_with_bastion_host(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                 '--vpc-id', 'vpc-12345678', '--subnet-id', 'subnet-12345678',
+                 '--bastion-node-public-dns', 'dummydns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                    'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki',
+                                      'vpc_id': 'vpc-12345678',
+                                      'subnet_id': 'subnet-12345678',
+                                      'bastion_node_public_dns': 'dummydns'},
+                    }
+                })
+
     def test_master_instance_type(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1369,6 +1388,23 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_vpc_subnet_with_bastion_host_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--vpc-id', 'vpc-12345678', '--subnet-id', 'subnet-12345678',
+                    '--bastion-node-public-dns', 'dummydns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'label': ['test_label'],
+                                                 'ec2_settings': {'compute_secret_key': 'sak',
+                                                                  'compute_access_key': 'aki',
+                                                                  'vpc_id': 'vpc-12345678',
+                                                                  'subnet_id': 'subnet-12345678',
+                                                                  'bastion_node_public_dns': 'dummydns'},
+                                                 })
+
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -1989,6 +2025,58 @@ class TestClusterUpdate(QdsCliTestCase):
                                                     }
                                                 }})
 
+    def test_bastion_node_public_dns(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                    '--bastion-node-public-dns', 'dummydns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster': {
+                                                    'ec2_settings': {
+                                                       "bastion_node_public_dns": "dummydns"
+                                                    }
+                                                }})
+
+    def test_bastion_node_public_dns_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                    '--bastion-node-public-dns', 'dummydns']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'ec2_settings': {
+                                                    "bastion_node_public_dns": "dummydns"
+                                                }})
+
+    def test_bastion_and_persistent_sg(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                    '--bastion-node-public-dns', 'dummydns', '--persistent-security-group', 'foopsg']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster': {
+                                                    'ec2_settings': {
+                                                       "bastion_node_public_dns": "dummydns"
+                                                     },
+                                                     'security_settings': {
+                                                         "persistent_security_group": "foopsg"
+                                                     }}})
+
+    def test_bastion_and_persistent_sg_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                     '--bastion-node-public-dns', 'dummydns', '--persistent-security-group', 'foopsg']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'ec2_settings': {
+                                                    "bastion_node_public_dns": "dummydns"
+                                                },
+                                                'security_settings': {
+                                                    "persistent_security_group": "foopsg"
+                                                }})
 
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):
