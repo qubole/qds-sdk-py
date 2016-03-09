@@ -231,6 +231,7 @@ def _create_cluster_info(arguments, api_version):
                                       aws_availability_zone=arguments.aws_availability_zone,
                                       vpc_id=arguments.vpc_id,
                                       subnet_id=arguments.subnet_id,
+                                      master_elastic_ip=arguments.master_elastic_ip,
                                       disallow_cluster_termination=arguments.disallow_cluster_termination,
                                       enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
                                       node_bootstrap_file=arguments.node_bootstrap_file,
@@ -275,6 +276,7 @@ def _create_cluster_info(arguments, api_version):
                                       arguments.aws_availability_zone,
                                       arguments.vpc_id,
                                       arguments.subnet_id,
+                                      arguments.master_elastic_ip,
                                       arguments.role_instance_profile)
 
         cluster_info.set_hadoop_settings(arguments.master_instance_type,

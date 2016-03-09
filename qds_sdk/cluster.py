@@ -170,6 +170,9 @@ class Cluster(Resource):
         ec2_group.add_argument("--vpc-id",
                                dest="vpc_id",
                                help="vpc to create the cluster in",)
+        ec2_group.add_argument("--master-elastic-ip",
+                               dest="master_elastic_ip",
+                               help="elastic ip to attach to master",)
         ec2_group.add_argument("--role-instance-profile",
                                dest="role_instance_profile",
                                help="IAM Role instance profile to attach on cluster",)
@@ -702,6 +705,7 @@ class ClusterInfo():
                          aws_availability_zone=None,
                          vpc_id=None,
                          subnet_id=None,
+                         master_elastic_ip=None,
                          role_instance_profile=None):
         """
         Kwargs:
@@ -720,6 +724,7 @@ class ClusterInfo():
         self.ec2_settings['vpc_id'] = vpc_id
         self.ec2_settings['subnet_id'] = subnet_id
         self.ec2_settings['role_instance_profile'] = role_instance_profile
+        self.ec2_settings['master_elastic_ip'] = master_elastic_ip
 
     def set_hadoop_settings(self, master_instance_type=None,
                             slave_instance_type=None,
@@ -896,6 +901,7 @@ class ClusterInfoV13():
                          aws_availability_zone=None,
                          vpc_id=None,
                          subnet_id=None,
+                         master_elastic_ip=None,
                          disallow_cluster_termination=None,
                          enable_ganglia_monitoring=None,
                          node_bootstrap_file=None,
@@ -1037,7 +1043,7 @@ class ClusterInfoV13():
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file
         self.__set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
-        self.__set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id, role_instance_profile)
+        self.__set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id, master_elastic_ip, role_instance_profile)
         self.__set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy)
         self.__set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.__set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
@@ -1053,6 +1059,7 @@ class ClusterInfoV13():
                            aws_availability_zone=None,
                            vpc_id=None,
                            subnet_id=None,
+                           master_elastic_ip=None,
                            role_instance_profile=None):
         self.ec2_settings['compute_access_key'] = aws_access_key_id
         self.ec2_settings['compute_secret_key'] = aws_secret_access_key
@@ -1060,6 +1067,7 @@ class ClusterInfoV13():
         self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
         self.ec2_settings['vpc_id'] = vpc_id
         self.ec2_settings['subnet_id'] = subnet_id
+        self.ec2_settings['master_elastic_ip'] = master_elastic_ip
         self.ec2_settings['role_instance_profile'] = role_instance_profile
 
     def __set_node_configuration(self, master_instance_type=None,
