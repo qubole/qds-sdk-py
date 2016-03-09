@@ -264,9 +264,8 @@ def _create_cluster_info(arguments, api_version):
                                       ssh_public_key=customer_ssh_key,
                                       persistent_security_group=arguments.persistent_security_group,
                                       enable_presto=arguments.enable_presto,
-                                      bastion_node_public_dns=arguments.bastion_node_public_dns,
                                       role_instance_profile=arguments.role_instance_profile,
-                                      presto_custom_config=presto_custom_config)
+                                      presto_custom_config=presto_custom_config,)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,
@@ -279,8 +278,7 @@ def _create_cluster_info(arguments, api_version):
                                       arguments.aws_availability_zone,
                                       arguments.vpc_id,
                                       arguments.subnet_id,
-                                      arguments.role_instance_profile,
-                                      arguments.bastion_node_public_dns)
+                                      arguments.role_instance_profile)
 
         cluster_info.set_hadoop_settings(arguments.master_instance_type,
                                          arguments.slave_instance_type,
