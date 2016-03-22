@@ -24,6 +24,7 @@ class Cluster(Resource):
     """
 
     rest_entity_path = "clusters"
+    api_version = "v1.2"
 
     @classmethod
     def _parse_list(cls, args):
@@ -408,29 +409,38 @@ class Cluster(Resource):
         return arguments
 
     @classmethod
-    def create(cls, cluster_info):
+    def create(cls, cluster_info, version=None):
         """
         Create a new cluster using information provided in `cluster_info`.
+
+        Optionally provide the version (eg: v1.3) to use the new version of the
+        API. If None we default to v1.2
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=version)
         return conn.post(cls.rest_entity_path, data=cluster_info)
 
     @classmethod
-    def update(cls, cluster_id_label, cluster_info):
+    def update(cls, cluster_id_label, cluster_info, version=None):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
+
+        Optionally provide the version (eg: v1.3) to use the new version of the
+        API. If None we default to v1.2
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=version)
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
-    def clone(cls, cluster_id_label, cluster_info):
+    def clone(cls, cluster_id_label, cluster_info, version=None):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
+
+        Optionally provide the version (eg: v1.3) to use the new version of the
+        API. If None we default to v1.2
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=version)
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
@@ -1155,7 +1165,6 @@ class ClusterInfoV13():
         creating or updating a cluster.
         """
         payload_dict = self.__dict__
-        payload_dict.pop("api_version", None)
         return _make_minimal(payload_dict)
 
 
