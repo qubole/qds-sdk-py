@@ -1165,6 +1165,7 @@ class ClusterInfoV13():
         creating or updating a cluster.
         """
         payload_dict = self.__dict__
+        payload_dict.pop("api_version", None)
         return _make_minimal(payload_dict)
 
 
