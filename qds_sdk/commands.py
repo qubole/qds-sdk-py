@@ -1212,7 +1212,14 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             dir = path[0].replace("_$folder$", "", 1)
             unique_paths.add(dir)
             if len(path) > 1:
-                file = int(path[1])
+                file = path[1]
+                if not file.isdigit():
+                    # For presto, file number will be present at the end
+                    # of the path preceded by underscore.
+                    m = re.search('(?<=_)\d+$', file)
+                    if m:
+                        file = m.group(0)
+                file = int(file)
                 if dir not in files:
                     files[dir] = []
                 files[dir].append(file)
