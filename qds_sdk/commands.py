@@ -203,7 +203,8 @@ class Command(Resource):
                     # boto expects it to be.
                     # If the delim is not None, then both text and binary modes
                     # work.
-                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
+                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim,
+                                       skip_data_avail_check=isinstance(self, PrestoCommand))
             else:
                 fp.write(",".join(r['result_location']))
 
@@ -1176,7 +1177,7 @@ def _read_iteratively(key_instance, fp, delim):
             return
 
 
-def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
+def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_data_avail_check=False):
     '''
     Downloads the contents of all objects in s3_path into fp
 
@@ -1253,14 +1254,15 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         #It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
-        complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-        while complete_data_available is False and retries > 0:
-            retries = retries - 1
-            log.info("Results dir is not available on s3. Retry: " + str(6-retries))
-            time.sleep(10)
+        if not skip_data_avail_check:
             complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-        if complete_data_available is False:
-            raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
+            while complete_data_available is False and retries > 0:
+                retries = retries - 1
+                log.info("Results dir is not available on s3. Retry: " + str(6-retries))
+                time.sleep(10)
+                complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
+            if complete_data_available is False:
+                raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
 
         for one_path in bucket_paths:
             name = one_path.name
