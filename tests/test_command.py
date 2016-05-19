@@ -213,7 +213,8 @@ class TestHiveCommand(QdsCliTestCase):
                      'query': 'show tables',
                      'command_type': 'HiveCommand',
                      'can_notify': False,
-                     'script_location': None})
+                     'script_location': None,
+                     'retry': 0})
 
     def test_submit_script_location(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script']
