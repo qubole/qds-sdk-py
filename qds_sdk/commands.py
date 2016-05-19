@@ -415,6 +415,7 @@ class SparkCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
     def validate_program(cls, options):
