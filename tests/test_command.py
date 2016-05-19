@@ -187,6 +187,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'hive_version': None,
                  'label': None,
                  'tags': None,
                  'sample_size': None,
@@ -197,6 +198,23 @@ class TestHiveCommand(QdsCliTestCase):
                  'script_location': None,
                  'retry': 2})
 
+    def test_submit_query_with_hive_version(self):
+            sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--hive-version', '0.13']
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'hive_version': '0.13',
+                     'label': None,
+                     'tags': None,
+                     'sample_size': None,
+                     'name': None,
+                     'query': 'show tables',
+                     'command_type': 'HiveCommand',
+                     'can_notify': False,
+                     'script_location': None})
+
     def test_submit_script_location(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script']
         print_command()
@@ -204,6 +222,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'hive_version': None,
                  'label': None,
                  'tags': None,
                  'sample_size': None,
@@ -235,6 +254,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
+                 'hive_version': None,
                  'label': None,
                  'tags': None,
                  'sample_size': None,
@@ -253,6 +273,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'hive_version': None,
                  'label': None,
                  'tags': ["abc", "def"],
                  'sample_size': None,
@@ -271,6 +292,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'hive_version': None,
                  'label': 'test_label',
                  'tags': None,
                  'sample_size': None,
@@ -289,6 +311,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'hive_version': None,
                  'label': None,
                  'tags': None,
                  'sample_size': None,
@@ -307,6 +330,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'hive_version': None,
                  'label': None,
                  'tags': None,
                  'sample_size': None,
@@ -325,6 +349,7 @@ class TestHiveCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'macros': None,
+                 'hive_version': None,
                  'label': None,
                  'tags': None,
                  'sample_size': '1024',
