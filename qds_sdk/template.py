@@ -63,7 +63,7 @@ class TemplateCmdLine:
         #run
         run = subparsers.add_parser("run", help="To view an existing Template by Id or Name")
         run.add_argument("--id", dest="id",required=True, help="Id of the template to run")
-        run.add_argument("--data",dest="data",required=True,help="Path to JSON file with input field details")
+        run.add_argument("--j",dest="data",required=True,help="Path to JSON file or json string with input field details")
         run.set_defaults(func=TemplateCmdLine.execute)
         
         return argparser
@@ -90,8 +90,19 @@ class TemplateCmdLine:
     
     @staticmethod
     def execute(args, otherArgs):
-        with open(args.data) as f:
-            spec = json.load(f)
+        print(args)
+        if os.path.isfile(args.data):
+            print('yes,..its a valid path')
+            with open(args.data) as f:
+                spec = json.load(f)
+        else:
+            print("not a valid path", args.data)
+            inputs = json.loads(args.data)
+            inputs = formatData(inputs)
+            spec = {
+                "input_vars" : inputs
+            }
+        print("spec===", spec)
         return Template.runTemplate(args.id, spec)
     
     @staticmethod
@@ -103,6 +114,17 @@ class TemplateCmdLine:
     def list(args, otherArgs):
         return Template.listTemplates(args)
 
+
+def formatData(inputs):
+    res = []
+    if len(inputs) != 0:
+        for obj in inputs:
+            o = {}
+            for key in obj:
+                o[key] = "'" + obj[key] + "'"
+            res.append(o)
+    return res
+                    
 class Template(Resource):
     
     rest_entity_path = "command_templates"

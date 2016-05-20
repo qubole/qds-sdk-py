@@ -62,7 +62,16 @@ class TestTemplateCheck(QdsCliTestCase):
     
     def test_run_template(self):
         file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input_run_template.json')
-        sys.argv = ['qds.py', 'template', 'run', '--id', '14', '--data', file_path]
+        sys.argv = ['qds.py', 'template', 'run', '--id', '14', '--j', file_path]
+        print_command()
+        Connection._api_call = Mock()
+        Connection._api_call.side_effect = template_side_effect
+        qds.main()
+        data = {'input_vars': [{'table': "'accounts'"}]}
+        Connection._api_call.assert_called_with("POST", "command_templates/14/run", data)
+    
+    def test_run_template_with_inine_json(self):
+        sys.argv = ['qds.py', 'template', 'run', '--id', '14', '--j', '[{"table" : "accounts"}]']
         print_command()
         Connection._api_call = Mock()
         Connection._api_call.side_effect = template_side_effect
