@@ -79,6 +79,8 @@ usage_str = (
     "  action --help\n"
     "\nScheduler subcommand:\n"
     "  scheduler --help\n"
+    "\nTemplate subcommand:\n"
+    "  template --help\n"
     "\nAccount subcommand:\n"
     "  account --help\n"
     "\nNezha subcommand:\n"
@@ -481,7 +483,6 @@ def templatemain(args):
     
 
 def main():
-    
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
