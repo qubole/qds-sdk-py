@@ -521,9 +521,7 @@ def main():
         logging.basicConfig(level=logging.INFO)
     else:
         logging.basicConfig(level=logging.WARN)
-        
-    options.api_token = "nRFxEKAhAt7CnGqMrDb9jpv1KMUgj41yXGBS4ZVUjpLFr1HNQcNGb6Yz4G1F3bZo"
-    options.api_url = "http://qubole.dev:8081/api"
+
     if options.api_token is None:
         sys.stderr.write("No API Token provided\n")
         usage(optparser)

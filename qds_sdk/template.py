@@ -90,19 +90,15 @@ class TemplateCmdLine:
     
     @staticmethod
     def execute(args, otherArgs):
-        print(args)
         if os.path.isfile(args.data):
-            print('yes,..its a valid path')
             with open(args.data) as f:
                 spec = json.load(f)
         else:
-            print("not a valid path", args.data)
             inputs = json.loads(args.data)
             inputs = formatData(inputs)
             spec = {
                 "input_vars" : inputs
             }
-        print("spec===", spec)
         return Template.runTemplate(args.id, spec)
     
     @staticmethod
