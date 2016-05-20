@@ -15,6 +15,7 @@ from qds_sdk.account import AccountCmdLine
 from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
+from qds_sdk.template import TemplateCmdLine
 
 import os
 import sys
@@ -474,8 +475,13 @@ def nezhamain(args):
     result = NezhaCmdLine.run(args)
     print(result)
 
-def main():
+def templatemain(args):
+    result = TemplateCmdLine.run(args)
+    print(result)
+    
 
+def main():
+    
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
@@ -508,14 +514,16 @@ def main():
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
-
+    
     if options.chatty:
         logging.basicConfig(level=logging.DEBUG)
     elif options.verbose:
         logging.basicConfig(level=logging.INFO)
     else:
         logging.basicConfig(level=logging.WARN)
-
+        
+    options.api_token = "nRFxEKAhAt7CnGqMrDb9jpv1KMUgj41yXGBS4ZVUjpLFr1HNQcNGb6Yz4G1F3bZo"
+    options.api_url = "http://qubole.dev:8081/api"
     if options.api_token is None:
         sys.stderr.write("No API Token provided\n")
         usage(optparser)
@@ -581,11 +589,13 @@ def main():
 
     if a0 == "user":
         return usermain(args)
+    if a0 == "template":
+        return templatemain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                       "dbtap", "role", "group", "app", "account", "nezha", "user"])))
+                       "dbtap", "role", "group", "app", "account", "nezha", "user", "template"])))
     usage(optparser)
 
 
