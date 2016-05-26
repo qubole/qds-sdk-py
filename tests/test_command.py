@@ -216,6 +216,23 @@ class TestHiveCommand(QdsCliTestCase):
                      'script_location': None,
                      'retry': 1})
 
+    def test_submit_query_with_hive_version(self):
+            sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--hive-version', '0.13']
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                    {'macros': None,
+                     'hive_version': '0.13',
+                     'label': None,
+                     'tags': None,
+                     'sample_size': None,
+                     'name': None,
+                     'query': 'show tables',
+                     'command_type': 'HiveCommand',
+                     'can_notify': False,
+                     'script_location': None})
+
     def test_submit_script_location(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script']
         print_command()
