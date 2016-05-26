@@ -200,7 +200,7 @@ class TestHiveCommand(QdsCliTestCase):
                  'retry': 2})
 
     def test_submit_query_with_hive_version(self):
-            sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--hive-version', '0.13', '--retry', '1']
+            sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--hive-version', '0.13', '--retry', 1]
             # temp comment
             print_command()
             Connection._api_call = Mock(return_value={'id': 1234})
