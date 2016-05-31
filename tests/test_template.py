@@ -24,67 +24,90 @@ class TestTemplateCheck(QdsCliTestCase):
         sys.argv = ['qds.py', 'template', 'create', '--data', file_path]
         print_command()
         Connection._api_call = Mock()
-        Connection._api_call.side_effect = template_side_effect
         qds.main()
-        data = {"command_type": "HiveCommand", "input_vars": [{"default_value": "\'age\'", "name": "col"}, 
-        {"default_value": "\'user\'", "name": "table"}], "command": {"sample_size": None, "macros": None, "hive_version": None, 
-        "name": None, "tags": None, "query": "select $col$ from $table$", "command_type": "HiveCommand", "can_notify": False, "script_location": None, "label": None}, "name": "tempplate_name"}
+        with open(file_path) as f:
+            data = json.load(f)
         Connection._api_call.assert_called_with("POST", "command_templates", data)
+    
+    def test_create_template_without_data(self):
+        sys.argv = ['qds.py', 'template', 'create']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
     
     def test_edit_template(self):
         file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input_edit_template.json')
         sys.argv = ['qds.py', 'template', 'edit', '--id', '12', '--data', file_path]
         print_command()
         Connection._api_call = Mock()
-        Connection._api_call.side_effect = template_side_effect
         qds.main()
-        data = {"command_type": "HiveCommand", "input_vars": [{"default_value": "\'age\'", "name": "col"}, 
-        {"default_value": "\'user\'", "name": "table"}], "command": {"sample_size": None, "macros": None, "hive_version": None, 
-        "name": None, "tags": None, "query": "select $col$ from $table$", "command_type": "HiveCommand", "can_notify": False, "script_location": None, "label": None}, "name": "tempplate_new_name"}
-        
+        with open(file_path) as f:
+            data = json.load(f)
         Connection._api_call.assert_called_with("PUT", "command_templates/12", data)
+    
+    def test_edit_template_without_data(self):
+        sys.argv = ['qds.py', 'template', 'edit', '--id', '12']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
     
     def test_view_template(self):
         sys.argv = ['qds.py', 'template', 'view', '--id', '12']
         print_command()
         Connection._api_call = Mock()
-        Connection._api_call.side_effect = template_side_effect
         qds.main()
         Connection._api_call.assert_called_with("GET", "command_templates/12", params=None)
+    
+    def test_view_template_without_id(self):
+        sys.argv = ['qds.py', 'template', 'view']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
     
     def test_list_template(self):
         sys.argv = ['qds.py', 'template', 'list', '--page', '1', '--per-page','10']
         print_command()
         Connection._api_call = Mock()
-        Connection._api_call.side_effect = template_side_effect
+        #Connection._api_call.side_effect = template_side_effect
         qds.main()
         Connection._api_call.assert_called_with("GET", "command_templates?page=1&per_page=10", params=None)
     
-    def test_run_template(self):
+    def test_submit_template(self):
         file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input_run_template.json')
-        sys.argv = ['qds.py', 'template', 'run', '--id', '14', '--j', file_path]
+        sys.argv = ['qds.py', 'template', 'submit', '--id', '14', '--j', file_path]
         print_command()
         Connection._api_call = Mock()
-        Connection._api_call.side_effect = template_side_effect
         qds.main()
-        data = {'input_vars': [{'table': "'accounts'"}]}
+        with open(file_path) as f:
+            data = json.load(f)
         Connection._api_call.assert_called_with("POST", "command_templates/14/run", data)
     
-    def test_run_template_with_inine_json(self):
-        sys.argv = ['qds.py', 'template', 'run', '--id', '14', '--j', '[{"table" : "accounts"}]']
+    def test_submit_template_without_id_data(self):
+        sys.argv = ['qds.py', 'template', 'submit']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+    
+    def test_submit_template_with_inline_json(self):
+        sys.argv = ['qds.py', 'template', 'submit', '--id', '14', '--j', '[{"table" : "accounts"}]']
         print_command()
         Connection._api_call = Mock()
-        Connection._api_call.side_effect = template_side_effect
         qds.main()
         data = {'input_vars': [{'table': "'accounts'"}]}
         Connection._api_call.assert_called_with("POST", "command_templates/14/run", data)
         
-        
-        
+    def test_run_template_without_id_data(self):
+        sys.argv = ['qds.py', 'template', 'run']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+            
+    def test_invalid_template_operation(self):
+        sys.argv = ['qds.py', 'template', 'load', '--id','12']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
         
 
 if __name__ == '__main__':
     unittest.main()
-        
-def template_side_effect(*args, **kwargs):
-    return {}

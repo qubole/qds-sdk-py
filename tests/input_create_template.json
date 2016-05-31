@@ -1,5 +1,5 @@
 {
-    "name" : "tempplate_name",
+    "name" : "template_name",
         "command_type" : "HiveCommand",
         "command" : {
             "name": null,
