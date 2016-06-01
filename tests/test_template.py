@@ -63,12 +63,27 @@ class TestTemplateCheck(QdsCliTestCase):
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
+            
+    def test_clone_template(self):
+        file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input_clone_template.json')
+        sys.argv = ['qds.py', 'template', 'clone', '--id', '12', '--data', file_path]
+        print_command()
+        Connection._api_call = Mock()
+        qds.main()
+        with open(file_path) as f:
+            data = json.load(f)
+        Connection._api_call.assert_called_with("POST", "command_templates/12/duplicate", data)
+        
+    def test_clone_template_without_id_data(self):
+        sys.argv = ['qds.py', 'template', 'clone']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
     
     def test_list_template(self):
         sys.argv = ['qds.py', 'template', 'list', '--page', '1', '--per-page','10']
         print_command()
         Connection._api_call = Mock()
-        #Connection._api_call.side_effect = template_side_effect
         qds.main()
         Connection._api_call.assert_called_with("GET", "command_templates?page=1&per_page=10", params=None)
     
@@ -89,7 +104,7 @@ class TestTemplateCheck(QdsCliTestCase):
             qds.main()
     
     def test_submit_template_with_inline_json(self):
-        sys.argv = ['qds.py', 'template', 'submit', '--id', '14', '--j', '[{"table" : "accounts"}]']
+        sys.argv = ['qds.py', 'template', 'submit', '--id', '14', '--j', '{"input_vars" : [{"table" : "accounts"}]}']
         print_command()
         Connection._api_call = Mock()
         qds.main()

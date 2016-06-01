@@ -34,6 +34,12 @@ class TemplateCmdLine:
         edit.add_argument("--id",dest="id",required=True, help="Id for the Template")
         edit.set_defaults(func=TemplateCmdLine.edit)
         
+        #clone
+        clone = subparsers.add_parser("clone", help="To Clone an existing Template")
+        clone.add_argument("--id",dest="id",required=True, help="Id for the Template to be Cloned")
+        clone.add_argument("--data",dest="data",required=True,help="Path to JSON file with template details to override")
+        clone.set_defaults(func=TemplateCmdLine.clone)
+        
         #view
         view = subparsers.add_parser("view", help="To View an existing Template")
         view.add_argument("--id",dest="id",required=True,help="Id for the Template")
@@ -78,6 +84,13 @@ class TemplateCmdLine:
         return Template.editTemplate(args.id, spec)
     
     @staticmethod
+    def clone(args):
+        with open(args.data) as f:
+            spec = json.load(f)
+        id = args.id
+        return Template.cloneTemplate(id, spec)
+        
+    @staticmethod
     def submit(args):
         spec = getSpec(args)
         res = Template.submitTemplate(args.id, spec)
@@ -100,16 +113,18 @@ class TemplateCmdLine:
     
     
 def getSpec(args):
+    if args.data is not None:
         if os.path.isfile(args.data):
             with open(args.data) as f:
                 spec = json.load(f)
         else:
-            inputs = json.loads(args.data)
-            inputs = formatData(inputs)
-            spec = {
-                "input_vars" : inputs
-            }
-        return spec
+            spec = json.loads(args.data)
+            if 'input_vars' in spec:
+                inputs = formatData(spec['input_vars'])
+                spec["input_vars"] = inputs
+    else:
+        spec = {}
+    return spec
 
 
 def formatData(inputs):
@@ -158,6 +173,22 @@ class Template(Resource):
         conn = Qubole.agent()
         return conn.put(Template.element_path(id), data)
     
+    @staticmethod
+    def cloneTemplate(id, data):
+        """
+        Clone an existing template.
+
+        Args:
+            `id`:   ID of the template to be cloned
+            `data`: json data to override
+        Returns:
+            Dictionary containing the updated details of the template.
+        """
+        conn = Qubole.agent()
+        return conn.post(Template.element_path(id + '/duplicate'), data)
+        
+        
+        
     @staticmethod
     def viewTemplate(id):
         """

@@ -515,6 +515,8 @@ def main():
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
+    options.api_url = "http://qubole.dev:8081/api"
+    options.api_token = "nRFxEKAhAt7CnGqMrDb9jpv1KMUgj41yXGBS4ZVUjpLFr1HNQcNGb6Yz4G1F3bZo"
     
     if options.chatty:
         logging.basicConfig(level=logging.DEBUG)
