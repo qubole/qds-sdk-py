@@ -25,24 +25,24 @@ class TemplateCmdLine:
         
         #create 
         create = subparsers.add_parser("create", help="To Create a new Template")
-        create.add_argument("--data",dest="data",required=True,help="Path to JSON file with template details")
+        create.add_argument("--data", dest="data",required=True, help="Path to JSON file with template details")
         create.set_defaults(func=TemplateCmdLine.create)
         
         #edit
         edit = subparsers.add_parser("edit", help="To Edit an existing Template")
-        edit.add_argument("--data",dest="data",required=True,help="Path to JSON file with template details")
-        edit.add_argument("--id",dest="id",required=True, help="Id for the Template")
+        edit.add_argument("--data", dest="data", required=True, help="Path to JSON file with template details")
+        edit.add_argument("--id", dest="id", required=True, help="Id for the Template")
         edit.set_defaults(func=TemplateCmdLine.edit)
         
         #clone
         clone = subparsers.add_parser("clone", help="To Clone an existing Template")
-        clone.add_argument("--id",dest="id",required=True, help="Id for the Template to be Cloned")
-        clone.add_argument("--data",dest="data",required=True,help="Path to JSON file with template details to override")
+        clone.add_argument("--id", dest="id",required=True, help="Id for the Template to be Cloned")
+        clone.add_argument("--data", dest="data", required=True, help="Path to JSON file with template details to override")
         clone.set_defaults(func=TemplateCmdLine.clone)
         
         #view
         view = subparsers.add_parser("view", help="To View an existing Template")
-        view.add_argument("--id",dest="id",required=True,help="Id for the Template")
+        view.add_argument("--id", dest="id", required=True, help="Id for the Template")
         view.set_defaults(func=TemplateCmdLine.view)
         
         #list 
@@ -53,14 +53,14 @@ class TemplateCmdLine:
         
         #run
         run = subparsers.add_parser("run", help="To Run Template and wait to print Result")
-        run.add_argument("--id", dest="id",required=True, help="Id of the template to run")
-        run.add_argument("--j",dest="data",required=True,help="Path to JSON file or json string with input field details")
+        run.add_argument("--id", dest="id", required=True, help="Id of the template to run")
+        run.add_argument("--j", dest="data", required=True, help="Path to JSON file or json string with input field details")
         run.set_defaults(func=TemplateCmdLine.execute)
         
         #submit
         submit = subparsers.add_parser("submit", help="To Submit Template and get the command Id")
-        submit.add_argument("--id", dest="id",required=True, help="Id of the template to Submit")
-        submit.add_argument("--j",dest="data",required=True,help="Path to JSON file or json string with input field details")
+        submit.add_argument("--id", dest="id", required=True, help="Id of the template to Submit")
+        submit.add_argument("--j", dest="data", required=True, help="Path to JSON file or json string with input field details")
         submit.set_defaults(func=TemplateCmdLine.submit)
         
         return argparser
@@ -94,7 +94,7 @@ class TemplateCmdLine:
     def submit(args):
         spec = getSpec(args)
         res = Template.submitTemplate(args.id, spec)
-        log.info("Submitted Template  with Id: %s, Command Id: %s, CommandType: %s" % (args.id, "12","221"))
+        log.info("Submitted Template  with Id: %s, Command Id: %s, CommandType: %s" % (args.id, res['id'], res['command_type']))
         return res
         
     @staticmethod    
@@ -109,8 +109,7 @@ class TemplateCmdLine:
     
     @staticmethod
     def list(args):
-        return Template.listTemplates(args)
-    
+        return Template.listTemplates(args)    
     
 def getSpec(args):
     if args.data is not None:
@@ -187,8 +186,6 @@ class Template(Resource):
         conn = Qubole.agent()
         return conn.post(Template.element_path(id + '/duplicate'), data)
         
-        
-        
     @staticmethod
     def viewTemplate(id):
         """
@@ -220,11 +217,15 @@ class Template(Resource):
     @staticmethod
     def runTemplate(id, data):
         """
-        Run an existing Template.
+        Run an existing Template and waits for the Result.
+        Prints result to stdout. 
 
         Args:
             `id`: ID of the template to run
-            `data`: json data containing the input_vars 
+            `data`: json data containing the input_vars
+        
+        Returns:  
+            An integer as status (0: success, 1: failure)
         """
         conn = Qubole.agent()
         res = conn.post(Template.element_path(id + "/run"), data)
@@ -253,9 +254,9 @@ class Template(Resource):
         Fetch existing Templates details.
         
         Args:
-            `args`: dictionary containing the value of page number and per_page value
+            `args`: dictionary containing the value of page number and per-page value
         Returns:
-            List containging templates details
+            Dictionary containing paging_info and command_templates details
         """
         conn = Qubole.agent()
         url_path = Template.rest_entity_path

@@ -92,6 +92,7 @@ class TestTemplateCheck(QdsCliTestCase):
         sys.argv = ['qds.py', 'template', 'submit', '--id', '14', '--j', file_path]
         print_command()
         Connection._api_call = Mock()
+        Connection._api_call.side_effect = submit_actions_side_effect
         qds.main()
         with open(file_path) as f:
             data = json.load(f)
@@ -107,10 +108,25 @@ class TestTemplateCheck(QdsCliTestCase):
         sys.argv = ['qds.py', 'template', 'submit', '--id', '14', '--j', '{"input_vars" : [{"table" : "accounts"}]}']
         print_command()
         Connection._api_call = Mock()
+        Connection._api_call.side_effect = submit_actions_side_effect
         qds.main()
         data = {'input_vars': [{'table': "'accounts'"}]}
         Connection._api_call.assert_called_with("POST", "command_templates/14/run", data)
-        
+    
+    def test_run_template(self):
+        file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input_run_template.json')
+        sys.argv = ['qds.py', 'template', 'run','--id', '14','--j',file_path]
+        print_command()
+        Connection._api_call = Mock()
+        Connection._api_call.side_effect = submit_actions_side_effect
+        HiveCommand.find = Mock()
+        HiveCommand.find.side_effect = find_command_side_effect
+        HiveCommand.get_results = Mock()
+        qds.main()
+        with open(file_path) as f:
+            data = json.load(f)
+        Connection._api_call.assert_called_with("POST", "command_templates/14/run", data)
+                
     def test_run_template_without_id_data(self):
         sys.argv = ['qds.py', 'template', 'run']
         print_command()
@@ -122,7 +138,19 @@ class TestTemplateCheck(QdsCliTestCase):
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
-        
+
+def submit_actions_side_effect(*args, **kwargs):
+    res = {
+        "id" : 122,
+        "command_type" : 'HiveCommand'
+    }
+    return res  
+
+def find_command_side_effect(id):
+    cmd = HiveCommand()
+    cmd.status = 'done'
+    cmd.id = 122
+    return cmd      
 
 if __name__ == '__main__':
     unittest.main()
