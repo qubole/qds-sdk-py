@@ -33,7 +33,8 @@ CommandClasses = {
     "shellcmd": ShellCommand,
     "dbexportcmd": DbExportCommand,
     "dbimportcmd": DbImportCommand,
-    "prestocmd": PrestoCommand
+    "prestocmd": PrestoCommand,
+    "listcmds": Command
 }
 
 usage_str = (
@@ -46,6 +47,7 @@ usage_str = (
     "    cancel <id> : cancels the cmd with this id\n"
     "    getresult <id> : get the results for the cmd with this id\n"
     "    getlog <id> : get the logs for the cmd with this id\n"
+    "  list: Get the list of on-going commands."
     "\nCluster subcommand:\n"
     "  cluster <action>\n"
     "    create: create a new cluster\n"
@@ -177,6 +179,11 @@ def getjobsaction(cmdclass, args):
 
 def cmdmain(cmd, args):
     cmdclass = CommandClasses[cmd]
+    if cmd == "listcmds":
+        result = Command.get_commands_waiting()
+        print(json.dumps(result, indent=4))
+        return 0
+
 
     actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog", "getjobs"])
     if len(args) < 1:

@@ -208,6 +208,19 @@ class Command(Resource):
             else:
                 fp.write(",".join(r['result_location']))
 
+    @classmethod
+    def get_commands_waiting(cls):
+        """
+
+        For the given API token account, return the waiting commands.
+
+        Returns:
+            Json Unicode with command information.
+
+        """
+        conn = Qubole.agent()
+        r = conn.get(cls.rest_entity_path, {"status": "waiting"})
+        return r
 
 
 class HiveCommand(Command):
