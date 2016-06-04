@@ -1195,7 +1195,6 @@ class ListCommands(Command):
             Json Unicode with command information.
 
         """
-        print str(args)
         conn = Qubole.agent()
         params = {}
         if args["status"] is not None:
