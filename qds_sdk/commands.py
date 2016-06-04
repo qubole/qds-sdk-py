@@ -208,20 +208,6 @@ class Command(Resource):
             else:
                 fp.write(",".join(r['result_location']))
 
-    @classmethod
-    def get_commands_waiting(cls):
-        """
-
-        For the given API token account, return the waiting commands.
-
-        Returns:
-            Json Unicode with command information.
-
-        """
-        conn = Qubole.agent()
-        r = conn.get(cls.rest_entity_path, {"status": "waiting"})
-        return r
-
 
 class HiveCommand(Command):
 
@@ -1167,6 +1153,61 @@ class DbTapQueryCommand(Command):
         v = vars(options)
         v["command_type"] = "DbTapQueryCommand"
         return v
+
+class ListCommands(Command):
+    usage = "listCmds [options]"
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("--status", dest="status",
+                         help="Status of the commands to list. [waiting, default=all]")
+    optparser.add_option("--page", dest="page",
+                         help="Page number.")
+    optparser.add_option("--per-page", dest="per_page",
+                         help="Results per page.")
+    @classmethod
+    def parse(cls, args):
+        """
+
+        Args:
+            `args`: sequence of arguments
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+        v = vars(options)
+        v["command_type"] = "ListCommand"
+        return v
+
+    @classmethod
+    def list_action(cls, args):
+        """
+
+        For the given parameters(like status), return the list of commands.
+
+        Returns:
+            Json Unicode with command information.
+
+        """
+        print str(args)
+        conn = Qubole.agent()
+        params = {}
+        if args["status"] is not None:
+            params["status"] = args["status"]
+        else:
+            params["status"] = "done"
+        if args["page"] is not None:
+            params["page"] = args["page"]
+        if args["per_page"] is not None:
+            params["per_page"] = args["per_page"]
+        r = conn.get(cls.rest_entity_path, params)
+        return r
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()

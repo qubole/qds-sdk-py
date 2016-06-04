@@ -1317,7 +1317,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
     def test_get_commands_waiting(self):
-        sys.argv = ['qds.py', 'listcmds']
+        sys.argv = ['qds.py', 'listwaitingcmds']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
