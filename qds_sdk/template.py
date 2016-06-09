@@ -184,7 +184,8 @@ class Template(Resource):
             Dictionary containing the updated details of the template.
         """
         conn = Qubole.agent()
-        return conn.post(Template.element_path(id + '/duplicate'), data)
+        path = str(id) + '/duplicate'
+        return conn.post(Template.element_path(path), data)
         
     @staticmethod
     def viewTemplate(id):
@@ -212,7 +213,8 @@ class Template(Resource):
             Dictionary containing Command Object details.  
         """
         conn = Qubole.agent()
-        return conn.post(Template.element_path(id + "/run"), data)
+        path = str(id) + "/run"
+        return conn.post(Template.element_path(path), data)
     
     @staticmethod
     def runTemplate(id, data):
@@ -228,7 +230,8 @@ class Template(Resource):
             An integer as status (0: success, 1: failure)
         """
         conn = Qubole.agent()
-        res = conn.post(Template.element_path(id + "/run"), data)
+        path = str(id) + "/run"
+        res = conn.post(Template.element_path(path), data)
         cmdType = res['command_type']
         cmdId = res['id']
         cmdClass = eval(cmdType)
