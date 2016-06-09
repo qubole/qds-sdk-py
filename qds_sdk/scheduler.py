@@ -277,5 +277,5 @@ class Scheduler(Resource):
 
     def rerun(self, instance_id):
         conn = Qubole.agent()
-        url_path = self.element_path(id) + "/instances/" + instance_id + "/rerun"
+        url_path = self.element_path(self.id) + "/instances/%s/rerun" % instance_id
         return conn.post(url_path)['status']
