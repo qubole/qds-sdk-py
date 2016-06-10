@@ -265,7 +265,7 @@ class Scheduler(Resource):
         if per_page is not None:
             page_attr.append("per_page=%s" % per_page)
         if page_attr:
-            url_path = "%s/instances?%s" % (self.element_path(args.id), "&".join(page_attr))
+            url_path = "%s/instances?%s" % (self.element_path(self.id), "&".join(page_attr))
         #Todo Page numbers are thrown away right now
         cmdjson = conn.get(url_path)
         cmdlist = []
@@ -277,5 +277,5 @@ class Scheduler(Resource):
 
     def rerun(self, instance_id):
         conn = Qubole.agent()
-        url_path = self.element_path(id) + "/instances/" + instance_id + "/rerun"
+        url_path = self.element_path(self.id) + "/instances/%s/rerun" % instance_id
         return conn.post(url_path)['status']
