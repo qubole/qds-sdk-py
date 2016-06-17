@@ -97,7 +97,7 @@ class Command(Resource):
 
                 if err_length != "0":
                     err_pointer += int(err_length)
-                    new_bytes = int(err_length) + int(tmp_length) - new_bytes - tmp_pointer
+                    new_bytes = int(err_length) + int(tmp_length) - tmp_pointer
                     tmp_pointer = int(tmp_length)
 
                 else:
@@ -105,8 +105,7 @@ class Command(Resource):
                     new_bytes = int(tmp_length)
 
                 if len(log) > 0 and new_bytes > 0:
-                    data = list(log)
-                    print >>sys.stderr, "".join(data[-new_bytes:])
+                    print >>sys.stderr, log[-new_bytes:]
 
         return cmd
 
