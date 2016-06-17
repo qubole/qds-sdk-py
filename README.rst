@@ -113,3 +113,5 @@ An example Python application needs to do the following:
 
        hc=HiveCommand.create(query='show tables')
        print "Id: %s, Status: %s" % (str(hc.id), hc.status)
+
+``example/mr_1.py`` contains a Hadoop Streaming example
