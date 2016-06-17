@@ -31,9 +31,9 @@ class MyAdapter(HTTPAdapter):
 
 class Connection:
 
-    def __init__(self, auth, base_url, skip_ssl_cert_check, reuse=True):
+    def __init__(self, auth, rest_url, skip_ssl_cert_check, reuse=True):
         self.auth = auth
-        self.base_url = base_url
+        self.rest_url = rest_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
         self._headers = {'User-Agent': 'qds-sdk-py-%s' % pkg_resources.get_distribution("qds-sdk").version,
                          'Content-Type': 'application/json'}
@@ -61,7 +61,7 @@ class Connection:
         return self._api_call("DELETE", path, data)
 
     def _api_call_raw(self, req_type, path, data=None, params=None):
-        url = self.base_url.rstrip('/') + '/' + path
+        url = self.rest_url.rstrip('/') + '/' + path
 
         if self.reuse:
             x = self.session

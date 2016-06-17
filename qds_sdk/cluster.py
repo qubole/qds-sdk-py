@@ -24,6 +24,7 @@ class Cluster(Resource):
     """
 
     rest_entity_path = "clusters"
+    api_version = "v1.2"
 
     @classmethod
     def _parse_list(cls, args):
@@ -170,6 +171,9 @@ class Cluster(Resource):
         ec2_group.add_argument("--vpc-id",
                                dest="vpc_id",
                                help="vpc to create the cluster in",)
+        ec2_group.add_argument("--bastion-node-public-dns",
+                               dest="bastion_node_public_dns",
+                               help="public dns name of the bastion node. Required only if cluster is in private subnet of a EC2-VPC",)
         ec2_group.add_argument("--role-instance-profile",
                                dest="role_instance_profile",
                                help="IAM Role instance profile to attach on cluster",)
@@ -405,29 +409,38 @@ class Cluster(Resource):
         return arguments
 
     @classmethod
-    def create(cls, cluster_info):
+    def create(cls, cluster_info, version=None):
         """
         Create a new cluster using information provided in `cluster_info`.
+
+        Optionally provide the version (eg: v1.3) to use the new version of the
+        API. If None we default to v1.2
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=version)
         return conn.post(cls.rest_entity_path, data=cluster_info)
 
     @classmethod
-    def update(cls, cluster_id_label, cluster_info):
+    def update(cls, cluster_id_label, cluster_info, version=None):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
+
+        Optionally provide the version (eg: v1.3) to use the new version of the
+        API. If None we default to v1.2
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=version)
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
-    def clone(cls, cluster_id_label, cluster_info):
+    def clone(cls, cluster_id_label, cluster_info, version=None):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
+
+        Optionally provide the version (eg: v1.3) to use the new version of the
+        API. If None we default to v1.2
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=version)
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
@@ -702,7 +715,8 @@ class ClusterInfo():
                          aws_availability_zone=None,
                          vpc_id=None,
                          subnet_id=None,
-                         role_instance_profile=None):
+                         role_instance_profile=None,
+                         bastion_node_public_dns=None):
         """
         Kwargs:
 
@@ -714,12 +728,16 @@ class ClusterInfo():
         `vpc_id`: The vpc to create the cluster in.
 
         `subnet_id`: The subnet to create the cluster in.
+
+        `bastion_node_public_dns`: Public dns name of the bastion host. Required only if
+            cluster is in private subnet.
         """
         self.ec2_settings['aws_region'] = aws_region
         self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
         self.ec2_settings['vpc_id'] = vpc_id
         self.ec2_settings['subnet_id'] = subnet_id
         self.ec2_settings['role_instance_profile'] = role_instance_profile
+        self.ec2_settings['bastion_node_public_dns'] = bastion_node_public_dns
 
     def set_hadoop_settings(self, master_instance_type=None,
                             slave_instance_type=None,
@@ -926,6 +944,7 @@ class ClusterInfoV13():
                          ssh_public_key=None,
                          persistent_security_group=None,
                          enable_presto=None,
+                         bastion_node_public_dns=None,
                          role_instance_profile=None,
                          presto_custom_config=None):
         """
@@ -1031,28 +1050,32 @@ class ClusterInfoV13():
 
         `presto_custom_config`: Custom Presto configuration overrides.
 
+        `bastion_node_public_dns`: Public dns name of the bastion node. Required only if cluster is in private subnet.
+
         """
 
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file
-        self.__set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
-        self.__set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id, role_instance_profile)
-        self.__set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy)
-        self.__set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
-        self.__set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
-        self.__set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
-        self.__set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
-        self.__set_security_settings(encrypted_ephemerals, ssh_public_key, persistent_security_group)
-        self.__set_presto_settings(enable_presto, presto_custom_config)
+        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
+        self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
+                                bastion_node_public_dns, role_instance_profile)
+        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy)
+        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
+        self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
+        self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
+        self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
+        self.set_security_settings(encrypted_ephemerals, ssh_public_key, persistent_security_group)
+        self.set_presto_settings(enable_presto, presto_custom_config)
 
-    def __set_ec2_settings(self,
+    def set_ec2_settings(self,
                            aws_access_key_id=None,
                            aws_secret_access_key=None,
                            aws_region=None,
                            aws_availability_zone=None,
                            vpc_id=None,
                            subnet_id=None,
+                           bastion_node_public_dns=None,
                            role_instance_profile=None):
         self.ec2_settings['compute_access_key'] = aws_access_key_id
         self.ec2_settings['compute_secret_key'] = aws_secret_access_key
@@ -1060,9 +1083,10 @@ class ClusterInfoV13():
         self.ec2_settings['aws_preferred_availability_zone'] = aws_availability_zone
         self.ec2_settings['vpc_id'] = vpc_id
         self.ec2_settings['subnet_id'] = subnet_id
+        self.ec2_settings['bastion_node_public_dns'] = bastion_node_public_dns
         self.ec2_settings['role_instance_profile'] = role_instance_profile
 
-    def __set_node_configuration(self, master_instance_type=None,
+    def set_node_configuration(self, master_instance_type=None,
                             slave_instance_type=None,
                             initial_nodes=None,
                             max_nodes=None,
@@ -1075,7 +1099,7 @@ class ClusterInfoV13():
         self.node_configuration['slave_request_type'] = slave_request_type
         self.node_configuration['fallback_to_ondemand'] = fallback_to_ondemand
 
-    def __set_hadoop_settings(self, custom_config=None,
+    def set_hadoop_settings(self, custom_config=None,
                             use_hbase=None,
                             custom_ec2_tags=None,
                             use_hadoop2=None,
@@ -1093,7 +1117,7 @@ class ClusterInfoV13():
             except Exception as e:
                 raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
-    def __set_spot_instance_settings(self, maximum_bid_price_percentage=None,
+    def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
                                    maximum_spot_instance_percentage=None):
         self.node_configuration['spot_instance_settings'] = {
@@ -1101,7 +1125,7 @@ class ClusterInfoV13():
                'timeout_for_request': timeout_for_request,
                'maximum_spot_instance_percentage': maximum_spot_instance_percentage}
 
-    def __set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
+    def set_stable_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                           timeout_for_request=None,
                                           allow_fallback=True):
         self.node_configuration['stable_spot_instance_settings'] = {
@@ -1109,7 +1133,7 @@ class ClusterInfoV13():
                'timeout_for_request': timeout_for_request,
                'allow_fallback': allow_fallback}
 
-    def __set_ebs_volume_settings(self, ebs_volume_count=None,
+    def set_ebs_volume_settings(self, ebs_volume_count=None,
                                  ebs_volume_type=None,
                                  ebs_volume_size=None):
       self.node_configuration['ebs_volume_count'] = ebs_volume_count
@@ -1117,13 +1141,13 @@ class ClusterInfoV13():
       self.node_configuration['ebs_volume_size'] = ebs_volume_size
 
 
-    def __set_fairscheduler_settings(self, fairscheduler_config_xml=None,
+    def set_fairscheduler_settings(self, fairscheduler_config_xml=None,
                                    default_pool=None):
         self.hadoop_settings['fairscheduler_settings'] = {
                'fairscheduler_config_xml': fairscheduler_config_xml,
                'default_pool': default_pool}
 
-    def __set_security_settings(self,
+    def set_security_settings(self,
                               encrypted_ephemerals=None,
                               ssh_public_key=None,
                               persistent_security_group=None):
@@ -1131,7 +1155,7 @@ class ClusterInfoV13():
         self.security_settings['ssh_public_key'] = ssh_public_key
         self.security_settings['persistent_security_group'] = persistent_security_group
 
-    def __set_presto_settings(self, enable_presto=None, presto_custom_config=None):
+    def set_presto_settings(self, enable_presto=None, presto_custom_config=None):
         self.presto_settings['enable_presto'] = enable_presto
         self.presto_settings['custom_config'] = presto_custom_config
 

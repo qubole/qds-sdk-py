@@ -1,0 +1,26 @@
+{
+    "name" : "template_name",
+    "command_type" : "HiveCommand",
+    "command" : {
+        "name": null,
+        "tags": null, 
+        "label": null, 
+        "macros": null, 
+        "hive_version": null, 
+        "query": "select $col$ from $table$", 
+
+        "command_type": "HiveCommand", 
+        "can_notify": false, 
+        "script_location": null,
+        "sample_size": null
+    },
+    "input_vars" : [
+    {
+        "name":"col",
+        "default_value" : "'age'"},
+    {
+        "name":"table", 
+        "default_value" : "'user'"
+    }
+    ]
+}
