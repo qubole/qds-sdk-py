@@ -1,0 +1,12 @@
+{  
+    "name" : "template_name_clone",
+    "input_vars" : [
+    {
+        "name":"col",
+        "default_value" : "'name'"},
+    {
+        "name":"table", 
+        "default_value" : "'account'"
+    }
+    ]
+}
