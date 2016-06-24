@@ -4,6 +4,7 @@ a generic Qubole command and the implementation of all
 the specific commands
 """
 
+from __future__ import print_function
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
@@ -12,8 +13,8 @@ from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 from optparse import SUPPRESS_HELP
-import boto
 
+import boto
 import time
 import logging
 import sys
@@ -87,6 +88,8 @@ class Command(Resource):
         Returns:
             Command object
         """
+
+        # vars to keep track of actual logs bytes (err, tmp) and new bytes seen in each iteration
         err_pointer, tmp_pointer, new_bytes = 0, 0, 0
         cmd = cls.create(**kwargs)
         while not Command.is_done(cmd.status):
@@ -95,6 +98,8 @@ class Command(Resource):
             if kwargs.get('print_logs_live', False):
                 log, err_length, tmp_length = cmd.get_log_partial(err_pointer, tmp_pointer)
 
+                # if err length is non zero, then tmp_pointer needs to be reset to the current tmp_length as the
+                # err_length will contain the full set of logs from last seen non-zero err_length.
                 if err_length != "0":
                     err_pointer += int(err_length)
                     new_bytes = int(err_length) + int(tmp_length) - tmp_pointer
@@ -104,7 +109,7 @@ class Command(Resource):
                     new_bytes = int(tmp_length)
 
                 if len(log) > 0 and new_bytes > 0:
-                    print >>sys.stderr, log[-new_bytes:]
+                    print(log[-new_bytes:], file=sys.stderr)
 
         return cmd
 
@@ -152,10 +157,14 @@ class Command(Resource):
 
     def get_log_partial(self, err_pointer=0, tmp_pointer=0):
         """
-        Fetches log for the command represented by this object
-
+        Fetches log (full or partial) for the command represented by this object
+        Accepts:
+            err_pointer(int): Pointer to err text bytes we've received so far, which will be passed to next api call
+                to indicate pointer to fetch logs.
+            tmp_pointer(int): Same as err_pointer except it indicates the bytes of tmp file processed.
         Returns:
-            The log as a string
+            An array where the first field is actual log (string), while 2nd & 3rd are counts of err and tmp bytes
+                which have been returned by api in addition to the given pointers.
         """
         log_path = self.meta_data['logs_resource']
         conn = Qubole.agent()
