@@ -91,11 +91,13 @@ class Command(Resource):
 
         # vars to keep track of actual logs bytes (err, tmp) and new bytes seen in each iteration
         err_pointer, tmp_pointer, new_bytes = 0, 0, 0
+        print_logs_live = kwargs.pop("print_logs_live") # We don't want to send this to the API.
+
         cmd = cls.create(**kwargs)
         while not Command.is_done(cmd.status):
             time.sleep(Qubole.poll_interval)
             cmd = cls.find(cmd.id)
-            if kwargs.get('print_logs_live', False):
+            if print_logs_live is True:
                 log, err_length, tmp_length = cmd.get_log_partial(err_pointer, tmp_pointer)
 
                 # if err length is non zero, then tmp_pointer needs to be reset to the current tmp_length as the
