@@ -76,7 +76,6 @@ class AccountCmdLine:
     @staticmethod
     def branding(args):
         v= {}
-        print(args)
         v['account_id'] = args.account_id
         if args.logo_uri is not None:
             v['logo'] = {'logo_uri' : args.logo_uri }
