@@ -183,5 +183,56 @@ class TestAccountCreate(QdsCliTestCase):
             'defloc': 's3://bucket/path'}})
 
 
+class TestAccountBranding(QdsCliTestCase):
+    def test_logo(self):
+        sys.argv = ['qds.py', 'account', 'branding',
+                    '--account-id', '4',
+                    '--logo-uri', 'https://www.xyz.com/image.jpg']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "accounts/branding", {'logo': {
+            'logo_uri' : 'https://www.xyz.com/image.jpg'},
+            'account_id' : '4'})
+
+    def test_link(self):
+        sys.argv = ['qds.py', 'account', 'branding',
+                    '--account-id', '4',
+                    '--link-url', 'https://www.xyz.com',
+                    '--link-label', 'Documentation']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "accounts/branding", {'link': {
+            'link_url' : 'https://www.xyz.com',
+            'link_label' : 'Documentation'},
+            'account_id' : '4'})
+
+    def test_logo_link(self):
+        sys.argv = ['qds.py', 'account', 'branding',
+                    '--account-id', '4',
+                    '--logo-uri', 'https://www.xyz.com/image.jpg',
+                    '--link-url', 'https://www.xyz.com',
+                    '--link-label', 'Documentation']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "accounts/branding", {'logo': {
+            'logo_uri' : 'https://www.xyz.com/image.jpg'},
+            'link': {'link_url' : 'https://www.xyz.com',
+            'link_label' : 'Documentation'},
+            'account_id' : '4'})
+
+    def test_without_account_id(self):
+        sys.argv = ['qds.py', 'account', 'branding',
+                    '--logo-uri', 'https://www.xyz.com/image.jpg',
+                    '--link-url', 'https://www.xyz.com',
+                    '--link-label', 'Documentation']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+
 if __name__ == '__main__':
     unittest.main()

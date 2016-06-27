@@ -43,6 +43,15 @@ class AccountCmdLine:
             choices=["true", "false"], default="false",
             help="Use previous account plan, default: false")
         create.set_defaults(func=AccountCmdLine.create)
+
+        #branding
+        branding = subparsers.add_parser(
+            "branding", help="Branding logo and link")
+        branding.add_argument("--account-id", dest = "account_id", required=True, help = "Account ID of the Qubole account for which branding has to be done")
+        branding.add_argument("--logo-uri", dest = "logo_uri", help = "Publicly accessible logo URI image in jpg/gif/svg/jpeg format.Image size must be less than 100 KB.")
+        branding.add_argument("--link-url", dest = "link_url", help = "Specify the documentation URL.")
+        branding.add_argument("--link-label", dest = "link_label", help = "Add a label to describe the documentation URL.")
+        branding.set_defaults(func=AccountCmdLine.branding)
         return argparser
 
     @staticmethod
@@ -64,6 +73,24 @@ class AccountCmdLine:
         result = Account.create(**v)
         return result
 
+    @staticmethod
+    def branding(args):
+        v= {}
+        v['account_id'] = args.account_id
+        if args.logo_uri is not None:
+            v['logo'] = {'logo_uri' : args.logo_uri }
+
+        link = {}
+        if args.link_url is not None:
+            link['link_url'] = args.link_url
+        if args.link_label is not None:
+            link['link_label'] = args.link_label
+
+        if bool(link):
+            v['link'] = link
+
+        result = Account.branding(**v)
+        return result
 
 class Account(SingletonResource):
     credentials_rest_entity_path = "accounts/get_creds"
@@ -73,3 +100,9 @@ class Account(SingletonResource):
     def create(cls, **kwargs):
         conn = Qubole.agent()
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
+
+    @classmethod
+    def branding(cls, **kwargs):
+        conn = Qubole.agent()
+        url_path = "accounts/branding"
+        return  cls(conn.put(url_path, data=kwargs))
