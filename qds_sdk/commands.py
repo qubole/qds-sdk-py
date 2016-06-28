@@ -4,6 +4,7 @@ a generic Qubole command and the implementation of all
 the specific commands
 """
 
+from __future__ import print_function
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
@@ -12,8 +13,8 @@ from qds_sdk.util import GentleOptionParser
 from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 from optparse import SUPPRESS_HELP
-import boto
 
+import boto
 import time
 import logging
 import sys
@@ -87,10 +88,30 @@ class Command(Resource):
         Returns:
             Command object
         """
+
+        # vars to keep track of actual logs bytes (err, tmp) and new bytes seen in each iteration
+        err_pointer, tmp_pointer, new_bytes = 0, 0, 0
+        print_logs_live = kwargs.pop("print_logs_live") # We don't want to send this to the API.
+
         cmd = cls.create(**kwargs)
         while not Command.is_done(cmd.status):
             time.sleep(Qubole.poll_interval)
             cmd = cls.find(cmd.id)
+            if print_logs_live is True:
+                log, err_length, tmp_length = cmd.get_log_partial(err_pointer, tmp_pointer)
+
+                # if err length is non zero, then tmp_pointer needs to be reset to the current tmp_length as the
+                # err_length will contain the full set of logs from last seen non-zero err_length.
+                if err_length != "0":
+                    err_pointer += int(err_length)
+                    new_bytes = int(err_length) + int(tmp_length) - tmp_pointer
+                    tmp_pointer = int(tmp_length)
+                else:
+                    tmp_pointer += int(tmp_length)
+                    new_bytes = int(tmp_length)
+
+                if len(log) > 0 and new_bytes > 0:
+                    print(log[-new_bytes:], file=sys.stderr)
 
         return cmd
 
@@ -136,6 +157,23 @@ class Command(Resource):
         r = conn.get_raw(log_path)
         return r.text
 
+    def get_log_partial(self, err_pointer=0, tmp_pointer=0):
+        """
+        Fetches log (full or partial) for the command represented by this object
+        Accepts:
+            err_pointer(int): Pointer to err text bytes we've received so far, which will be passed to next api call
+                to indicate pointer to fetch logs.
+            tmp_pointer(int): Same as err_pointer except it indicates the bytes of tmp file processed.
+        Returns:
+            An array where the first field is actual log (string), while 2nd & 3rd are counts of err and tmp bytes
+                which have been returned by api in addition to the given pointers.
+        """
+        log_path = self.meta_data['logs_resource']
+        conn = Qubole.agent()
+        r = conn.get_raw(log_path, params={'err_file_processed':err_pointer, 'tmp_file_processed':tmp_pointer})
+        if 'err_length' in r.headers.keys() and 'tmp_length' in r.headers.keys():
+            return [r.text, r.headers['err_length'], r.headers['tmp_length']]
+        return [r.text, 0, 0]
 
     @classmethod
     def get_jobs_id(cls, id):
@@ -243,6 +281,8 @@ class HiveCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
 
     @classmethod
@@ -328,6 +368,8 @@ class SqlCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
     @classmethod
     def parse(cls, args):
@@ -419,6 +461,8 @@ class SparkCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
@@ -576,6 +620,8 @@ class PrestoCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
 
     @classmethod
@@ -650,6 +696,8 @@ class HadoopCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
 
     optparser.disable_interspersed_args()
@@ -684,6 +732,7 @@ class HadoopCommand(Command):
         parsed['tags'] = options.tags
         parsed["command_type"] = "HadoopCommand"
         parsed['print_logs'] = options.print_logs
+        parsed['print_logs_live'] = options.print_logs_live
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
@@ -728,6 +777,8 @@ class ShellCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
     @classmethod
     def parse(cls, args):
@@ -821,6 +872,8 @@ class PigCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", choices=[1,2,3], default=0, help="Number of retries for a job")
 
     @classmethod
@@ -937,6 +990,8 @@ class DbExportCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
 
     @classmethod
@@ -1038,6 +1093,8 @@ class DbImportCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
 
     @classmethod
@@ -1126,6 +1183,8 @@ class DbTapQueryCommand(Command):
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
+    optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
+                         default=False, help="Fetch logs and print them to stderr while command is running.")
 
     @classmethod
     def parse(cls, args):
