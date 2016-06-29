@@ -91,7 +91,7 @@ class Command(Resource):
 
         # vars to keep track of actual logs bytes (err, tmp) and new bytes seen in each iteration
         err_pointer, tmp_pointer, new_bytes = 0, 0, 0
-        print_logs_live = kwargs.pop("print_logs_live") # We don't want to send this to the API.
+        print_logs_live = kwargs.pop("print_logs_live", None) # We don't want to send this to the API.
 
         cmd = cls.create(**kwargs)
         while not Command.is_done(cmd.status):
