@@ -15,6 +15,7 @@ from qds_sdk.account import AccountCmdLine
 from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
+from qds_sdk.template import TemplateCmdLine
 
 import os
 import sys
@@ -78,6 +79,8 @@ usage_str = (
     "  action --help\n"
     "\nScheduler subcommand:\n"
     "  scheduler --help\n"
+    "\nTemplate subcommand:\n"
+    "  template --help\n"
     "\nAccount subcommand:\n"
     "  account --help\n"
     "\nNezha subcommand:\n"
@@ -104,6 +107,7 @@ def submitaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
         args.pop("print_logs") # This is only useful while using the 'run' action.
+        args.pop("print_logs_live") # This is only useful while using the 'run' action.
         cmd = cmdclass.create(**args)
         print("Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id))
         return 0
@@ -474,8 +478,12 @@ def nezhamain(args):
     result = NezhaCmdLine.run(args)
     print(result)
 
-def main():
+def templatemain(args):
+    result = TemplateCmdLine.run(args)
+    print(result)
+    
 
+def main():
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
@@ -508,7 +516,7 @@ def main():
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
-
+    
     if options.chatty:
         logging.basicConfig(level=logging.DEBUG)
     elif options.verbose:
@@ -581,11 +589,13 @@ def main():
 
     if a0 == "user":
         return usermain(args)
+    if a0 == "template":
+        return templatemain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                       "dbtap", "role", "group", "app", "account", "nezha", "user"])))
+                       "dbtap", "role", "group", "app", "account", "nezha", "user", "template"])))
     usage(optparser)
 
 
