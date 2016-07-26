@@ -65,6 +65,8 @@ usage_str = (
     "    update_node: update a node on a existing cluster\n"
     "    get_snapshot_schedule: get details of scheduled snapshots on a hbase cluster\n"
     "    update_snapshot_schedule: update scheduled snapshots on a hbase cluster\n"
+    "    get_access_control: View the access conditions for a cluster.\n"
+    "    set_access_control: Update the access conditions for a cluster.\n"
     "\nDbTap subcommand:\n"
     "  dbtap --help\n"
     "\nReport subcommand:\n"
@@ -370,6 +372,15 @@ def cluster_status_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
+def cluster_get_access_control_action(clusterclass, args):
+    arguments = clusterclass._parse_access_control(args,"get_access_policy")
+    result = clusterclass.get_access_control(arguments.cluster_id)
+    print (json.dumps(result, indent=4))
+
+def cluster_set_access_control_action(clusterclass, args):
+    arguments = clusterclass._parse_access_control(args, "set_access_policy")
+    result = clusterclass.set_access_control(arguments.cluster_id, arguments.policy)
+    print (json.dumps(result, indent=4))
 
 def cluster_reassign_label_action(clusterclass, args):
     arguments = clusterclass._parse_reassign_label(args)
@@ -422,7 +433,9 @@ def cluster_update_node_action(clusterclass, args):
 
 def clustermain(args, api_version):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node",
+                    "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule",
+                     "get_access_control", "set_access_control"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
