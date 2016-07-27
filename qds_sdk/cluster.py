@@ -111,49 +111,6 @@ class Cluster(Resource):
         data = {"state": "terminate"}
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
-
-    """
-        Should be moved to access_control_list class.
-    """
-    @classmethod
-    def get_access_control(cls, cluster_id):
-        """
-        View access control for a cluster.
-        """
-        conn = Qubole.agent(version="latest")
-        data = {"source_id": cluster_id, "source_type": cls.__name__}
-        return conn.get("object_policy/get_object_policy",data)
-
-    @classmethod
-    def set_access_control(cls, cluster_id, policy):
-        """
-        Update access control for a cluster.
-        """
-        conn = Qubole.agent(version="latest")
-        data = {"source_id": cluster_id, "source_type": cls.__name__,
-                "policy": policy}
-        print ("data: ", str(data))
-        return conn.put("object_policy/update_object_policy",data)
-
-    @classmethod
-    def _parse_access_control(cls, args, action):
-        """
-        Args:
-            `args`: sequence of arguments
-            `action` : "get_access_policy" or "set_access_policy"
-
-        Returns:
-            Object that contain cluster parameters
-        """
-        argsParser = ArgumentParser(prog="cluster %s" % (action))
-        argsParser.add_argument("--cluster-id", help="id/label of the cluster.", required=True)
-        if action == "set_access_policy":
-            argsParser.add_argument("--policy", required = True,
-                                    help="Policy Statement example '[{\"access\":\"deny\", \"action\":"
-                                         " [\"all\"], \"condition\": {\"qbol_users\": [user_id,], \"qbol_groups\": [group_ids,]} }]")
-        arguments = argsParser.parse_args(args)
-        return arguments
-
     @classmethod
     def _parse_create_update(cls, args, action, api_version):
         """

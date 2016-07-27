@@ -16,6 +16,7 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
+from qds_sdk.object_policy import ObjectPolicy
 
 import os
 import sys
@@ -65,8 +66,7 @@ usage_str = (
     "    update_node: update a node on a existing cluster\n"
     "    get_snapshot_schedule: get details of scheduled snapshots on a hbase cluster\n"
     "    update_snapshot_schedule: update scheduled snapshots on a hbase cluster\n"
-    "    get_access_control: View the access conditions for a cluster.\n"
-    "    set_access_control: Update the access conditions for a cluster.\n"
+    "    object_policy: View/Update the access conditions for a cluster.\n"
     "\nDbTap subcommand:\n"
     "  dbtap --help\n"
     "\nReport subcommand:\n"
@@ -372,14 +372,9 @@ def cluster_status_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-def cluster_get_access_control_action(clusterclass, args):
-    arguments = clusterclass._parse_access_control(args,"get_access_policy")
-    result = clusterclass.get_access_control(arguments.cluster_id)
-    print (json.dumps(result, indent=4))
-
-def cluster_set_access_control_action(clusterclass, args):
-    arguments = clusterclass._parse_access_control(args, "set_access_policy")
-    result = clusterclass.set_access_control(arguments.cluster_id, arguments.policy)
+def cluster_object_policy_action(clusterclass, args):
+    arguments = ObjectPolicy._parse_object_policy(args, "object_policy", clusterclass.__name__)
+    result = ObjectPolicy.process_object_policy(arguments)
     print (json.dumps(result, indent=4))
 
 def cluster_reassign_label_action(clusterclass, args):
@@ -435,7 +430,7 @@ def clustermain(args, api_version):
     clusterclass = Cluster
     actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node",
                     "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule",
-                     "get_access_control", "set_access_control"])
+                     "object_policy"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
