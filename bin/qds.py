@@ -66,7 +66,7 @@ usage_str = (
     "    update_node: update a node on a existing cluster\n"
     "    get_snapshot_schedule: get details of scheduled snapshots on a hbase cluster\n"
     "    update_snapshot_schedule: update scheduled snapshots on a hbase cluster\n"
-    "    object_policy: View/Update the access conditions for a cluster.\n"
+    "    object_policy: View/Update the access policy of a cluster.\n"
     "\nDbTap subcommand:\n"
     "  dbtap --help\n"
     "\nReport subcommand:\n"

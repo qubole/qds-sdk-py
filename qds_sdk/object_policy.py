@@ -45,9 +45,9 @@ class ObjectPolicy(Resource):
     @classmethod
     def process_object_policy(cls, arguments):
         if arguments.cmd == "get":
-            cls.get_object_policy( arguments.id, arguments.source_type)
+            return cls.get_object_policy( arguments.id, arguments.source_type)
         if arguments.cmd == "update":
-            cls.update_object_policy(arguments.id, arguments.source_type, arguments.policy)
+            return cls.update_object_policy(arguments.id, arguments.source_type, arguments.policy)
 
     @classmethod
     def get_object_policy(cls, source_id, source_type):
