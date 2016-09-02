@@ -957,6 +957,8 @@ class DbExportCommand(Command):
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
+    optparser.add_option("--hive_serde", dest="hive_serde",
+                         help="Output format of the Hive Table")
     optparser.add_option("--partition_spec", dest="partition_spec",
                          help="Mode 1: (optional) Partition specification for Hive table")
     optparser.add_option("--dbtap_id", dest="dbtap_id",
