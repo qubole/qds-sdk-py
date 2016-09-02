@@ -23,7 +23,7 @@ class ObjectPolicy(Resource):
             `action` : "get_object_policy" or "update_object_policy"
 
         Returns:
-            Object that contain cluster parameters
+            Dictionary that contains parsed command line arguments.
         """
         argsParser = ArgumentParser(prog="%s %s" % (object, action))
         argsParser.set_defaults(source_type=object)
@@ -45,12 +45,12 @@ class ObjectPolicy(Resource):
     @classmethod
     def process_object_policy(cls, arguments):
         if arguments.cmd == "get":
-            return cls.get_object_policy( arguments.id, arguments.source_type)
+            return cls.get_object_policy(arguments.source_type, arguments.id)
         if arguments.cmd == "update":
-            return cls.update_object_policy(arguments.id, arguments.source_type, arguments.policy)
+            return cls.update_object_policy(arguments.source_type, arguments.id, arguments.policy)
 
     @classmethod
-    def get_object_policy(cls, source_id, source_type):
+    def get_object_policy(cls, source_type, source_id):
         """
         View access control for a cluster.
         """
@@ -59,7 +59,7 @@ class ObjectPolicy(Resource):
         return conn.get(cls.element_path("get_object_policy"), data)
 
     @classmethod
-    def update_object_policy(cls, source_id, source_type, policy):
+    def update_object_policy(cls, source_type, source_id, policy):
         """
         Update/Set access control for a cluster.
         """
