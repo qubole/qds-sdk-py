@@ -1280,6 +1280,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_split_column': None,
                  'can_notify': False,
                  'hive_table': 'myhivetable',
+                 'hive_serde': None,
                  'db_table': 'mydbtable',
                  'db_extract_query': None,
                  'retry': 2})
