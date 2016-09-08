@@ -1280,6 +1280,30 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_split_column': None,
                  'can_notify': False,
                  'hive_table': 'myhivetable',
+                 'hive_serde': None,
+                 'db_table': 'mydbtable',
+                 'db_extract_query': None,
+                 'retry': 2})
+
+    def test_submit_command_with_hive_serde(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--hive_serde', 'orc', '--retry', 2]
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'db_parallelism': None,
+                 'name': None,
+                 'dbtap_id': '1',
+                 'db_where': None,
+                 'db_boundary_query': None,
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbImportCommand',
+                 'db_split_column': None,
+                 'can_notify': False,
+                 'hive_table': 'myhivetable',
+                 'hive_serde': 'orc',
                  'db_table': 'mydbtable',
                  'db_extract_query': None,
                  'retry': 2})
