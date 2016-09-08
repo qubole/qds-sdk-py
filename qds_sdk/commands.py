@@ -1065,6 +1065,8 @@ class DbImportCommand(Command):
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
+    optparser.add_option("--hive_serde", dest="hive_serde",
+                         help="Output format of the Hive Table")
     optparser.add_option("--dbtap_id", dest="dbtap_id",
                          help="Modes 1 and 2: DbTap Id of the target database in Qubole")
     optparser.add_option("--db_table", dest="db_table",
