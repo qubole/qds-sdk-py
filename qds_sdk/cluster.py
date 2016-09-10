@@ -906,6 +906,7 @@ class ClusterInfoV13():
         self.hadoop_settings = {}
         self.security_settings = {}
         self.presto_settings = {}
+        self.spark_settings = {}
         self.node_configuration = {}
 
     def set_cluster_info(self, aws_access_key_id=None,
@@ -1159,6 +1160,10 @@ class ClusterInfoV13():
         self.presto_settings['enable_presto'] = enable_presto
         self.presto_settings['custom_config'] = presto_custom_config
 
+    def set_spark_settings(self, use_spark=True, custom_config=None):
+        self.spark_settings['use_spark'] = use_spark
+        self.spark_settings['custom_config'] = custom_config
+
     def minimal_payload(self):
         """
         This method can be used to create the payload which is sent while
@@ -1184,7 +1189,7 @@ class ClusterInfoV2(ClusterInfoV13):
                             max_nodes=None,
                             slave_request_type=None,
                             fallback_to_ondemand=None):
-        raise Exception("node_configuration not supported. use set_cloud_config(..) instead")
+        pass
 
     def set_cloud_config(self, hadoop_master_type=None, hadoop_slave_type=None, compute_tenant_id = None,
             compute_subscription_id=None, vnet_resource_group_name=None, vnet_name=None, subnet_name=None,
