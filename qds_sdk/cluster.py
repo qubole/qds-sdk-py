@@ -1169,6 +1169,57 @@ class ClusterInfoV13():
         return _make_minimal(payload_dict)
 
 
+class ClusterInfoV2(ClusterInfoV13):
+    """ This class should be entirely temporary to deal with the junk API for cluster creation
+    """
+
+    def __init__(self, label, api_version=2):
+        super(ClusterInfoV2, self).__init__(label)
+        self.api_version = api_version
+        self.cloud_config = {}
+
+    def set_node_configuration(self, master_instance_type=None,
+                            slave_instance_type=None,
+                            initial_nodes=None,
+                            max_nodes=None,
+                            slave_request_type=None,
+                            fallback_to_ondemand=None):
+        raise Exception("node_configuration not supported. use set_cloud_config(..) instead")
+
+    def set_cloud_config(self, hadoop_master_type=None, hadoop_slave_type=None, compute_tenant_id = None,
+            compute_subscription_id=None, vnet_resource_group_name=None, vnet_name=None, subnet_name=None,
+            disk_storage_account_name=None, disk_storage_account_resource_group_name=None, location=None,
+            data_disk_count=None, data_disk_size=None, image_uri_overrides=None, storage_access_key=None,
+            storage_account_name=None, compute_client_id=None, compute_client_secret=None):
+        self.cloud_config['compute_tenant_id'] = compute_tenant_id
+        self.cloud_config['compute_subscription_id'] = compute_subscription_id
+        self.cloud_config['vnet_resource_group_name'] = vnet_resource_group_name
+        self.cloud_config['vnet_name'] = vnet_name
+        self.cloud_config['subnet_name'] = subnet_name
+        self.cloud_config['disk_storage_account_name'] = disk_storage_account_name
+        self.cloud_config['disk_storage_account_resource_group_name'] = disk_storage_account_resource_group_name
+        self.cloud_config['location'] = location
+        self.cloud_config['data_disk_count'] = data_disk_count
+        self.cloud_config['data_disk_size'] = data_disk_size
+        self.cloud_config['image_uri_overrides'] = image_uri_overrides
+        self.cloud_config['storage_access_key'] = storage_access_key
+        self.cloud_config['storage_account_name'] = storage_account_name
+        self.cloud_config['compute_client_id'] = compute_client_id
+        self.cloud_config['compute_client_secret'] = compute_client_id
+        self.cloud_config['hadoop_master_type'] = hadoop_master_type
+        self.cloud_config['hadoop_slave_type'] = hadoop_slave_type
+
+    def set_cluster_info(self, **kwargs):
+        super(ClusterInfoV2, self).set_cluster_info(**kwargs)
+        self.set_cloud_config(kwargs['compute_tenant_id'], kwargs['compute_subscription_id'],
+                kwargs['vnet_resource_group_name'], kwargs['vnet_name'], kwargs['subnet_name'],
+                kwargs['disk_storage_account_name'], kwargs['disk_storage_account_resource_group_name'],
+                kwargs['location'], kwargs['data_disk_count'], kwargs['data_disk_size'],
+                kwargs['image_uri_overrides'], kwargs['storage_access_key'], kwargs['storage_account_name'],
+                kwargs['compute_client_id'], kwargs['compute_client_secret'],
+                kwargs['hadoop_master_type'], kwargs['hadoop_slave_type'])
+
+
 def _make_minimal(dictionary):
     """
     This function removes all the keys whose value is either None or an empty
@@ -1184,3 +1235,4 @@ def _make_minimal(dictionary):
             else:
                 new_dict[key] = value
     return new_dict
+
