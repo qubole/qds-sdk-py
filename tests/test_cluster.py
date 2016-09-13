@@ -1332,6 +1332,23 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_master_elastic_ip_v13(self):
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write("ssh-rsa Blah1/Blah2+BLAH3==".encode("utf8"))
+            temp.flush()
+            sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--master-elastic-ip', "10.10.10.10"]
+            print_command()
+            Connection._api_call = Mock(return_value={})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'clusters',
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki',
+                                      'master_elastic_ip': '10.10.10.10'},
+                    })
+
     def test_use_qubole_placement_policy_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1645,6 +1662,20 @@ class TestClusterUpdate(QdsCliTestCase):
                      'ec2_settings': {'subnet_id': 'subnet-12345678'},
                     }
                 })
+
+    def test_master_elastic_ip(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--master-elastic-ip', '10.10.10.10']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'cluster':
+                    {
+                     'ec2_settings': {'master_elastic_ip': '10.10.10.10'},
+                    }
+                })
+
 
     def test_master_instance_type(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',

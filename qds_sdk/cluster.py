@@ -952,6 +952,8 @@ class ClusterInfoV13():
 
         `subnet_id`: The subnet to create the cluster in.
 
+        `master_elastic_ip`: Elastic IP to attach to master node
+
         `disallow_cluster_termination`: Set this to True if you don't want
             qubole to auto-terminate idle clusters. Use this option with
             extreme caution.
