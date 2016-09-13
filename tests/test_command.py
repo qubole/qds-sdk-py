@@ -1152,7 +1152,34 @@ class TestDbExportCommand(QdsCliTestCase):
                  'dbtap_id': '1',
                  'can_notify': False,
                  'db_update_mode': None,
-                 'retry': 3})
+                 'retry': 3,
+                 'use_customer_cluster': 'false',
+                 'customer_cluster_label': None})
+
+    def test_submit_command_on_cluster(self):
+        sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 3,
+         '--use_customer_cluster','true','--customer_cluster_label', 'hadoop2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'export_dir': None,
+                 'name': None,
+                 'db_update_keys': None,
+                 'partition_spec': None,
+                 'fields_terminated_by': None,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbExportCommand',
+                 'dbtap_id': '1',
+                 'can_notify': False,
+                 'db_update_mode': None,
+                 'retry': 3,
+                 'use_customer_cluster': 'true',
+                 'customer_cluster_label': 'hadoop2'})
 
     def test_submit_fail_with_no_parameters(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'submit']
@@ -1180,7 +1207,9 @@ class TestDbExportCommand(QdsCliTestCase):
                  'dbtap_id': '1',
                  'can_notify': True,
                  'db_update_mode': None,
-                 'retry': 0})
+                 'retry': 0,
+                 'use_customer_cluster': 'false',
+                 'customer_cluster_label': None})
 
     def test_submit_with_name(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
@@ -1202,7 +1231,9 @@ class TestDbExportCommand(QdsCliTestCase):
                  'dbtap_id': '1',
                  'can_notify': False,
                  'db_update_mode': None,
-                 'retry': 0})
+                 'retry': 0,
+                 'use_customer_cluster': 'false',
+                 'customer_cluster_label': None})
 
     def test_submit_with_update_mode_and_keys(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
@@ -1225,7 +1256,9 @@ class TestDbExportCommand(QdsCliTestCase):
                  'dbtap_id': '1',
                  'can_notify': False,
                  'db_update_mode': 'updateonly',
-                 'retry': 0})
+                 'retry': 0,
+                 'use_customer_cluster': 'false',
+                 'customer_cluster_label': None})
 
     def test_submit_with_mode_2(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '2', '--dbtap_id', '1',
@@ -1248,7 +1281,9 @@ class TestDbExportCommand(QdsCliTestCase):
                  'dbtap_id': '1',
                  'can_notify': False,
                  'db_update_mode': None,
-                 'retry': 0})
+                 'retry': 0,
+                 'use_customer_cluster': 'false',
+                 'customer_cluster_label': None})
 
     def test_retry_out_of_range(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
@@ -1282,7 +1317,34 @@ class TestDbImportCommand(QdsCliTestCase):
                  'hive_table': 'myhivetable',
                  'db_table': 'mydbtable',
                  'db_extract_query': None,
-                 'retry': 2})
+                 'retry': 2,
+                 'use_customer_cluster': 'false',
+                 'customer_cluster_label': None})
+
+    def test_submit_command_on_cluster(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 2,
+         '--use_customer_cluster','true','--customer_cluster_label', 'hadoop2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'db_parallelism': None,
+                 'name': None,
+                 'dbtap_id': '1',
+                 'db_where': None,
+                 'db_boundary_query': None,
+                 'mode': '1',
+                 'tags': None,
+                 'command_type': 'DbImportCommand',
+                 'db_split_column': None,
+                 'can_notify': False,
+                 'hive_table': 'myhivetable',
+                 'db_table': 'mydbtable',
+                 'db_extract_query': None,
+                 'retry': 2,
+                 'use_customer_cluster': 'true',
+                 'customer_cluster_label':'hadoop2'})
 
     def test_retry_out_of_range(self):
         sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
