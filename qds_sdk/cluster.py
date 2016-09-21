@@ -884,7 +884,7 @@ class ClusterInfo():
         payload = {"cluster": self.__dict__}
         return _make_minimal(payload)
 
-class ClusterInfoV13():
+class ClusterInfoV13(object):
     """
     qds_sdk.ClusterInfo is the class which stores information about a cluster.
     You can use objects of this class to create or update a cluster.
