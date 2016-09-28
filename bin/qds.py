@@ -16,6 +16,7 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
+from qds_sdk.object_policy import ObjectPolicy
 
 import os
 import sys
@@ -65,6 +66,7 @@ usage_str = (
     "    update_node: update a node on a existing cluster\n"
     "    get_snapshot_schedule: get details of scheduled snapshots on a hbase cluster\n"
     "    update_snapshot_schedule: update scheduled snapshots on a hbase cluster\n"
+    "    object_policy: View/Update the access policy of a cluster.\n"
     "\nDbTap subcommand:\n"
     "  dbtap --help\n"
     "\nReport subcommand:\n"
@@ -370,6 +372,10 @@ def cluster_status_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
+def cluster_object_policy_action(clusterclass, args):
+    arguments = ObjectPolicy._parse_object_policy(args, "object_policy", clusterclass.__name__)
+    result = ObjectPolicy.process_object_policy(arguments)
+    print (json.dumps(result, indent=4))
 
 def cluster_reassign_label_action(clusterclass, args):
     arguments = clusterclass._parse_reassign_label(args)
@@ -422,7 +428,9 @@ def cluster_update_node_action(clusterclass, args):
 
 def clustermain(args, api_version):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node",
+                    "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule",
+                     "object_policy"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
