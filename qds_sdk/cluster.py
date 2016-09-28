@@ -6,6 +6,7 @@ cluster information.
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from argparse import ArgumentParser
+from qds_sdk.object_policy import ObjectPolicyCmdLine
 
 import logging
 import json
@@ -1168,6 +1169,8 @@ class ClusterInfoV13():
         payload_dict.pop("api_version", None)
         return _make_minimal(payload_dict)
 
+class ClusterObjectPolicyCmdLine(ObjectPolicyCmdLine):
+    pass
 
 def _make_minimal(dictionary):
     """

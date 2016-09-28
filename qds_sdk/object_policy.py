@@ -8,12 +8,10 @@ from qds_sdk.resource import Resource
 from argparse import ArgumentParser
 import json
 
-class ObjectPolicy(Resource):
+class ObjectPolicyCmdLine:
     """
     qds_sdk.ObjectPolicy is the class which sets/updates the policy
     """
-    rest_entity_path = "object_policy"
-    api_version = "latest"
 
     @classmethod
     def _parse_object_policy(cls, args, action, object):
@@ -33,8 +31,7 @@ class ObjectPolicy(Resource):
         update_parser = subparsers.add_parser("update")
         update_parser.set_defaults(cmd="update")
         for parser in [get_parser, update_parser]:
-            parser.add_argument("--%s-id" % (object.lower()), help="Id of the %s." % (object.lower()), required=True,
-                                dest='id')
+            parser.add_argument("--id", help="id", required=True, dest='id')
 
         update_parser.add_argument("--policy", required = True,
                                     help="Policy Statement example '[{\"access\":\"deny\", \"action\":"
@@ -45,9 +42,14 @@ class ObjectPolicy(Resource):
     @classmethod
     def process_object_policy(cls, arguments):
         if arguments.cmd == "get":
-            return cls.get_object_policy(arguments.source_type, arguments.id)
+            return ObjectPolicyResource.get_object_policy(arguments.source_type, arguments.id)
         if arguments.cmd == "update":
-            return cls.update_object_policy(arguments.source_type, arguments.id, arguments.policy)
+            return ObjectPolicyResource.update_object_policy(arguments.source_type, arguments.id, arguments.policy)
+
+
+class ObjectPolicyResource(Resource):
+    rest_entity_path = "object_policy"
+    api_version = "latest"
 
     @classmethod
     def get_object_policy(cls, source_type, source_id):

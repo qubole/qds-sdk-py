@@ -16,7 +16,8 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
-from qds_sdk.object_policy import ObjectPolicy
+from qds_sdk.object_policy import ObjectPolicyCmdLine
+from qds_sdk.cluster import ClusterObjectPolicyCmdLine
 
 import os
 import sys
@@ -373,8 +374,8 @@ def cluster_status_action(clusterclass, args):
     return 0
 
 def cluster_object_policy_action(clusterclass, args):
-    arguments = ObjectPolicy._parse_object_policy(args, "object_policy", clusterclass.__name__)
-    result = ObjectPolicy.process_object_policy(arguments)
+    arguments = ClusterObjectPolicyCmdLine._parse_object_policy(args, "object_policy", clusterclass.__name__)
+    result = ClusterObjectPolicyCmdLine.process_object_policy(arguments)
     print (json.dumps(result, indent=4))
 
 def cluster_reassign_label_action(clusterclass, args):
