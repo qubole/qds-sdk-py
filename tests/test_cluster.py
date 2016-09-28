@@ -2287,7 +2287,7 @@ class TestClusterManageCommands(QdsCliTestCase):
 
 class TestClusterACL(QdsCliTestCase):
     def test_get_object_policy(self):
-        sys.argv = ['qds.py', 'cluster', 'object_policy', 'get', '--cluster-id', '1001']
+        sys.argv = ['qds.py', 'cluster', 'object_policy', 'get', '--id', '1001']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -2295,7 +2295,7 @@ class TestClusterACL(QdsCliTestCase):
                                                                                                    'source_type':'Cluster'})
 
     def test_update_object_policy(self):
-        sys.argv = ['qds.py', 'cluster', 'object_policy', 'update', '--cluster-id', '1001', '--policy', '{JSON format policy}']
+        sys.argv = ['qds.py', 'cluster', 'object_policy', 'update', '--id', '1001', '--policy', '{JSON format policy}']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
