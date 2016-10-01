@@ -112,6 +112,14 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
+    def instance_info(cls, region=None, cluster_type=None)
+       """ Returns the possible instance type information for master and slave of the cluster
+       """
+       conn = Qubole.agent()
+       params = {"type": cluster_type, "region": region}
+       return conn.get(cls.rest_entity_path, params=params)
+
+    @classmethod
     def _parse_create_update(cls, args, action, api_version):
         """
         Parse command line arguments to determine cluster parameters that can
