@@ -24,7 +24,7 @@ class Cluster(Resource):
     """
 
     rest_entity_path = "clusters"
-    api_version = "v1.2"
+    api_version = "v1.3"
 
     @classmethod
     def _parse_list(cls, args):
@@ -66,7 +66,7 @@ class Cluster(Resource):
         Returns:
             List of clusters satisfying the given criteria
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         if state is None:
             return conn.get(cls.rest_entity_path)
         elif state is not None:
@@ -82,7 +82,7 @@ class Cluster(Resource):
         """
         Show information about the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         return conn.get(cls.element_path(cluster_id_label))
 
     @classmethod
@@ -90,7 +90,7 @@ class Cluster(Resource):
         """
         Show the status of the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         return conn.get(cls.element_path(cluster_id_label) + "/state")
 
     @classmethod
@@ -98,7 +98,7 @@ class Cluster(Resource):
         """
         Start the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         data = {"state": "start"}
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
@@ -107,7 +107,7 @@ class Cluster(Resource):
         """
         Terminate the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         data = {"state": "terminate"}
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
@@ -115,7 +115,7 @@ class Cluster(Resource):
     def instance_info(cls, region=None, cluster_type=None):
        """ Returns the possible instance type information for master and slave of the cluster
        """
-       conn = Qubole.agent()
+       conn = Qubole.agent(version=Cluster.api_version)
        params = {"type": cluster_type, "region": region}
        return conn.get(cls.rest_entity_path + "/instance_info", params=params)
 
@@ -504,7 +504,7 @@ class Cluster(Resource):
 
             `label`: label to be moved from the source cluster
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         data = {
                     "destination_cluster": destination_cluster,
                     "label": label
@@ -516,7 +516,7 @@ class Cluster(Resource):
         """
         Delete the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         return conn.delete(cls.element_path(cluster_id_label))
 
     @classmethod
