@@ -112,7 +112,7 @@ class Cluster(Resource):
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
     @classmethod
-    def instance_info(cls, region=None, cluster_type=None)
+    def instance_info(cls, region=None, cluster_type=None):
        """ Returns the possible instance type information for master and slave of the cluster
        """
        conn = Qubole.agent()
