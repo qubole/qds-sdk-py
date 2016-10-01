@@ -117,7 +117,7 @@ class Cluster(Resource):
        """
        conn = Qubole.agent()
        params = {"type": cluster_type, "region": region}
-       return conn.get(cls.rest_entity_path, params=params)
+       return conn.get(cls.rest_entity_path + "/instance_info", params=params)
 
     @classmethod
     def _parse_create_update(cls, args, action, api_version):
