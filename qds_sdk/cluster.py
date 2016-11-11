@@ -56,7 +56,7 @@ class Cluster(Resource):
         return vars(arguments)
 
     @classmethod
-    def list(cls, state=None):
+    def list(cls, state=None, per_page=None):
         """
         List existing clusters present in your account.
 
@@ -67,8 +67,9 @@ class Cluster(Resource):
             List of clusters satisfying the given criteria
         """
         conn = Qubole.agent(version=Cluster.api_version)
+        params = {"per_page": per_page, "state": state}
         if state is None:
-            return conn.get(cls.rest_entity_path)
+            return conn.get(cls.rest_entity_path, params=params)
         elif state is not None:
             cluster_list = conn.get(cls.rest_entity_path)
             result = []
