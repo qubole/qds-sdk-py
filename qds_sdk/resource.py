@@ -153,7 +153,7 @@ class SingletonResource(BaseResource):
 
         return cls.cached_resource
 
-    @classmethod 
+    @classmethod
     def find_creds(cls, **kwargs):
         if cls.cached_resource is None:
             conn = Qubole.agent()
