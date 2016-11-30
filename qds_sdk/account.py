@@ -95,7 +95,7 @@ class AccountCmdLine:
 
 class Account(SingletonResource):
     credentials_rest_entity_path = "accounts/creds"
-    rest_entity_path = "accounts/creds"
+    rest_entity_path = "account"
 
     @classmethod
     def create(cls, **kwargs):
