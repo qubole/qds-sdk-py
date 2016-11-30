@@ -153,6 +153,14 @@ class SingletonResource(BaseResource):
 
         return cls.cached_resource
 
+    @classmethod 
+    def find_creds(cls, **kwargs):
+        if cls.cached_resource is None:
+            conn = Qubole.agent()
+            cls.cached_resource = cls(conn.get(cls.credentials_rest_entity_path))
+
+        return cls.cached_resource
+
     @classmethod
     def clear_cache(cls):
         cls.cached_resource = None
