@@ -1219,7 +1219,7 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['storage_access_key'] = storage_access_key
         self.cloud_config['storage_account_name'] = storage_account_name
         self.cloud_config['compute_client_id'] = compute_client_id
-        self.cloud_config['compute_client_secret'] = compute_client_id
+        self.cloud_config['compute_client_secret'] = compute_client_secret
         self.cloud_config['hadoop_master_type'] = hadoop_master_type
         self.cloud_config['hadoop_slave_type'] = hadoop_slave_type
 
