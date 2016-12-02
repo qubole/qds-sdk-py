@@ -17,7 +17,7 @@ setup(
     author_email="dev@qubole.com",
     description=("Python SDK for coding to the Qubole Data Service API"),
     keywords="qubole sdk api",
-    url="https://github.com/anumahadevan/qds-sdk-py/tree/azure-pytestframework-related-changes",
+    url="https://github.com/qubole/qds-sdk-py",
     zip_safe=True,
     packages=['qds_sdk'],
     scripts=['bin/qds.py'],
