@@ -1192,14 +1192,6 @@ class ClusterInfoV2(ClusterInfoV13):
         self.api_version = api_version
         self.cloud_config = {}
 
-    def set_node_configuration(self, master_instance_type=None,
-                            slave_instance_type=None,
-                            initial_nodes=None,
-                            max_nodes=None,
-                            slave_request_type=None,
-                            fallback_to_ondemand=None):
-        pass
-
     def set_cloud_config(self, hadoop_master_type=None, hadoop_slave_type=None, compute_tenant_id = None,
             compute_subscription_id=None, vnet_resource_group_name=None, vnet_name=None, subnet_name=None,
             disk_storage_account_name=None, disk_storage_account_resource_group_name=None, location=None,
@@ -1219,7 +1211,7 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['storage_access_key'] = storage_access_key
         self.cloud_config['storage_account_name'] = storage_account_name
         self.cloud_config['compute_client_id'] = compute_client_id
-        self.cloud_config['compute_client_secret'] = compute_client_id
+        self.cloud_config['compute_client_secret'] = compute_client_secret
         self.cloud_config['hadoop_master_type'] = hadoop_master_type
         self.cloud_config['hadoop_slave_type'] = hadoop_slave_type
 
