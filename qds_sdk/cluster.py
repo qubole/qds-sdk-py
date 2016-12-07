@@ -1205,6 +1205,15 @@ class ClusterInfoV2(ClusterInfoV13):
         self.monitoring = {}
         self.internal = {}
 
+    def minimal_payload(self):
+        """
+        This method can be used to create the payload which is sent while
+        creating or updating a cluster.
+        """
+        payload_dict = self.__dict__
+        payload_dict.pop("api_version", None)
+        return _make_minimal(payload_dict)
+
     def set_cloud_config(self, compute_validated=None, use_account_compute_creds=None, compute_access_key=None,
                          compute_secret_key=None, compute_tenant_id=None, compute_subscription_id=None,
                          compute_client_id=None, compute_client_secret=None, location=None,
@@ -1224,7 +1233,7 @@ class ClusterInfoV2(ClusterInfoV13):
     def set_compute_config(self, compute_validated=None, use_account_compute_creds=None, compute_client_id=None,
                            compute_client_secret=None, compute_tenant_id=None, compute_access_key=None,
                            compute_secret_key=None, compute_subscription_id=None):
-
+        self.cloud_config['compute_config'] = {}
         self.cloud_config['compute_config']['compute_validated'] = compute_validated
         self.cloud_config['compute_config']['use_account_compute_creds'] = use_account_compute_creds
 
@@ -1237,11 +1246,13 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['compute_config']['compute_client_secret'] = compute_client_secret
 
     def set_location(self, location=None):
+        self.cloud_config['location'] = {}
         self.cloud_config['location']['location'] = location
 
     def set_network_config(self, vpc_id=None, subnet_id=None, bastion_node_public_dns=None,
                            persistent_security_groups=None, master_elastic_ip=None, vnet_name =None,
                            subnet_name=None, vnet_resource_group_name=None):
+        self.cloud_config['network_config'] = {}
         self.cloud_config['network_config']['bastion_node_public_dns'] = bastion_node_public_dns
         self.cloud_config['network_config']['persistent_security_groups'] = persistent_security_groups
         self.cloud_config['network_config']['master_elastic_ip'] = master_elastic_ip
@@ -1255,6 +1266,7 @@ class ClusterInfoV2(ClusterInfoV13):
 
     def set_storage_config(self, storage_access_key=None, storage_account_name=None, disk_storage_account_name=None,
                            disk_storage_account_resource_group_name=None, data_disk_count=None, data_disk_size=None):
+        self.cloud_config['storage_config'] = {}
         self.cloud_config['storage_config']['storage_access_key'] = storage_access_key
         self.cloud_config['storage_config']['storage_account_name'] = storage_account_name
         self.cloud_config['storage_config']['disk_storage_account_name'] = disk_storage_account_name
@@ -1274,19 +1286,23 @@ class ClusterInfoV2(ClusterInfoV13):
 
     def set_hadoop_settings(self, custom_hadoop_config =None, fairscheduler_settings=None,
                             use_qubole_placement_policy=None):
+        self.engine_config['hadoop_settings'] = {}
         self.engine_config['hadoop_settings']['custom_hadoop_config'] = custom_hadoop_config
         self.engine_config['hadoop_settings']['fairscheduler_settings'] = fairscheduler_settings
         self.engine_config['hadoop_settings']['use_qubole_placement_policy'] = use_qubole_placement_policy
 
     def set_presto_settings(self, presto_version=None, custom_presto_config=None):
+        self.engine_config['presto_settings'] = {}
         self.engine_config['presto_settings']['presto_version'] = presto_version
         self.engine_config['presto_settings']['custom_presto_config'] = custom_presto_config
 
     def set_spark_settings(self, spark_version=None, custom_spark_config=None):
+        self.engine_config['spark_settings'] = {}
         self.engine_config['spark_settings']['spark_version'] = spark_version
         self.engine_config['spark_settings']['custom_spark_config'] = custom_spark_config
 
     def set_airflow_settings(self, dbtap_id=None, fernet_key=None, overrides=None):
+        self.engine_config['airflow_settings'] = {}
         self.engine_config['airflow_settings']['dbtap_id'] = dbtap_id
         self.engine_config['airflow_settings']['fernet_key'] = fernet_key
         self.engine_config['airflow_settings']['overrides'] = overrides
@@ -1336,22 +1352,35 @@ class ClusterInfoV2(ClusterInfoV13):
     def set_spot_settings(self, maximum_bid_price_percentage=None, timeout_for_request=None,
                           maximum_spot_instance_percentage=None, stable_maximum_bid_price_percentage=None,
                           stable_timeout_for_request=None, stable_allow_fallback=None):
-        self.cluster_info['spot_instance_settings']['maximum_bid_price_percentage'] = maximum_bid_price_percentage
-        self.cluster_info['spot_instance_settings']['timeout_for_request'] = timeout_for_request
-        self.cluster_info['spot_instance_settings']['maximum_spot_instance_percentage'] = maximum_spot_instance_percentage
+        self.cluster_info['spot_settings'] = {}
+        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
+                                        maximum_spot_instance_percentage)
+        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request,
+                                          stable_allow_fallback)
 
-        self.cluster_info['stable_spot_bid_settings']['stable_maximum_bid_price_percentage'] = stable_maximum_bid_price_percentage
-        self.cluster_info['stable_spot_bid_settings']['stable_timeout_for_request'] = stable_timeout_for_request
-        self.cluster_info['stable_spot_bid_settings']['stable_allow_fallback'] = stable_allow_fallback
+    def set_spot_instance_settings(self, maximum_bid_price_percentage=None, timeout_for_request=None,
+                          maximum_spot_instance_percentage=None):
+        self.cluster_info['spot_settings']['spot_instance_settings'] = {}
+        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = maximum_bid_price_percentage
+        self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
+        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = maximum_spot_instance_percentage
+
+    def set_stable_spot_bid_settings(self, stable_maximum_bid_price_percentage=None,
+                          stable_timeout_for_request=None, stable_allow_fallback=None):
+        self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_maximum_bid_price_percentage'] = stable_maximum_bid_price_percentage
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_timeout_for_request'] = stable_timeout_for_request
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_allow_fallback'] = stable_allow_fallback
 
     def set_data_disk(self, size=None, count=None, type=None, upscaling_config=None, encryption=None):
+        self.cluster_info['data_disk'] = {}
         self.cluster_info['data_disk']['size'] = size
         self.cluster_info['data_disk']['count'] = count
         self.cluster_info['data_disk']['type'] = type
         self.cluster_info['data_disk']['upscaling_config'] = upscaling_config
         self.cluster_info['data_disk']['encryption'] = encryption
 
-    def set_cluster_info(self, **kwargs):
+    def set_cluster_info(self, kwargs):
         # super(ClusterInfoV2, self).set_cluster_info(**kwargs)
         self.set_cloud_config(kwargs['compute_validated'], kwargs['use_account_compute_creds'],
                               kwargs['compute_access_key'], kwargs['compute_secret_key'], kwargs['compute_tenant_id'],
