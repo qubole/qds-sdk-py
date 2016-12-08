@@ -270,7 +270,8 @@ def _create_cluster_info(arguments, api_version):
                                       enable_presto=arguments.enable_presto,
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
                                       role_instance_profile=arguments.role_instance_profile,
-                                      presto_custom_config=presto_custom_config)
+                                      presto_custom_config=presto_custom_config,
+                                      is_ha=arguments.is_ha)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,
@@ -295,7 +296,8 @@ def _create_cluster_info(arguments, api_version):
                                          arguments.use_hbase,
                                          arguments.custom_ec2_tags,
                                          arguments.use_hadoop2,
-                                         arguments.use_spark)
+                                         arguments.use_spark,
+                                         arguments.is_ha)
 
         cluster_info.set_spot_instance_settings(
               arguments.maximum_bid_price_percentage,
