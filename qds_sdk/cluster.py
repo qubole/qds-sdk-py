@@ -1245,9 +1245,12 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['compute_config']['compute_client_id'] = compute_client_id
         self.cloud_config['compute_config']['compute_client_secret'] = compute_client_secret
 
-    def set_location(self, location=None):
+    def set_location(self, location=None, aws_region=None, aws_availability_zone=None):
         self.cloud_config['location'] = {}
         self.cloud_config['location']['location'] = location
+
+        self.cloud_config['location']['aws_region'] = aws_region
+        self.cloud_config['location']['aws_availability_zone'] = aws_availability_zone
 
     def set_network_config(self, vpc_id=None, subnet_id=None, bastion_node_public_dns=None,
                            persistent_security_groups=None, master_elastic_ip=None, vnet_name =None,
@@ -1257,10 +1260,10 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['network_config']['persistent_security_groups'] = persistent_security_groups
         self.cloud_config['network_config']['master_elastic_ip'] = master_elastic_ip
 
-        self.cloud_config['network_config']['vpc_id '] = vpc_id
+        self.cloud_config['network_config']['vpc_id'] = vpc_id
         self.cloud_config['network_config']['subnet_id'] = subnet_id
 
-        self.cloud_config['network_config']['vnet_name '] = vnet_name
+        self.cloud_config['network_config']['vnet_name'] = vnet_name
         self.cloud_config['network_config']['subnet_name'] = subnet_name
         self.cloud_config['network_config']['vnet_resource_group_name'] = vnet_resource_group_name
 
@@ -1309,6 +1312,10 @@ class ClusterInfoV2(ClusterInfoV13):
 
     def set_monitoring(self, ganglia=None, datadog_api_token=None, datadog_app_token=None):
         self.monitoring['ganglia'] = ganglia
+        self.set_datadog_settings(datadog_api_token, datadog_app_token)
+
+    def set_datadog_settings(self, datadog_api_token=None, datadog_app_token=None):
+        self.monitoring['datadog'] = {}
         self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
         self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
 
@@ -1373,12 +1380,12 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_allow_fallback'] = stable_allow_fallback
 
     def set_data_disk(self, size=None, count=None, type=None, upscaling_config=None, encryption=None):
-        self.cluster_info['data_disk'] = {}
-        self.cluster_info['data_disk']['size'] = size
-        self.cluster_info['data_disk']['count'] = count
-        self.cluster_info['data_disk']['type'] = type
-        self.cluster_info['data_disk']['upscaling_config'] = upscaling_config
-        self.cluster_info['data_disk']['encryption'] = encryption
+        self.cluster_info['datadisk'] = {}
+        self.cluster_info['datadisk']['size'] = size
+        self.cluster_info['datadisk']['count'] = count
+        self.cluster_info['datadisk']['type'] = type
+        self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
+        self.cluster_info['datadisk']['encryption'] = encryption
 
     def set_cluster_info(self, kwargs):
         # super(ClusterInfoV2, self).set_cluster_info(**kwargs)
@@ -1392,11 +1399,11 @@ class ClusterInfoV2(ClusterInfoV13):
                               kwargs['storage_account_name'], kwargs['disk_storage_account_name'],
                               kwargs['disk_storage_account_resource_group_name'], kwargs['data_disk_count'],
                               kwargs['data_disk_size'])
-        self.set_engine_config(kwargs['custom_hadoop_config '], kwargs['fairscheduler_settings'],
+        self.set_engine_config(kwargs['flavour'], kwargs['custom_hadoop_config'], kwargs['fairscheduler_settings'],
                                kwargs['use_qubole_placement_policy'], kwargs['presto_version'],
-                               kwargs['custom_presto_config=None,'], kwargs['spark_version'],
+                               kwargs['custom_presto_config'], kwargs['spark_version'],
                                kwargs['custom_spark_config'], kwargs['dbtap_id'], kwargs['fernet_key'],
-                               kwargs['overrides=None'])
+                               kwargs['overrides'])
         self.set_monitoring(kwargs['ganglia'], kwargs['datadog_api_token'], kwargs['datadog_app_token'])
         self.set_cluster_information(kwargs['master_instance_type'], kwargs['slave_instance_type'],
                                      kwargs['min_nodes'], kwargs['max_nodes'], kwargs['cluster_name'],
