@@ -1278,11 +1278,12 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['storage_config']['data_disk_count'] = data_disk_count
         self.cloud_config['storage_config']['data_disk_size'] = data_disk_size
 
-    def set_engine_config(self, flavour=None, custom_hadoop_config =None, fairscheduler_settings=None,
-                            use_qubole_placement_policy=None, presto_version=None, custom_presto_config=None,
-                          spark_version=None, custom_spark_config=None, dbtap_id=None, fernet_key=None, overrides=None):
+    def set_engine_config(self, flavour=None, custom_hadoop_config =None, fairscheduler_config_xml=None,
+                          default_pool=None, use_qubole_placement_policy=None, presto_version=None,
+                          custom_presto_config=None, spark_version=None,
+                          custom_spark_config=None, dbtap_id=None, fernet_key=None, overrides=None):
         self.engine_config['flavour'] = flavour
-        self.set_hadoop_settings(custom_hadoop_config, fairscheduler_settings, use_qubole_placement_policy)
+        self.set_hadoop_settings(custom_hadoop_config, fairscheduler_config_xml, default_pool, use_qubole_placement_policy)
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
         self.set_airflow_settings(dbtap_id, fernet_key, overrides)
@@ -1299,7 +1300,7 @@ class ClusterInfoV2(ClusterInfoV13):
         self.engine_config['hadoop_settings']['fair_scheduler_settings']['fairscheduler_config_xml'] = fairscheduler_config_xml
         self.engine_config['hadoop_settings']['fair_scheduler_settings']['default_pool'] = default_pool
 
-def set_presto_settings(self, presto_version=None, custom_presto_config=None):
+    def set_presto_settings(self, presto_version=None, custom_presto_config=None):
         self.engine_config['presto_settings'] = {}
         self.engine_config['presto_settings']['presto_version'] = presto_version
         self.engine_config['presto_settings']['custom_presto_config'] = custom_presto_config
@@ -1408,8 +1409,8 @@ def set_presto_settings(self, presto_version=None, custom_presto_config=None):
                               kwargs['storage_account_name'], kwargs['disk_storage_account_name'],
                               kwargs['disk_storage_account_resource_group_name'], kwargs['data_disk_count'],
                               kwargs['data_disk_size'])
-        self.set_engine_config(kwargs['flavour'], kwargs['custom_hadoop_config'], kwargs['fairscheduler_settings'],
-                               kwargs['use_qubole_placement_policy'], kwargs['presto_version'],
+        self.set_engine_config(kwargs['flavour'], kwargs['custom_hadoop_config'], kwargs['fairscheduler_config_xml'],
+                               kwargs['default_pool'], kwargs['use_qubole_placement_policy'], kwargs['presto_version'],
                                kwargs['custom_presto_config'], kwargs['spark_version'],
                                kwargs['custom_spark_config'], kwargs['dbtap_id'], kwargs['fernet_key'],
                                kwargs['overrides'])
