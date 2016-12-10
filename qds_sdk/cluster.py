@@ -1287,14 +1287,19 @@ class ClusterInfoV2(ClusterInfoV13):
         self.set_spark_settings(spark_version, custom_spark_config)
         self.set_airflow_settings(dbtap_id, fernet_key, overrides)
 
-    def set_hadoop_settings(self, custom_hadoop_config =None, fairscheduler_settings=None,
+    def set_hadoop_settings(self, custom_hadoop_config =None, fairscheduler_config_xml=None, default_pool=None,
                             use_qubole_placement_policy=None):
         self.engine_config['hadoop_settings'] = {}
         self.engine_config['hadoop_settings']['custom_hadoop_config'] = custom_hadoop_config
-        self.engine_config['hadoop_settings']['fairscheduler_settings'] = fairscheduler_settings
+        self.set_fair_scheduler_settings(fairscheduler_config_xml, default_pool)
         self.engine_config['hadoop_settings']['use_qubole_placement_policy'] = use_qubole_placement_policy
 
-    def set_presto_settings(self, presto_version=None, custom_presto_config=None):
+    def set_fair_scheduler_settings(self, fairscheduler_config_xml=None, default_pool=None):
+        self.engine_config['hadoop_settings']['fair_scheduler_settings'] = {}
+        self.engine_config['hadoop_settings']['fair_scheduler_settings']['fairscheduler_config_xml'] = fairscheduler_config_xml
+        self.engine_config['hadoop_settings']['fair_scheduler_settings']['default_pool'] = default_pool
+
+def set_presto_settings(self, presto_version=None, custom_presto_config=None):
         self.engine_config['presto_settings'] = {}
         self.engine_config['presto_settings']['presto_version'] = presto_version
         self.engine_config['presto_settings']['custom_presto_config'] = custom_presto_config
@@ -1348,7 +1353,11 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cluster_info['force_tunnel'] = force_tunnel
         self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
-        self.cluster_info['custom_tags'] = custom_tags
+        if custom_tags and custom_tags.strip():
+            try:
+                self.cluster_info['custom_tags'] = json.loads(custom_tags.strip())
+            except Exception as e:
+                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
         self.set_data_disk(size, count, type, upscaling_config, encryption)
         self.cluster_info['heterogeneous_config'] = heterogeneous_config
         self.cluster_info['slave_request_type'] = slave_request_type
