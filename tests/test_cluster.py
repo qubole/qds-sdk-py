@@ -2078,6 +2078,37 @@ class TestClusterUpdate(QdsCliTestCase):
                                                     "persistent_security_group": "foopsg"
                                                 }})
 
+    def test_ha_config_cluster(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--is-ha']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster':
+                                                     {'label': ['test_label'],
+                                                      'ec2_settings': {'compute_secret_key': 'sak',
+                                                                       'compute_access_key': 'aki'},
+                                                      'hadoop_settings': {'is_ha': True}
+                                                      }
+                                                 })
+
+    def test_ha_config_cluster_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--is-ha']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'ec2_settings': {'compute_secret_key': 'sak',
+                                                                       'compute_access_key': 'aki'}
+                                                ,
+                                                'hadoop_settings': {'is_ha': True},
+                                                'label': ['test_label']
+                                                })
+
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'clone', '1234', '--label', 'test_label1', 'test_label2' ]
