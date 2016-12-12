@@ -210,6 +210,9 @@ class Cluster(Resource):
         hadoop_group.add_argument("--use-hbase", dest="use_hbase",
                                   action="store_true", default=None,
                                   help="Use hbase on this cluster",)
+        hadoop_group.add_argument("--is-ha", dest="is_ha",
+                                  action="store_true", default=None,
+                                  help="Enable HA config for cluster")
         if api_version >= 1.3:
           qubole_placement_policy_group = hadoop_group.add_mutually_exclusive_group()
           qubole_placement_policy_group.add_argument("--use-qubole-placement-policy",
@@ -748,7 +751,8 @@ class ClusterInfo():
                             use_hbase=None,
                             custom_ec2_tags=None,
                             use_hadoop2=None,
-                            use_spark=None):
+                            use_spark=None,
+                            is_ha=None):
         """
         Kwargs:
 
@@ -773,6 +777,9 @@ class ClusterInfo():
         `use_hadoop2`: Use hadoop2 in this cluster
 
         `use_spark`: Use spark in this cluster
+
+        `is_ha` : enable HA config for cluster
+
         """
         self.hadoop_settings['master_instance_type'] = master_instance_type
         self.hadoop_settings['slave_instance_type'] = slave_instance_type
@@ -783,6 +790,7 @@ class ClusterInfo():
         self.hadoop_settings['use_hbase'] = use_hbase
         self.hadoop_settings['use_hadoop2'] = use_hadoop2
         self.hadoop_settings['use_spark'] = use_spark
+        self.hadoop_settings['is_ha'] = is_ha
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
@@ -946,7 +954,8 @@ class ClusterInfoV13():
                          enable_presto=None,
                          bastion_node_public_dns=None,
                          role_instance_profile=None,
-                         presto_custom_config=None):
+                         presto_custom_config=None,
+                         is_ha=None):
         """
         Kwargs:
 
@@ -1052,6 +1061,8 @@ class ClusterInfoV13():
 
         `bastion_node_public_dns`: Public dns name of the bastion node. Required only if cluster is in private subnet.
 
+        `is_ha`: Enabling HA config for cluster
+
         """
 
         self.disallow_cluster_termination = disallow_cluster_termination
@@ -1060,7 +1071,7 @@ class ClusterInfoV13():
         self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                                 bastion_node_public_dns, role_instance_profile)
-        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy)
+        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
         self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
@@ -1104,12 +1115,14 @@ class ClusterInfoV13():
                             custom_ec2_tags=None,
                             use_hadoop2=None,
                             use_spark=None,
-                            use_qubole_placement_policy=None,):
+                            use_qubole_placement_policy=None,
+                            is_ha=None):
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['use_hbase'] = use_hbase
         self.hadoop_settings['use_hadoop2'] = use_hadoop2
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.hadoop_settings['is_ha'] = is_ha
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
