@@ -1220,14 +1220,14 @@ class ClusterInfoV2(ClusterInfoV13):
                          bastion_node_public_dns=None, persistent_security_groups=None, master_elastic_ip=None,
                          vpc_id=None, subnet_id=None, vnet_name=None, subnet_name=None, vnet_resource_group_name=None,
                          storage_access_key=None, storage_account_name=None, disk_storage_account_name=None,
-                         disk_storage_account_resource_group_name=None, data_disk_count=None, data_disk_size=None):
+                         disk_storage_account_resource_group_name=None):
         self.set_compute_config(compute_validated, use_account_compute_creds, compute_client_id, compute_client_secret,
                                 compute_tenant_id, compute_access_key, compute_secret_key , compute_subscription_id)
         self.set_location(location)
         self.set_network_config(vpc_id , subnet_id, bastion_node_public_dns, persistent_security_groups,
                                 master_elastic_ip, vnet_name , subnet_name, vnet_resource_group_name)
         self.set_storage_config(storage_access_key, storage_account_name, disk_storage_account_name,
-                                disk_storage_account_resource_group_name, data_disk_count, data_disk_size)
+                                disk_storage_account_resource_group_name)
 
 
     def set_compute_config(self, compute_validated=None, use_account_compute_creds=None, compute_client_id=None,
@@ -1268,15 +1268,13 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['network_config']['vnet_resource_group_name'] = vnet_resource_group_name
 
     def set_storage_config(self, storage_access_key=None, storage_account_name=None, disk_storage_account_name=None,
-                           disk_storage_account_resource_group_name=None, data_disk_count=None, data_disk_size=None):
+                           disk_storage_account_resource_group_name=None):
         self.cloud_config['storage_config'] = {}
         self.cloud_config['storage_config']['storage_access_key'] = storage_access_key
         self.cloud_config['storage_config']['storage_account_name'] = storage_account_name
         self.cloud_config['storage_config']['disk_storage_account_name'] = disk_storage_account_name
         self.cloud_config['storage_config']['disk_storage_account_resource_group_name'] \
             = disk_storage_account_resource_group_name
-        self.cloud_config['storage_config']['data_disk_count'] = data_disk_count
-        self.cloud_config['storage_config']['data_disk_size'] = data_disk_size
 
     def set_engine_config(self, flavour=None, custom_hadoop_config =None, fairscheduler_config_xml=None,
                           default_pool=None, use_qubole_placement_policy=None, presto_version=None,
@@ -1398,7 +1396,6 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cluster_info['datadisk']['encryption'] = encryption
 
     def set_cluster_info(self, kwargs):
-        # super(ClusterInfoV2, self).set_cluster_info(**kwargs)
         self.set_cloud_config(kwargs['compute_validated'], kwargs['use_account_compute_creds'],
                               kwargs['compute_access_key'], kwargs['compute_secret_key'], kwargs['compute_tenant_id'],
                               kwargs['compute_subscription_id'], kwargs['compute_client_id'],
@@ -1407,8 +1404,7 @@ class ClusterInfoV2(ClusterInfoV13):
                               kwargs['subnet_id'], kwargs['vnet_name'], kwargs['subnet_name'],
                               kwargs['vnet_resource_group_name'], kwargs['storage_access_key'],
                               kwargs['storage_account_name'], kwargs['disk_storage_account_name'],
-                              kwargs['disk_storage_account_resource_group_name'], kwargs['data_disk_count'],
-                              kwargs['data_disk_size'])
+                              kwargs['disk_storage_account_resource_group_name'])
         self.set_engine_config(kwargs['flavour'], kwargs['custom_hadoop_config'], kwargs['fairscheduler_config_xml'],
                                kwargs['default_pool'], kwargs['use_qubole_placement_policy'], kwargs['presto_version'],
                                kwargs['custom_presto_config'], kwargs['spark_version'],

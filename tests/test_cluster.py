@@ -21,7 +21,7 @@ class TestClusterList(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value=[])
         qds.main()
-        Connection._api_call.assert_called_with("GET", "clusters", params=None)
+        Connection._api_call.assert_called_with("GET", "clusters", params={'per_page': None, 'state': None})
 
     def test_id(self):
         sys.argv = ['qds.py', 'cluster', 'list', '--id', '123']
