@@ -1214,22 +1214,6 @@ class ClusterInfoV2(ClusterInfoV13):
         payload_dict.pop("api_version", None)
         return _make_minimal(payload_dict)
 
-    def set_cloud_config(self, compute_validated=None, use_account_compute_creds=None, compute_access_key=None,
-                         compute_secret_key=None, compute_tenant_id=None, compute_subscription_id=None,
-                         compute_client_id=None, compute_client_secret=None, location=None,
-                         bastion_node_public_dns=None, persistent_security_groups=None, master_elastic_ip=None,
-                         vpc_id=None, subnet_id=None, vnet_name=None, subnet_name=None, vnet_resource_group_name=None,
-                         storage_access_key=None, storage_account_name=None, disk_storage_account_name=None,
-                         disk_storage_account_resource_group_name=None):
-        self.set_compute_config(compute_validated, use_account_compute_creds, compute_client_id, compute_client_secret,
-                                compute_tenant_id, compute_access_key, compute_secret_key , compute_subscription_id)
-        self.set_location(location)
-        self.set_network_config(vpc_id , subnet_id, bastion_node_public_dns, persistent_security_groups,
-                                master_elastic_ip, vnet_name , subnet_name, vnet_resource_group_name)
-        self.set_storage_config(storage_access_key, storage_account_name, disk_storage_account_name,
-                                disk_storage_account_resource_group_name)
-
-
     def set_compute_config(self, compute_validated=None, use_account_compute_creds=None, compute_client_id=None,
                            compute_client_secret=None, compute_tenant_id=None, compute_access_key=None,
                            compute_secret_key=None, compute_subscription_id=None):
@@ -1276,21 +1260,18 @@ class ClusterInfoV2(ClusterInfoV13):
         self.cloud_config['storage_config']['disk_storage_account_resource_group_name'] \
             = disk_storage_account_resource_group_name
 
-    def set_engine_config(self, flavour=None, custom_hadoop_config =None, fairscheduler_config_xml=None,
-                          default_pool=None, use_qubole_placement_policy=None, presto_version=None,
-                          custom_presto_config=None, spark_version=None,
+    def set_engine_config(self, flavour, custom_hadoop_config =None, use_qubole_placement_policy=None,
+                          presto_version=None, custom_presto_config=None, spark_version=None,
                           custom_spark_config=None, dbtap_id=None, fernet_key=None, overrides=None):
-        self.engine_config['flavour'] = flavour
-        self.set_hadoop_settings(custom_hadoop_config, fairscheduler_config_xml, default_pool, use_qubole_placement_policy)
-        self.set_presto_settings(presto_version, custom_presto_config)
-        self.set_spark_settings(spark_version, custom_spark_config)
-        self.set_airflow_settings(dbtap_id, fernet_key, overrides)
+        self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy)
+        self.set_presto_settings(flavour, presto_version, custom_presto_config)
+        self.set_spark_settings(flavour, spark_version, custom_spark_config)
+        self.set_airflow_settings(flavour, dbtap_id, fernet_key, overrides)
 
-    def set_hadoop_settings(self, custom_hadoop_config =None, fairscheduler_config_xml=None, default_pool=None,
-                            use_qubole_placement_policy=None):
+    def set_hadoop_settings(self, flavour, custom_hadoop_config=None, use_qubole_placement_policy=None):
+        self.engine_config['flavour'] = flavour
         self.engine_config['hadoop_settings'] = {}
         self.engine_config['hadoop_settings']['custom_hadoop_config'] = custom_hadoop_config
-        self.set_fair_scheduler_settings(fairscheduler_config_xml, default_pool)
         self.engine_config['hadoop_settings']['use_qubole_placement_policy'] = use_qubole_placement_policy
 
     def set_fair_scheduler_settings(self, fairscheduler_config_xml=None, default_pool=None):
@@ -1298,24 +1279,27 @@ class ClusterInfoV2(ClusterInfoV13):
         self.engine_config['hadoop_settings']['fair_scheduler_settings']['fairscheduler_config_xml'] = fairscheduler_config_xml
         self.engine_config['hadoop_settings']['fair_scheduler_settings']['default_pool'] = default_pool
 
-    def set_presto_settings(self, presto_version=None, custom_presto_config=None):
+    def set_presto_settings(self, flavour, presto_version=None, custom_presto_config=None):
+        self.engine_config['flavour'] = flavour
         self.engine_config['presto_settings'] = {}
         self.engine_config['presto_settings']['presto_version'] = presto_version
         self.engine_config['presto_settings']['custom_presto_config'] = custom_presto_config
 
-    def set_spark_settings(self, spark_version=None, custom_spark_config=None):
+    def set_spark_settings(self, flavour, spark_version=None, custom_spark_config=None):
+        self.engine_config['flavour'] = flavour
         self.engine_config['spark_settings'] = {}
         self.engine_config['spark_settings']['spark_version'] = spark_version
         self.engine_config['spark_settings']['custom_spark_config'] = custom_spark_config
 
-    def set_airflow_settings(self, dbtap_id=None, fernet_key=None, overrides=None):
+    def set_airflow_settings(self, flavour, dbtap_id=None, fernet_key=None, overrides=None):
+        self.engine_config['flavour'] = flavour
         self.engine_config['airflow_settings'] = {}
         self.engine_config['airflow_settings']['dbtap_id'] = dbtap_id
         self.engine_config['airflow_settings']['fernet_key'] = fernet_key
         self.engine_config['airflow_settings']['overrides'] = overrides
 
-    def set_monitoring(self, ganglia=None, datadog_api_token=None, datadog_app_token=None):
-        self.monitoring['ganglia'] = ganglia
+    def set_monitoring(self, enable_ganglia=None, datadog_api_token=None, datadog_app_token=None):
+        self.monitoring['ganglia'] = enable_ganglia
         self.set_datadog_settings(datadog_api_token, datadog_app_token)
 
     def set_datadog_settings(self, datadog_api_token=None, datadog_app_token=None):
@@ -1323,25 +1307,11 @@ class ClusterInfoV2(ClusterInfoV13):
         self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
         self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
 
-    def set_internal(self, spark_s3_package_name=None, zeppelin_s3_package_name=None, zeppelin_interpreter_mode=None,
-                     tunnel_server_ip=None, restrict_ssh_access=None, ami_overrides=None, image_uri_overrides=None):
-        self.internal['spark_s3_package_name'] = spark_s3_package_name
-        self.internal['zeppelin_s3_package_name'] = zeppelin_s3_package_name
-        self.internal['zeppelin_interpreter_mode'] = zeppelin_interpreter_mode
-        self.internal['tunnel_server_ip'] = tunnel_server_ip
-        self.internal['restrict_ssh_access'] = restrict_ssh_access
-        self.internal['ami_overrides'] = ami_overrides
-        self.internal['image_uri_overrides'] = image_uri_overrides
-
-    def set_cluster_information(self, master_instance_type=None, slave_instance_type=None, min_nodes=None,
-                                max_nodes=None, cluster_name=None, node_bootstrap=None,
+    def set_cluster_information(self, master_instance_type=None, slave_instance_type=None, min_nodes=1,
+                                max_nodes=1, cluster_name=None, node_bootstrap=None,
                                 disallow_cluster_termination=None, force_tunnel=None, fallback_to_ondemand=None,
-                                customer_ssh_key=None, custom_tags=None, size=None, count=None, type=None,
-                                upscaling_config=None, encryption=None, heterogeneous_config=None,
-                                slave_request_type=None, maximum_bid_price_percentage=None,
-                                timeout_for_request=None, maximum_spot_instance_percentage=None,
-                                stable_maximum_bid_price_percentage=None, stable_timeout_for_request=None,
-                                               stable_allow_fallback=None):
+                                customer_ssh_key=None, custom_tags=None, heterogeneous_config=None,
+                                slave_request_type=None):
         self.cluster_info['master_instance_type'] = master_instance_type
         self.cluster_info['slave_instance_type']  = slave_instance_type
         self.cluster_info['min_nodes'] = min_nodes
@@ -1357,73 +1327,64 @@ class ClusterInfoV2(ClusterInfoV13):
                 self.cluster_info['custom_tags'] = json.loads(custom_tags.strip())
             except Exception as e:
                 raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
-        self.set_data_disk(size, count, type, upscaling_config, encryption)
+
         self.cluster_info['heterogeneous_config'] = heterogeneous_config
         self.cluster_info['slave_request_type'] = slave_request_type
-        self.set_spot_settings(maximum_bid_price_percentage, timeout_for_request,
-                                        maximum_spot_instance_percentage, stable_maximum_bid_price_percentage,
-                                        stable_timeout_for_request, stable_allow_fallback)
 
-    def set_spot_settings(self, maximum_bid_price_percentage=None, timeout_for_request=None,
-                          maximum_spot_instance_percentage=None, stable_maximum_bid_price_percentage=None,
-                          stable_timeout_for_request=None, stable_allow_fallback=None):
-        self.cluster_info['spot_settings'] = {}
-        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
-                                        maximum_spot_instance_percentage)
-        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request,
-                                          stable_allow_fallback)
 
-    def set_spot_instance_settings(self, maximum_bid_price_percentage=None, timeout_for_request=None,
-                          maximum_spot_instance_percentage=None):
+    def set_spot_instance_settings(self, maximum_bid_price_percentage=100, timeout_for_request=10,
+                          maximum_spot_instance_percentage=50):
         self.cluster_info['spot_settings']['spot_instance_settings'] = {}
         self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = maximum_bid_price_percentage
         self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
         self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = maximum_spot_instance_percentage
 
-    def set_stable_spot_bid_settings(self, stable_maximum_bid_price_percentage=None,
-                          stable_timeout_for_request=None, stable_allow_fallback=None):
+    def set_stable_spot_bid_settings(self, stable_maximum_bid_price_percentage=150,
+                          stable_timeout_for_request=10, stable_allow_fallback=None):
         self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_maximum_bid_price_percentage'] = stable_maximum_bid_price_percentage
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_timeout_for_request'] = stable_timeout_for_request
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_allow_fallback'] = stable_allow_fallback
 
-    def set_data_disk(self, size=None, count=None, type=None, upscaling_config=None, encryption=None):
+    def set_data_disk(self, size=0, count=0, disk_type=None, upscaling_config=None, enable_encryption=False):
         self.cluster_info['datadisk'] = {}
         self.cluster_info['datadisk']['size'] = size
         self.cluster_info['datadisk']['count'] = count
-        self.cluster_info['datadisk']['type'] = type
+        self.cluster_info['datadisk']['type'] = disk_type
         self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
-        self.cluster_info['datadisk']['encryption'] = encryption
+        self.cluster_info['datadisk']['encryption'] = enable_encryption
 
     def set_cluster_info(self, kwargs):
-        self.set_cloud_config(kwargs['compute_validated'], kwargs['use_account_compute_creds'],
+        self.set_compute_config(kwargs['compute_validated'], kwargs['use_account_compute_creds'],
                               kwargs['compute_access_key'], kwargs['compute_secret_key'], kwargs['compute_tenant_id'],
                               kwargs['compute_subscription_id'], kwargs['compute_client_id'],
-                              kwargs['compute_client_secret'], kwargs['location'], kwargs['bastion_node_public_dns'],
+                              kwargs['compute_client_secret'])
+        self.set_location(kwargs['location'], kwargs['aws_region'], kwargs['aws_availability_zone'])
+        self.set_network_config(kwargs['bastion_node_public_dns'],
                               kwargs['persistent_security_groups'], kwargs['master_elastic_ip'], kwargs['vpc_id'],
                               kwargs['subnet_id'], kwargs['vnet_name'], kwargs['subnet_name'],
-                              kwargs['vnet_resource_group_name'], kwargs['storage_access_key'],
-                              kwargs['storage_account_name'], kwargs['disk_storage_account_name'],
-                              kwargs['disk_storage_account_resource_group_name'])
-        self.set_engine_config(kwargs['flavour'], kwargs['custom_hadoop_config'], kwargs['fairscheduler_config_xml'],
-                               kwargs['default_pool'], kwargs['use_qubole_placement_policy'], kwargs['presto_version'],
+                              kwargs['vnet_resource_group_name'])
+        self.set_storage_config(kwargs['storage_access_key'], kwargs['storage_account_name'],
+                                kwargs['disk_storage_account_name'], kwargs['disk_storage_account_resource_group_name'])
+        self.set_engine_config(kwargs['flavour'], kwargs['custom_hadoop_config'], kwargs['use_qubole_placement_policy'], kwargs['presto_version'],
                                kwargs['custom_presto_config'], kwargs['spark_version'],
                                kwargs['custom_spark_config'], kwargs['dbtap_id'], kwargs['fernet_key'],
                                kwargs['overrides'])
-        self.set_monitoring(kwargs['ganglia'], kwargs['datadog_api_token'], kwargs['datadog_app_token'])
+        self.set_fair_scheduler_settings(kwargs['fairscheduler_config_xml'], kwargs['default_pool'])
+        self.set_monitoring(kwargs['enable_ganglia'], kwargs['datadog_api_token'], kwargs['datadog_app_token'])
         self.set_cluster_information(kwargs['master_instance_type'], kwargs['slave_instance_type'],
                                      kwargs['min_nodes'], kwargs['max_nodes'], kwargs['cluster_name'],
                                      kwargs['node_bootstrap'], kwargs['disallow_cluster_termination'],
                                      kwargs['force_tunnel'], kwargs['fallback_to_ondemand'], kwargs['customer_ssh_key'],
-                                     kwargs['custom_tags'], kwargs['size'], kwargs['count'], kwargs['type'],
-                                     kwargs['upscaling_config'], kwargs['encryption'], kwargs['heterogeneous_config'],
-                                     kwargs['slave_request_type'], kwargs['maximum_bid_price_percentage'],
-                                     kwargs['timeout_for_request'], kwargs['maximum_spot_instance_percentage'],
-                                     kwargs['stable_maximum_bid_price_percentage'],
+                                     kwargs['custom_tags'], kwargs['heterogeneous_config'],
+                                     kwargs['slave_request_type'])
+        self.set_data_disk(kwargs['size'], kwargs['count'], kwargs['disk_type'],
+                                     kwargs['upscaling_config'], kwargs['enable_encryption'])
+        self.cluster_info['spot_settings'] = {}
+        self.set_spot_instance_settings( kwargs['maximum_bid_price_percentage'],
+                                     kwargs['timeout_for_request'], kwargs['maximum_spot_instance_percentage'])
+        self.set_stable_spot_bid_settings(kwargs['stable_maximum_bid_price_percentage'],
                                      kwargs['stable_timeout_for_request'], kwargs['stable_allow_fallback'])
-        self.set_internal(kwargs['spark_s3_package_name'], kwargs['zeppelin_s3_package_name'],
-                          kwargs['zeppelin_interpreter_mode'], kwargs['tunnel_server_ip'],
-                          kwargs['restrict_ssh_access'], kwargs['ami_overrides'], kwargs['image_uri_overrides'])
 
 
 def _make_minimal(dictionary):
