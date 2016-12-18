@@ -1274,10 +1274,10 @@ class ClusterInfoV2(ClusterInfoV13):
         self.engine_config['hadoop_settings']['custom_hadoop_config'] = custom_hadoop_config
         self.engine_config['hadoop_settings']['use_qubole_placement_policy'] = use_qubole_placement_policy
 
-    def set_fair_scheduler_settings(self, fairscheduler_config_xml=None, default_pool=None):
-        self.engine_config['hadoop_settings']['fair_scheduler_settings'] = {}
-        self.engine_config['hadoop_settings']['fair_scheduler_settings']['fairscheduler_config_xml'] = fairscheduler_config_xml
-        self.engine_config['hadoop_settings']['fair_scheduler_settings']['default_pool'] = default_pool
+    def set_fairscheduler_settings(self, fairscheduler_config_xml=None, default_pool=None):
+        self.engine_config['hadoop_settings']['fairscheduler_settings'] = {}
+        self.engine_config['hadoop_settings']['fairscheduler_settings']['fairscheduler_config_xml'] = fairscheduler_config_xml
+        self.engine_config['hadoop_settings']['fairscheduler_settings']['default_pool'] = default_pool
 
     def set_presto_settings(self, flavour, presto_version=None, custom_presto_config=None):
         self.engine_config['flavour'] = flavour
@@ -1370,7 +1370,7 @@ class ClusterInfoV2(ClusterInfoV13):
                                kwargs['custom_presto_config'], kwargs['spark_version'],
                                kwargs['custom_spark_config'], kwargs['dbtap_id'], kwargs['fernet_key'],
                                kwargs['overrides'])
-        self.set_fair_scheduler_settings(kwargs['fairscheduler_config_xml'], kwargs['default_pool'])
+        self.set_fairscheduler_settings(kwargs['fairscheduler_config_xml'], kwargs['default_pool'])
         self.set_monitoring(kwargs['enable_ganglia'], kwargs['datadog_api_token'], kwargs['datadog_app_token'])
         self.set_cluster_information(kwargs['master_instance_type'], kwargs['slave_instance_type'],
                                      kwargs['min_nodes'], kwargs['max_nodes'], kwargs['cluster_name'],
