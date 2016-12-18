@@ -1360,10 +1360,9 @@ class ClusterInfoV2(ClusterInfoV13):
                               kwargs['compute_subscription_id'], kwargs['compute_client_id'],
                               kwargs['compute_client_secret'])
         self.set_location(kwargs['location'], kwargs['aws_region'], kwargs['aws_availability_zone'])
-        self.set_network_config(kwargs['bastion_node_public_dns'],
-                              kwargs['persistent_security_groups'], kwargs['master_elastic_ip'], kwargs['vpc_id'],
-                              kwargs['subnet_id'], kwargs['vnet_name'], kwargs['subnet_name'],
-                              kwargs['vnet_resource_group_name'])
+        self.set_network_config(kwargs['vpc_id'],kwargs['subnet_id'], kwargs['bastion_node_public_dns'],
+                                kwargs['persistent_security_groups'], kwargs['master_elastic_ip'], kwargs['vnet_name'],
+                                kwargs['subnet_name'], kwargs['vnet_resource_group_name'])
         self.set_storage_config(kwargs['storage_access_key'], kwargs['storage_account_name'],
                                 kwargs['disk_storage_account_name'], kwargs['disk_storage_account_resource_group_name'])
         self.set_engine_config(kwargs['flavour'], kwargs['custom_hadoop_config'], kwargs['use_qubole_placement_policy'], kwargs['presto_version'],
