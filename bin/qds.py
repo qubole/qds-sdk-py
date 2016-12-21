@@ -253,6 +253,8 @@ def _create_cluster_info(arguments, api_version):
                                       subnet_id=arguments.subnet_id,
                                       disallow_cluster_termination=arguments.disallow_cluster_termination,
                                       enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
+                                      datadog_api_token=arguments.datadog_api_token,
+                                      datadog_app_token=arguments.datadog_app_token,
                                       node_bootstrap=arguments.node_bootstrap_file,
                                       master_instance_type=arguments.master_instance_type,
                                       slave_instance_type=arguments.slave_instance_type,
@@ -281,11 +283,17 @@ def _create_cluster_info(arguments, api_version):
                                       persistent_security_groups=arguments.persistent_security_groups,
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
                                       custom_presto_config=arguments.custom_presto_config,
+                                      presto_version=arguments.presto_version,
                                       custom_spark_config=arguments.custom_spark_config,
+                                      spark_version=arguments.spark_version,
                                       custom_hadoop_config=arguments.custom_hadoop_config,
                                       dbtap_id=arguments.dbtap_id,
                                       fernet_key=arguments.fernet_key,
                                       overrides=arguments.overrides,
+                                      vnet_name=arguments.vnet_name,
+                                      subnet_name=arguments.subnet_name,
+                                      vnet_resource_group_name=arguments.vnet_resource_group_name,
+                                      master_elastic_ip=arguments.master_elastic_ip
                                       )
     elif api_version == 1.3:
         cluster_info = ClusterInfoV13(arguments.label, api_version)

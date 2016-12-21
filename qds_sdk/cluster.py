@@ -479,6 +479,9 @@ class Cluster(Resource):
             network_config_group.add_argument("--vnet-resource-group-name",
                                                     dest="vnet_resource_group_name",
                                                     help="vnet resource group name for azure")
+            network_config_group.add_argument("--master-elastic-ip",
+                                              dest="master_elastic_ip",
+                                              help="master elastic ip for cluster")
 
             engine_config_group = argparser.add_argument_group("engine config settings")
             engine_config_group.add_argument("--custom-presto-config",

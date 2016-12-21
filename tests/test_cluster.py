@@ -1482,6 +1482,36 @@ class TestClusterCreate(QdsCliTestCase):
                                                             }
                                                  })
 
+    def test_network_config_azure_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet'}},
+                                                 'cluster_info': {'label': ['test_label']}})
+
+    def test_data_disk_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--count', '1', '--size', '100', '--disk-type', 'ssd' ]
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'datadisk':
+                                                                      {'count': 1,
+                                                                       'type': 'ssd',
+                                                                       'size': 100
+                                                                       },
+                                                                  'label': ['test_label']
+                                                                  }
+                                                 })
+
     def test_heterogeneous_config_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--heterogeneous-config', 'test']
