@@ -1405,6 +1405,95 @@ class TestClusterCreate(QdsCliTestCase):
                                                                   'bastion_node_public_dns': 'dummydns'},
                                                  })
 
+    def test_custom_ec2_tags_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--custom-tags', '{"Qubole":"test"}']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':
+                                                     {'label': ['test_label'],
+                                                      'custom_tags': {"Qubole": "test"}
+                                                     }
+                                                 })
+    def test_azure_compute_config_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--compute-client-id', 'testclientid', '--compute-client-secret', 'testclientsecret',
+                    '--compute-tenant-id' , 'testtenantid', '--compute-subscription-id', 'testsubscriptionid',
+                    '--use-account-compute-creds', 'False']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'compute_config': {'compute_subscription_id': 'testsubscriptionid',
+                                                                       'compute_client_id': 'testclientid',
+                                                                       'compute_client_secret': 'testclientsecret',
+                                                                       'use_account_compute_creds': 'False',
+                                                                       'compute_tenant_id': 'testtenantid'}},
+                                                 'cluster_info': {'label': ['test_label']}})
+    def test_engine_config_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--flavour', 'presto', '--custom-presto-config', '[sampleinput]']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'engine_config':
+                                                     {'flavour': 'presto',
+                                                      'presto_settings': {
+                                                        'custom_presto_config': '[sampleinput]'}},
+                                                'cluster_info': {'label': ['test_label']}})
+
+    def test_azure_storage_config_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--storage-access-key', 'testkey', '--storage-account-name', 'test_account_name',
+                    '--disk-storage-account-name', 'testaccname', '--disk-storage-account-resource-group-name',
+                    'testgrpname']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':
+                                                     {'label': ['test_label']},
+                                                 'cloud_config':
+                                                     {'storage_config':
+                                                          {'storage_access_key': 'testkey',
+			                                                'storage_account_name': 'test_account_name',
+			                                                'disk_storage_account_name': 'testaccname',
+			                                                'disk_storage_account_resource_group_name': 'testgrpname'}
+                                                      }
+                                                 })
+
+    def test_persistent_security_groups_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--persistent-security-groups', 'sg1, sg2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':
+                                                     {'label': ['test_label']},
+
+                                                'cloud_config':
+                                                           {'network_config':
+                                                                {'persistent_security_groups': 'sg1, sg2'}
+                                                            }
+                                                 })
+
+    def test_heterogeneous_config_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--heterogeneous-config', 'test']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':
+                                                     {'label': ['test_label'],
+                                                     'heterogeneous_config': 'test'
+                                                    }
+                                                 })
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
