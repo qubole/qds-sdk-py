@@ -1350,7 +1350,7 @@ class ClusterInfoV13(object):
         return _make_minimal(payload_dict)
 
 
-class ClusterInfoV2(ClusterInfoV13):
+class ClusterInfoV2(object):
     """ This class should be entirely temporary to deal with the junk API for cluster creation
     """
 
