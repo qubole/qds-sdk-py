@@ -109,7 +109,7 @@ class TestActionCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_has_calls(
             [call("GET", "actions/123", params=None),
-             call("GET", "commands/123/results", params={'inline': True})])
+             call("GET", "commands/123/results", params={'inline': True, 'include_headers': 'false'})])
 
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ if sys.version_info > (2, 7, 0):
     import unittest
 else:
     import unittest2 as unittest
-from mock import Mock
+from mock import *
 from tempfile import NamedTemporaryFile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
@@ -1406,6 +1406,30 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'name': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
+
+class TestGetResultsCommand(QdsCliTestCase):
+
+    def test_result_with_enable_header_true(self):
+        sys.argv = ['qds.py', 'hivecmd', 'getresult', '314591', 'true']
+        print_command()
+
+        # This mock include return values of both commands/:id and commands/:id/results get calls
+        Connection._api_call = Mock(return_value={'id' : 314591,
+                                                  'results': '123',
+                                                  'inline': True,
+                                                  'meta_data': {'results_resource': 'commands/314591/results'},
+                                                  'status': 'done'})
+        qds.main()
+        Connection._api_call.assert_has_calls(
+            [call("GET", "commands/314591", params=None),
+             call("GET", "commands/314591/results", params={'inline': True, 'include_headers': 'true'})])
+
+    def test_result_failed_more_than_two_arguments(self):
+        sys.argv = ['qds.py', 'hivecmd', 'getresult', '314591', 'true', "extra_arg"]
+        print_command()
+
+        with self.assertRaises(SystemExit):
+            qds.main()
 
 
 if __name__ == '__main__':

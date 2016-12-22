@@ -192,7 +192,7 @@ class Command(Resource):
         return r.text
 
 
-    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True, arguments=[]):
         """
         Fetches the result for the command represented by this object
 
@@ -212,7 +212,11 @@ class Command(Resource):
 
         conn = Qubole.agent()
 
-        r = conn.get(result_path, {'inline': inline})
+        enable_header = "false"
+        if len(arguments) == 1:
+            enable_header = arguments.pop(0)
+
+        r = conn.get(result_path, {'inline': inline, 'include_headers': enable_header})
         if r.get('inline'):
             if sys.version_info < (3, 0, 0):
                 fp.write(r['results'].encode('utf8'))
