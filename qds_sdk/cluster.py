@@ -1612,7 +1612,8 @@ class ClusterInfoV2(ClusterInfoV13):
                         maximum_spot_instance_percentage=50,
                         stable_maximum_bid_price_percentage=150,
                         stable_timeout_for_request=10,
-                        stable_allow_fallback=None):
+                        stable_allow_fallback=None,
+                         **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
                                 compute_access_key,
