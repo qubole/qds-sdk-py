@@ -1234,12 +1234,16 @@ class ClusterInfoV13(object):
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file
-        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
-        self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
-                                bastion_node_public_dns, role_instance_profile)
-        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy)
-        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
-        self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
+        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes,
+                                    slave_request_type, fallback_to_ondemand)
+        self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone,
+                              vpc_id, subnet_id, bastion_node_public_dns, role_instance_profile)
+        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2,
+                                 use_spark, use_qubole_placement_policy)
+        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
+                                        maximum_spot_instance_percentage)
+        self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request,
+                                               stable_allow_fallback)
         self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
         self.set_security_settings(encrypted_ephemerals, ssh_public_key, persistent_security_group)
@@ -1464,7 +1468,8 @@ class ClusterInfoV2(object):
 
     def set_fairscheduler_settings(self, fairscheduler_config_xml=None, default_pool=None):
         self.engine_config['hadoop_settings']['fairscheduler_settings'] = {}
-        self.engine_config['hadoop_settings']['fairscheduler_settings']['fairscheduler_config_xml'] = fairscheduler_config_xml
+        self.engine_config['hadoop_settings']['fairscheduler_settings']['fairscheduler_config_xml'] = \
+            fairscheduler_config_xml
         self.engine_config['hadoop_settings']['fairscheduler_settings']['default_pool'] = default_pool
 
     def set_presto_settings(self, flavour, presto_version=None, custom_presto_config=None):
@@ -1531,15 +1536,19 @@ class ClusterInfoV2(object):
     def set_spot_instance_settings(self, maximum_bid_price_percentage=100, timeout_for_request=10,
                           maximum_spot_instance_percentage=50):
         self.cluster_info['spot_settings']['spot_instance_settings'] = {}
-        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = maximum_bid_price_percentage
+        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = \
+            maximum_bid_price_percentage
         self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
-        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = maximum_spot_instance_percentage
+        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = \
+            maximum_spot_instance_percentage
 
     def set_stable_spot_bid_settings(self, stable_maximum_bid_price_percentage=150,
                           stable_timeout_for_request=10, stable_allow_fallback=None):
         self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_maximum_bid_price_percentage'] = stable_maximum_bid_price_percentage
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_timeout_for_request'] = stable_timeout_for_request
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_maximum_bid_price_percentage'] = \
+            stable_maximum_bid_price_percentage
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_timeout_for_request'] = \
+            stable_timeout_for_request
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_allow_fallback'] = stable_allow_fallback
 
     def set_data_disk(self, size=0, count=0, disk_type=None, upscaling_config=None, enable_encryption=False):
@@ -1663,7 +1672,8 @@ class ClusterInfoV2(object):
                                     slave_request_type)
         self.set_data_disk(size, count, disk_type, upscaling_config, enable_encryption)
         self.cluster_info['spot_settings'] = {}
-        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
+        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
+                                        maximum_spot_instance_percentage)
         self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage,
                                      stable_timeout_for_request, stable_allow_fallback)
 
