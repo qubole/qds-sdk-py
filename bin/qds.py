@@ -224,10 +224,12 @@ def cluster_clone_action(clusterclass, args, api_version=1.2):
     return 0
 
 def _create_cluster_info(arguments, api_version):
-    custom_config = _read_file(arguments.custom_config_file, "custom config file")
+    if hasattr(arguments, 'custom_config_file'):
+        custom_config = _read_file(arguments.custom_config_file, "custom config file")
     if hasattr(arguments, 'presto_custom_config_file'):
         presto_custom_config = _read_file(arguments.presto_custom_config_file, "presto custom config file")
-    fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
+    if hasattr(arguments, 'fairscheduler_config_xml_file'):
+        fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
     if hasattr(arguments, 'customer_ssh_key_file'):
         customer_ssh_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
 
