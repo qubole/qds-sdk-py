@@ -236,8 +236,8 @@ def _create_cluster_info(arguments, api_version):
     cluster_info = None
     if api_version == 2:
         cluster_info = ClusterInfoV2(arguments.label, api_version)
-        cluster_info.set_cluster_info(compute_access_key=arguments.aws_access_key_id,
-                                      compute_secret_key=arguments.aws_secret_access_key,
+        cluster_info.set_cluster_info(compute_access_key=arguments.compute_access_key,
+                                      compute_secret_key=arguments.compute_secret_key,
                                       compute_client_id=arguments.compute_client_id,
                                       compute_client_secret=arguments.compute_client_secret,
                                       compute_subscription_id=arguments.compute_subscription_id,

@@ -602,8 +602,8 @@ class Cluster(Resource):
                     e.g. --custom-ec2-tags '{"key1":"value1", "key2":"value2"}'
                     """, )
 
-            arguments = argparser.parse_args(args)
-            return arguments
+        arguments = argparser.parse_args(args)
+        return arguments
 
     @classmethod
     def create(cls, cluster_info, version=None):
@@ -1521,8 +1521,6 @@ class ClusterInfoV2(object):
 
     def set_monitoring(self, enable_ganglia_monitoring=None, datadog_api_token=None, datadog_app_token=None):
         self.monitoring['ganglia'] = enable_ganglia_monitoring
-        self.set_datadog_settings(datadog_api_token, datadog_app_token)
-
         self.monitoring['datadog'] = {}
         self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
         self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
