@@ -42,6 +42,34 @@ class AccountCmdLine:
             "--previous-account-plan", dest="use_previous_account_plan",
             choices=["true", "false"], default="false",
             help="Use previous account plan, default: false")
+        create.add_argument(
+            "--compute-tenant-id", dest="compute_tenant_id", required=False,
+            help="Oracle cloud Compute tenant ID")
+        create.add_argument(
+            "--compute-user-id", dest="compute_user_id", required=False,
+            help="Oracle cloud Compute user id")
+        create.add_argument(
+            "--compute-key-finger-print", dest="compute_key_finger_print", required=False,
+            help="Oracle cloud Compute key fingerprint")
+        create.add_argument(
+            "--compute-api-private-rsa-key", dest="compute_api_private_rsa_key", required=False,
+            help="Oracle cloud Compute Api private RSA Key")
+        create.add_argument(
+            "--storage-tenant-id", dest="storage_tenant_id", required=False,
+            help="Oracle cloud Storage Tenant ID")
+        create.add_argument(
+            "--storage-user-id", dest="storage_user_id", required=False,
+            help="Oracle cloud Storage User ID")
+        create.add_argument(
+            "--storage-key-finger-print", dest="storage_key_finger_print", required=False,
+            help="Oracle cloud Storage key finger print")
+        create.add_argument(
+            "--storage-api-private-rsa-key", dest="storage_api_private_rsa_key", required=False,
+            help="Oracle cloud storage api private rsa key")
+        create.add_argument(
+            "--update-all-clusters-compute-creds", dest="update_all_clusters_compute_creds", required=False,
+            help="Update all clusters with account compute credentials")
+
         create.set_defaults(func=AccountCmdLine.create)
 
         #branding

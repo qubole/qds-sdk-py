@@ -227,6 +227,9 @@ class Command(Resource):
                     pass
         else:
             if fetch:
+                if Qubole.cloud != 'aws':
+                    log.info("Large download currently not allowed for %s cloud" % Qubole.cloud)
+                    return
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
                 boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials.get('storage_config').get('access_key'),
                                             aws_secret_access_key=storage_credentials.get('storage_config').get('secret_key'),
