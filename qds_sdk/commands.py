@@ -244,7 +244,7 @@ class Command(Resource):
 
                     # If column/header names are not able to fetch then use include header as true
                     if include_header.lower() == "true" and qlog is not None:
-                    write_headers(qlog, fp)
+                        write_headers(qlog, fp)
 
                     # In Python 3,
                     # If the delim is None, fp should be in binary mode because

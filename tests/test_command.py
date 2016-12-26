@@ -1417,6 +1417,7 @@ class TestGetResultsCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id' : 314591,
                                                   'results': '123',
                                                   'inline': True,
+                                                  'qlog': "column names",
                                                   'meta_data': {'results_resource': 'commands/314591/results'},
                                                   'status': 'done'})
         qds.main()
