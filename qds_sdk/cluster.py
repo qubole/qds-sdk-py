@@ -404,6 +404,18 @@ class Cluster(Resource):
                                         dest="use_account_compute_creds",
                                         default=None,
                                         help="secret key for aws cluster")
+            compute_config.add_argument("--compute-user-id",
+                                        dest="compute_user_id",
+                                        default=None,
+                                        help="compute user id for oracle cluster")
+            compute_config.add_argument("--compute-key-finger-print",
+                                        dest="compute_key_finger_print",
+                                        default=None,
+                                        help="compute key fingerprint for oracle cluster")
+            compute_config.add_argument("--compute-api-private-rsa-key",
+                                        dest="compute_api_private_rsa_key",
+                                        default=None,
+                                        help="compute api private rsa key for oracle cluster")
             location_group = argparser.add_argument_group("location config")
             location_group.add_argument("--location",
                                         dest="location",
@@ -426,6 +438,22 @@ class Cluster(Resource):
                                         dest="disk_storage_account_resource_group_name",
                                         default=None,
                                         help="disk storage account resource group for azure cluster")
+            storage_config.add_argument("--storage-tenant-id",
+                                        dest="storage_tenant_id",
+                                        default=None,
+                                        help="storage tenant id for oracle cluster")
+            storage_config.add_argument("--storage-user-id",
+                                        dest="storage_user_id",
+                                        default=None,
+                                        help="storage user id for oracle cluster")
+            storage_config.add_argument("--storage-key-finger-print",
+                                        dest="storage_key_finger_print",
+                                        default=None,
+                                        help="storage key fingerprint for oracle cluster")
+            storage_config.add_argument("--storage-api-private-rsa-key",
+                                        dest="storage_api_private_rsa_key",
+                                        default=None,
+                                        help="storage api private rds key for oracle cluster")
 
             engine_config = argparser.add_argument_group("engine config")
             engine_config.add_argument("--flavour",
@@ -482,6 +510,12 @@ class Cluster(Resource):
             network_config_group.add_argument("--master-elastic-ip",
                                               dest="master_elastic_ip",
                                               help="master elastic ip for cluster")
+            network_config_group.add_argument("--compartment-id",
+                                              dest="compartment_id",
+                                              help="compartment id for oracle cluster")
+            network_config_group.add_argument("--image-id",
+                                              dest="image_id",
+                                              help="image id for oracle cloud")
 
             engine_config_group = argparser.add_argument_group("engine config settings")
             engine_config_group.add_argument("--custom-presto-config",
@@ -1389,7 +1423,10 @@ class ClusterInfoV2(object):
                             compute_tenant_id=None,
                             compute_subscription_id=None,
                             compute_client_id=None,
-                            compute_client_secret=None):
+                            compute_client_secret=None,
+                            compute_user_id=None,
+                            compute_key_finger_print=None,
+                            compute_api_private_rsa_key=None):
         self.cloud_config['compute_config'] = {}
         self.cloud_config['compute_config']['compute_validated'] = compute_validated
         self.cloud_config['compute_config']['use_account_compute_creds'] = use_account_compute_creds
@@ -1403,12 +1440,20 @@ class ClusterInfoV2(object):
         self.cloud_config['compute_config']['compute_client_id'] = compute_client_id
         self.cloud_config['compute_config']['compute_client_secret'] = compute_client_secret
 
-    def set_location(self, location=None, aws_region=None, aws_availability_zone=None):
+        self.cloud_config['compute_config']['compute_user_id'] = compute_user_id
+        self.cloud_config['compute_config']['compute_key_finger_print'] = compute_key_finger_print
+        self.cloud_config['compute_config']['compute_api_private_rsa_key'] = compute_api_private_rsa_key
+
+    def set_location(self, location=None, aws_region=None, aws_availability_zone=None,
+                     availability_domain=None, region=None):
         self.cloud_config['location'] = {}
         self.cloud_config['location']['location'] = location
 
         self.cloud_config['location']['aws_region'] = aws_region
         self.cloud_config['location']['aws_availability_zone'] = aws_availability_zone
+
+        self.cloud_config['location']['region'] = region
+        self.cloud_config['location']['availability_domain'] = availability_domain
 
     def set_network_config(self, vpc_id=None,
                             subnet_id=None,
@@ -1417,7 +1462,9 @@ class ClusterInfoV2(object):
                             master_elastic_ip=None,
                             vnet_name =None,
                             subnet_name=None,
-                            vnet_resource_group_name=None):
+                            vnet_resource_group_name=None,
+                            compartment_id=None,
+                            image_id=None):
         self.cloud_config['network_config'] = {}
         self.cloud_config['network_config']['bastion_node_public_dns'] = bastion_node_public_dns
         self.cloud_config['network_config']['persistent_security_groups'] = persistent_security_groups
@@ -1430,16 +1477,27 @@ class ClusterInfoV2(object):
         self.cloud_config['network_config']['subnet_name'] = subnet_name
         self.cloud_config['network_config']['vnet_resource_group_name'] = vnet_resource_group_name
 
+        self.cloud_config['network_config']['compartment_id'] = compartment_id
+        self.cloud_config['network_config']['image_id'] = image_id
+
     def set_storage_config(self, storage_access_key=None,
                             storage_account_name=None,
                             disk_storage_account_name=None,
-                            disk_storage_account_resource_group_name=None):
+                            disk_storage_account_resource_group_name=None,
+                            storage_tenant_id=None,
+                            storage_user_id=None,
+                            storage_key_finger_print=None,
+                            storage_api_private_rsa_key=None):
         self.cloud_config['storage_config'] = {}
         self.cloud_config['storage_config']['storage_access_key'] = storage_access_key
         self.cloud_config['storage_config']['storage_account_name'] = storage_account_name
         self.cloud_config['storage_config']['disk_storage_account_name'] = disk_storage_account_name
         self.cloud_config['storage_config']['disk_storage_account_resource_group_name'] \
             = disk_storage_account_resource_group_name
+        self.cloud_config['storage_config']['storage_tenant_id'] = storage_tenant_id
+        self.cloud_config['storage_config']['storage_user_id'] = storage_user_id
+        self.cloud_config['storage_config']['storage_key_finger_print'] = storage_key_finger_print
+        self.cloud_config['storage_config']['storage_api_private_rsa_key'] = storage_api_private_rsa_key
 
     def set_engine_config(self, flavour = 'hadoop2',
                             custom_hadoop_config =None,
@@ -1489,6 +1547,9 @@ class ClusterInfoV2(object):
     def set_monitoring(self, enable_ganglia_monitoring=None, datadog_api_token=None, datadog_app_token=None):
         self.monitoring['ganglia'] = enable_ganglia_monitoring
         self.set_datadog_settings(datadog_api_token, datadog_app_token)
+
+    def set_provider(self, provider=None):
+        self.cloud_config['provider'] = provider
 
     def set_datadog_settings(self, datadog_api_token=None, datadog_app_token=None):
         self.monitoring['datadog'] = {}
@@ -1557,23 +1618,34 @@ class ClusterInfoV2(object):
                         compute_tenant_id=None,
                         compute_access_key=None,
                         compute_secret_key=None,
+                        compute_user_id=None,
+                        compute_key_finger_print=None,
+                        compute_api_private_rsa_key=None,
                         role_instance_profile=None,
                         compute_subscription_id=None,
                         location=None,
                         aws_region=None,
                         aws_availability_zone=None,
+                        availability_domain=None,
+                        region=None,
                         vpc_id=None,
                         subnet_id=None,
                         bastion_node_public_dns=None,
                         persistent_security_groups=None,
                         master_elastic_ip=None,
-                        vnet_name=None,
                         subnet_name=None,
                         vnet_resource_group_name=None,
+                        compartment_id=None,
+                        image_id=None,
+                        vnet_name=None,
                         storage_access_key=None,
                         storage_account_name=None,
                         disk_storage_account_name=None,
                         disk_storage_account_resource_group_name=None,
+                        storage_tenant_id=None,
+                        storage_user_id=None,
+                        storage_key_finger_print=None,
+                        storage_api_private_rsa_key=None,
                         flavour=None,
                         custom_hadoop_config=None,
                         use_qubole_placement_policy=None,
@@ -1581,6 +1653,7 @@ class ClusterInfoV2(object):
                         custom_presto_config=None,
                         spark_version=None,
                         custom_spark_config=None,
+                        provider=None,
                         dbtap_id=None,
                         fernet_key=None,
                         overrides=None,
@@ -1622,8 +1695,12 @@ class ClusterInfoV2(object):
                                 compute_tenant_id,
                                 compute_subscription_id,
                                 compute_client_id,
-                                compute_client_secret)
-        self.set_location(location, aws_region, aws_availability_zone)
+                                compute_client_secret,
+                                compute_user_id,
+                                compute_key_finger_print,
+                                compute_api_private_rsa_key)
+        self.set_location(location, aws_region, aws_availability_zone, availability_domain, region)
+        self.set_provider(provider)
         self.set_network_config(vpc_id,
                                 subnet_id,
                                 bastion_node_public_dns,
@@ -1631,11 +1708,17 @@ class ClusterInfoV2(object):
                                 master_elastic_ip,
                                 vnet_name,
                                 subnet_name,
-                                vnet_resource_group_name)
+                                vnet_resource_group_name,
+                                compartment_id,
+                                image_id)
         self.set_storage_config(storage_access_key,
                                 storage_account_name,
                                 disk_storage_account_name,
-                                disk_storage_account_resource_group_name)
+                                disk_storage_account_resource_group_name,
+                                storage_tenant_id,
+                                storage_user_id,
+                                storage_key_finger_print,
+                                storage_api_private_rsa_key)
         self.set_engine_config(flavour,
                                 custom_hadoop_config,
                                 use_qubole_placement_policy,
