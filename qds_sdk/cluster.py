@@ -478,6 +478,9 @@ class Cluster(Resource):
             node_config_group.add_argument("--heterogeneous-config",
                                            dest="heterogeneous_config",
                                            help="heterogeneous config for the cluster")
+            node_config_group.add_argument("--idle-cluster-timeout",
+                                           dest="idle_cluster_timeout",
+                                           help="cluster termination timeout for idle cluster")
             node_config_group.add_argument("--custom-tags",
                                            dest="custom_tags",
                                            help="""Custom  tags to be set on all instances
@@ -1601,7 +1604,8 @@ class ClusterInfoV2(object):
                                 customer_ssh_key=None,
                                 custom_tags=None,
                                 heterogeneous_config=None,
-                                slave_request_type=None):
+                                slave_request_type=None,
+                                idle_cluster_timeout=None):
         self.cluster_info['master_instance_type'] = master_instance_type
         self.cluster_info['slave_instance_type']  = slave_instance_type
         self.cluster_info['min_nodes'] = min_nodes
@@ -1620,6 +1624,7 @@ class ClusterInfoV2(object):
 
         self.cluster_info['heterogeneous_config'] = heterogeneous_config
         self.cluster_info['slave_request_type'] = slave_request_type
+        self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
 
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=100,
@@ -1717,6 +1722,7 @@ class ClusterInfoV2(object):
                         custom_tags=None,
                         heterogeneous_config=None,
                         slave_request_type=None,
+                        idle_cluster_timeout=None,
                         size=0,
                         count=0,
                         disk_type=None,
@@ -1787,7 +1793,8 @@ class ClusterInfoV2(object):
                                     customer_ssh_key,
                                     custom_tags,
                                     heterogeneous_config,
-                                    slave_request_type)
+                                    slave_request_type,
+                                    idle_cluster_timeout)
         self.set_data_disk(size,
                            count,
                            disk_type,
