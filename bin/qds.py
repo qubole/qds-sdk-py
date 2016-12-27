@@ -273,7 +273,6 @@ def _create_cluster_info(arguments, api_version):
                                       maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
                                       stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
                                       stable_timeout_for_request=arguments.stable_timeout_for_request,
-                                      stable_allow_fallback=arguments.stable_allow_fallback,
                                       count=arguments.count,
                                       disk_type=arguments.disk_type,
                                       size=arguments.size,

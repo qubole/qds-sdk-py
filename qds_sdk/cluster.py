@@ -1636,11 +1636,10 @@ class ClusterInfoV2(object):
                                     stable_timeout_for_request=10,
                                     stable_allow_fallback=None):
         self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_maximum_bid_price_percentage'] = \
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['maximum_bid_price_percentage'] = \
             stable_maximum_bid_price_percentage
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_timeout_for_request'] = \
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['timeout_for_request'] = \
             stable_timeout_for_request
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_allow_fallback'] = stable_allow_fallback
 
     def set_data_disk(self, size=0,
                       count=0,
@@ -1728,7 +1727,6 @@ class ClusterInfoV2(object):
                         maximum_spot_instance_percentage=50,
                         stable_maximum_bid_price_percentage=150,
                         stable_timeout_for_request=10,
-                        stable_allow_fallback=None,
                          **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
@@ -1800,8 +1798,7 @@ class ClusterInfoV2(object):
                                         timeout_for_request,
                                         maximum_spot_instance_percentage)
         self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage,
-                                        stable_timeout_for_request,
-                                        stable_allow_fallback)
+                                        stable_timeout_for_request)
 
 
 def _make_minimal(dictionary):
