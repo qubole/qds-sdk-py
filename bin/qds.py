@@ -224,13 +224,80 @@ def cluster_clone_action(clusterclass, args, api_version=1.2):
     return 0
 
 def _create_cluster_info(arguments, api_version):
-    custom_config = _read_file(arguments.custom_config_file, "custom config file")
-    presto_custom_config = _read_file(arguments.presto_custom_config_file, "presto custom config file")
-    fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
-    customer_ssh_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
+    if hasattr(arguments, 'custom_config_file'):
+        custom_config = _read_file(arguments.custom_config_file, "custom config file")
+    if hasattr(arguments, 'presto_custom_config_file'):
+        presto_custom_config = _read_file(arguments.presto_custom_config_file, "presto custom config file")
+    if hasattr(arguments, 'fairscheduler_config_xml_file'):
+        fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
+    if hasattr(arguments, 'customer_ssh_key_file'):
+        customer_ssh_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
 
     cluster_info = None
-    if api_version >= 1.3:
+    if api_version == 2:
+        cluster_info = ClusterInfoV2(arguments.label, api_version)
+        cluster_info.set_cluster_info(compute_access_key=arguments.compute_access_key,
+                                      compute_secret_key=arguments.compute_secret_key,
+                                      compute_client_id=arguments.compute_client_id,
+                                      compute_client_secret=arguments.compute_client_secret,
+                                      compute_subscription_id=arguments.compute_subscription_id,
+                                      compute_tenant_id=arguments.compute_tenant_id,
+                                      use_account_compute_creds=arguments.use_account_compute_creds,
+                                      location=arguments.location,
+                                      aws_region=arguments.aws_region,
+                                      aws_availability_zone=arguments.aws_availability_zone,
+                                      storage_access_key=arguments.storage_access_key,
+                                      storage_account_name=arguments.storage_account_name,
+                                      disk_storage_account_name=arguments.disk_storage_account_name,
+                                      disk_storage_account_resource_group_name=arguments.disk_storage_account_resource_group_name,
+                                      role_instance_profile = arguments.role_instance_profile,
+                                      vpc_id=arguments.vpc_id,
+                                      subnet_id=arguments.subnet_id,
+                                      disallow_cluster_termination=arguments.disallow_cluster_termination,
+                                      enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
+                                      datadog_api_token=arguments.datadog_api_token,
+                                      datadog_app_token=arguments.datadog_app_token,
+                                      node_bootstrap=arguments.node_bootstrap_file,
+                                      master_instance_type=arguments.master_instance_type,
+                                      slave_instance_type=arguments.slave_instance_type,
+                                      min_nodes=arguments.initial_nodes,
+                                      max_nodes=arguments.max_nodes,
+                                      slave_request_type=arguments.slave_request_type,
+                                      fallback_to_ondemand=arguments.fallback_to_ondemand,
+                                      custom_tags=arguments.custom_tags,
+                                      heterogeneous_config=arguments.heterogeneous_config,
+                                      flavour=arguments.flavour,
+                                      use_qubole_placement_policy=arguments.use_qubole_placement_policy,
+                                      maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
+                                      timeout_for_request=arguments.timeout_for_request,
+                                      maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
+                                      stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
+                                      stable_timeout_for_request=arguments.stable_timeout_for_request,
+                                      idle_cluster_timeout = arguments.idle_cluster_timeout,
+                                      count=arguments.count,
+                                      disk_type=arguments.disk_type,
+                                      size=arguments.size,
+                                      upscaling_config=arguments.upscaling_config,
+                                      fairscheduler_config_xml=fairscheduler_config_xml,
+                                      default_pool=arguments.default_pool,
+                                      enable_encryption=arguments.encrypted_ephemerals,
+                                      customer_ssh_key=arguments.customer_ssh_key,
+                                      persistent_security_groups=arguments.persistent_security_groups,
+                                      bastion_node_public_dns=arguments.bastion_node_public_dns,
+                                      custom_presto_config=arguments.custom_presto_config,
+                                      presto_version=arguments.presto_version,
+                                      custom_spark_config=arguments.custom_spark_config,
+                                      spark_version=arguments.spark_version,
+                                      custom_hadoop_config=arguments.custom_hadoop_config,
+                                      dbtap_id=arguments.dbtap_id,
+                                      fernet_key=arguments.fernet_key,
+                                      overrides=arguments.overrides,
+                                      vnet_name=arguments.vnet_name,
+                                      subnet_name=arguments.subnet_name,
+                                      vnet_resource_group_name=arguments.vnet_resource_group_name,
+                                      master_elastic_ip=arguments.master_elastic_ip
+                                      )
+    elif api_version == 1.3:
         cluster_info = ClusterInfoV13(arguments.label, api_version)
         cluster_info.set_cluster_info(aws_access_key_id=arguments.aws_access_key_id,
                                       aws_secret_access_key=arguments.aws_secret_access_key,

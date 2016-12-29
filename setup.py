@@ -18,6 +18,7 @@ setup(
     description=("Python SDK for coding to the Qubole Data Service API"),
     keywords="qubole sdk api",
     url="https://github.com/qubole/qds-sdk-py",
+    zip_safe=True,
     packages=['qds_sdk'],
     scripts=['bin/qds.py'],
     install_requires=INSTALL_REQUIRES,
