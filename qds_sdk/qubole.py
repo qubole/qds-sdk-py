@@ -3,7 +3,6 @@ import logging
 from qds_sdk.connection import Connection
 from qds_sdk.exception import ConfigError
 
-
 log = logging.getLogger("qds_qubole")
 
 class QuboleAuth(requests.auth.AuthBase):
@@ -29,11 +28,12 @@ class Qubole:
     version = None
     poll_interval = None
     skip_ssl_cert_check = None
+    cloud = None
 
     @classmethod
     def configure(cls, api_token,
                   api_url="https://api.qubole.com/api/", version="v1.2",
-                  poll_interval=5, skip_ssl_cert_check=False):
+                  poll_interval=5, skip_ssl_cert_check=False, cloud="aws"):
         """
         Set parameters governing interaction with QDS
 
@@ -56,6 +56,7 @@ class Qubole:
         else:
             cls.poll_interval = poll_interval
         cls.skip_ssl_cert_check = skip_ssl_cert_check
+        cls.cloud = cloud
 
     cached_agent = None
 

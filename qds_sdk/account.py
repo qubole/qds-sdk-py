@@ -58,6 +58,8 @@ class AccountCmdLine:
     def run(args):
         parser = AccountCmdLine.parsers()
         parsed = parser.parse_args(args)
+        print "parsed ==="
+        print parsed
         return parsed.func(parsed)
 
     @staticmethod
@@ -100,6 +102,8 @@ class Account(SingletonResource):
     @classmethod
     def create(cls, **kwargs):
         conn = Qubole.agent()
+        print "kwargs="
+        print kwargs
         return cls(conn.post(cls.rest_entity_path, data=kwargs))
 
     @classmethod

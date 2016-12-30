@@ -16,6 +16,8 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
+from qds_sdk.clusterv2 import *
+from qds_sdk.cloud.cloud import Cloud
 
 import os
 import sys
@@ -207,6 +209,10 @@ def cluster_create_action(clusterclass, args, api_version=1.2):
     result = clusterclass.create(cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
+
+def cluster_create_actionv2(clusterclass, args, api_version=2.0):
+    arguments = clusterclass._parse_create_update(args, "create", api_version)
+
 
 
 def cluster_update_action(clusterclass, args, api_version=1.2):
@@ -441,6 +447,21 @@ def clustermain(args, api_version):
     else:
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
+def clustermainv2(args, api_version):
+    clusterclass = ClusterV2
+    actionset = set(["create", "update", "clone"])
+
+    if len(args) < 1:
+        sys.stderr.write("missing argument containing action\n")
+        usage()
+
+    action = args.pop(0)
+    if action not in actionset:
+        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+        usage()
+    else:
+        return globals()["cluster_" + action + "_actionv2"](clusterclass, args)
+
 def accountmain(args):
     result = AccountCmdLine.run(args)
     print(result)
@@ -510,6 +531,11 @@ def main():
                          default=False,
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
+    #check if its mandatory
+    optparser.add_option("--cloud", dest="cloud",
+                         default=os.getenv('QDS_API_VERSION'),
+                         help="cloud", choices=["aws", "azure", "oracle_bmc"])
+
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
                          help="verbose mode - info level logging")
@@ -546,11 +572,15 @@ def main():
     elif options.skip_ssl_cert_check:
         log.warn("Insecure mode enabled: skipping SSL cert verification\n")
 
+    if options.cloud is None:
+        options.cloud = Cloud.get_cloud()
+
     Qubole.configure(api_token=options.api_token,
                      api_url=options.api_url,
                      version=options.api_version,
                      poll_interval=options.poll_interval,
-                     skip_ssl_cert_check=options.skip_ssl_cert_check)
+                     skip_ssl_cert_check=options.skip_ssl_cert_check,
+                     cloud=options.cloud)
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")
@@ -564,8 +594,14 @@ def main():
         return accountmain(args)
 
     if a0 == "cluster":
+        print ("options ==%s",options)
         api_version_number = float(options.api_version[1:])
-        return clustermain(args, api_version_number)
+        print ("api veersion number ===")
+        print (api_version_number)
+        if api_version_number >= 2.0:
+            return clustermainv2(args, api_version_number)
+        else:
+            return clustermain(args, api_version_number)
 
     if a0 == "action":
         return actionmain(args)
