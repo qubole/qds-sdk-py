@@ -14,8 +14,8 @@ from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 from optparse import SUPPRESS_HELP
 
-# from oraclebmc import Config
-# from oraclebmc.apis import ObjectStorageApi
+from oraclebmc import Config
+from oraclebmc.apis import ObjectStorageApi
 import boto
 import time
 import logging
@@ -216,7 +216,6 @@ class Command(Resource):
         conn = Qubole.agent()
 
         r =conn.get(result_path, {'inline': inline})
-        print ("resulta s===%s",r)
         if r.get('inline'):
             if sys.version_info < (3, 0, 0):
                 fp.write(r['results'].encode('utf8'))
@@ -242,7 +241,6 @@ class Command(Resource):
                     log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                     # fetch latest value of num_result_dir
                     num_result_dir = Command.find(self.id).num_result_dir
-                    print ("num_result dir ===%s",num_result_dir)
                     for s3_path in r['result_location']:
                         # In Python 3,
                         # If the delim is None, fp should be in binary mode because
@@ -254,36 +252,24 @@ class Command(Resource):
 
                 elif Qubole.cloud == 'oracle_bmc':
                     oracle_config = Config()
-                    oracle_config.user = "ocid1.user.oc1..aaaaaaaaaqobg3w4gye2yyjs6xknq33hiavlkffcblfvtqkz67x4oz3itwqq"
-                    oracle_config.tenancy = "ocid1.tenancy.oc1..aaaaaaaa3wdgvxsfqtb2ycx7mzeo7hjvl4ogfix5p6b64bp4vjtwc2h5c4fa"
-                    oracle_config.fingerprint = "d1:6a:3c:b7:bc:c6:fe:7b:cc:73:c5:e1:66:4d:be:10"
-                    # oracle_config = Config()
-                    # oracle_config.user = storage_credentials.get('storage_config').get('user_id')
-                    # oracle_config.tenancy = storage_credentials.get('storage_config').get('tenant_id')
-                    # oracle_config.fingerprint = storage_credentials.get('storage_config').get('key_finger_print')
-                    # private_key = storage_credentials.get('storage_config').get('api_private_rsa_key')
-                    # private_key_file_path = "/tmp/" + uuid.uuid4().hex
-                    # with open(private_key_file_path, 'w+') as private_key_file:
-                    #     private_key_file.write(private_key)
-                    # os.chmod(private_key_file_path, 0o744)
-                    # oracle_config.key_file = private_key_file_path
-                    # storage_conn = ObjectStorageApi(oracle_config)
+                    oracle_config.user = storage_credentials.get('storage_config').get('user_id')
+                    oracle_config.tenancy = storage_credentials.get('storage_config').get('tenant_id')
+                    oracle_config.fingerprint = storage_credentials.get('storage_config').get('key_finger_print')
+                    private_key = storage_credentials.get('storage_config').get('api_private_rsa_key')
+                    private_key_file_path = "/tmp/" + uuid.uuid4().hex
+                    with open(private_key_file_path, 'w+') as private_key_file:
+                        private_key_file.write(private_key)
+                    os.chmod(private_key_file_path, 0o744)
+                    oracle_config.key_file = private_key_file_path
+                    storage_conn = ObjectStorageApi(oracle_config)
                     log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                     num_result_dir = Command.find(self.id).num_result_dir
                     for oracle_path in r['result_location']:
                         _download_to_local_oracle(storage_conn, oracle_path, fp, delim=delim,
                                                   skip_data_avail_check=isinstance(self, PrestoCommand))
-
-
-                    print ("storage credentials======")
-
                 else:
                     log.info("Large download currently not allowed for %s cloud" % Qubole.cloud)
                     return
-
-
-
-
             else:
                 fp.write(",".join(r['result_location']))
 
@@ -1320,6 +1306,8 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         files = {}
         for one_path in bucket_paths:
             name = one_path.name.replace(key_prefix, "", 1)
+            print("keyprefi ====")
+            print(key_prefix)
             if name.startswith('_tmp.'):
                 continue
             path = name.split("/")
@@ -1388,42 +1376,61 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
                 _read_iteratively(one_path, fp, delim=delim)
 
 
-def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None,
-                                                  skip_data_avail_check=False):
+def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None,skip_data_avail_check=False):
+
+    def get_contents_to_file_using_delim():
+        if sys.version_info < (3, 0, 0):
+            fp.write(str(content).replace(chr(1), delim))
+        else:
+            import io
+            if isinstance(fp, io.TextIOBase):
+                fp.buffer.write(content.decode('utf-8').replace(chr(1), delim).encode('utf8'))
+            elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                fp.write(content.decode('utf8').replace(chr(1), delim).encode('utf8'))
+            else:
+                # Can this happen? Don't know what's the right thing to do in this case.
+                pass
+
+    def get_contents_to_file_oracle():
+        if sys.version_info < (3, 0, 0):
+            fp.write(content.encode('utf8'))
+        else:
+            import io
+            if isinstance(fp, io.TextIOBase):
+                fp.buffer.write(content.encode('utf8'))
+            elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                fp.write(content.encode('utf8'))
+            else:
+                # Can this happen? Don't know what's the right thing to do in this case.
+                pass
+
+
     try:
         m = Oracle_URI_RE.match(oracle_path)
         bucket_name = m.group(1)
         namespace_name = m.group(2)[1:]
         object_name = m.group(3)
+        if oracle_path.endswith('/') is False:
 
-        response = storage_conn.get_object(namespace_name, bucket_name, object_name)
-        content = response.data.content if response.data is not None else None
+            response = storage_conn.get_object(namespace_name, bucket_name, object_name)
+            content = response.data.content if response.data is not None else ""
 
-        if delim is not None:
-            if sys.version_info < (3, 0, 0):
-                fp.write(str(content).replace(chr(1), delim))
+            if delim is not None:
+                get_contents_to_file_using_delim()
             else:
-                import io
-                if isinstance(fp, io.TextIOBase):
-                    fp.buffer.write(content.decode('utf-8').replace(chr(1), delim).encode('utf8'))
-                elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
-                    fp.write(content.decode('utf8').replace(chr(1), delim).encode('utf8'))
-                else:
-                    # Can this happen? Don't know what's the right thing to do in this case.
-                    pass
+                get_contents_to_file_oracle()
         else:
-            if sys.version_info < (3, 0, 0):
-                fp.write(content.encode('utf8'))
-            else:
-                import io
-                if isinstance(fp, io.TextIOBase):
-                    fp.buffer.write(content.encode('utf8'))
-                elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
-                    fp.write(content.encode('utf8'))
-                else:
-                    # Can this happen? Don't know what's the right thing to do in this case.
-                    pass
-
+            # Write check for results if there are not available
+            # For folders
+            bucket_paths = storage_conn.list_objects(namespace_name,bucket_name,prefix=object_name)
+            for one_path in bucket_paths:
+                name = one_path.name
+                if name.endswith('/') is False:
+                    log.info("Downloading file from %s" % name)
+                    if delim is not None:
+                        get_contents_to_file_using_delim()
+                    else:
+                        get_contents_to_file_oracle()
     except Exception as e:
         raise Exception("Not able to download results: %s" % e.message)
 
