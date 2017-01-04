@@ -1419,8 +1419,9 @@ def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None,skip_dat
         else:
             # Write check for results if incomplete data available
             # For folders
-            bucket_paths = storage_conn.list_objects(namespace_name,bucket_name,prefix=object_name)
-            for one_path in bucket_paths:
+            list = storage_conn.list_objects(namespace_name,bucket_name,prefix=object_name)
+            objects = list.data.objects
+            for one_path in objects:
                 name = one_path.name
                 if name.endswith('/') is False:
                     log.info("Downloading file from %s" % name)
