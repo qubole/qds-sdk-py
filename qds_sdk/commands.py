@@ -1420,7 +1420,7 @@ def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None,skip_dat
             else:
                 get_contents_to_file_oracle()
         else:
-            # Write check for results if there are not available
+            # Write check for results if incomplete data available
             # For folders
             bucket_paths = storage_conn.list_objects(namespace_name,bucket_name,prefix=object_name)
             for one_path in bucket_paths:
