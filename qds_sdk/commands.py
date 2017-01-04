@@ -195,7 +195,7 @@ class Command(Resource):
         return r.text
 
 
-    def get_results(self, fp=sys.stdout, inline=False, delim=None, fetch=True):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True):
         """
         Fetches the result for the command represented by this object
 
@@ -215,7 +215,7 @@ class Command(Resource):
 
         conn = Qubole.agent()
 
-        r =conn.get(result_path, {'inline': inline})
+        r = conn.get(result_path, {'inline': inline})
         if r.get('inline'):
             if sys.version_info < (3, 0, 0):
                 fp.write(r['results'].encode('utf8'))
@@ -231,7 +231,6 @@ class Command(Resource):
         else:
             if fetch:
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
-                Qubole.cloud = 'oracle_bmc'
                 if Qubole.cloud == 'aws':
                     boto_conn = boto.connect_s3(
                         aws_access_key_id=storage_credentials.get('storage_config').get('access_key'),
@@ -1306,8 +1305,6 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         files = {}
         for one_path in bucket_paths:
             name = one_path.name.replace(key_prefix, "", 1)
-            print("keyprefi ====")
-            print(key_prefix)
             if name.startswith('_tmp.'):
                 continue
             path = name.split("/")
@@ -1427,6 +1424,8 @@ def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None,skip_dat
                 name = one_path.name
                 if name.endswith('/') is False:
                     log.info("Downloading file from %s" % name)
+                    response = storage_conn.get_object(namespace_name, bucket_name, name)
+                    content = response.data.content if response.data is not None else ""
                     if delim is not None:
                         get_contents_to_file_using_delim()
                     else:
