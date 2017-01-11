@@ -1,7 +1,7 @@
 #!/bin/env python
 
 from __future__ import print_function
-from qds_sdk.qubole import Qubole
+#from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
 import qds_sdk.exception
@@ -207,6 +207,7 @@ def cluster_create_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "create", api_version)
     cluster_info = _create_cluster_info(arguments, api_version)
     result = clusterclass.create(cluster_info.minimal_payload())
+    print ("create v1.2=====")
     print(json.dumps(result, indent=4))
     return 0
 
@@ -448,19 +449,24 @@ def clustermain(args, api_version):
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 def clustermainv2(args, api_version):
-    clusterclass = ClusterV2
+    #clusterclass = ClusterV2
+    print("clustrmainv2===%s",args)
+    Qubole.version = "v2"
+    result = ClusterCmdLine.run(args)
+    print(result)
+
     actionset = set(["create", "update", "clone"])
 
-    if len(args) < 1:
-        sys.stderr.write("missing argument containing action\n")
-        usage()
-
-    action = args.pop(0)
-    if action not in actionset:
-        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
-        usage()
-    else:
-        return globals()["cluster_" + action + "_actionv2"](clusterclass, args)
+    # if len(args) < 1:
+    #     sys.stderr.write("missing argument containing action\n")
+    #     usage()
+    #
+    # action = args.pop(0)
+    # if action not in actionset:
+    #     sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+    #     usage()
+    # else:
+    #     return globals()["cluster_" + action + "_actionv2"](clusterclass, args)
 
 def accountmain(args):
     result = AccountCmdLine.run(args)
@@ -509,6 +515,7 @@ def templatemain(args):
     
 
 def main():
+    print ("main====")
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
@@ -572,15 +579,16 @@ def main():
     elif options.skip_ssl_cert_check:
         log.warn("Insecure mode enabled: skipping SSL cert verification\n")
 
-    if options.cloud is None:
-        options.cloud = Cloud.get_cloud()
-
     Qubole.configure(api_token=options.api_token,
                      api_url=options.api_url,
                      version=options.api_version,
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
                      cloud=options.cloud)
+
+    if options.cloud is None:
+        options.cloud = Cloud.get_cloud()
+        Qubole.cloud = options.cloud
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")
