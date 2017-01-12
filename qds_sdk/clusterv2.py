@@ -41,7 +41,6 @@ class ClusterCmdLine:
 
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
-        print("subparser====%s",subparser)
 
         # cloud config parser
         Cloud.get_cloud_object().cloud_config_parser(subparser)
@@ -87,8 +86,7 @@ class ClusterCmdLine:
                                       disk_size=arguments.size,
                                       upscaling_config=arguments.upscaling_config,
                                       enable_encryption=arguments.encrypted_ephemerals,
-                                      customer_ssh_key=customer_ssh_key
-                                      )
+                                      customer_ssh_key=customer_ssh_key)
 
         #  This will set cloud config settings
         cloud_config = Cloud.get_cloud_object()
@@ -116,7 +114,7 @@ class ClusterInfoV2(object):
         self.cluster_info = {}
         self.cluster_info['label'] = label
         self.monitoring = {}
-        self.internal = {} # not added right now from command line
+        self.internal = {} # right now not supported
 
     @staticmethod
     def cluster_info_parser(argparser, action):
@@ -412,8 +410,6 @@ class ClusterV2(Resource):
         Create a new cluster using information provided in `cluster_info`.
 
         """
-        print ("data===")
-        print (cluster_info)
         conn = Qubole.agent(version="v2")
         return conn.post(cls.rest_entity_path, data=cluster_info)
 

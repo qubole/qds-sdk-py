@@ -439,24 +439,9 @@ def clustermain(args, api_version):
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 def clustermainv2(args, api_version):
-    #clusterclass = ClusterV2
-    print("clustrmainv2===%s",args)
     Qubole.version = "v2"
     result = ClusterCmdLine.run(args)
     print(result)
-
-    actionset = set(["create", "update", "clone"])
-
-    # if len(args) < 1:
-    #     sys.stderr.write("missing argument containing action\n")
-    #     usage()
-    #
-    # action = args.pop(0)
-    # if action not in actionset:
-    #     sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
-    #     usage()
-    # else:
-    #     return globals()["cluster_" + action + "_actionv2"](clusterclass, args)
 
 def accountmain(args):
     result = AccountCmdLine.run(args)
@@ -505,7 +490,6 @@ def templatemain(args):
     
 
 def main():
-    print ("main====")
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
@@ -528,7 +512,6 @@ def main():
                          default=False,
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
-    #check if its mandatory
     optparser.add_option("--cloud", dest="cloud",
                          default=os.getenv('QDS_API_VERSION'),
                          help="cloud", choices=["aws", "azure", "oracle_bmc"])
@@ -596,8 +579,6 @@ def main():
     if a0 == "cluster":
         print ("options ==%s",options)
         api_version_number = float(options.api_version[1:])
-        print ("api veersion number ===")
-        print (api_version_number)
         if api_version_number >= 2.0:
             return clustermainv2(args, api_version_number)
         else:
