@@ -20,10 +20,3 @@ class Cloud:
             return OracleBmcCloud()
         else:
             return AwsCloud()
-
-
-
-
-
-
-

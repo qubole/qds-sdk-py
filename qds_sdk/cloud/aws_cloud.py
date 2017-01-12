@@ -117,5 +117,3 @@ class AwsCloud():
         set_compute_config()
         set_location()
         set_network_config()
-
-

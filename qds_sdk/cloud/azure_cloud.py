@@ -158,13 +158,3 @@ class AzureCloud:
         set_location()
         set_network_config()
         set_storage_config()
-
-
-
-
-
-
-
-
-
-

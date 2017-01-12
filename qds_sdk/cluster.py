@@ -435,8 +435,6 @@ class Cluster(Resource):
         Optionally provide the version (eg: v1.3) to use the new version of the
         API. If None we default to v1.2
         """
-        print ("data===")
-        print (cluster_info)
         conn = Qubole.agent(version=version)
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 

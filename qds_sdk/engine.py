@@ -1,5 +1,6 @@
 from qds_sdk import util
 class Engine:
+    
     def __init__(self, flavour=None):
         self.flavour = flavour
         self.hadoop_settings = {}

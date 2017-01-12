@@ -108,8 +108,8 @@ class ClusterCmdLine:
         return cluster_request
 
 
-
 class ClusterInfoV2(object):
+
     def __init__(self, label):
         self.cluster_info = {}
         self.cluster_info['label'] = label
@@ -306,7 +306,6 @@ class ClusterInfoV2(object):
                                    default=None,
                                    help="overrides for airflow cluster", )
 
-
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
                          enable_ganglia_monitoring=None,
@@ -408,7 +407,6 @@ class ClusterV2(Resource):
     def create(cls, cluster_info):
         """
         Create a new cluster using information provided in `cluster_info`.
-
         """
         conn = Qubole.agent(version="v2")
         return conn.post(cls.rest_entity_path, data=cluster_info)
@@ -418,7 +416,6 @@ class ClusterV2(Resource):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
-
         """
         conn = Qubole.agent(version="v2")
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
@@ -428,7 +425,6 @@ class ClusterV2(Resource):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
-
         """
         conn = Qubole.agent(version="v2")
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)

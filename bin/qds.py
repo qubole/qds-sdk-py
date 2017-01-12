@@ -1,7 +1,6 @@
 #!/bin/env python
 
 from __future__ import print_function
-#from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
 import qds_sdk.exception
@@ -208,13 +207,8 @@ def cluster_create_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "create", api_version)
     cluster_info = _create_cluster_info(arguments, api_version)
     result = clusterclass.create(cluster_info.minimal_payload())
-    print ("create v1.2=====")
     print(json.dumps(result, indent=4))
     return 0
-
-def cluster_create_actionv2(clusterclass, args, api_version=2.0):
-    arguments = clusterclass._parse_create_update(args, "create", api_version)
-
 
 def cluster_update_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "update", api_version)
@@ -577,7 +571,6 @@ def main():
         return accountmain(args)
 
     if a0 == "cluster":
-        print ("options ==%s",options)
         api_version_number = float(options.api_version[1:])
         if api_version_number >= 2.0:
             return clustermainv2(args, api_version_number)
