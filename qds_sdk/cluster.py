@@ -6,6 +6,7 @@ cluster information.
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from argparse import ArgumentParser
+from qds_sdk import util
 
 import logging
 import json
@@ -897,7 +898,7 @@ class ClusterInfo():
         creating or updating a cluster.
         """
         payload = {"cluster": self.__dict__}
-        return _make_minimal(payload)
+        return util._make_minimal(payload)
 
 class ClusterInfoV13():
     """
@@ -1191,21 +1192,4 @@ class ClusterInfoV13():
         """
         payload_dict = self.__dict__
         payload_dict.pop("api_version", None)
-        return _make_minimal(payload_dict)
-
-
-def _make_minimal(dictionary):
-    """
-    This function removes all the keys whose value is either None or an empty
-    dictionary.
-    """
-    new_dict = {}
-    for key, value in dictionary.items():
-        if value is not None:
-            if isinstance(value, dict):
-                new_value = _make_minimal(value)
-                if new_value:
-                    new_dict[key] = new_value
-            else:
-                new_dict[key] = value
-    return new_dict
+        return util._make_minimal(payload_dict)

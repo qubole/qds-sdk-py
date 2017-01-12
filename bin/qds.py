@@ -18,6 +18,7 @@ from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import *
 from qds_sdk.cloud.cloud import Cloud
+from qds_sdk import util
 
 import os
 import sys
@@ -215,7 +216,6 @@ def cluster_create_actionv2(clusterclass, args, api_version=2.0):
     arguments = clusterclass._parse_create_update(args, "create", api_version)
 
 
-
 def cluster_update_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "update", api_version)
     cluster_info = _create_cluster_info(arguments, api_version)
@@ -231,10 +231,10 @@ def cluster_clone_action(clusterclass, args, api_version=1.2):
     return 0
 
 def _create_cluster_info(arguments, api_version):
-    custom_config = _read_file(arguments.custom_config_file, "custom config file")
-    presto_custom_config = _read_file(arguments.presto_custom_config_file, "presto custom config file")
-    fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
-    customer_ssh_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
+    custom_config = util._read_file(arguments.custom_config_file, "custom config file")
+    presto_custom_config = util._read_file(arguments.presto_custom_config_file, "presto custom config file")
+    fairscheduler_config_xml = util._read_file(arguments.fairscheduler_config_xml_file, "config xml file")
+    customer_ssh_key = util._read_file(arguments.customer_ssh_key_file, "customer ssh key file")
 
     cluster_info = None
     if api_version >= 1.3:
@@ -329,16 +329,6 @@ def _create_cluster_info(arguments, api_version):
                                          presto_custom_config)
 
     return cluster_info
-
-def _read_file(file_path, file_name):
-    file_content = None
-    if file_path is not None:
-        try:
-            file_content = open(file_path).read()
-        except IOError as e:
-            sys.stderr.write("Unable to read %s: %s\n" % (file_name, str(e)))
-            usage()
-    return file_content
 
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id_label(args)
@@ -586,6 +576,8 @@ def main():
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
                      cloud=options.cloud)
 
+    # If cloud provider is not set by user at system level or through command line ,
+    # then fetch cloud from api url request
     if options.cloud is None:
         options.cloud = Cloud.get_cloud()
         Qubole.cloud = options.cloud

@@ -1,10 +1,9 @@
 from qds_sdk.connection import Connection
 from qds_sdk.qubole import Qubole
 from qds_sdk.user import User
-#from ../qds_sdk/qubole import Qubole
-#from oracle_bmc_cloud import OracleBmcCloud
-#from azure_cloud import AzureCloud
 from qds_sdk.cloud.aws_cloud import AwsCloud
+from qds_sdk.cloud.azure_cloud import AzureCloud
+from qds_sdk.cloud.oracle_bmc_cloud import OracleBmcCloud
 
 class Cloud:
 
@@ -24,10 +23,10 @@ class Cloud:
         cloud = Qubole.cloud
         if cloud == "azure":
             pass
-            #return AzureCloud()
+            return AzureCloud()
         elif cloud == "oracle_bmc":
             pass
-            #return OracleBmcCloud()
+            return OracleBmcCloud()
         else:
             print("cloud class()====")
             return AwsCloud()

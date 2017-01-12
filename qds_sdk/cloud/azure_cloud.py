@@ -1,4 +1,3 @@
-#import qds_sdk.cloud.cloud
 class AzureCloud:
 
     def __init__(self):
@@ -90,11 +89,75 @@ class AzureCloud:
                                     default=None,
                                     help="disk storage account resource group for azure cluster")
 
+    def set_cloud_config_settings(self, arguments):
+        self.set_cloud_config(compute_client_id=arguments.compute_client_id,
+                              compute_client_secret=arguments.compute_client_secret,
+                              compute_subscription_id=arguments.compute_subscription_id,
+                              compute_tenant_id=arguments.compute_tenant_id,
+                              use_account_compute_creds=arguments.use_account_compute_creds,
+                              location=arguments.location,
+                              storage_access_key=arguments.storage_access_key,
+                              storage_account_name=arguments.storage_account_name,
+                              disk_storage_account_name=arguments.disk_storage_account_name,
+                              disk_storage_account_resource_group_name=arguments.disk_storage_account_resource_group_name,
+                              persistent_security_groups=arguments.persistent_security_groups,
+                              bastion_node_public_dns=arguments.bastion_node_public_dns,
+                              vnet_name=arguments.vnet_name,
+                              subnet_name=arguments.subnet_name,
+                              vnet_resource_group_name=arguments.vnet_resource_group_name,
+                              master_elastic_ip=arguments.master_elastic_ip)
+
+    #write comment
+    def set_cloud_config(self,
+                         compute_client_id=None,
+                         compute_client_secret=None,
+                         compute_subscription_id=None,
+                         compute_tenant_id=None,
+                         use_account_compute_creds=None,
+                         location=None,
+                         storage_access_key=None,
+                         storage_account_name=None,
+                         disk_storage_account_name=None,
+                         disk_storage_account_resource_group_name=None,
+                         persistent_security_groups=None,
+                         bastion_node_public_dns=None,
+                         vnet_name=None,
+                         subnet_name=None,
+                         vnet_resource_group_name=None,
+                         master_elastic_ip=None):
+
+        def set_compute_config():
+            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
+            self.compute_config['compute_tenant_id'] = compute_tenant_id
+            self.compute_config['compute_subscription_id'] = compute_subscription_id
+            self.compute_config['compute_client_id'] = compute_client_id
+            self.compute_config['compute_client_secret'] = compute_client_secret
 
 
+        def set_location():
+            self.location['location'] = location
+
+        def set_network_config():
+            self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
+            self.network_config['persistent_security_groups'] = persistent_security_groups
+            self.network_config['master_elastic_ip'] = master_elastic_ip
+            self.network_config['vnet_name'] = vnet_name
+            self.network_config['subnet_name'] = subnet_name
+            self.network_config['vnet_resource_group_name'] = vnet_resource_group_name
 
 
+        def set_storage_config():
+            self.storage_config['storage_access_key'] = storage_access_key
+            self.storage_config['storage_account_name'] = storage_account_name
+            self.storage_config['disk_storage_account_name'] = disk_storage_account_name
+            self.storage_config['disk_storage_account_resource_group_name'] \
+                = disk_storage_account_resource_group_name
 
+
+        set_compute_config()
+        set_location()
+        set_network_config()
+        set_storage_config()
 
 
 
