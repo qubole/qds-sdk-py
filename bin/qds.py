@@ -226,10 +226,10 @@ def cluster_clone_action(clusterclass, args, api_version=1.2):
     return 0
 
 def _create_cluster_info(arguments, api_version):
-    custom_config = util._read_file(arguments.custom_config_file, "custom config file")
-    presto_custom_config = util._read_file(arguments.presto_custom_config_file, "presto custom config file")
-    fairscheduler_config_xml = util._read_file(arguments.fairscheduler_config_xml_file, "config xml file")
-    customer_ssh_key = util._read_file(arguments.customer_ssh_key_file, "customer ssh key file")
+    custom_config = _read_file(arguments.custom_config_file, "custom config file")
+    presto_custom_config = _read_file(arguments.presto_custom_config_file, "presto custom config file")
+    fairscheduler_config_xml = _read_file(arguments.fairscheduler_config_xml_file, "config xml file")
+    customer_ssh_key = _read_file(arguments.customer_ssh_key_file, "customer ssh key file")
 
     cluster_info = None
     if api_version >= 1.3:
@@ -324,6 +324,18 @@ def _create_cluster_info(arguments, api_version):
                                          presto_custom_config)
 
     return cluster_info
+
+
+def _read_file(file_path, file_name):
+    file_content = None
+    if file_path is not None:
+        try:
+            file_content = open(file_path).read()
+        except IOError as e:
+            sys.stderr.write("Unable to read %s: %s\n" % (file_name, str(e)))
+            usage()
+    return file_content
+
 
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id_label(args)
@@ -482,7 +494,7 @@ def nezhamain(args):
 def templatemain(args):
     result = TemplateCmdLine.run(args)
     print(result)
-    
+
 
 def main():
     optparser = OptionParser(usage=usage_str)
