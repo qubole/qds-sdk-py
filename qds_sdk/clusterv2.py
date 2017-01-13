@@ -101,6 +101,12 @@ class ClusterCmdLine:
 
     @staticmethod
     def get_cluster_request_parameters(cluster_info, cloud_config, engine_config):
+
+        '''
+        Use this to return final minimal request from cluster_info, cloud_config or engine_config objects
+        Alternatively call util._make_minimal if only one object needs to be implemented
+        '''
+
         cluster_request = {}
         cluster_request['cloud_config'] = util._make_minimal(cloud_config.__dict__)
         cluster_request['engine_config'] = util._make_minimal(engine_config.__dict__)
@@ -109,12 +115,197 @@ class ClusterCmdLine:
 
 
 class ClusterInfoV2(object):
+    """
+    qds_sdk.ClusterInfoV2 is the class which stores information about a cluster_info.
+    You can use objects of this class to create/update/clone a cluster.
+    """
 
     def __init__(self, label):
+        """
+        Args:
+        `label`: A list of labels that identify the cluster. At least one label
+            must be provided when creating a cluster.
+        """
         self.cluster_info = {}
         self.cluster_info['label'] = label
         self.monitoring = {}
         self.internal = {} # right now not supported
+
+    def set_cluster_info(self,
+                         disallow_cluster_termination=None,
+                         enable_ganglia_monitoring=None,
+                         datadog_api_token=None,
+                         datadog_app_token=None,
+                         node_bootstrap=None,
+                         master_instance_type=None,
+                         slave_instance_type=None,
+                         min_nodes=None,
+                         max_nodes=None,
+                         slave_request_type=None,
+                         fallback_to_ondemand=None,
+                         custom_tags=None,
+                         heterogeneous_config=None,
+                         maximum_bid_price_percentage=None,
+                         timeout_for_request=None,
+                         maximum_spot_instance_percentage=None,
+                         stable_maximum_bid_price_percentage=None,
+                         stable_timeout_for_request=None,
+                         stable_spot_fallback=None,
+                         idle_cluster_timeout=None,
+                         disk_count=None,
+                         disk_type=None,
+                         disk_size=None,
+                         upscaling_config=None,
+                         enable_encryption=None,
+                         customer_ssh_key=None,
+                         cluster_name=None,
+                         force_tunnel=None):
+        """
+        Args:
+
+                `disallow_cluster_termination`: Set this to True if you don't want
+                    qubole to auto-terminate idle clusters. Use this option with
+                    extreme caution.
+
+                `enable_ganglia_monitoring`: Set this to True if you want to enable
+                    ganglia monitoring for the cluster.
+
+                `node_bootstrap`: name of the node bootstrap file for this
+                    cluster. It should be in stored in S3 at
+                    <your-default-location>/scripts/hadoop/
+
+                `master_instance_type`: The instance type to use for the Hadoop master
+                    node.
+
+                `slave_instance_type`: The instance type to use for the Hadoop slave
+                    nodes.
+
+                `min_nodes`: Number of nodes to start the cluster with.
+
+                `max_nodes`: Maximum number of nodes the cluster may be auto-scaled up
+                    to.
+
+                `slave_request_type`: Purchasing option for slave instances.
+                    Valid values: "ondemand", "hybrid", "spot".
+
+                `fallback_to_ondemand`: Fallback to on-demand nodes if spot nodes could not be
+                    obtained. Valid only if slave_request_type is 'spot'.
+
+                `maximum_bid_price_percentage`: ( Valid only when `slave_request_type`
+                    is hybrid or spot.) Maximum value to bid for spot
+                    instances, expressed as a percentage of the base price
+                    for the slave node instance type.
+
+                `timeout_for_request`: Timeout for a spot instance request (Unit:
+                    minutes)
+
+                `maximum_spot_instance_percentage`: Maximum percentage of instances
+                    that may be purchased from the AWS Spot market. Valid only when
+                    slave_request_type is "hybrid".
+
+                `stable_maximum_bid_price_percentage`: Maximum value to bid for stable node spot
+                    instances, expressed as a percentage of the base price
+                    (applies to both master and slave nodes).
+
+                `stable_timeout_for_request`: Timeout for a stable node spot instance request (Unit:
+                    minutes)
+
+                `stable_spot_fallback`: Whether to fallback to on-demand instances for
+                    stable nodes if spot instances are not available
+
+                `disk_count`: Number of EBS volumes to attach
+                    to each instance of the cluster.
+
+                `disk_type`: Type of the EBS volume. Valid
+                    values are 'standard' (magnetic) and 'ssd'.
+
+                `disk_size`: Size of each EBS volume, in GB.
+
+                `enable_encryption`: Encrypt the ephemeral drives on the instance.
+
+                `customer_ssh_key`: SSH key to use to login to the instances.
+
+                `idle_cluster_timeout`: The buffer time (range in 0-6 hrs) after a cluster goes idle
+                    and gets terminated,  given cluster auto termination is on and no cluster specific
+                    timeout has been set (default is 2 hrs)
+
+                `heterogeneous_config` : Configuring heterogeneous nodes in Hadoop 2 and Spark clusters.
+                    It implies that slave nodes can be of different instance types
+
+                `custom_tags` : Custom tags to be set on all instances
+                    of the cluster. Specified as JSON object (key-value pairs)
+
+                `datadog_api_token` : Specify the Datadog API token to use the Datadog monitoring service
+
+                `datadog_app_token` : Specify the Datadog APP token to use the Datadog monitoring service
+
+
+        Doc: For getting details about arguments
+        http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
+
+        """
+
+        def set_monitoring():
+            self.monitoring['ganglia'] = enable_ganglia_monitoring
+            set_datadog_setting()
+
+        def set_spot_instance_settings():
+            self.cluster_info['spot_settings']['spot_instance_settings'] = {}
+            self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = \
+                maximum_bid_price_percentage
+            self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
+            self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = \
+                maximum_spot_instance_percentage
+
+        def set_stable_spot_bid_settings():
+            self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
+            self.cluster_info['spot_settings']['stable_spot_bid_settings']['maximum_bid_price_percentage'] = \
+                stable_maximum_bid_price_percentage
+            self.cluster_info['spot_settings']['stable_spot_bid_settings']['timeout_for_request'] = \
+                stable_timeout_for_request
+            self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
+                stable_spot_fallback
+
+        def set_datadog_setting():
+            self.monitoring['datadog'] = {}
+            self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
+            self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
+
+        def set_data_disk():
+            self.cluster_info['datadisk'] = {}
+            self.cluster_info['datadisk']['size'] = disk_size
+            self.cluster_info['datadisk']['count'] = disk_count
+            self.cluster_info['datadisk']['type'] = disk_type
+            self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
+            self.cluster_info['datadisk']['encryption'] = enable_encryption
+
+
+        self.cluster_info['master_instance_type'] = master_instance_type
+        self.cluster_info['slave_instance_type'] = slave_instance_type
+        self.cluster_info['min_nodes'] = min_nodes
+        self.cluster_info['max_nodes'] = max_nodes
+        self.cluster_info['cluster_name'] = cluster_name
+        self.cluster_info['node_bootstrap'] = node_bootstrap
+        self.cluster_info['disallow_cluster_termination'] = disallow_cluster_termination
+        self.cluster_info['force_tunnel'] = force_tunnel
+        self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
+        self.cluster_info['customer_ssh_key'] = customer_ssh_key
+        if custom_tags and custom_tags.strip():
+            try:
+                self.cluster_info['custom_tags'] = json.loads(custom_tags.strip())
+            except Exception as e:
+                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
+
+        self.cluster_info['heterogeneous_config'] = heterogeneous_config
+        self.cluster_info['slave_request_type'] = slave_request_type
+        self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
+        self.cluster_info['spot_settings'] = {}
+
+        set_spot_instance_settings()
+        set_stable_spot_bid_settings()
+        set_data_disk()
+        set_monitoring()
+        set_data_disk()
 
     @staticmethod
     def cluster_info_parser(argparser, action):
@@ -305,98 +496,6 @@ class ClusterInfoV2(object):
                                    dest="datadog_app_token",
                                    default=None,
                                    help="overrides for airflow cluster", )
-
-    def set_cluster_info(self,
-                         disallow_cluster_termination=None,
-                         enable_ganglia_monitoring=None,
-                         datadog_api_token=None,
-                         datadog_app_token=None,
-                         node_bootstrap=None,
-                         master_instance_type=None,
-                         slave_instance_type=None,
-                         min_nodes=None,
-                         max_nodes=None,
-                         slave_request_type=None,
-                         fallback_to_ondemand=None,
-                         custom_tags=None,
-                         heterogeneous_config=None,
-                         maximum_bid_price_percentage=None,
-                         timeout_for_request=None,
-                         maximum_spot_instance_percentage=None,
-                         stable_maximum_bid_price_percentage=None,
-                         stable_timeout_for_request=None,
-                         stable_spot_fallback=None,
-                         idle_cluster_timeout=None,
-                         disk_count=None,
-                         disk_type=None,
-                         disk_size=None,
-                         upscaling_config=None,
-                         enable_encryption=None,
-                         customer_ssh_key=None,
-                         cluster_name=None,
-                         force_tunnel=None):
-
-        def set_monitoring():
-            self.monitoring['ganglia'] = enable_ganglia_monitoring
-            set_datadog_setting()
-
-        def set_spot_instance_settings():
-            self.cluster_info['spot_settings']['spot_instance_settings'] = {}
-            self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = \
-                maximum_bid_price_percentage
-            self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
-            self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = \
-                maximum_spot_instance_percentage
-
-        def set_stable_spot_bid_settings():
-            self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
-            self.cluster_info['spot_settings']['stable_spot_bid_settings']['maximum_bid_price_percentage'] = \
-                stable_maximum_bid_price_percentage
-            self.cluster_info['spot_settings']['stable_spot_bid_settings']['timeout_for_request'] = \
-                stable_timeout_for_request
-            self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
-                stable_spot_fallback
-
-        def set_datadog_setting():
-            self.monitoring['datadog'] = {}
-            self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
-            self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
-
-        def set_data_disk():
-            self.cluster_info['datadisk'] = {}
-            self.cluster_info['datadisk']['size'] = disk_size
-            self.cluster_info['datadisk']['count'] = disk_count
-            self.cluster_info['datadisk']['type'] = disk_type
-            self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
-            self.cluster_info['datadisk']['encryption'] = enable_encryption
-
-
-        self.cluster_info['master_instance_type'] = master_instance_type
-        self.cluster_info['slave_instance_type'] = slave_instance_type
-        self.cluster_info['min_nodes'] = min_nodes
-        self.cluster_info['max_nodes'] = max_nodes
-        self.cluster_info['cluster_name'] = cluster_name
-        self.cluster_info['node_bootstrap'] = node_bootstrap
-        self.cluster_info['disallow_cluster_termination'] = disallow_cluster_termination
-        self.cluster_info['force_tunnel'] = force_tunnel
-        self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
-        self.cluster_info['customer_ssh_key'] = customer_ssh_key
-        if custom_tags and custom_tags.strip():
-            try:
-                self.cluster_info['custom_tags'] = json.loads(custom_tags.strip())
-            except Exception as e:
-                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
-
-        self.cluster_info['heterogeneous_config'] = heterogeneous_config
-        self.cluster_info['slave_request_type'] = slave_request_type
-        self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
-        self.cluster_info['spot_settings'] = {}
-
-        set_spot_instance_settings()
-        set_stable_spot_bid_settings()
-        set_data_disk()
-        set_monitoring()
-        set_data_disk()
 
 
 class ClusterV2(Resource):

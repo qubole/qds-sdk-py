@@ -1,4 +1,8 @@
 class OracleBmcCloud:
+    '''
+    qds_sdk.cloud.OracleBmcCloud is the class which stores information about oracle bmc cloud config settings.
+    You can use objects of this class to set oracle_bmc cloud_config settings while create/update/clone a cluster.
+    '''
 
     def __init__(self):
         self.compute_config = {}
@@ -6,9 +10,105 @@ class OracleBmcCloud:
         self.network_config = {}
         self.storage_config = {}
 
+    def set_cloud_config(self,
+                         compute_tenant_id=None,
+                         compute_user_id=None,
+                         compute_key_finger_print=None,
+                         compute_api_private_rsa_key=None,
+                         use_account_compute_creds=None,
+                         subnet_id=None,
+                         oracle_region=None,
+                         oracle_availability_domain=None,
+                         compartment_id=None,
+                         image_id=None,
+                         vcn_id=None,
+                         storage_tenant_id=None,
+                         storage_user_id=None,
+                         storage_key_finger_print=None,
+                         storage_api_private_rsa_key=None):
+        '''
+
+        Args:
+            compute_tenant_id: compute tenant id for oracle cluster
+
+            compute_user_id: compute user id for oracle cluster
+
+            compute_key_finger_print: compute key fingerprint for oracle cluster
+
+            compute_api_private_rsa_key: compute api private rsa key for oracle cluster
+
+            use_account_compute_creds: Set it to true to use the account’s compute
+                credentials for all clusters of the account.The default value is false
+
+            subnet_id: subnet id for oracle
+
+            oracle_region: region to create the cluster in
+
+            oracle_availability_domain: availability zone to create the cluster in
+
+            compartment_id: compartment id for oracle cluster
+
+            image_id: image id for oracle cloud
+
+            vcn_id: vcn to create the cluster in
+
+            storage_tenant_id: tenant id for oracle cluster
+
+            storage_user_id: storage user id for oracle cluster
+
+            storage_key_finger_print: storage key fingerprint for oracle cluster
+
+            storage_api_private_rsa_key: storage api private rsa key for oracle cluster
+
+        '''
+        def set_compute_config():
+            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
+            self.compute_config['compute_tenant_id'] = compute_tenant_id
+            self.compute_config['compute_user_id'] = compute_user_id
+            self.compute_config['compute_key_finger_print'] = compute_key_finger_print
+            self.compute_config['compute_api_private_rsa_key'] = compute_api_private_rsa_key
+
+        def set_location():
+            self.location['region'] = oracle_region
+            self.location['availability_domain'] = oracle_availability_domain
+
+        def set_network_config():
+            self.network_config['vcn_id'] = vcn_id
+            self.network_config['subnet_id'] = subnet_id
+            self.network_config['compartment_id'] = compartment_id
+            self.network_config['image_id'] = image_id
+
+        def set_storage_config():
+            self.storage_config['storage_tenant_id'] = storage_tenant_id
+            self.storage_config['storage_user_id'] = storage_user_id
+            self.storage_config['storage_key_finger_print'] = storage_key_finger_print
+            self.storage_config['storage_api_private_rsa_key'] = storage_api_private_rsa_key
+
+        set_compute_config()
+        set_location()
+        set_network_config()
+        set_storage_config()
+
+    def set_cloud_config_settings(self, arguments):
+        self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
+                              compute_user_id=arguments.compute_user_id,
+                              compute_key_finger_print=arguments.compute_key_finger_print,
+                              compute_api_private_rsa_key=arguments.compute_api_private_rsa_key,
+                              use_account_compute_creds=arguments.use_account_compute_creds,
+                              subnet_id=arguments.subnet_id,
+                              oracle_region=arguments.region,
+                              oracle_availability_domain=arguments.availability_domain,
+                              compartment_id=arguments.compartment_id,
+                              image_id=arguments.image_id,
+                              vcn_id=arguments.vcn_id,
+                              storage_tenant_id=arguments.storage_tenant_id,
+                              storage_user_id=arguments.storage_user_id,
+                              storage_key_finger_print=arguments.storage_key_finger_print,
+                              storage_api_private_rsa_key=arguments.storage_api_private_rsa_key)
+
     def cloud_config_parser(self, argparser):
 
-        # compute settings
+        # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
         compute_creds = compute_config.add_mutually_exclusive_group()
         compute_creds.add_argument("--enable_account_compute_creds",
@@ -38,7 +138,7 @@ class OracleBmcCloud:
                                     default=None,
                                     help="compute api private rsa key for oracle cluster")
 
-        # location settings
+        # location settings parser
         location_group = argparser.add_argument_group("location config settings")
         location_group.add_argument("--oracle-region",
                                     dest="region",
@@ -48,7 +148,7 @@ class OracleBmcCloud:
                                     help="availability zone to" +
                                          " create the cluster in", )
 
-        # network settings
+        # network settings parser
         network_config_group = argparser.add_argument_group("network config settings")
         network_config_group.add_argument("--compartment-id",
                                           dest="compartment_id",
@@ -63,7 +163,7 @@ class OracleBmcCloud:
                                           dest="subnet_id",
                                           help="subnet id for oracle")
 
-        # storage config settings
+        # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
         storage_config.add_argument("--storage-tenant-id",
                                     dest="storage_tenant_id",
@@ -76,71 +176,8 @@ class OracleBmcCloud:
         storage_config.add_argument("--storage-key-finger-print",
                                     dest="storage_key_finger_print",
                                     default=None,
-                                    help="compute key fingerprint for oracle cluster")
+                                    help="storage key fingerprint for oracle cluster")
         storage_config.add_argument("--storage-api-private-rsa-key",
                                     dest="storage_api_private_rsa_key",
                                     default=None,
                                     help="storage api private rsa key for oracle cluster")
-
-    def set_cloud_config_settings(self, arguments):
-        self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
-                              compute_user_id=arguments.compute_user_id,
-                              compute_key_finger_print=arguments.compute_key_finger_print,
-                              compute_api_private_rsa_key=arguments.compute_api_private_rsa_key,
-                              use_account_compute_creds=arguments.use_account_compute_creds,
-                              subnet_id=arguments.subnet_id,
-                              oracle_region=arguments.region,
-                              oracle_availability_domain=arguments.availability_domain,
-                              compartment_id=arguments.compartment_id,
-                              image_id=arguments.image_id,
-                              vcn_id=arguments.vcn_id,
-                              storage_tenant_id=arguments.storage_tenant_id,
-                              storage_user_id=arguments.storage_user_id,
-                              storage_key_finger_print=arguments.storage_key_finger_print,
-                              storage_api_private_rsa_key=arguments.storage_api_private_rsa_key)
-
-    # write comment
-    def set_cloud_config(self,
-                         compute_tenant_id=None,
-                         compute_user_id=None,
-                         compute_key_finger_print=None,
-                         compute_api_private_rsa_key=None,
-                         use_account_compute_creds=None,
-                         subnet_id=None,
-                         oracle_region=None,
-                         oracle_availability_domain=None,
-                         compartment_id=None,
-                         image_id=None,
-                         vcn_id=None,
-                         storage_tenant_id=None,
-                         storage_user_id=None,
-                         storage_key_finger_print=None,
-                         storage_api_private_rsa_key=None):
-
-        def set_compute_config():
-            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
-            self.compute_config['compute_tenant_id'] = compute_tenant_id
-            self.compute_config['compute_user_id'] = compute_user_id
-            self.compute_config['compute_key_finger_print'] = compute_key_finger_print
-            self.compute_config['compute_api_private_rsa_key'] = compute_api_private_rsa_key
-
-        def set_location():
-            self.location['region'] = oracle_region
-            self.location['availability_domain'] = oracle_availability_domain
-
-        def set_network_config():
-            self.network_config['vcn_id'] = vcn_id
-            self.network_config['subnet_id'] = subnet_id
-            self.network_config['compartment_id'] = compartment_id
-            self.network_config['image_id'] = image_id
-
-        def set_storage_config():
-            self.storage_config['storage_tenant_id'] = storage_tenant_id
-            self.storage_config['storage_user_id'] = storage_user_id
-            self.storage_config['storage_key_finger_print'] = storage_key_finger_print
-            self.storage_config['storage_api_private_rsa_key'] = storage_api_private_rsa_key
-
-        set_compute_config()
-        set_location()
-        set_network_config()
-        set_storage_config()

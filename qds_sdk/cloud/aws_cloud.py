@@ -1,13 +1,100 @@
 class AwsCloud():
+    '''
+    qds_sdk.cloud.AwsCloud is the class which stores information about aws cloud config settings.
+    You can use objects of this class to set aws cloud_config settings while create/update/clone a cluster.
+    '''
+
     def __init__(self):
         self.compute_config = {}
         self.location = {}
         self.network_config = {}
         self.storage_config = {}
 
+    def set_cloud_config(self,
+                         compute_access_key=None,
+                         compute_secret_key=None,
+                         use_account_compute_creds=None,
+                         aws_region=None,
+                         aws_availability_zone=None,
+                         role_instance_profile=None,
+                         vpc_id=None,
+                         subnet_id=None,
+                         persistent_security_groups=None,
+                         bastion_node_public_dns=None,
+                         master_elastic_ip=None):
+        '''
+
+        Args:
+            compute_access_key: The access key for customer's aws account. This
+                is required for creating the cluster.
+
+            compute_secret_key: The secret access key for customer's aws
+                account. This is required for creating the cluster.
+
+            use_account_compute_creds: Set it to true to use the account’s compute
+                credentials for all clusters of the account.The default value is false
+
+            aws_region: The AWS region in which the cluster is created. The default value is, us-east-1.
+                Valid values are, us-east-1, us-west-1, us-west-2, eu-west-1, sa-east1, ap-southeast-1,
+                and ap-northeast-1.
+
+            aws_availability_zone: The preferred availability zone in which the cluster must be created. The default value is Any.
+
+            role_instance_profile: IAM Role instance profile to attach on cluster
+
+            vpc_id: The ID of the vpc in which the cluster is created.
+                In this vpc, the enableDnsHostnames parameter must be set to true.
+
+            subnet_id: The ID of the subnet in which the cluster is created. This subnet must belong to the
+                above VPC and it can be a public/private subnet
+
+            persistent_security_groups: security group to associate with each node of the cluster.
+                Typically used to provide access to external hosts
+
+            bastion_node_public_dns: Specify the Bastion host public DNS name if private subnet is provided.
+                Do not specify this value for a public subnet.
+
+            master_elastic_ip: It is the Elastic IP address for attaching to the cluster master
+
+        '''
+
+        def set_compute_config():
+            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
+            self.compute_config['compute_access_key'] = compute_access_key
+            self.compute_config['compute_secret_key'] = compute_secret_key
+            self.compute_config['role_instance_profile'] = role_instance_profile
+
+        def set_location():
+            self.location['aws_region'] = aws_region
+            self.location['aws_availability_zone'] = aws_availability_zone
+
+        def set_network_config():
+            self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
+            self.network_config['persistent_security_groups'] = persistent_security_groups
+            self.network_config['master_elastic_ip'] = master_elastic_ip
+            self.network_config['vpc_id'] = vpc_id
+            self.network_config['subnet_id'] = subnet_id
+
+        set_compute_config()
+        set_location()
+        set_network_config()
+
+    def set_cloud_config_settings(self, arguments):
+        self.set_cloud_config(compute_access_key=arguments.compute_access_key,
+                              compute_secret_key=arguments.compute_secret_key,
+                              use_account_compute_creds=arguments.use_account_compute_creds,
+                              aws_region=arguments.aws_region,
+                              aws_availability_zone=arguments.aws_availability_zone,
+                              role_instance_profile=arguments.role_instance_profile,
+                              vpc_id=arguments.vpc_id,
+                              subnet_id=arguments.subnet_id,
+                              persistent_security_groups=arguments.persistent_security_groups,
+                              bastion_node_public_dns=arguments.bastion_node_public_dns,
+                              master_elastic_ip=arguments.master_elastic_ip)
+
     def cloud_config_parser(self, argparser):
 
-        # compute settings
+        # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
         compute_creds = compute_config.add_mutually_exclusive_group()
         compute_creds.add_argument("--enable_account_compute_creds",
@@ -33,7 +120,7 @@ class AwsCloud():
                                     dest="role_instance_profile",
                                     help="IAM Role instance profile to attach on cluster", )
 
-        # location settings
+        # location settings parser
         location_group = argparser.add_argument_group("location config setttings")
         location_group.add_argument("--aws-region",
                                     dest="aws_region",
@@ -45,7 +132,7 @@ class AwsCloud():
                                     help="availability zone to" +
                                          " create the cluster in", )
 
-        # network settings
+        # network settings parser
         network_config_group = argparser.add_argument_group("network config settings")
         network_config_group.add_argument("--vpc-id",
                                           dest="vpc_id",
@@ -64,56 +151,3 @@ class AwsCloud():
         network_config_group.add_argument("--master-elastic-ip",
                                           dest="master_elastic_ip",
                                           help="master elastic ip for cluster")
-
-
-
-    def set_cloud_config_settings(self, arguments):
-        self.set_cloud_config(compute_access_key=arguments.compute_access_key,
-                              compute_secret_key=arguments.compute_secret_key,
-                              use_account_compute_creds=arguments.use_account_compute_creds,
-                              aws_region=arguments.aws_region,
-                              aws_availability_zone=arguments.aws_availability_zone,
-                              role_instance_profile=arguments.role_instance_profile,
-                              vpc_id=arguments.vpc_id,
-                              subnet_id=arguments.subnet_id,
-                              persistent_security_groups=arguments.persistent_security_groups,
-                              bastion_node_public_dns=arguments.bastion_node_public_dns,
-                              master_elastic_ip=arguments.master_elastic_ip)
-
-
-    # write comment describe parameter
-    def set_cloud_config(self,
-                         compute_access_key=None,
-                         compute_secret_key=None,
-                         use_account_compute_creds=None,
-                         aws_region=None,
-                         aws_availability_zone=None,
-                         role_instance_profile=None,
-                         vpc_id=None,
-                         subnet_id=None,
-                         persistent_security_groups=None,
-                         bastion_node_public_dns=None,
-                         master_elastic_ip=None):
-
-
-        def set_compute_config():
-            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
-            self.compute_config['compute_access_key'] = compute_access_key
-            self.compute_config['compute_secret_key'] = compute_secret_key
-            self.compute_config['role_instance_profile'] = role_instance_profile
-
-        def set_location():
-            self.location['aws_region'] = aws_region
-            self.location['aws_availability_zone'] = aws_availability_zone
-
-
-        def set_network_config():
-            self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
-            self.network_config['persistent_security_groups'] = persistent_security_groups
-            self.network_config['master_elastic_ip'] = master_elastic_ip
-            self.network_config['vpc_id'] = vpc_id
-            self.network_config['subnet_id'] = subnet_id
-
-        set_compute_config()
-        set_location()
-        set_network_config()
