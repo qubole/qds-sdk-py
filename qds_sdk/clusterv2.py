@@ -29,12 +29,12 @@ class ClusterCmdLine:
         update = subparsers.add_parser("update", help="Update the settings of an existing cluster")
         if action == "update":
             ClusterCmdLine.create_update_clone_parser(update, action="update")
-            create.set_defaults(func=ClusterV2.update)
+            update.set_defaults(func=ClusterV2.update)
 
         clone = subparsers.add_parser("clone", help="Clone a cluster from an existing one")
         if action == "clone":
             ClusterCmdLine.create_update_clone_parser(clone, action="clone")
-            create.set_defaults(func=ClusterV2.clone)
+            clone.set_defaults(func=ClusterV2.clone)
 
         return argparser
 
@@ -56,7 +56,6 @@ class ClusterCmdLine:
     def run(args):
         parser = ClusterCmdLine.parsers(args)
         arguments = parser.parse_args(args)
-
         customer_ssh_key = util._read_file(arguments.customer_ssh_key_file, "customer ssh key file")
 
         # This will set cluster info and monitoring settings
@@ -97,7 +96,12 @@ class ClusterCmdLine:
         engine_config.set_engine_config_settings(arguments)
 
         cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
-        return arguments.func(cluster_request)
+
+        action = args[0]
+        if action == "create":
+            return arguments.func(cluster_request)
+        else:
+            return arguments.func(arguments.cluster_id_label, cluster_request)
 
     @staticmethod
     def get_cluster_request_parameters(cluster_info, cloud_config, engine_config):
@@ -108,8 +112,12 @@ class ClusterCmdLine:
         '''
 
         cluster_request = {}
-        cluster_request['cloud_config'] = util._make_minimal(cloud_config.__dict__)
-        cluster_request['engine_config'] = util._make_minimal(engine_config.__dict__)
+        cloud_config = util._make_minimal(cloud_config.__dict__)
+        if bool(cloud_config): cluster_request['cloud_config'] = cloud_config
+
+        engine_config = util._make_minimal(engine_config.__dict__)
+        if bool(engine_config): cluster_request['engine_config'] = engine_config
+
         cluster_request.update(util._make_minimal(cluster_info.__dict__))
         return cluster_request
 
@@ -520,7 +528,7 @@ class ClusterV2(Resource):
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
-    def clone(cls, cluster_id_label, cluster_info, version=None):
+    def clone(cls, cluster_id_label, cluster_info):
         """
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.

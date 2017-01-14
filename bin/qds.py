@@ -18,7 +18,6 @@ from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import *
 from qds_sdk.cloud.cloud import Cloud
-from qds_sdk import util
 
 import os
 import sys
