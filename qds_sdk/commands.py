@@ -267,7 +267,7 @@ class Command(Resource):
                         _download_to_local_oracle(storage_conn, oracle_path, fp, delim=delim,
                                                   skip_data_avail_check=isinstance(self, PrestoCommand))
                 else:
-                    log.info("Large download currently not allowed for %s cloud" % Qubole.cloud)
+                    log.info("Large results download is not supported for %s cloud" % Qubole.cloud)
                     return
             else:
                 fp.write(",".join(r['result_location']))
