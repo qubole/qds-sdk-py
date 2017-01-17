@@ -1,7 +1,4 @@
 from qds_sdk.qubole import Qubole
-from qds_sdk.cloud.aws_cloud import AwsCloud
-from qds_sdk.cloud.azure_cloud import AzureCloud
-from qds_sdk.cloud.oracle_bmc_cloud import OracleBmcCloud
 
 class Cloud:
 
@@ -11,12 +8,15 @@ class Cloud:
         url_path = "about"
         return conn.get(url_path).get("provider")
 
-    @staticmethod
-    def get_cloud_object():
+    @classmethod
+    def get_cloud_object(cls):
         cloud = Qubole.cloud
         if cloud == "azure":
-            return AzureCloud()
+            import qds_sdk.cloud.azure_cloud
+            return qds_sdk.cloud.azure_cloud.AzureCloud()
         elif cloud == "oracle_bmc":
-            return OracleBmcCloud()
+            import qds_sdk.cloud.oracle_bmc_cloud
+            return qds_sdk.cloud.oracle_bmc_cloud.OracleBmcCloud()
         else:
-            return AwsCloud()
+            import qds_sdk.cloud.aws_cloud
+            return qds_sdk.cloud.aws_cloud.AwsCloud()

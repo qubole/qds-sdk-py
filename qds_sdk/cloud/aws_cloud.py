@@ -1,4 +1,5 @@
-class AwsCloud():
+from qds_sdk.cloud.cloud import Cloud
+class AwsCloud(Cloud):
     '''
     qds_sdk.cloud.AwsCloud is the class which stores information about aws cloud config settings.
     You can use objects of this class to set aws cloud_config settings while create/update/clone a cluster.

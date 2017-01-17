@@ -43,7 +43,8 @@ class ClusterCmdLine:
     def create_update_clone_parser(subparser, action=None):
 
         # cloud config parser
-        Cloud.get_cloud_object().cloud_config_parser(subparser)
+        cloud = Cloud.get_cloud_object()
+        cloud.cloud_config_parser(subparser)
 
         # cluster info parser
         ClusterInfoV2.cluster_info_parser(subparser, action)

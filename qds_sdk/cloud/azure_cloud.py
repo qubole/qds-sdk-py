@@ -1,4 +1,5 @@
-class AzureCloud:
+from qds_sdk.cloud.cloud import Cloud
+class AzureCloud(Cloud):
     '''
     qds_sdk.cloud.AzureCloud is the class which stores information about azure cloud config settings.
     You can use objects of this class to set azure cloud_config settings while create/update/clone a cluster.
