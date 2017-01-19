@@ -43,7 +43,8 @@ usage_str = (
     "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbimportcmd|dbtapquerycmd|sparkcmd> <action>\n"
     "    submit [cmd-specific-args .. ] : submit cmd & print id\n"
     "    run [cmd-specific-args .. ] : submit cmd & wait. print results\n"
-    "    check <id> : print the cmd object for this id\n"
+    "    check <id> <include-query-properties> : id -> print the cmd object for this id\n"
+    "                                            include-query-properties -> to include query properties(true/false)\n"
     "    cancel <id> : cancels the cmd with this id\n"
     "    getresult <id> : get the results for the cmd with this id\n"
     "    getlog <id> : get the logs for the cmd with this id\n"
@@ -134,9 +135,18 @@ def runaction(cmdclass, args):
 
 
 def checkaction(cmdclass, args):
-    checkargs_id(args)
-    o = cmdclass.find(args.pop(0))
-    print(str(o))
+    if len(args) > 2:
+        sys.stderr.write("expecting not more than 2 arguments\n")
+        usage()
+
+    conn = Qubole.agent()
+    id = args.pop(0)
+    include_query_properties="false"
+    if len(args) == 1:
+        include_query_properties=args.pop(0)
+
+    r = conn.get(cmdclass.element_path(id), {'include_query_properties': include_query_properties})
+    print(str(r))
     return 0
 
 
