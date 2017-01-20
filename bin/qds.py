@@ -519,7 +519,7 @@ def main():
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
     optparser.add_option("--cloud", dest="cloud",
-                         default=os.getenv('QDS_API_VERSION'),
+                         default=os.getenv('QDS_CLOUD'),
                          help="cloud", choices=["aws", "azure", "oracle_bmc"])
 
     optparser.add_option("-v", dest="verbose", action="store_true",
