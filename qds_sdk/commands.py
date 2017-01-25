@@ -427,7 +427,7 @@ class SqlCommand(Command):
 class SparkCommand(Command):
 
     usage = ("sparkcmd <submit|run> [options]")
-    allowedlanglist = ["python", "scala","R", "notebook"]
+    allowedlanglist = ["python", "scala","R"]
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
