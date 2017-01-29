@@ -14,8 +14,6 @@ from qds_sdk.util import OptionParsingError
 from qds_sdk.util import OptionParsingExit
 from optparse import SUPPRESS_HELP
 
-from oraclebmc import Config
-from oraclebmc.apis import ObjectStorageApi
 import boto
 import time
 import logging
@@ -250,22 +248,28 @@ class Command(Resource):
                                            skip_data_avail_check=isinstance(self, PrestoCommand))
 
                 elif Qubole.cloud == 'oracle_bmc':
-                    oracle_config = Config()
-                    oracle_config.user = storage_credentials.get('storage_config').get('user_id')
-                    oracle_config.tenancy = storage_credentials.get('storage_config').get('tenant_id')
-                    oracle_config.fingerprint = storage_credentials.get('storage_config').get('key_finger_print')
+                    import oraclebmc
                     private_key = storage_credentials.get('storage_config').get('api_private_rsa_key')
                     private_key_file_path = "/tmp/" + uuid.uuid4().hex
                     with open(private_key_file_path, 'w+') as private_key_file:
                         private_key_file.write(private_key)
                     os.chmod(private_key_file_path, 0o744)
-                    oracle_config.key_file = private_key_file_path
-                    storage_conn = ObjectStorageApi(oracle_config)
+                    oracle_config = {"user" : storage_credentials.get('storage_config').get('user_id'),
+                                     "key_file" : private_key_file_path,
+                                     "fingerprint" : storage_credentials.get('storage_config').get('key_finger_print'),
+                                     "tenancy" : storage_credentials.get('storage_config').get('tenant_id'),
+                                     "region": "us-phoenix-1",  # just now added us-phoenix-1 , have to change api to get this param
+                                     "pass_phrase": None,
+                                     "additional_user_agent": "",
+                                     "log_requests": False
+                                     }
+                    object_storage = oraclebmc.object_storage.ObjectStorageClient(oracle_config)
                     log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                     num_result_dir = Command.find(self.id).num_result_dir
                     for oracle_path in r['result_location']:
-                        _download_to_local_oracle(storage_conn, oracle_path, fp, delim=delim,
+                        _download_to_local_oracle(object_storage, oracle_path, fp, delim=delim,
                                                   skip_data_avail_check=isinstance(self, PrestoCommand))
+
                 else:
                     log.info("Large results download is not supported for %s cloud" % Qubole.cloud)
                     return
@@ -1405,8 +1409,8 @@ def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None,skip_dat
     try:
         m = Oracle_URI_RE.match(oracle_path)
         bucket_name = m.group(1)
-        namespace_name = m.group(2)[1:]
         object_name = m.group(3)
+        namespace_name = storage_conn.get_namespace().data
         if oracle_path.endswith('/') is False:
 
             response = storage_conn.get_object(namespace_name, bucket_name, object_name)
