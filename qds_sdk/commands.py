@@ -29,6 +29,7 @@ log = logging.getLogger("qds_commands")
 # Pattern matcher for s3 path
 _URI_RE = re.compile(r's3://([^/]+)/?(.*)')
 Oracle_URI_RE = re.compile(r'oraclebmc://([^@]+)([^/]+)/?(.*)')
+Azure_URI_RE = re.compile(r'wasb://([^@]+)([^/]+)/?(.*)')
 
 class Command(Resource):
 
@@ -268,6 +269,17 @@ class Command(Resource):
                     num_result_dir = Command.find(self.id).num_result_dir
                     for oracle_path in r['result_location']:
                         _download_to_local_oracle(object_storage, oracle_path, fp, delim=delim,
+                                                  skip_data_avail_check=isinstance(self, PrestoCommand))
+
+                elif Qubole.cloud == 'azure':
+                    from azure.storage.blob import BlockBlobService
+                    account_name = storage_credentials.get('storage_config').get('account_name')
+                    account_key = storage_credentials.get('storage_config').get('access_key')
+                    block_blob_service = BlockBlobService(account_name=account_name, account_key=account_key)
+                    log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
+                    num_result_dir = Command.find(self.id).num_result_dir
+                    for azure_path in r['result_location']:
+                        _download_to_local_azure(block_blob_service, azure_path, fp, delim=delim,
                                                   skip_data_avail_check=isinstance(self, PrestoCommand))
 
                 else:
@@ -1439,6 +1451,60 @@ def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None,skip_dat
         raise Exception("Not able to download results: %s" % e.message)
 
 
+def _download_to_local_azure(blob_service, azure_path, fp, delim=None, skip_data_avail_check=False):
+    def get_contents_to_file_using_delim():
+        if sys.version_info < (3, 0, 0):
+            fp.write(str(content).replace(chr(1), delim))
+        else:
+            import io
+            if isinstance(fp, io.TextIOBase):
+                fp.buffer.write(content.decode('utf-8').replace(chr(1), delim).encode('utf8'))
+            elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                fp.write(content.decode('utf8').replace(chr(1), delim).encode('utf8'))
+            else:
+                # Can this happen? Don't know what's the right thing to do in this case.
+                pass
+
+    def get_contents_to_file_azure():
+        if sys.version_info < (3, 0, 0):
+            fp.write(content.encode('utf8'))
+        else:
+            import io
+            if isinstance(fp, io.TextIOBase):
+                fp.buffer.write(content.encode('utf8'))
+            elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                fp.write(content.encode('utf8'))
+            else:
+                # Can this happen? Don't know what's the right thing to do in this case.
+                pass
 
 
+    try:
+        m = Azure_URI_RE.match(azure_path)
+        container_name = m.group(1)
+        blob_name = m.group(3)
+        if azure_path.endswith('/') is False:
 
+            response = blob_service.get_blob_to_bytes(container_name, blob_name)
+            content = response.content
+
+            if delim is not None:
+                get_contents_to_file_using_delim()
+            else:
+                get_contents_to_file_azure()
+        else:
+            # Write check for results if incomplete data available
+            # For folders
+            list = blob_service.list_blobs(container_name, prefix=blob_name)
+            for blob in list:
+                name = blob.name
+                if name.endswith('/') is False:
+                    log.info("Downloading file from %s" % name)
+                    response = blob_service.get_blob_to_bytes(container_name, name)
+                    content = response.content
+                    if delim is not None:
+                        get_contents_to_file_using_delim()
+                    else:
+                        get_contents_to_file_azure()
+    except Exception as e:
+        raise Exception("Not able to download results: %s" % e.message)
