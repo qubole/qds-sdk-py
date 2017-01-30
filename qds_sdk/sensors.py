@@ -22,15 +22,24 @@ class Sensor(Resource):
 
     @classmethod
     def check(cls, data):
+        """
+        Method to call the sensors api with json payload
+        :param data: valid json object
+        :return: True or False
+        """
         conn = Qubole.agent()
         return conn.post(cls.rest_entity_path, data=data)['status']
 
     @classmethod
     def check_cli(cls, args):
+        """
+        Method to call check after parsing args from cli
+        :param args: inline arguments
+        :return: True or False
+        """
         parser = cls.parsers()
         parsed = parser.parse_args(args)
-        conn = Qubole.agent()
-        return conn.post(cls.rest_entity_path, data=json.loads(parsed.data))['status']
+        return cls.check(json.loads(parsed.data))
 
     @classmethod
     def parsers(cls):
