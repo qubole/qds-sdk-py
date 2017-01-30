@@ -3,7 +3,7 @@ import sys
 from setuptools import setup
 from subprocess import call
 
-INSTALL_REQUIRES = ['requests >=1.0.3', 'boto >=2.1.1', 'six >=1.2.0', 'urllib3 >= 1.0.2', 'inflection >= 0.3.1']
+INSTALL_REQUIRES = ['requests >=1.0.3', 'boto >=2.1.1', 'six >=1.2.0', 'urllib3 >= 1.0.2', 'inflection >= 0.3.1', 'azure==2.0.0rc6']
 
 # This is just a temporary change as the python SDK is not public in PyPI so using subprocess to download and install it
 def install_oracle_bmc_sdk():
