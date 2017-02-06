@@ -92,5 +92,5 @@ class Qubole:
 
     @classmethod
     def get_cloud(cls):
-        return Connection(cls._auth, cls.baseurl.rstrip("/").replace(cls.baseurl.rstrip("/").split("/")[-1], "")
-                          , cls.skip_ssl_cert_check).get("provider")
+        return Connection(cls._auth, cls.baseurl.rstrip('/').split('api')[0], cls.skip_ssl_cert_check)\
+            .get(path='/about').get('provider')
