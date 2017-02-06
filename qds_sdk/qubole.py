@@ -1,5 +1,6 @@
 import requests
 import logging
+import re
 from qds_sdk.connection import Connection
 from qds_sdk.exception import ConfigError
 
@@ -92,5 +93,9 @@ class Qubole:
 
     @classmethod
     def get_cloud(cls):
-        return Connection(cls._auth, cls.baseurl.rstrip('/').split('api')[0], cls.skip_ssl_cert_check)\
-            .get(path='/about').get('provider')
+        about_env = Connection(cls._auth, re.sub('api$','',cls.baseurl.rstrip('/')), cls.skip_ssl_cert_check)\
+                .get(path='/about')
+        if about_env is not None and type(about_env) is dict:
+            return about_env.get('provider')
+        else:
+            return 'aws'
