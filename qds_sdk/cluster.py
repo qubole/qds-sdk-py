@@ -399,6 +399,14 @@ class Cluster(Resource):
                                         dest="compute_secret_key",
                                         default=None,
                                         help="secret key for aws cluster")
+            compute_config.add_argument("--compute-external-id",
+                                        dest="compute_external_id",
+                                        default=None,
+                                        help="external id for aws cluster")
+            compute_config.add_argument("--compute-role-arn",
+                                        dest="compute_role_arn",
+                                        default=None,
+                                        help="role arn for aws cluster")
             compute_config.add_argument("--use-account-compute-creds",
                                         dest="use_account_compute_creds",
                                         default=None,
@@ -524,6 +532,9 @@ class Cluster(Resource):
             network_config_group.add_argument("--master-elastic-ip",
                                               dest="master_elastic_ip",
                                               help="master elastic ip for cluster")
+            network_config_group.add_argument("--vcn-id",
+                                              dest="vcn_id",
+                                              help="vcn for oracle", )
             network_config_group.add_argument("--compartment-id",
                                               dest="compartment_id",
                                               help="compartment id for oracle cluster")
@@ -1446,6 +1457,8 @@ class ClusterInfoV2(object):
                             use_account_compute_creds=None,
                             compute_access_key=None,
                             compute_secret_key=None,
+                            compute_external_id=None,
+                            compute_role_arn = None,
                             role_instance_profile=None,
                             compute_tenant_id=None,
                             compute_subscription_id=None,
@@ -1461,6 +1474,8 @@ class ClusterInfoV2(object):
         self.cloud_config['compute_config']['compute_access_key'] = compute_access_key
         self.cloud_config['compute_config']['compute_secret_key'] = compute_secret_key
         self.cloud_config['compute_config']['role_instance_profile'] = role_instance_profile
+        self.cloud_config['compute_config']['compute_external_id'] = compute_external_id
+        self.cloud_config['compute_config']['compute_role_arn'] = compute_role_arn
 
         self.cloud_config['compute_config']['compute_tenant_id'] = compute_tenant_id
         self.cloud_config['compute_config']['compute_subscription_id'] = compute_subscription_id
@@ -1490,6 +1505,7 @@ class ClusterInfoV2(object):
                             vnet_name =None,
                             subnet_name=None,
                             vnet_resource_group_name=None,
+                            vcn_id=None,
                             compartment_id=None,
                             image_id=None):
         self.cloud_config['network_config'] = {}
@@ -1504,6 +1520,7 @@ class ClusterInfoV2(object):
         self.cloud_config['network_config']['subnet_name'] = subnet_name
         self.cloud_config['network_config']['vnet_resource_group_name'] = vnet_resource_group_name
 
+        self.cloud_config['network_config']['vcn_id'] = vcn_id
         self.cloud_config['network_config']['compartment_id'] = compartment_id
         self.cloud_config['network_config']['image_id'] = image_id
 
@@ -1665,6 +1682,8 @@ class ClusterInfoV2(object):
                         compute_tenant_id=None,
                         compute_access_key=None,
                         compute_secret_key=None,
+                        compute_external_id=None,
+                        compute_role_arn=None,
                         compute_user_id=None,
                         compute_key_finger_print=None,
                         compute_api_private_rsa_key=None,
@@ -1682,6 +1701,7 @@ class ClusterInfoV2(object):
                         master_elastic_ip=None,
                         subnet_name=None,
                         vnet_resource_group_name=None,
+                        vcn_id=None,
                         compartment_id=None,
                         image_id=None,
                         vnet_name=None,
@@ -1738,6 +1758,8 @@ class ClusterInfoV2(object):
                                 use_account_compute_creds,
                                 compute_access_key,
                                 compute_secret_key,
+                                compute_external_id,
+                                compute_role_arn,
                                 role_instance_profile,
                                 compute_tenant_id,
                                 compute_subscription_id,
@@ -1756,6 +1778,7 @@ class ClusterInfoV2(object):
                                 vnet_name,
                                 subnet_name,
                                 vnet_resource_group_name,
+                                vcn_id,
                                 compartment_id,
                                 image_id)
         self.set_storage_config(storage_access_key,

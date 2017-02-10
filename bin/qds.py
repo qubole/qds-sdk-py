@@ -238,6 +238,8 @@ def _create_cluster_info(arguments, api_version):
         cluster_info = ClusterInfoV2(arguments.label, api_version)
         cluster_info.set_cluster_info(compute_access_key=arguments.compute_access_key,
                                       compute_secret_key=arguments.compute_secret_key,
+                                      compute_external_id=arguments.compute_external_id,
+                                      compute_role_arn=arguments.compute_role_arn,
                                       compute_client_id=arguments.compute_client_id,
                                       compute_client_secret=arguments.compute_client_secret,
                                       compute_subscription_id=arguments.compute_subscription_id,
@@ -295,6 +297,7 @@ def _create_cluster_info(arguments, api_version):
                                       vnet_name=arguments.vnet_name,
                                       subnet_name=arguments.subnet_name,
                                       vnet_resource_group_name=arguments.vnet_resource_group_name,
+                                      vcn_id=arguments.vcn_id,
                                       master_elastic_ip=arguments.master_elastic_ip
                                       )
     elif api_version == 1.3:
