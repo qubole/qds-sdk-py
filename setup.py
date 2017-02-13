@@ -3,7 +3,7 @@ import sys
 from setuptools import setup
 from subprocess import call
 
-INSTALL_REQUIRES = ['requests >=1.0.3', 'boto >=2.1.1', 'six >=1.2.0', 'urllib3 >= 1.0.2', 'inflection >= 0.3.1']
+INSTALL_REQUIRES = ['boto >=2.1.1', 'six >=1.2.0', 'urllib3 >= 1.0.2', 'inflection >= 0.3.1']
 
 if sys.version_info < (2, 7, 0):
     INSTALL_REQUIRES.append('argparse>=1.1')
@@ -12,7 +12,11 @@ if sys.version_info >= (2,7,0):
     INSTALL_REQUIRES.append('azure==2.0.0rc6')
 
 if sys.version_info == (2,7,5) or sys.version_info >= (3,5,0):
+    INSTALL_REQUIRES.append('requests==2.11.1')
     INSTALL_REQUIRES.append('oraclebmc==1.1.0')
+else:
+    INSTALL_REQUIRES.append('requests >=1.0.3')
+
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
