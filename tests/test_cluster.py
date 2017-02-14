@@ -2347,5 +2347,22 @@ class TestClusterManageCommands(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+class TestClusterACL(QdsCliTestCase):
+    def test_get_object_policy(self):
+        sys.argv = ['qds.py', 'cluster', 'object_policy', 'get', '--cluster-id', '1001']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'object_policy/get_object_policy', params ={'source_id':'1001',
+                                                                                                   'source_type':'Cluster'})
+
+    def test_update_object_policy(self):
+        sys.argv = ['qds.py', 'cluster', 'object_policy', 'update', '--cluster-id', '1001', '--policy', '{JSON format policy}']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'object_policy/update_object_policy', {'source_id':'1001',
+                                                                                              'source_type':'Cluster',
+                                                                                              'policy':'{JSON format policy}'})
 if __name__ == '__main__':
     unittest.main()
