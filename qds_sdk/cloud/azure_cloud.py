@@ -2,7 +2,7 @@ from qds_sdk.cloud.cloud import Cloud
 class AzureCloud(Cloud):
     '''
     qds_sdk.cloud.AzureCloud is the class which stores information about azure cloud config settings.
-    You can use objects of this class to set azure cloud_config settings while create/update/clone a cluster.
+    The objects of this class can be use to set azure cloud_config settings while create/update/clone a cluster.
     '''
 
     def __init__(self):
@@ -114,12 +114,9 @@ class AzureCloud(Cloud):
                               storage_account_name=arguments.storage_account_name,
                               disk_storage_account_name=arguments.disk_storage_account_name,
                               disk_storage_account_resource_group_name=arguments.disk_storage_account_resource_group_name,
-                              persistent_security_groups=arguments.persistent_security_groups,
-                              bastion_node_public_dns=arguments.bastion_node_public_dns,
                               vnet_name=arguments.vnet_name,
                               subnet_name=arguments.subnet_name,
-                              vnet_resource_group_name=arguments.vnet_resource_group_name,
-                              master_elastic_ip=arguments.master_elastic_ip)
+                              vnet_resource_group_name=arguments.vnet_resource_group_name)
 
     def cloud_config_parser(self, argparser):
 
@@ -173,18 +170,6 @@ class AzureCloud(Cloud):
         network_config_group.add_argument("--vnet-resource-group-name",
                                           dest="vnet_resource_group_name",
                                           help="vnet resource group name for azure")
-        network_config_group.add_argument("--bastion-node-public-dns",
-                                          dest="bastion_node_public_dns",
-                                          help="public dns name of the bastion node. "
-                                               "Required only if cluster is in private subnet of a EC2-VPC", )
-        network_config_group.add_argument("--persistent-security-groups",
-                                          dest="persistent_security_groups",
-                                          help="a security group to associate with each" +
-                                               " node of the cluster. Typically used" +
-                                               " to provide access to external hosts", )
-        network_config_group.add_argument("--master-elastic-ip",
-                                          dest="master_elastic_ip",
-                                          help="master elastic ip for cluster")
 
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")

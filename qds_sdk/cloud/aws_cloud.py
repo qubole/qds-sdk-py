@@ -2,7 +2,7 @@ from qds_sdk.cloud.cloud import Cloud
 class AwsCloud(Cloud):
     '''
     qds_sdk.cloud.AwsCloud is the class which stores information about aws cloud config settings.
-    You can use objects of this class to set aws cloud_config settings while create/update/clone a cluster.
+    The objects of this class can be used to set aws cloud_config settings while create/update/clone a cluster.
     '''
 
     def __init__(self):
@@ -146,7 +146,7 @@ class AwsCloud(Cloud):
                                           help="public dns name of the bastion node. Required only if cluster is in private subnet of a EC2-VPC", )
         network_config_group.add_argument("--persistent-security-groups",
                                           dest="persistent_security_groups",
-                                          help="a security group to associate with each" +
+                                          help="a security group to attach with each" +
                                                " node of the cluster. Typically used" +
                                                " to provide access to external hosts", )
         network_config_group.add_argument("--master-elastic-ip",

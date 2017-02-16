@@ -8,8 +8,8 @@ class Cloud:
         url_path = "about"
         return conn.get(url_path).get("provider")
 
-    @classmethod
-    def get_cloud_object(cls):
+    @staticmethod
+    def get_cloud_object():
         cloud = Qubole.cloud
         if cloud == "azure":
             import qds_sdk.cloud.azure_cloud

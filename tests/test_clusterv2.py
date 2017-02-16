@@ -91,7 +91,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_oracle_bmc_compute_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'oracle_bmc', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--compute-tenant-id', 'xxx11', '--compute-user-id', 'yyyy11', '--compute-key-finger-print',
                     'zzz22', '--compute-api-private-rsa-key', 'aaa']
         print_command()
@@ -105,7 +105,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_oracle_bmc_storage_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'oracle_bmc', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--storage-tenant-id', 'xxx11', '--storage-user-id', 'yyyy11', '--storage-key-finger-print',
                     'zzz22', '--storage-api-private-rsa-key', 'aaa']
         print_command()
@@ -120,7 +120,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_oracle_bmc_network_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'oracle_bmc', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--compartment-id', 'abc-compartment', '--image-id', 'abc-image', '--vcn-id', 'vcn-1',
                     '--subnet-id', 'subnet-1' ]
         print_command()
@@ -134,7 +134,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_oracle_bmc_location_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'oracle_bmc', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--oracle-region', 'us-phoenix-1', '--oracle-availability-zone', 'phx-ad-1']
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -145,7 +145,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_azure_compute_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'azure', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
                     '--compute-client-id', 'testclientid', '--compute-client-secret', 'testclientsecret',
                     '--compute-tenant-id', 'testtenantid', '--compute-subscription-id', 'testsubscriptionid',
                     '--disable_account_compute_creds']
@@ -163,7 +163,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                     'cluster_info': {'label': ['test_label']}})
 
     def test_azure_storage_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'azure', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
                     '--storage-access-key', 'testkey', '--storage-account-name', 'test_account_name',
                     '--disk-storage-account-name', 'testaccname', '--disk-storage-account-resource-group-name',
                     'testgrpname']
@@ -183,7 +183,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                  })
 
     def test_azure_network_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'azure', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
                     '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
                     '--vnet-resource-group-name', 'vnetresname']
         print_command()
@@ -295,7 +295,7 @@ class TestClusterUpdate(QdsCliTestCase):
 
 
     def test_azure_cloud_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'azure', 'cluster', 'update', '123',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'update', '123',
                     '--vnet-name', 'testvnet', '--storage-account-name', 'test_account_name',
                     '--compute-subscription-id', 'testsubscriptionid']
         print_command()
@@ -307,7 +307,7 @@ class TestClusterUpdate(QdsCliTestCase):
                                                                                          'network_config': {'vnet_name': 'testvnet'}}})
 
     def test_oracle_bmc_cloud_config(self):
-        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'oracle_bmc', 'cluster', 'update', '123',
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'update', '123',
                     '--oracle-region', 'us-phoenix-1', '--compartment-id', 'abc-compartment',
                     '--storage-tenant-id', 'xxx11', '--compute-user-id', 'yyyy11']
         print_command()

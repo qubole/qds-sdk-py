@@ -444,8 +444,7 @@ def clustermain(args, api_version):
     else:
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
-def clustermainv2(args, api_version):
-    Qubole.version = "v2"
+def clustermainv2(args):
     result = ClusterCmdLine.run(args)
     print(result)
 
@@ -520,7 +519,7 @@ def main():
 
     optparser.add_option("--cloud", dest="cloud",
                          default=os.getenv('QDS_CLOUD'),
-                         help="cloud", choices=["aws", "azure", "oracle_bmc"])
+                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC"])
 
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
@@ -585,7 +584,7 @@ def main():
     if a0 == "cluster":
         api_version_number = float(options.api_version[1:])
         if api_version_number >= 2.0:
-            return clustermainv2(args, api_version_number)
+            return clustermainv2(args)
         else:
             return clustermain(args, api_version_number)
 

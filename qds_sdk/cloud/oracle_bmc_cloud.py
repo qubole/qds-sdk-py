@@ -2,7 +2,7 @@ from qds_sdk.cloud.cloud import Cloud
 class OracleBmcCloud(Cloud):
     '''
     qds_sdk.cloud.OracleBmcCloud is the class which stores information about oracle bmc cloud config settings.
-    You can use objects of this class to set oracle_bmc cloud_config settings while create/update/clone a cluster.
+    The objects of this class can be used to set oracle_bmc cloud_config settings while create/update/clone a cluster.
     '''
 
     def __init__(self):
