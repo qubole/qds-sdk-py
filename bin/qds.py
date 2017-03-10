@@ -205,7 +205,7 @@ def cmdmain(cmd, args):
 
 def sensormain(sensor, args):
     sensorclass = SensorClasses[sensor]
-    print(sensorclass.check_cli(args))
+    print(SensorCmdLine.check(sensorclass, args))
     return 0
 
 

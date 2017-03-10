@@ -14,6 +14,33 @@ import json
 log = logging.getLogger("qds_sensors")
 
 
+class SensorCmdLine:
+
+    @staticmethod
+    def check(cls, args):
+        """
+        Method to call Sensor.check after parsing args from cmdline
+        :param cls: sensor class
+        :param args: inline arguments
+        :return: True or False
+        """
+        parser = SensorCmdLine.parsers(cls)
+        parsed = parser.parse_args(args)
+        return cls.check(json.loads(parsed.data))
+
+    @staticmethod
+    def parsers(cls):
+        argparser = ArgumentParser(prog=cls.usage, description=cls.description)
+        subparsers = argparser.add_subparsers()
+
+        #Check
+        check = subparsers.add_parser("check", help="Check a Sensor")
+        check.add_argument("-d", "--data", dest="data", required=True,
+                           help="String containing a valid json object")
+        check.set_defaults(func=Sensor.check)
+        return argparser
+
+
 class Sensor(Resource):
     """
     qds_sdk.Sensor is the base Qubole sensor class. Different types of Qubole
@@ -29,29 +56,6 @@ class Sensor(Resource):
         """
         conn = Qubole.agent()
         return conn.post(cls.rest_entity_path, data=data)['status']
-
-    @classmethod
-    def check_cli(cls, args):
-        """
-        Method to call check after parsing args from cli
-        :param args: inline arguments
-        :return: True or False
-        """
-        parser = cls.parsers()
-        parsed = parser.parse_args(args)
-        return cls.check(json.loads(parsed.data))
-
-    @classmethod
-    def parsers(cls):
-        argparser = ArgumentParser(prog=cls.usage, description=cls.description)
-        subparsers = argparser.add_subparsers()
-
-        #Check
-        check = subparsers.add_parser("check", help="Check a Sensor")
-        check.add_argument("-d", "--data", dest="data", required=True,
-                           help="String containing a valid json object")
-        check.set_defaults(func=Sensor.check)
-        return argparser
 
 
 class FileSensor(Sensor):
