@@ -204,8 +204,8 @@ def cmdmain(cmd, args):
 
 
 def sensormain(sensor, args):
-    sensorclass = SensorClasses[sensor]
-    print(SensorCmdLine.check(sensorclass, args))
+    sensor_class = SensorClasses[sensor]
+    print(SensorCmdLine.check(sensor_class, args))
     return 0
 
 

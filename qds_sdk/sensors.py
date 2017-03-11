@@ -17,20 +17,20 @@ log = logging.getLogger("qds_sensors")
 class SensorCmdLine:
 
     @staticmethod
-    def check(cls, args):
+    def check(sensor_class, args):
         """
         Method to call Sensor.check after parsing args from cmdline
-        :param cls: sensor class
+        :param sensor_class: sensor class
         :param args: inline arguments
         :return: True or False
         """
-        parser = SensorCmdLine.parsers(cls)
+        parser = SensorCmdLine.parsers(sensor_class)
         parsed = parser.parse_args(args)
-        return cls.check(json.loads(parsed.data))
+        return sensor_class.check(json.loads(parsed.data))
 
     @staticmethod
-    def parsers(cls):
-        argparser = ArgumentParser(prog=cls.usage, description=cls.description)
+    def parsers(sensor_class):
+        argparser = ArgumentParser(prog=sensor_class.usage, description=sensor_class.description)
         subparsers = argparser.add_subparsers()
 
         #Check
