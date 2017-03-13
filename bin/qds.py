@@ -16,6 +16,7 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
+from qds_sdk.sensors import *
 
 import os
 import sys
@@ -35,6 +36,11 @@ CommandClasses = {
     "dbexportcmd": DbExportCommand,
     "dbimportcmd": DbImportCommand,
     "prestocmd": PrestoCommand
+}
+
+SensorClasses = {
+    "filesensor": FileSensor,
+    "partitionsensor": PartitionSensor
 }
 
 usage_str = (
@@ -86,7 +92,9 @@ usage_str = (
     "\nNezha subcommand:\n"
     "  nezha --help\n"
     "\nUser subcommad:\n"
-    "  user --help\n")
+    "  user --help\n"
+    "\nSensor subcommand:\n"
+    " <filesensor|partitionsensor> --help\n")
 
 
 def usage(parser=None):
@@ -195,6 +203,12 @@ def cmdmain(cmd, args):
     return globals()[action + "action"](cmdclass, args)
 
 
+def sensormain(sensor, args):
+    sensor_class = SensorClasses[sensor]
+    print(SensorCmdLine.check(sensor_class, args))
+    return 0
+
+
 def checkargs_cluster_id_label(args):
     if len(args) != 1:
         sys.stderr.write("expecting single argument cluster id or cluster label\n")
@@ -238,6 +252,7 @@ def _create_cluster_info(arguments, api_version):
                                       aws_availability_zone=arguments.aws_availability_zone,
                                       vpc_id=arguments.vpc_id,
                                       subnet_id=arguments.subnet_id,
+                                      master_elastic_ip=arguments.master_elastic_ip,
                                       disallow_cluster_termination=arguments.disallow_cluster_termination,
                                       enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
                                       node_bootstrap_file=arguments.node_bootstrap_file,
@@ -270,7 +285,8 @@ def _create_cluster_info(arguments, api_version):
                                       enable_presto=arguments.enable_presto,
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
                                       role_instance_profile=arguments.role_instance_profile,
-                                      presto_custom_config=presto_custom_config)
+                                      presto_custom_config=presto_custom_config,
+                                      is_ha=arguments.is_ha)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,
@@ -283,6 +299,7 @@ def _create_cluster_info(arguments, api_version):
                                       arguments.aws_availability_zone,
                                       arguments.vpc_id,
                                       arguments.subnet_id,
+                                      arguments.master_elastic_ip,
                                       arguments.role_instance_profile,
                                       arguments.bastion_node_public_dns)
 
@@ -295,7 +312,8 @@ def _create_cluster_info(arguments, api_version):
                                          arguments.use_hbase,
                                          arguments.custom_ec2_tags,
                                          arguments.use_hadoop2,
-                                         arguments.use_spark)
+                                         arguments.use_spark,
+                                         arguments.is_ha)
 
         cluster_info.set_spot_instance_settings(
               arguments.maximum_bid_price_percentage,
@@ -555,6 +573,9 @@ def main():
     a0 = args.pop(0)
     if a0 in CommandClasses:
         return cmdmain(a0, args)
+
+    if a0 in SensorClasses:
+        return sensormain(a0, args)
 
     if a0 == "account":
         return accountmain(args)

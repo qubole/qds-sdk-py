@@ -436,6 +436,8 @@ class SparkCommand(Command):
 
     optparser.add_option("--sql", dest="sql", help="sql for Spark")
 
+    optparser.add_option("--note-id", dest="note_id", help="Id of the Notebook to run.")
+
     optparser.add_option("-f", "--script_location", dest="script_location",
                          help="Path where spark program to run is stored. Has to be a local file path")
 
@@ -468,12 +470,12 @@ class SparkCommand(Command):
     @classmethod
     def validate_program(cls, options):
         bool_program = options.program is not None
-        bool_other_options = options.script_location is not None or options.cmdline is not None or options.sql is not None
+        bool_other_options = options.script_location is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
         # if both are false then no option is specified ==> raise ParseError
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_program == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
         if bool_program:
             if options.language is None:
                 raise ParseError("Unspecified language for Program", cls.optparser.format_help())
@@ -481,12 +483,12 @@ class SparkCommand(Command):
     @classmethod
     def validate_cmdline(cls, options):
         bool_cmdline = options.cmdline is not None
-        bool_other_options = options.script_location is not None or options.program is not None or options.sql is not None
+        bool_other_options = options.script_location is not None or options.program is not None or options.sql is not None or options.note_id is not None
 
         # if both are false then no option is specified ==> raise ParseError
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_cmdline == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
         if bool_cmdline:
             if options.language is not None:
                 raise ParseError("Language cannot be specified with the commandline option", cls.optparser.format_help())
@@ -496,12 +498,12 @@ class SparkCommand(Command):
     @classmethod
     def validate_sql(cls, options):
         bool_sql = options.sql is not None
-        bool_other_options = options.script_location is not None or options.program is not None or options.cmdline is not None
+        bool_other_options = options.script_location is not None or options.program is not None or options.cmdline is not None or options.note_id is not None
 
         # if both are false then no option is specified => raise PraseError
         # if both are true then atleast two option specified => raise ParseError
         if bool_sql == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
         if bool_sql:
             if options.language is not None:
                 raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
@@ -509,12 +511,12 @@ class SparkCommand(Command):
     @classmethod
     def validate_script_location(cls, options):
         bool_script_location = options.script_location is not None
-        bool_other_options = options.program is not None or options.cmdline is not None or options.sql is not None
+        bool_other_options = options.program is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
         # if both are false then no option is specified ==> raise ParseError
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_script_location == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
 
         if bool_script_location:
             if options.language is not None:
@@ -1065,6 +1067,8 @@ class DbImportCommand(Command):
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
+    optparser.add_option("--hive_serde", dest="hive_serde",
+                         help="Output format of the Hive Table")
     optparser.add_option("--dbtap_id", dest="dbtap_id",
                          help="Modes 1 and 2: DbTap Id of the target database in Qubole")
     optparser.add_option("--db_table", dest="db_table",
