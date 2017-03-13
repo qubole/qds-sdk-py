@@ -1316,13 +1316,28 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'name': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
-    def test_get_commands_waiting(self):
+
+class TestListCommand(QdsCliTestCase):
+    def test_list_commands_waiting(self):
         sys.argv = ['qds.py', 'listcmds', '--status', 'waiting']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('GET', 'commands', params={"status":"waiting"})
 
+    def test_list_commands(self):
+        sys.argv = ['qds.py', 'listcmds', '--status', 'cancelled', '--command-types', "HiveCommand,SparkCommand"]
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'commands',
+                                                params={"status":"cancelled","command_type":"HiveCommand,SparkCommand"})
+    def test_incorrect_list_commands(self):
+        sys.argv = ['qds.py', 'listcmds', '--status', 'cancelled', '--command-types', "HiveCommand,RandomCommand"]
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
 
 if __name__ == '__main__':
     unittest.main()

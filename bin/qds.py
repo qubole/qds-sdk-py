@@ -24,18 +24,6 @@ import json
 from optparse import OptionParser
 
 log = logging.getLogger("qds")
-CommandClasses = {
-    "hivecmd": HiveCommand,
-    "sparkcmd": SparkCommand,
-    "dbtapquerycmd": DbTapQueryCommand,
-    "pigcmd":  PigCommand,
-    "hadoopcmd": HadoopCommand,
-    "shellcmd": ShellCommand,
-    "dbexportcmd": DbExportCommand,
-    "dbimportcmd": DbImportCommand,
-    "prestocmd": PrestoCommand,
-    "listcmds": ListCommands
-}
 
 usage_str = (
     "Usage: qds.py [options] <subcommand>\n"
@@ -47,7 +35,8 @@ usage_str = (
     "    cancel <id> : cancels the cmd with this id\n"
     "    getresult <id> : get the results for the cmd with this id\n"
     "    getlog <id> : get the logs for the cmd with this id\n"
-    "  listcmds: Get the list of commands."
+    "    list [cmd-specific-args .. ] : list commands\n"
+    "  listcmds: Get the list of all commands."
     "\nCluster subcommand:\n"
     "  cluster <action>\n"
     "    create: create a new cluster\n"
@@ -176,17 +165,15 @@ def getjobsaction(cmdclass, args):
         log.error("Cannot fetch jobs - command Id: %s is not done. Status: %s" % (cmd.id, cmd.status))
         return 1
 
-
 def cmdmain(cmd, args):
-    cmdclass = CommandClasses[cmd]
     if cmd == "listcmds":
-        args = cmdclass.parse(args)
+        args = ListCommands.parse(args)
         if args is not None:
-            result = cmdclass.list_action(args)
+            result = ListCommands.listcommands_action(args)
             print(json.dumps(result, indent=4))
             return 0
-
-    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog", "getjobs"])
+    cmdclass = CommandClasses[cmd]
+    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog", "getjobs", "list"])
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
@@ -553,7 +540,7 @@ def main():
         usage(optparser)
 
     a0 = args.pop(0)
-    if a0 in CommandClasses:
+    if a0 in CommandClasses or (a0 == "listcmds"):
         return cmdmain(a0, args)
 
     if a0 == "account":

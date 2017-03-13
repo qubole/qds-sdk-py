@@ -243,6 +243,9 @@ class HiveCommand(Command):
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
 
+    optparser.add_option("--status", dest="status",
+                         help="")
+
     @classmethod
     def parse(cls, args):
         """
@@ -1154,15 +1157,31 @@ class DbTapQueryCommand(Command):
         v["command_type"] = "DbTapQueryCommand"
         return v
 
+CommandClasses = {
+    "hivecmd": HiveCommand,
+    "sparkcmd": SparkCommand,
+    "dbtapquerycmd": DbTapQueryCommand,
+    "pigcmd":  PigCommand,
+    "hadoopcmd": HadoopCommand,
+    "shellcmd": ShellCommand,
+    "dbexportcmd": DbExportCommand,
+    "dbimportcmd": DbImportCommand,
+    "prestocmd": PrestoCommand
+}
+
 class ListCommands(Command):
     usage = "listCmds [options]"
     optparser = GentleOptionParser(usage=usage)
-    optparser.add_option("--status", dest="status",
-                         help="Status of the commands to list. [waiting, default=all]")
-    optparser.add_option("--page", dest="page",
+    optparser.add_option("-s", "--status", dest="status",
+                         help="Status of the commands to list (by default, its all states)."
+                              "[waiting, running, done, error, cancelled]")
+    optparser.add_option("-p", "--page", dest="page",
                          help="Page number.")
     optparser.add_option("--per-page", dest="per_page",
                          help="Results per page.")
+    optparser.add_option("-c", "--command-types", dest="command_type",
+                        help = "Comma seperated command types. options: %s"
+                                   %([x.__name__ for x in CommandClasses.values()]))
     @classmethod
     def parse(cls, args):
         """
@@ -1177,16 +1196,19 @@ class ListCommands(Command):
         """
         try:
             (options, args) = cls.optparser.parse_args(args)
+            # Confirm user input is valid for command types.
+            if options.command_type and\
+               (not set(options.command_type.split(",")).issubset(set([x.__name__ for x in CommandClasses.values()]))):
+                raise ParseError("Incorrect command types: %s." % options.command_type, cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
             return None
         v = vars(options)
-        v["command_type"] = "ListCommand"
         return v
 
     @classmethod
-    def list_action(cls, args):
+    def listcommands_action(cls, args):
         """
 
         For the given parameters(like status), return the list of commands.
@@ -1199,12 +1221,12 @@ class ListCommands(Command):
         params = {}
         if args["status"] is not None:
             params["status"] = args["status"]
-        else:
-            params["status"] = "done"
         if args["page"] is not None:
             params["page"] = args["page"]
         if args["per_page"] is not None:
             params["per_page"] = args["per_page"]
+        if args["command_type"] is not None:
+            params["command_type"] = args["command_type"]
         r = conn.get(cls.rest_entity_path, params)
         return r
 
