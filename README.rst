@@ -91,6 +91,12 @@ Examples:
        $ qds.py hivecmd check 12345678
        {"status": "done", ... }
 
+5. run a hive query with macros # pass the all macros in json object
+
+   ::
+
+       $ qds.py --token 'xxyyzz' hivecmd run --script_location s3://my-qubole-location/myquery --macros='[{"macro1":"value1"},{"macro2":"value2"}, ... ]'
+
 SDK API
 -------
 
