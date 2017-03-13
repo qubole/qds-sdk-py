@@ -185,7 +185,7 @@ def cmdmain(cmd, args):
             print(json.dumps(result, indent=4))
             return 0
     cmdclass = CommandClasses[cmd]
-    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog", "getjobs", "list"])
+    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog", "getjobs"])
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()

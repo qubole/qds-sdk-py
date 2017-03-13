@@ -284,9 +284,6 @@ class HiveCommand(Command):
                          default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
 
-    optparser.add_option("--status", dest="status",
-                         help="")
-
     @classmethod
     def parse(cls, args):
         """
