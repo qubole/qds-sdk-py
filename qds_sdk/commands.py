@@ -1237,9 +1237,9 @@ def _read_iteratively(key_instance, fp, delim):
             else:
                 import io
                 if isinstance(fp, io.TextIOBase):
-                    fp.buffer.write(data.decode('utf-8').replace(chr(1), delim).encode('utf8'))
+                    fp.buffer.write(data.replace(bytes([1]), delim.encode('utf8')))
                 elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
-                    fp.write(data.decode('utf8').replace(chr(1), delim).encode('utf8'))
+                    fp.write(data.replace(bytes([1]), delim.encode('utf8')))
                 else:
                     # Can this happen? Don't know what's the right thing to do in this case.
                     pass
