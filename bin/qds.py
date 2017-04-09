@@ -1,7 +1,6 @@
 #!/bin/env python
 
 from __future__ import print_function
-from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
 import qds_sdk.exception
@@ -16,8 +15,7 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
-from qds_sdk.clusterv2 import *
-from qds_sdk.cloud.cloud import Cloud
+from qds_sdk.clusterv2 import ClusterCmdLine
 
 import os
 import sys
@@ -239,7 +237,6 @@ def _create_cluster_info(arguments, api_version):
                                       aws_availability_zone=arguments.aws_availability_zone,
                                       vpc_id=arguments.vpc_id,
                                       subnet_id=arguments.subnet_id,
-                                      master_elastic_ip=arguments.master_elastic_ip,
                                       disallow_cluster_termination=arguments.disallow_cluster_termination,
                                       enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
                                       node_bootstrap_file=arguments.node_bootstrap_file,
@@ -271,9 +268,7 @@ def _create_cluster_info(arguments, api_version):
                                       persistent_security_group=arguments.persistent_security_group,
                                       enable_presto=arguments.enable_presto,
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
-                                      role_instance_profile=arguments.role_instance_profile,
-                                      presto_custom_config=presto_custom_config,
-                                      is_ha=arguments.is_ha)
+                                      role_instance_profile=arguments.role_instance_profile)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,
@@ -286,7 +281,6 @@ def _create_cluster_info(arguments, api_version):
                                       arguments.aws_availability_zone,
                                       arguments.vpc_id,
                                       arguments.subnet_id,
-                                      arguments.master_elastic_ip,
                                       arguments.role_instance_profile,
                                       arguments.bastion_node_public_dns)
 
@@ -298,9 +292,7 @@ def _create_cluster_info(arguments, api_version):
                                          arguments.slave_request_type,
                                          arguments.use_hbase,
                                          arguments.custom_ec2_tags,
-                                         arguments.use_hadoop2,
-                                         arguments.use_spark,
-                                         arguments.is_ha)
+                                         arguments.use_hadoop2)
 
         cluster_info.set_spot_instance_settings(
               arguments.maximum_bid_price_percentage,
@@ -334,7 +326,6 @@ def _read_file(file_path, file_name):
             sys.stderr.write("Unable to read %s: %s\n" % (file_name, str(e)))
             usage()
     return file_content
-
 
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id_label(args)
@@ -495,6 +486,7 @@ def templatemain(args):
 
 
 def main():
+    print ("qds===============")
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
@@ -518,7 +510,7 @@ def main():
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
     optparser.add_option("--cloud", dest="cloud",
-                         default=os.getenv('QDS_CLOUD'),
+                         default=os.getenv('CLOUD_PROVIDER'),
                          help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC"])
 
     optparser.add_option("-v", dest="verbose", action="store_true",
@@ -563,12 +555,6 @@ def main():
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
                      cloud=options.cloud)
-
-    # If cloud provider is not set by user at system level or through command line ,
-    # then fetch cloud from api url request
-    if options.cloud is None:
-        options.cloud = Cloud.get_cloud()
-        Qubole.cloud = options.cloud
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")

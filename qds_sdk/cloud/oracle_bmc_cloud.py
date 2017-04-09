@@ -90,7 +90,7 @@ class OracleBmcCloud(Cloud):
         set_network_config()
         set_storage_config()
 
-    def set_cloud_config_settings(self, arguments):
+    def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
                               compute_user_id=arguments.compute_user_id,
                               compute_key_finger_print=arguments.compute_key_finger_print,
@@ -107,7 +107,7 @@ class OracleBmcCloud(Cloud):
                               storage_key_finger_print=arguments.storage_key_finger_print,
                               storage_api_private_rsa_key=arguments.storage_api_private_rsa_key)
 
-    def cloud_config_parser(self, argparser):
+    def create_parser(self, argparser):
 
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
