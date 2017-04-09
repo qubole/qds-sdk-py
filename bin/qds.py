@@ -222,6 +222,7 @@ def cluster_create_action(clusterclass, args, api_version=1.2):
     print(json.dumps(result, indent=4))
     return 0
 
+
 def cluster_update_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "update", api_version)
     cluster_info = _create_cluster_info(arguments, api_version)
@@ -251,6 +252,7 @@ def _create_cluster_info(arguments, api_version):
                                       aws_availability_zone=arguments.aws_availability_zone,
                                       vpc_id=arguments.vpc_id,
                                       subnet_id=arguments.subnet_id,
+                                      master_elastic_ip=arguments.master_elastic_ip,
                                       disallow_cluster_termination=arguments.disallow_cluster_termination,
                                       enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
                                       node_bootstrap_file=arguments.node_bootstrap_file,
@@ -282,7 +284,9 @@ def _create_cluster_info(arguments, api_version):
                                       persistent_security_group=arguments.persistent_security_group,
                                       enable_presto=arguments.enable_presto,
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
-                                      role_instance_profile=arguments.role_instance_profile)
+                                      role_instance_profile=arguments.role_instance_profile,
+                                      presto_custom_config=presto_custom_config,
+                                      is_ha=arguments.is_ha)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,
@@ -295,6 +299,7 @@ def _create_cluster_info(arguments, api_version):
                                       arguments.aws_availability_zone,
                                       arguments.vpc_id,
                                       arguments.subnet_id,
+                                      arguments.master_elastic_ip,
                                       arguments.role_instance_profile,
                                       arguments.bastion_node_public_dns)
 
@@ -306,7 +311,9 @@ def _create_cluster_info(arguments, api_version):
                                          arguments.slave_request_type,
                                          arguments.use_hbase,
                                          arguments.custom_ec2_tags,
-                                         arguments.use_hadoop2)
+                                         arguments.use_hadoop2,
+                                         arguments.use_spark,
+                                         arguments.is_ha)
 
         cluster_info.set_spot_instance_settings(
               arguments.maximum_bid_price_percentage,
