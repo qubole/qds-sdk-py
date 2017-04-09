@@ -330,7 +330,6 @@ def _create_cluster_info(arguments, api_version):
 
     return cluster_info
 
-
 def _read_file(file_path, file_name):
     file_content = None
     if file_path is not None:
