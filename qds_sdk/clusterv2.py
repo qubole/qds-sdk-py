@@ -14,8 +14,7 @@ def str2bool(v):
 class ClusterCmdLine:
 
     @staticmethod
-    def parsers(args):
-        action = args[0]
+    def parsers(action):
         argparser = argparse.ArgumentParser(
             prog="qds.py cluster",
             description="Cluster Operations for Qubole Data Service.")
@@ -55,9 +54,9 @@ class ClusterCmdLine:
 
     @staticmethod
     def run(args):
-        parser = ClusterCmdLine.parsers(args)
+        parser = ClusterCmdLine.parsers(args[0])
         arguments = parser.parse_args(args)
-        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file, "customer ssh key file")
+        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
 
         # This will set cluster info and monitoring settings
         cluster_info = ClusterInfoV2(arguments.label)

@@ -91,11 +91,9 @@ class Engine:
         set_airflow_settings()
 
     def set_engine_config_settings(self, arguments):
-        custom_hadoop_config = util._read_file(arguments.custom_hadoop_config_file, "custom config file")
-        fairscheduler_config_xml = util._read_file(arguments.fairscheduler_config_xml_file,
-                                                   "config xml file")
-        custom_presto_config = util._read_file(arguments.presto_custom_config_file,
-                                               "presto custom config file")
+        custom_hadoop_config = util._read_file(arguments.custom_hadoop_config_file)
+        fairscheduler_config_xml = util._read_file(arguments.fairscheduler_config_xml_file)
+        custom_presto_config = util._read_file(arguments.presto_custom_config_file)
 
         self.set_engine_config(custom_hadoop_config=custom_hadoop_config,
                                use_qubole_placement_policy=arguments.use_qubole_placement_policy,
