@@ -450,7 +450,20 @@ def clustermain(args, api_version):
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
 def clustermainv2(args):
-    result = ClusterCmdLine.run(args)
+    action = args[0]
+    actionset = set(
+        ["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node",
+         "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule",
+         "update_snapshot_schedule"])
+
+    result = None
+    if action not in actionset:
+        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+        usage()
+    elif action in set(["create", "update", "clone"]):
+        result =  ClusterCmdLine.run(args)
+    else:
+        result =  globals()["cluster_" + action + "_action"](Cluster, args)
     print(result)
 
 def accountmain(args):

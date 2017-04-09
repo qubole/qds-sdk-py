@@ -159,12 +159,14 @@ def _make_minimal(dictionary):
                 new_dict[key] = value
     return new_dict
 
-
-def _read_file(file_path, file_name):
+def _read_file(file_path):
     file_content = None
     if file_path is not None:
         try:
-            file_content = open(file_path).read()
+            with open(file_path) as f:
+                file_content = f.read()
         except IOError as e:
-            sys.stderr.write("Unable to read %s: %s\n" % (file_name, str(e)))
+            sys.stderr.write("Unable to read %s: %s\n" % (file_path, str(e)))
+            sys.exit(1)
     return file_content
+

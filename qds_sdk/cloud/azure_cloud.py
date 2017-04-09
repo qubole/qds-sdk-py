@@ -103,6 +103,7 @@ class AzureCloud(Cloud):
         set_network_config()
         set_storage_config()
 
+
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_client_id=arguments.compute_client_id,
                               compute_client_secret=arguments.compute_client_secret,
