@@ -62,33 +62,57 @@ class OracleBmcCloud(Cloud):
             storage_api_private_rsa_key: storage api private rsa key for oracle cluster
 
         '''
-        def set_compute_config():
-            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
-            self.compute_config['compute_tenant_id'] = compute_tenant_id
-            self.compute_config['compute_user_id'] = compute_user_id
-            self.compute_config['compute_key_finger_print'] = compute_key_finger_print
-            self.compute_config['compute_api_private_rsa_key'] = compute_api_private_rsa_key
 
-        def set_location():
-            self.location['region'] = oracle_region
-            self.location['availability_domain'] = oracle_availability_domain
+        self.set_compute_config(use_account_compute_creds, compute_tenant_id, compute_user_id, compute_key_finger_print, compute_api_private_rsa_key)
+        self.set_location(oracle_region, oracle_availability_domain)
+        self.set_network_config(vcn_id, subnet_id, compartment_id, image_id)
+        self.set_storage_config(storage_tenant_id, storage_user_id, storage_key_finger_print, storage_api_private_rsa_key)
 
-        def set_network_config():
-            self.network_config['vcn_id'] = vcn_id
-            self.network_config['subnet_id'] = subnet_id
-            self.network_config['compartment_id'] = compartment_id
-            self.network_config['image_id'] = image_id
+    def  set_compute_config(self,
+                            use_account_compute_creds=None,
+                            compute_tenant_id=None,
+                            compute_user_id=None,
+                            compute_key_finger_print=None,
+                            compute_api_private_rsa_key=None):
+        self.compute_config['use_account_compute_creds'] = use_account_compute_creds
+        self.compute_config['compute_tenant_id'] = compute_tenant_id
+        self.compute_config['compute_user_id'] = compute_user_id
+        self.compute_config['compute_key_finger_print'] = compute_key_finger_print
+        self.compute_config['compute_api_private_rsa_key'] = compute_api_private_rsa_key
 
-        def set_storage_config():
-            self.storage_config['storage_tenant_id'] = storage_tenant_id
-            self.storage_config['storage_user_id'] = storage_user_id
-            self.storage_config['storage_key_finger_print'] = storage_key_finger_print
-            self.storage_config['storage_api_private_rsa_key'] = storage_api_private_rsa_key
 
-        set_compute_config()
-        set_location()
-        set_network_config()
-        set_storage_config()
+    def set_location(self,
+                     oracle_region=None,
+                     oracle_availability_domain=None):
+        self.location['region'] = oracle_region
+        self.location['availability_domain'] = oracle_availability_domain
+
+
+    def set_network_config(self,
+                           vcn_id=None,
+                           subnet_id=None,
+                           compartment_id=None,
+                           image_id=None):
+        self.network_config['vcn_id'] = vcn_id
+        self.network_config['subnet_id'] = subnet_id
+        self.network_config['compartment_id'] = compartment_id
+        self.network_config['image_id'] = image_id
+
+
+
+
+    def set_storage_config(self,
+                           storage_tenant_id=None,
+                           storage_user_id=None,
+                           storage_key_finger_print=None,
+                           storage_api_private_rsa_key=None):
+        self.storage_config['storage_tenant_id'] = storage_tenant_id
+        self.storage_config['storage_user_id'] = storage_user_id
+        self.storage_config['storage_key_finger_print'] = storage_key_finger_print
+        self.storage_config['storage_api_private_rsa_key'] = storage_api_private_rsa_key
+
+
+
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,

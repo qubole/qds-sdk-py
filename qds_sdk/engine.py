@@ -59,36 +59,50 @@ class Engine:
 
         '''
 
-        def set_fairscheduler_settings():
-            self.hadoop_settings['fairscheduler_settings'] = {}
-            self.hadoop_settings['fairscheduler_settings']['fairscheduler_config_xml'] = \
-                fairscheduler_config_xml
-            self.hadoop_settings['fairscheduler_settings']['default_pool'] = default_pool
+        self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, fairscheduler_config_xml, default_pool)
+        self.set_presto_settings(presto_version, custom_presto_config)
+        self.set_spark_settings(spark_version, custom_spark_config)
+        self.set_airflow_settings(dbtap_id, fernet_key, overrides)
+
+    def set_fairscheduler_settings(self,
+                                   fairscheduler_config_xml=None,
+                                   default_pool=None):
+        self.hadoop_settings['fairscheduler_settings'] = {}
+        self.hadoop_settings['fairscheduler_settings']['fairscheduler_config_xml'] = \
+            fairscheduler_config_xml
+        self.hadoop_settings['fairscheduler_settings']['default_pool'] = default_pool
 
 
-        def set_hadoop_settings():
-            self.hadoop_settings['custom_hadoop_config'] = custom_hadoop_config
-            self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
-            self.hadoop_settings['is_ha'] = is_ha
-            set_fairscheduler_settings
+    def set_hadoop_settings(self,
+                            custom_hadoop_config=None,
+                            use_qubole_placement_policy=None,
+                            is_ha=None,
+                            fairscheduler_config_xml=None,
+                            default_pool=None):
+        self.hadoop_settings['custom_hadoop_config'] = custom_hadoop_config
+        self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.hadoop_settings['is_ha'] = is_ha
+        self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
 
-        def set_presto_settings():
-            self.presto_settings['presto_version'] = presto_version
-            self.presto_settings['custom_presto_config'] = custom_presto_config
+    def set_presto_settings(self,
+                            presto_version=None,
+                            custom_presto_config=None):
+        self.presto_settings['presto_version'] = presto_version
+        self.presto_settings['custom_presto_config'] = custom_presto_config
 
-        def set_spark_settings():
-            self.spark_settings['spark_version'] = spark_version
-            self.spark_settings['custom_spark_config'] = custom_spark_config
+    def set_spark_settings(self,
+                           spark_version=None,
+                           custom_spark_config=None):
+        self.spark_settings['spark_version'] = spark_version
+        self.spark_settings['custom_spark_config'] = custom_spark_config
 
-        def set_airflow_settings():
-            self.airflow_settings['dbtap_id'] = dbtap_id
-            self.airflow_settings['fernet_key'] = fernet_key
-            self.airflow_settings['overrides'] = overrides
-
-        set_hadoop_settings()
-        set_presto_settings()
-        set_spark_settings()
-        set_airflow_settings()
+    def set_airflow_settings(self,
+                             dbtap_id=None,
+                             fernet_key=None,
+                             overrides=None):
+        self.airflow_settings['dbtap_id'] = dbtap_id
+        self.airflow_settings['fernet_key'] = fernet_key
+        self.airflow_settings['overrides'] = overrides
 
     def set_engine_config_settings(self, arguments):
         custom_hadoop_config = util._read_file(arguments.custom_hadoop_config_file)

@@ -70,38 +70,54 @@ class AzureCloud(Cloud):
         '''
 
 
-        def set_compute_config():
-            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
-            self.compute_config['compute_tenant_id'] = compute_tenant_id
-            self.compute_config['compute_subscription_id'] = compute_subscription_id
-            self.compute_config['compute_client_id'] = compute_client_id
-            self.compute_config['compute_client_secret'] = compute_client_secret
+        self.set_compute_config(use_account_compute_creds, compute_tenant_id, compute_subscription_id, compute_client_id, compute_client_secret)
+        self.set_location(location)
+        self.set_network_config(bastion_node_public_dns, persistent_security_groups, master_elastic_ip, vnet_name, subnet_name, vnet_resource_group_name)
+        self.set_storage_config(storage_access_key, storage_account_name, disk_storage_account_name, disk_storage_account_resource_group_name)
+
+    def set_compute_config(self,
+                           use_account_compute_creds=None,
+                           compute_tenant_id=None,
+                           compute_subscription_id=None,
+                           compute_client_id=None,
+                           compute_client_secret=None):
+        self.compute_config['use_account_compute_creds'] = use_account_compute_creds
+        self.compute_config['compute_tenant_id'] = compute_tenant_id
+        self.compute_config['compute_subscription_id'] = compute_subscription_id
+        self.compute_config['compute_client_id'] = compute_client_id
+        self.compute_config['compute_client_secret'] = compute_client_secret
+
+    def set_location(self,
+                     location=None):
+        self.location['location'] = location
+
+    def set_network_config(self,
+                           bastion_node_public_dns=None,
+                           persistent_security_groups=None,
+                           master_elastic_ip=None,
+                           vnet_name=None,
+                           subnet_name=None,
+                           vnet_resource_group_name=None):
+        self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
+        self.network_config['persistent_security_groups'] = persistent_security_groups
+        self.network_config['master_elastic_ip'] = master_elastic_ip
+        self.network_config['vnet_name'] = vnet_name
+        self.network_config['subnet_name'] = subnet_name
+        self.network_config['vnet_resource_group_name'] = vnet_resource_group_name
 
 
-        def set_location():
-            self.location['location'] = location
-
-        def set_network_config():
-            self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
-            self.network_config['persistent_security_groups'] = persistent_security_groups
-            self.network_config['master_elastic_ip'] = master_elastic_ip
-            self.network_config['vnet_name'] = vnet_name
-            self.network_config['subnet_name'] = subnet_name
-            self.network_config['vnet_resource_group_name'] = vnet_resource_group_name
-
-
-        def set_storage_config():
-            self.storage_config['storage_access_key'] = storage_access_key
-            self.storage_config['storage_account_name'] = storage_account_name
-            self.storage_config['disk_storage_account_name'] = disk_storage_account_name
-            self.storage_config['disk_storage_account_resource_group_name'] \
-                = disk_storage_account_resource_group_name
+    def set_storage_config(self,
+                           storage_access_key=None,
+                           storage_account_name=None,
+                           disk_storage_account_name=None,
+                           disk_storage_account_resource_group_name=None):
+        self.storage_config['storage_access_key'] = storage_access_key
+        self.storage_config['storage_account_name'] = storage_account_name
+        self.storage_config['disk_storage_account_name'] = disk_storage_account_name
+        self.storage_config['disk_storage_account_resource_group_name'] \
+            = disk_storage_account_resource_group_name
 
 
-        set_compute_config()
-        set_location()
-        set_network_config()
-        set_storage_config()
 
 
     def set_cloud_config_from_arguments(self, arguments):

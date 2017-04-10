@@ -252,42 +252,6 @@ class ClusterInfoV2(object):
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
         """
-
-        def set_monitoring():
-            self.monitoring['ganglia'] = enable_ganglia_monitoring
-            set_datadog_setting()
-
-        def set_spot_instance_settings():
-            self.cluster_info['spot_settings']['spot_instance_settings'] = {}
-            self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = \
-                maximum_bid_price_percentage
-            self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
-            self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = \
-                maximum_spot_instance_percentage
-
-        def set_stable_spot_bid_settings():
-            self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
-            self.cluster_info['spot_settings']['stable_spot_bid_settings']['maximum_bid_price_percentage'] = \
-                stable_maximum_bid_price_percentage
-            self.cluster_info['spot_settings']['stable_spot_bid_settings']['timeout_for_request'] = \
-                stable_timeout_for_request
-            self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
-                stable_spot_fallback
-
-        def set_datadog_setting():
-            self.monitoring['datadog'] = {}
-            self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
-            self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
-
-        def set_data_disk():
-            self.cluster_info['datadisk'] = {}
-            self.cluster_info['datadisk']['size'] = disk_size
-            self.cluster_info['datadisk']['count'] = disk_count
-            self.cluster_info['datadisk']['type'] = disk_type
-            self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
-            self.cluster_info['datadisk']['encryption'] = enable_encryption
-
-
         self.cluster_info['master_instance_type'] = master_instance_type
         self.cluster_info['slave_instance_type'] = slave_instance_type
         self.cluster_info['min_nodes'] = min_nodes
@@ -309,11 +273,65 @@ class ClusterInfoV2(object):
         self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
         self.cluster_info['spot_settings'] = {}
 
-        set_spot_instance_settings()
-        set_stable_spot_bid_settings()
-        set_data_disk()
-        set_monitoring()
-        set_data_disk()
+        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
+        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
+        self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
+        self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
+
+
+
+    def set_datadog_setting(self,
+                            datadog_api_token=None,
+                            datadog_app_token=None):
+        self.monitoring['datadog'] = {}
+        self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
+        self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
+
+    def set_monitoring(self,
+                       enable_ganglia_monitoring=None,
+                       datadog_api_token=None,
+                       datadog_app_token=None):
+        self.monitoring['ganglia'] = enable_ganglia_monitoring
+        self.set_datadog_setting(datadog_api_token, datadog_app_token)
+
+
+    def set_spot_instance_settings(self,
+                                   maximum_bid_price_percentage=None,
+                                   timeout_for_request=None,
+                                   maximum_spot_instance_percentage=None):
+        self.cluster_info['spot_settings']['spot_instance_settings'] = {}
+        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = \
+            maximum_bid_price_percentage
+        self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
+        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = \
+            maximum_spot_instance_percentage
+
+    def set_stable_spot_bid_settings(self,
+                                     stable_maximum_bid_price_percentage=None,
+                                     stable_timeout_for_request=None,
+                                     stable_spot_fallback=None):
+        self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['maximum_bid_price_percentage'] = \
+            stable_maximum_bid_price_percentage
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['timeout_for_request'] = \
+            stable_timeout_for_request
+        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
+            stable_spot_fallback
+
+
+    def set_data_disk(self,
+                      disk_size=None,
+                      disk_count=None,
+                      disk_type=None,
+                      upscaling_config=None,
+                      enable_encryption=None):
+        self.cluster_info['datadisk'] = {}
+        self.cluster_info['datadisk']['size'] = disk_size
+        self.cluster_info['datadisk']['count'] = disk_count
+        self.cluster_info['datadisk']['type'] = disk_type
+        self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
+        self.cluster_info['datadisk']['encryption'] = enable_encryption
+
 
     @staticmethod
     def cluster_info_parser(argparser, action):
