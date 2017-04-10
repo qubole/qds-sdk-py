@@ -60,26 +60,43 @@ class AwsCloud(Cloud):
 
         '''
 
-        def set_compute_config():
-            self.compute_config['use_account_compute_creds'] = use_account_compute_creds
-            self.compute_config['compute_access_key'] = compute_access_key
-            self.compute_config['compute_secret_key'] = compute_secret_key
-            self.compute_config['role_instance_profile'] = role_instance_profile
+        self.set_compute_config(use_account_compute_creds, compute_access_key, compute_secret_key, role_instance_profile)
+        self.set_location(aws_region, aws_availability_zone)
+        self.set_network_config(bastion_node_public_dns, persistent_security_groups, master_elastic_ip, vpc_id, subnet_id)
 
-        def set_location():
-            self.location['aws_region'] = aws_region
-            self.location['aws_availability_zone'] = aws_availability_zone
 
-        def set_network_config():
-            self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
-            self.network_config['persistent_security_groups'] = persistent_security_groups
-            self.network_config['master_elastic_ip'] = master_elastic_ip
-            self.network_config['vpc_id'] = vpc_id
-            self.network_config['subnet_id'] = subnet_id
+    def set_compute_config(self,
+                           use_account_compute_creds=None,
+                           compute_access_key=None,
+                           compute_secret_key=None,
+                           role_instance_profile=None):
+        self.compute_config['use_account_compute_creds'] = use_account_compute_creds
+        self.compute_config['compute_access_key'] = compute_access_key
+        self.compute_config['compute_secret_key'] = compute_secret_key
+        self.compute_config['role_instance_profile'] = role_instance_profile
 
-        set_compute_config()
-        set_location()
-        set_network_config()
+
+    def set_location(self,
+                     aws_region=None,
+                     aws_availability_zone=None):
+        self.location['aws_region'] = aws_region
+        self.location['aws_availability_zone'] = aws_availability_zone
+
+    def set_network_config(self,
+                           bastion_node_public_dns=None,
+                           persistent_security_groups=None,
+                           master_elastic_ip=None,
+                           vpc_id=None,
+                           subnet_id=None):
+        self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
+        self.network_config['persistent_security_groups'] = persistent_security_groups
+        self.network_config['master_elastic_ip'] = master_elastic_ip
+        self.network_config['vpc_id'] = vpc_id
+        self.network_config['subnet_id'] = subnet_id
+
+
+
+
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_access_key=arguments.compute_access_key,
