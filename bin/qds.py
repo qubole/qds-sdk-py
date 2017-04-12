@@ -338,7 +338,6 @@ def _create_cluster_info(arguments, api_version):
 
     return cluster_info
 
-
 def _read_file(file_path, file_name):
     file_content = None
     if file_path is not None:
@@ -348,7 +347,6 @@ def _read_file(file_path, file_name):
             sys.stderr.write("Unable to read %s: %s\n" % (file_name, str(e)))
             usage()
     return file_content
-
 
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id_label(args)
