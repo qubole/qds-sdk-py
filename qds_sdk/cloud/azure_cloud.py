@@ -103,7 +103,7 @@ class AzureCloud(Cloud):
         set_network_config()
         set_storage_config()
 
-    def set_cloud_config_from_arguments(self, arguments):
+    def set_cloud_config_settings(self, arguments):
         self.set_cloud_config(compute_client_id=arguments.compute_client_id,
                               compute_client_secret=arguments.compute_client_secret,
                               compute_subscription_id=arguments.compute_subscription_id,
@@ -118,7 +118,7 @@ class AzureCloud(Cloud):
                               subnet_name=arguments.subnet_name,
                               vnet_resource_group_name=arguments.vnet_resource_group_name)
 
-    def create_parser(self, argparser):
+    def cloud_config_parser(self, argparser):
 
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
