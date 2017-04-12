@@ -509,6 +509,7 @@ def templatemain(args):
 
 
 def main():
+    print("main========")
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
