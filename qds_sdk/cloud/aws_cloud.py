@@ -38,6 +38,7 @@ class AwsCloud(Cloud):
             aws_region: The AWS region in which the cluster is created. The default value is, us-east-1.
                 Valid values are, us-east-1, us-west-1, us-west-2, eu-west-1, sa-east1, ap-southeast-1,
                 and ap-northeast-1.
+                Doc: http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#ec2-settings
 
             aws_availability_zone: The preferred availability zone in which the cluster must be created. The default value is Any.
 
@@ -80,7 +81,7 @@ class AwsCloud(Cloud):
         set_location()
         set_network_config()
 
-    def set_cloud_config_settings(self, arguments):
+    def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_access_key=arguments.compute_access_key,
                               compute_secret_key=arguments.compute_secret_key,
                               use_account_compute_creds=arguments.use_account_compute_creds,
@@ -93,21 +94,21 @@ class AwsCloud(Cloud):
                               bastion_node_public_dns=arguments.bastion_node_public_dns,
                               master_elastic_ip=arguments.master_elastic_ip)
 
-    def cloud_config_parser(self, argparser):
+    def create_parser(self, argparser):
 
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
         compute_creds = compute_config.add_mutually_exclusive_group()
         compute_creds.add_argument("--enable_account_compute_creds",
                                    dest="use_account_compute_creds",
-                                action="store_true",
-                                default=None,
-                                help="to use account compute credentials")
+                                   action="store_true",
+                                   default=None,
+                                   help="to use account compute credentials")
         compute_creds.add_argument("--disable_account_compute_creds",
                                    dest="use_account_compute_creds",
-                                action="store_false",
-                                default=None,
-                                help="to disable account compute credentials")
+                                   action="store_false",
+                                   default=None,
+                                   help="to disable account compute credentials")
 
         compute_config.add_argument("--compute-access-key",
                                     dest="compute_access_key",

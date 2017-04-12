@@ -4,12 +4,6 @@ class Cloud:
 
     @staticmethod
     def get_cloud():
-        conn = Qubole.agent(version="v1.2")
-        url_path = "about"
-        return conn.get(url_path).get("provider")
-
-    @staticmethod
-    def get_cloud_object():
         cloud = Qubole.cloud
         if cloud == "azure":
             import qds_sdk.cloud.azure_cloud

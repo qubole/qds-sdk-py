@@ -16,7 +16,7 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
-from qds_sdk.clusterv2 import *
+from qds_sdk.clusterv2 import ClusterCmdLine
 from qds_sdk.cloud.cloud import Cloud
 from qds_sdk.sensors import *
 
@@ -509,7 +509,6 @@ def templatemain(args):
 
 
 def main():
-    print("main========")
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
                          default=os.getenv('QDS_API_TOKEN'),
@@ -533,7 +532,7 @@ def main():
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
     optparser.add_option("--cloud", dest="cloud",
-                         default=os.getenv('QDS_CLOUD'),
+                         default=os.getenv('CLOUD_PROVIDER'),
                          help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC"])
 
     optparser.add_option("-v", dest="verbose", action="store_true",
@@ -578,12 +577,6 @@ def main():
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
                      cloud=options.cloud)
-
-    # If cloud provider is not set by user at system level or through command line ,
-    # then fetch cloud from api url request
-    if options.cloud is None:
-        options.cloud = Cloud.get_cloud()
-        Qubole.cloud = options.cloud
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")

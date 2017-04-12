@@ -43,8 +43,8 @@ class ClusterCmdLine:
     def create_update_clone_parser(subparser, action=None):
 
         # cloud config parser
-        cloud = Cloud.get_cloud_object()
-        cloud.cloud_config_parser(subparser)
+        cloud = Cloud.get_cloud()
+        cloud.create_parser(subparser)
 
         # cluster info parser
         ClusterInfoV2.cluster_info_parser(subparser, action)
@@ -89,8 +89,8 @@ class ClusterCmdLine:
                                       customer_ssh_key=customer_ssh_key)
 
         #  This will set cloud config settings
-        cloud_config = Cloud.get_cloud_object()
-        cloud_config.set_cloud_config_settings(arguments)
+        cloud_config = Cloud.get_cloud()
+        cloud_config.set_cloud_config_from_arguments(arguments)
 
         # This will set engine settings
         engine_config = Engine(flavour=arguments.flavour)
