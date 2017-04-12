@@ -18,6 +18,7 @@ from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import *
 from qds_sdk.cloud.cloud import Cloud
+from qds_sdk.sensors import *
 
 import os
 import sys
@@ -37,6 +38,11 @@ CommandClasses = {
     "dbexportcmd": DbExportCommand,
     "dbimportcmd": DbImportCommand,
     "prestocmd": PrestoCommand
+}
+
+SensorClasses = {
+    "filesensor": FileSensor,
+    "partitionsensor": PartitionSensor
 }
 
 usage_str = (
@@ -88,7 +94,9 @@ usage_str = (
     "\nNezha subcommand:\n"
     "  nezha --help\n"
     "\nUser subcommad:\n"
-    "  user --help\n")
+    "  user --help\n"
+    "\nSensor subcommand:\n"
+    " <filesensor|partitionsensor> --help\n")
 
 
 def usage(parser=None):
@@ -195,6 +203,12 @@ def cmdmain(cmd, args):
         usage()
 
     return globals()[action + "action"](cmdclass, args)
+
+
+def sensormain(sensor, args):
+    sensor_class = SensorClasses[sensor]
+    print(SensorCmdLine.check(sensor_class, args))
+    return 0
 
 
 def checkargs_cluster_id_label(args):
@@ -577,6 +591,9 @@ def main():
     a0 = args.pop(0)
     if a0 in CommandClasses:
         return cmdmain(a0, args)
+
+    if a0 in SensorClasses:
+        return sensormain(a0, args)
 
     if a0 == "account":
         return accountmain(args)
