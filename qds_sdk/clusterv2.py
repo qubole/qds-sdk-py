@@ -4,8 +4,6 @@ from qds_sdk.cloud.cloud import Cloud
 from qds_sdk.engine import Engine
 from qds_sdk import util
 import argparse
-
-import sys
 import json
 
 def str2bool(v):
@@ -37,7 +35,6 @@ class ClusterCmdLine:
 
         return argparser
 
-
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
 
@@ -50,7 +47,6 @@ class ClusterCmdLine:
 
         # engine config parser
         Engine().engine_parser(subparser)
-
 
     @staticmethod
     def run(args):
@@ -120,7 +116,6 @@ class ClusterCmdLine:
 
         cluster_request.update(util._make_minimal(cluster_info.__dict__))
         return cluster_request
-
 
 class ClusterInfoV2(object):
     """
@@ -278,8 +273,6 @@ class ClusterInfoV2(object):
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
 
-
-
     def set_datadog_setting(self,
                             datadog_api_token=None,
                             datadog_app_token=None):
@@ -293,7 +286,6 @@ class ClusterInfoV2(object):
                        datadog_app_token=None):
         self.monitoring['ganglia'] = enable_ganglia_monitoring
         self.set_datadog_setting(datadog_api_token, datadog_app_token)
-
 
     def set_spot_instance_settings(self,
                                    maximum_bid_price_percentage=None,
@@ -318,7 +310,6 @@ class ClusterInfoV2(object):
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
             stable_spot_fallback
 
-
     def set_data_disk(self,
                       disk_size=None,
                       disk_count=None,
@@ -331,7 +322,6 @@ class ClusterInfoV2(object):
         self.cluster_info['datadisk']['type'] = disk_type
         self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
         self.cluster_info['datadisk']['encryption'] = enable_encryption
-
 
     @staticmethod
     def cluster_info_parser(argparser, action):
@@ -523,7 +513,6 @@ class ClusterInfoV2(object):
                                    default=None,
                                    help="overrides for airflow cluster", )
 
-
 class ClusterV2(Resource):
 
     rest_entity_path = "clusters"
@@ -558,10 +547,3 @@ class ClusterV2(Resource):
     @classmethod
     def list(self, state=None):
         pass
-
-
-
-
-
-
-

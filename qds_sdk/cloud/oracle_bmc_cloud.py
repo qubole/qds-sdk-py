@@ -63,10 +63,14 @@ class OracleBmcCloud(Cloud):
 
         '''
 
-        self.set_compute_config(use_account_compute_creds, compute_tenant_id, compute_user_id, compute_key_finger_print, compute_api_private_rsa_key)
+        self.set_compute_config(use_account_compute_creds, compute_tenant_id,
+                                compute_user_id, compute_key_finger_print,
+                                compute_api_private_rsa_key)
         self.set_location(oracle_region, oracle_availability_domain)
-        self.set_network_config(vcn_id, subnet_id, compartment_id, image_id)
-        self.set_storage_config(storage_tenant_id, storage_user_id, storage_key_finger_print, storage_api_private_rsa_key)
+        self.set_network_config(vcn_id, subnet_id,
+                                compartment_id, image_id)
+        self.set_storage_config(storage_tenant_id, storage_user_id,
+                                storage_key_finger_print, storage_api_private_rsa_key)
 
     def  set_compute_config(self,
                             use_account_compute_creds=None,

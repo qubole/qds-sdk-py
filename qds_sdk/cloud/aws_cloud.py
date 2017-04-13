@@ -60,9 +60,11 @@ class AwsCloud(Cloud):
 
         '''
 
-        self.set_compute_config(use_account_compute_creds, compute_access_key, compute_secret_key, role_instance_profile)
+        self.set_compute_config(use_account_compute_creds, compute_access_key,
+                                compute_secret_key, role_instance_profile)
         self.set_location(aws_region, aws_availability_zone)
-        self.set_network_config(bastion_node_public_dns, persistent_security_groups, master_elastic_ip, vpc_id, subnet_id)
+        self.set_network_config(bastion_node_public_dns, persistent_security_groups,
+                                master_elastic_ip, vpc_id, subnet_id)
 
     def set_compute_config(self,
                            use_account_compute_creds=None,

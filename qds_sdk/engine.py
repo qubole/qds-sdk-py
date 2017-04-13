@@ -72,7 +72,6 @@ class Engine:
             fairscheduler_config_xml
         self.hadoop_settings['fairscheduler_settings']['default_pool'] = default_pool
 
-
     def set_hadoop_settings(self,
                             custom_hadoop_config=None,
                             use_qubole_placement_policy=None,

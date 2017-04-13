@@ -1,7 +1,6 @@
 #!/bin/env python
 
 from __future__ import print_function
-from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
 import qds_sdk.exception
@@ -17,9 +16,7 @@ from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import ClusterCmdLine
-from qds_sdk.cloud.cloud import Cloud
 from qds_sdk.sensors import *
-
 import os
 import sys
 import traceback

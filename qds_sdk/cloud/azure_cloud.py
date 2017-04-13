@@ -69,7 +69,6 @@ class AzureCloud(Cloud):
 
         '''
 
-
         self.set_compute_config(use_account_compute_creds, compute_tenant_id,
                                 compute_subscription_id, compute_client_id,
                                 compute_client_secret)
@@ -111,7 +110,6 @@ class AzureCloud(Cloud):
         self.network_config['subnet_name'] = subnet_name
         self.network_config['vnet_resource_group_name'] = vnet_resource_group_name
 
-
     def set_storage_config(self,
                            storage_access_key=None,
                            storage_account_name=None,
@@ -122,9 +120,6 @@ class AzureCloud(Cloud):
         self.storage_config['disk_storage_account_name'] = disk_storage_account_name
         self.storage_config['disk_storage_account_resource_group_name'] \
             = disk_storage_account_resource_group_name
-
-
-
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_client_id=arguments.compute_client_id,
