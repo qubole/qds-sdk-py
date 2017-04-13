@@ -70,10 +70,16 @@ class AzureCloud(Cloud):
         '''
 
 
-        self.set_compute_config(use_account_compute_creds, compute_tenant_id, compute_subscription_id, compute_client_id, compute_client_secret)
+        self.set_compute_config(use_account_compute_creds, compute_tenant_id,
+                                compute_subscription_id, compute_client_id,
+                                compute_client_secret)
         self.set_location(location)
-        self.set_network_config(bastion_node_public_dns, persistent_security_groups, master_elastic_ip, vnet_name, subnet_name, vnet_resource_group_name)
-        self.set_storage_config(storage_access_key, storage_account_name, disk_storage_account_name, disk_storage_account_resource_group_name)
+        self.set_network_config(bastion_node_public_dns, persistent_security_groups,
+                                master_elastic_ip, vnet_name, subnet_name,
+                                vnet_resource_group_name)
+        self.set_storage_config(storage_access_key, storage_account_name,
+                                disk_storage_account_name,
+                                disk_storage_account_resource_group_name)
 
     def set_compute_config(self,
                            use_account_compute_creds=None,
@@ -140,12 +146,12 @@ class AzureCloud(Cloud):
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
         compute_creds = compute_config.add_mutually_exclusive_group()
-        compute_creds.add_argument("--enable_account_compute_creds",
+        compute_creds.add_argument("--enable-account-compute-creds",
                                    dest="use_account_compute_creds",
                                    action="store_true",
                                    default=None,
                                    help="to use account compute credentials")
-        compute_creds.add_argument("--disable_account_compute_creds",
+        compute_creds.add_argument("--disable-account-compute-creds",
                                    dest="use_account_compute_creds",
                                    action="store_false",
                                    default=None,

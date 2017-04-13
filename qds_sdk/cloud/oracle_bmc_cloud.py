@@ -80,13 +80,11 @@ class OracleBmcCloud(Cloud):
         self.compute_config['compute_key_finger_print'] = compute_key_finger_print
         self.compute_config['compute_api_private_rsa_key'] = compute_api_private_rsa_key
 
-
     def set_location(self,
                      oracle_region=None,
                      oracle_availability_domain=None):
         self.location['region'] = oracle_region
         self.location['availability_domain'] = oracle_availability_domain
-
 
     def set_network_config(self,
                            vcn_id=None,
@@ -98,9 +96,6 @@ class OracleBmcCloud(Cloud):
         self.network_config['compartment_id'] = compartment_id
         self.network_config['image_id'] = image_id
 
-
-
-
     def set_storage_config(self,
                            storage_tenant_id=None,
                            storage_user_id=None,
@@ -110,9 +105,6 @@ class OracleBmcCloud(Cloud):
         self.storage_config['storage_user_id'] = storage_user_id
         self.storage_config['storage_key_finger_print'] = storage_key_finger_print
         self.storage_config['storage_api_private_rsa_key'] = storage_api_private_rsa_key
-
-
-
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
@@ -136,12 +128,12 @@ class OracleBmcCloud(Cloud):
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
         compute_creds = compute_config.add_mutually_exclusive_group()
-        compute_creds.add_argument("--enable_account_compute_creds",
+        compute_creds.add_argument("--enable-account-compute-creds",
                                    dest="use_account_compute_creds",
                                    action="store_true",
                                    default=None,
                                    help="to use account compute credentials")
-        compute_creds.add_argument("--disable_account_compute_creds",
+        compute_creds.add_argument("--disable-account-compute-creds",
                                    dest="use_account_compute_creds",
                                    action="store_false",
                                    default=None,

@@ -53,7 +53,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_aws_compute_config(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
-                    '--enable_account_compute_creds']
+                    '--enable-account-compute-creds']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -65,7 +65,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_aws_network_config(self):
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
-                        '--enable_account_compute_creds', '--vpc-id', 'vpc-12345678', '--subnet-id', 'subnet-12345678',
+                        '--enable-account-compute-creds', '--vpc-id', 'vpc-12345678', '--subnet-id', 'subnet-12345678',
                         '--bastion-node-public-dns', 'dummydns','--persistent-security-groups',
                         'foopsg','--master-elastic-ip', "10.10.10.10"]
             print_command()
@@ -148,7 +148,7 @@ class TestClusterCreate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
                     '--compute-client-id', 'testclientid', '--compute-client-secret', 'testclientsecret',
                     '--compute-tenant-id', 'testtenantid', '--compute-subscription-id', 'testsubscriptionid',
-                    '--disable_account_compute_creds']
+                    '--disable-account-compute-creds']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
