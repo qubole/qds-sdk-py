@@ -42,7 +42,6 @@ usage_str = (
     "    cancel <id> : cancels the cmd with this id\n"
     "    getresult <id> : get the results for the cmd with this id\n"
     "    getlog <id> : get the logs for the cmd with this id\n"
-    "    list [cmd-specific-args .. ] : list commands\n"
     "  listcmds: Get the list of all commands."
     "\nCluster subcommand:\n"
     "  cluster <action>\n"
