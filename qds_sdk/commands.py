@@ -215,6 +215,9 @@ class Command(Resource):
         include_header = "false"
         if len(arguments) == 1:
             include_header = arguments.pop(0)
+            if include_header not in ('true', 'false'):
+                raise ParseError("incude_header can be either true or false")
+
 
         r = conn.get(result_path, {'inline': inline, 'include_headers': include_header})
         if r.get('inline'):
