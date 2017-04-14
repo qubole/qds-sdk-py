@@ -390,7 +390,42 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
+
+    def test_submit_notebook(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--note-id', '111','--name', 'notebook-cmd']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': None,
+                 'tags': None,
+                 'name': 'notebook-cmd',
+                 'sql': None,
+                 'program': None,
+                 'app_id': None,
+                 'cmdline':None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': None,
+                 'note_id' : '111',
+                 'retry': 0})
+
+    def test_submit_notebook_with_cmdline(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--note-id', '111', '--cmdline', 'ls']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+    def test_submit_notebook_with_program(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--note-id', '111', '--program', 'print "hello"']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
 
     def test_submit_script_location_aws(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script']
@@ -421,6 +456,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'user_program_arguments': None,
                      'can_notify': False,
                      'script_location': None,
+                     'note_id' : None,
                      'retry': 0})
 
     def test_submit_script_location_local_scala(self):
@@ -446,6 +482,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'user_program_arguments': None,
                      'can_notify': False,
                      'script_location': None,
+                     'note_id' : None,
                      'retry': 0})
 
     def test_submit_script_location_local_java(self):
@@ -480,6 +517,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'user_program_arguments': None,
                      'can_notify': False,
                      'script_location': None,
+                     'note_id' : None,
                      'retry': 0})
 
     def test_submit_script_location_local_sql(self):
@@ -505,6 +543,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'user_program_arguments': None,
                      'can_notify': False,
                      'script_location': None,
+                     'note_id' : None,
                      'retry': 0})
 
     def test_submit_sql(self):
@@ -527,6 +566,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'user_program_arguments': None,
                      'can_notify': False,
                      'script_location': None,
+                     'note_id' : None,
                      'retry': 0})
 
     def test_submit_sql_with_language(self):
@@ -589,6 +629,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'cmdline': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_tags(self):
@@ -612,6 +653,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'cmdline': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_cluster_label(self):
@@ -635,6 +677,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'command_type': 'SparkCommand',
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_name(self):
@@ -658,6 +701,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'command_type': 'SparkCommand',
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_notify(self):
@@ -681,6 +725,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': True,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_python_program(self):
@@ -703,6 +748,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_user_program_arguments(self):
@@ -728,6 +774,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': 'world',
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_scala_program(self):
@@ -750,6 +797,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_R_program(self):
@@ -772,6 +820,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_program_to_app(self):
@@ -795,6 +844,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_sql_to_app(self):
@@ -818,6 +868,7 @@ class TestSparkCommand(QdsCliTestCase):
                  'user_program_arguments': None,
                  'can_notify': False,
                  'script_location': None,
+                 'note_id' : None,
                  'retry': 0})
 
     def test_submit_script_location_local_py_to_app(self):
@@ -844,6 +895,7 @@ class TestSparkCommand(QdsCliTestCase):
                      'user_program_arguments': None,
                      'can_notify': False,
                      'script_location': None,
+                     'note_id' : None,
                      'retry': 0})
 
     def test_submit_cmdline_to_app(self):
