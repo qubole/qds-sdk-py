@@ -122,7 +122,6 @@ class AwsCloud(Cloud):
                                    action="store_false",
                                    default=None,
                                    help="to disable account compute credentials")
-
         compute_config.add_argument("--compute-access-key",
                                     dest="compute_access_key",
                                     default=None,

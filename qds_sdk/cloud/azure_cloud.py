@@ -168,8 +168,6 @@ class AzureCloud(Cloud):
                                     default=None,
                                     help="Subscription id for azure cluster")
 
-
-
         # location settings parser
         location_group = argparser.add_argument_group("location config settings")
         location_group.add_argument("--location",
