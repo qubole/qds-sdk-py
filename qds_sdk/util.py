@@ -167,6 +167,6 @@ def _read_file(file_path):
                 file_content = f.read()
         except IOError as e:
             sys.stderr.write("Unable to read %s: %s\n" % (file_path, str(e)))
-            sys.exit(1)
+            raise IOError("Unable to read %s: %s\n" % (file_path, str(e)))
     return file_content
 
