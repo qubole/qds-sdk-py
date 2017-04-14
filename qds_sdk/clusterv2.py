@@ -18,18 +18,18 @@ class ClusterCmdLine:
             description="Cluster Operations for Qubole Data Service.")
         subparsers = argparser.add_subparsers(title="Cluster operations")
 
-        create = subparsers.add_parser("create", help="Create a new cluster")
         if action == "create":
+            create = subparsers.add_parser("create", help="Create a new cluster")
             ClusterCmdLine.create_update_clone_parser(create, action="create")
             create.set_defaults(func=ClusterV2.create)
 
-        update = subparsers.add_parser("update", help="Update the settings of an existing cluster")
         if action == "update":
+            update = subparsers.add_parser("update", help="Update the settings of an existing cluster")
             ClusterCmdLine.create_update_clone_parser(update, action="update")
             update.set_defaults(func=ClusterV2.update)
 
-        clone = subparsers.add_parser("clone", help="Clone a cluster from an existing one")
         if action == "clone":
+            clone = subparsers.add_parser("clone", help="Clone a cluster from an existing one")
             ClusterCmdLine.create_update_clone_parser(clone, action="clone")
             clone.set_defaults(func=ClusterV2.clone)
 
@@ -46,7 +46,7 @@ class ClusterCmdLine:
         ClusterInfoV2.cluster_info_parser(subparser, action)
 
         # engine config parser
-        Engine().engine_parser(subparser)
+        Engine.engine_parser(subparser)
 
     @staticmethod
     def run(args):

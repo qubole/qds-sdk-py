@@ -14,3 +14,9 @@ class Cloud:
         else:
             import qds_sdk.cloud.aws_cloud
             return qds_sdk.cloud.aws_cloud.AwsCloud()
+
+    def create_parser(self):
+        return NotImplemented
+
+    def set_cloud_config_from_arguments(self):
+        return NotImplemented

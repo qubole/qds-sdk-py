@@ -574,6 +574,9 @@ def main():
     if options.poll_interval is None:
         options.poll_interval = 5
 
+    if options.cloud is None:
+        options.cloud = "AWS"
+
     if options.skip_ssl_cert_check is None:
         options.skip_ssl_cert_check = False
     elif options.skip_ssl_cert_check:
