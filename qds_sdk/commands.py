@@ -192,7 +192,7 @@ class Command(Resource):
         return r.text
 
 
-    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True, qlog=None, arguments=[]):
         """
         Fetches the result for the command represented by this object
 
@@ -212,7 +212,14 @@ class Command(Resource):
 
         conn = Qubole.agent()
 
-        r = conn.get(result_path, {'inline': inline})
+        include_header = "false"
+        if len(arguments) == 1:
+            include_header = arguments.pop(0)
+            if include_header not in ('true', 'false'):
+                raise ParseError("incude_header can be either true or false")
+
+
+        r = conn.get(result_path, {'inline': inline, 'include_headers': include_header})
         if r.get('inline'):
             if sys.version_info < (3, 0, 0):
                 fp.write(r['results'].encode('utf8'))
@@ -235,12 +242,19 @@ class Command(Resource):
                 log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                 #fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
+
                 for s3_path in r['result_location']:
+
+                    # If column/header names are not able to fetch then use include header as true
+                    if include_header.lower() == "true" and qlog is not None:
+                        write_headers(qlog, fp)
+
                     # In Python 3,
                     # If the delim is None, fp should be in binary mode because
                     # boto expects it to be.
                     # If the delim is not None, then both text and binary modes
                     # work.
+
                     _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim,
                                        skip_data_avail_check=isinstance(self, PrestoCommand))
             else:
@@ -1246,6 +1260,20 @@ def _read_iteratively(key_instance, fp, delim):
         except StopIteration:
             # Stream closes itself when the exception is raised
             return
+
+def write_headers(qlog,fp):
+    col_names = []
+    qlog = json.loads(qlog)
+    if qlog["QBOL-QUERY-SCHEMA"] is not None:
+        qlog_hash = qlog["QBOL-QUERY-SCHEMA"]["-1"] if qlog["QBOL-QUERY-SCHEMA"]["-1"] is not None else qlog["QBOL-QUERY-SCHEMA"][qlog["QBOL-QUERY-SCHEMA"].keys[0]]
+
+        for qlog_item in qlog_hash:
+            col_names.append(qlog_item["ColumnName"])
+
+        col_names = "\t".join(col_names)
+        col_names += "\n"
+
+    fp.write(col_names)
 
 
 def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_data_avail_check=False):
