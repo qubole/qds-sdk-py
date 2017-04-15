@@ -16,6 +16,7 @@ setup(
     author="Qubole",
     author_email="dev@qubole.com",
     description=("Python SDK for coding to the Qubole Data Service API"),
+    license="Apache License 2.0",
     keywords="qubole sdk api",
     url="https://github.com/qubole/qds-sdk-py",
     packages=['qds_sdk'],

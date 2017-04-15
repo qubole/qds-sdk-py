@@ -16,6 +16,7 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
+from qds_sdk.sensors import *
 
 import os
 import sys
@@ -37,6 +38,11 @@ CommandClasses = {
     "prestocmd": PrestoCommand
 }
 
+SensorClasses = {
+    "filesensor": FileSensor,
+    "partitionsensor": PartitionSensor
+}
+
 usage_str = (
     "Usage: qds.py [options] <subcommand>\n"
     "\nCommand subcommands:\n"
@@ -47,7 +53,8 @@ usage_str = (
     "                                            include-query-properties(true/false) -> to include query properties like\n"
     "                                            tags, comments and user actions\n"
     "    cancel <id> : cancels the cmd with this id\n"
-    "    getresult <id> : get the results for the cmd with this id\n"
+    "    getresult <id> <include_header>: id -> get the results for the cmd with this id\n"
+    "                                     include_header -> to include headers in results(true/false)\n"
     "    getlog <id> : get the logs for the cmd with this id\n"
     "\nCluster subcommand:\n"
     "  cluster <action>\n"
@@ -88,7 +95,9 @@ usage_str = (
     "\nNezha subcommand:\n"
     "  nezha --help\n"
     "\nUser subcommad:\n"
-    "  user --help\n")
+    "  user --help\n"
+    "\nSensor subcommand:\n"
+    " <filesensor|partitionsensor> --help\n")
 
 
 def usage(parser=None):
@@ -115,10 +124,10 @@ def submitaction(cmdclass, args):
         return 0
 
 
-def _getresult(cmdclass, cmd):
+def _getresult(cmdclass, cmd, args=[]):
     if Command.is_success(cmd.status):
         log.info("Fetching results for %s, Id: %s" % (cmdclass.__name__, cmd.id))
-        cmd.get_results(sys.stdout, delim='\t')
+        cmd.get_results(sys.stdout, delim='\t', qlog=cmd.qlog, arguments=args)
         return 0
     else:
         log.error("Cannot fetch results - command Id: %s failed with status: %s" % (cmd.id, cmd.status))
@@ -167,9 +176,12 @@ def cancelaction(cmdclass, args):
 
 
 def getresultaction(cmdclass, args):
-    checkargs_id(args)
+    if len(args) > 2:
+        sys.stderr.write("expecting not more than 2 arguments\n")
+        usage()
+
     cmd = cmdclass.find(args.pop(0))
-    return _getresult(cmdclass, cmd)
+    return _getresult(cmdclass, cmd, args)
 
 
 def getlogaction(cmdclass, args):
@@ -204,6 +216,12 @@ def cmdmain(cmd, args):
         usage()
 
     return globals()[action + "action"](cmdclass, args)
+
+
+def sensormain(sensor, args):
+    sensor_class = SensorClasses[sensor]
+    print(SensorCmdLine.check(sensor_class, args))
+    return 0
 
 
 def checkargs_cluster_id_label(args):
@@ -570,6 +588,9 @@ def main():
     a0 = args.pop(0)
     if a0 in CommandClasses:
         return cmdmain(a0, args)
+
+    if a0 in SensorClasses:
+        return sensormain(a0, args)
 
     if a0 == "account":
         return accountmain(args)
