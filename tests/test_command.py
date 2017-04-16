@@ -22,63 +22,71 @@ class TestCommandCheck(QdsCliTestCase):
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_sparkcmd(self):
         sys.argv = ['qds.py', 'sparkcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_hadoopcmd(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_prestocmd(self):
         sys.argv = ['qds.py', 'prestocmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_pigcmd(self):
         sys.argv = ['qds.py', 'pigcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_shellcmd(self):
         sys.argv = ['qds.py', 'shellcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_dbexportcmd(self):
         sys.argv = ['qds.py', 'dbexportcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_dbimportcmd(self):
         sys.argv = ['qds.py', 'dbimportcmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_dbtapquerycmd(self):
         sys.argv = ['qds.py', 'dbtapquerycmd', 'check', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("GET", "commands/123", params=None)
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
+
+    def test_includequeryproperty(self):
+        sys.argv = ['qds.py', 'hivecmd', 'check', '123', 'true']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'true'})
+
 
 
 class TestCommandCancel(QdsCliTestCase):
