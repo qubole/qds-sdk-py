@@ -29,6 +29,7 @@ class Qubole:
     poll_interval = None
     skip_ssl_cert_check = None
     cloud = None
+    cloud_config = None
 
     @classmethod
     def configure(cls, api_token,
@@ -57,6 +58,7 @@ class Qubole:
             cls.poll_interval = poll_interval
         cls.skip_ssl_cert_check = skip_ssl_cert_check
         cls.cloud = cloud.lower()
+        cls.cloud_config = Qubole.get_cloud(cloud=cls.cloud)
 
 
     cached_agent = None
@@ -89,3 +91,17 @@ class Qubole:
           cls.cached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check)
 
         return cls.cached_agent
+
+    @classmethod
+    def get_cloud(cls, cloud=None):
+        if cloud == "aws":
+            import qds_sdk.cloud.aws_cloud
+            return qds_sdk.cloud.aws_cloud.AwsCloud()
+        elif cloud == "oracle_bmc":
+            import qds_sdk.cloud.oracle_bmc_cloud
+            return qds_sdk.cloud.oracle_bmc_cloud.OracleBmcCloud()
+        elif cloud == "azure":
+            import qds_sdk.cloud.azure_cloud
+            return qds_sdk.cloud.azure_cloud.AzureCloud()
+        else:
+            return cls.cloud_config
