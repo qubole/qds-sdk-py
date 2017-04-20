@@ -108,7 +108,6 @@ class AwsCloud(Cloud):
                               master_elastic_ip=arguments.master_elastic_ip)
 
     def create_parser(self, argparser):
-
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
         compute_creds = compute_config.add_mutually_exclusive_group()

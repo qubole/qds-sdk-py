@@ -56,10 +56,7 @@ class Qubole:
         else:
             cls.poll_interval = poll_interval
         cls.skip_ssl_cert_check = skip_ssl_cert_check
-        if cloud is not None:
-            cls.cloud = cloud.lower()
-        else:
-            cls.cloud = "aws"
+        cls.cloud = cloud.lower()
 
 
     cached_agent = None

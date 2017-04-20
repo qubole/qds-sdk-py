@@ -37,7 +37,6 @@ class ClusterCmdLine:
 
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
-
         # cloud config parser
         cloud = Cloud.get_cloud()
         cloud.create_parser(subparser)
@@ -101,7 +100,6 @@ class ClusterCmdLine:
 
     @staticmethod
     def get_cluster_request_parameters(cluster_info, cloud_config, engine_config):
-
         '''
         Use this to return final minimal request from cluster_info, cloud_config or engine_config objects
         Alternatively call util._make_minimal if only one object needs to be implemented
@@ -242,7 +240,6 @@ class ClusterInfoV2(object):
 
                 `datadog_app_token` : Specify the Datadog APP token to use the Datadog monitoring service
 
-
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
@@ -325,7 +322,6 @@ class ClusterInfoV2(object):
 
     @staticmethod
     def cluster_info_parser(argparser, action):
-
         create_required = False
         label_required = False
         if action == "create":

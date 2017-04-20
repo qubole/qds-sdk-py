@@ -137,7 +137,6 @@ class AzureCloud(Cloud):
                               vnet_resource_group_name=arguments.vnet_resource_group_name)
 
     def create_parser(self, argparser):
-
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
         compute_creds = compute_config.add_mutually_exclusive_group()
