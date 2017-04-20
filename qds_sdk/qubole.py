@@ -105,3 +105,4 @@ class Qubole:
             return qds_sdk.cloud.azure_cloud.AzureCloud()
         else:
             return cls.cloud_config
+        
