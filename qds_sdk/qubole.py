@@ -94,6 +94,9 @@ class Qubole:
 
     @classmethod
     def get_cloud(cls, cloud=None):
+        if cloud not in ["aws", "oracle_bmc", "azure"]:
+            raise Exception("cloud should be 'aws', 'oracle_bmc' or 'azure'")
+
         if cloud == "aws":
             import qds_sdk.cloud.aws_cloud
             return qds_sdk.cloud.aws_cloud.AwsCloud()
@@ -105,4 +108,3 @@ class Qubole:
             return qds_sdk.cloud.azure_cloud.AzureCloud()
         else:
             return cls.cloud_config
-        
