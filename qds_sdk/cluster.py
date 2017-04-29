@@ -73,9 +73,18 @@ class Cluster(Resource):
         elif state is not None:
             cluster_list = conn.get(cls.rest_entity_path)
             result = []
-            for cluster in cluster_list:
-                if state.lower() == cluster['cluster']['state'].lower():
-                    result.append(cluster)
+            if Cluster.api_version == 'v1.2':
+                for cluster in cluster_list:
+                    current_state = cluster['cluster']['state']
+                    if state.lower() == current_state.lower():
+                        result.append(cluster)
+
+            else:
+                cluster_list = cluster_list['clusters']
+                for cluster in cluster_list:
+                    current_state = cluster['state']
+                    if state.lower() == current_state.lower():
+                        result.append(cluster)
             return result
 
     @classmethod
