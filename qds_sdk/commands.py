@@ -1323,6 +1323,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
                     # SDK-191, boto gives an error while fetching the objects using versions. So attempt one without
                     # versions in such case.
                     log.info("Access denied while fetching the s3 object. Rertying without the version....")
+                    key_instance.close()
                     key_instance.open()
                     fp.write(key_instance.read())
                     key_instance.close()
