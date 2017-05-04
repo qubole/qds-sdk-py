@@ -428,10 +428,27 @@ class TestSparkCommand(QdsCliTestCase):
             qds.main()
 
     def test_submit_script_location_aws(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script']
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.py']
         print_command()
-        with self.assertRaises(qds_sdk.exception.ParseError):
-            qds.main()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': "python",
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': None,
+                 'app_id': None,
+                 'cmdline':None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script.py',
+                 'note_id' : None,
+                 'retry': 0})
 
     def test_submit_script_location_local_py(self):
         with NamedTemporaryFile(suffix=".py") as tmp:
