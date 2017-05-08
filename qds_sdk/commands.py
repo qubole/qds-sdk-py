@@ -536,6 +536,20 @@ class SparkCommand(Command):
             if options.language is not None:
                 raise ParseError("Both script location and language cannot be specified together", cls.optparser.format_help())
             # for now, aws script_location is not supported and throws an error
+            fileName, fileExtension = os.path.splitext(options.script_location)
+            # getting the language of the program from the file extension
+            if fileExtension == ".py":
+                options.language = "python"
+            elif fileExtension == ".scala":
+                options.language = "scala"
+            elif fileExtension == ".R":
+                options.language = "R"
+            elif fileExtension == ".sql":
+                options.language = "sql"
+            else:
+                raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
+                                 cls.optparser.format_help())
+                
             if ((options.script_location.find("s3://") != 0) and
                 (options.script_location.find("s3n://") != 0)):
 
@@ -548,30 +562,14 @@ class SparkCommand(Command):
                                      str(e),
                                      cls.optparser.format_help())
 
-
-                fileName, fileExtension = os.path.splitext(options.script_location)
-                # getting the language of the program from the file extension
-                if fileExtension == ".py":
-                    options.language = "python"
-                elif fileExtension == ".scala":
-                    options.language = "scala"
-                elif fileExtension == ".R":
-                    options.language = "R"
-                elif fileExtension == ".sql":
-                    options.language = "sql"
+            
+                options.script_location = None
+                if options.language == "sql":
+                    options.sql = q
+                    options.language = None
                 else:
-                    raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
-                                     cls.optparser.format_help())
-            else:
-                raise ParseError("Invalid location, Please choose a local file location",
-                                 cls.optparser.format_help())
+                    options.program = q
 
-            options.script_location = None
-            if options.language == "sql":
-                options.sql = q
-                options.language = None
-            else:
-                options.program = q
 
     @classmethod
     def parse(cls, args):

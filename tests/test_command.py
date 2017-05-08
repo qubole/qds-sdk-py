@@ -435,8 +435,100 @@ class TestSparkCommand(QdsCliTestCase):
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
-    def test_submit_script_location_aws(self):
-        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script']
+    def test_submit_script_location_aws_python(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.py']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': "python",
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': None,
+                 'app_id': None,
+                 'cmdline':None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script.py',
+                 'note_id' : None,
+                 'retry': 0})
+
+    def test_submit_script_location_aws_scala(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.scala']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': "scala",
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': None,
+                 'app_id': None,
+                 'cmdline':None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script.scala',
+                 'note_id' : None,
+                 'retry': 0})
+
+    def test_submit_script_location_aws_R(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.R']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': "R",
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': None,
+                 'app_id': None,
+                 'cmdline':None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script.R',
+                 'note_id' : None,
+                 'retry': 0})
+
+    def test_submit_script_location_aws_sql(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.sql']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': "sql",
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': None,
+                 'app_id': None,
+                 'cmdline':None,
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': 's3://bucket/path-to-script.sql',
+                 'note_id' : None,
+                 'retry': 0})
+
+    def test_submit_script_location_aws_java(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.java']
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
