@@ -29,7 +29,7 @@ class Qubole:
     poll_interval = None
     skip_ssl_cert_check = None
     cloud = None
-    cloud_config = None
+    cloud_name = None
 
     @classmethod
     def configure(cls, api_token,
@@ -57,11 +57,12 @@ class Qubole:
         else:
             cls.poll_interval = poll_interval
         cls.skip_ssl_cert_check = skip_ssl_cert_check
-        cls.cloud = cloud.lower()
-        cls.cloud_config = Qubole.get_cloud(cloud=cls.cloud)
+        cls.cloud_name = cloud.lower()
+
 
 
     cached_agent = None
+
 
     @classmethod
     def agent(cls, version=None):
@@ -93,18 +94,25 @@ class Qubole:
         return cls.cached_agent
 
     @classmethod
-    def get_cloud(cls, cloud=None):
-        if cloud not in ["aws", "oracle_bmc", "azure"]:
+    def get_cloud(cls, cloud_name=None):
+        if cloud_name and cloud_name.lower() not in ["aws", "oracle_bmc", "azure"]:
             raise Exception("cloud should be 'aws', 'oracle_bmc' or 'azure'")
 
-        if cloud == "aws":
+        if cloud_name:
+            return Qubole.get_cloud_object(cloud_name)
+        else:
+            if cls.cloud is None:
+                cls.cloud = Qubole.get_cloud_object(cls.cloud_name)
+            return cls.cloud
+
+    @classmethod
+    def get_cloud_object(cls, cloud_name):
+        if cloud_name.lower() == "aws":
             import qds_sdk.cloud.aws_cloud
             return qds_sdk.cloud.aws_cloud.AwsCloud()
-        elif cloud == "oracle_bmc":
+        elif cloud_name.lower()  == "oracle_bmc":
             import qds_sdk.cloud.oracle_bmc_cloud
             return qds_sdk.cloud.oracle_bmc_cloud.OracleBmcCloud()
-        elif cloud == "azure":
+        elif cloud_name.lower()  == "azure":
             import qds_sdk.cloud.azure_cloud
             return qds_sdk.cloud.azure_cloud.AzureCloud()
-        else:
-            return cls.cloud_config

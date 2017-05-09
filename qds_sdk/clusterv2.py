@@ -38,7 +38,7 @@ class ClusterCmdLine:
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
         # cloud config parser
-        cloud = Qubole.cloud_config
+        cloud = Qubole.get_cloud
         cloud.create_parser(subparser)
 
         # cluster info parser
@@ -83,7 +83,7 @@ class ClusterCmdLine:
                                       customer_ssh_key=customer_ssh_key)
 
         #  This will set cloud config settings
-        cloud_config = Qubole.cloud_config
+        cloud_config = Qubole.get_cloud
         cloud_config.set_cloud_config_from_arguments(arguments)
 
         # This will set engine settings
