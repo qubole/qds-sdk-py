@@ -539,7 +539,7 @@ def main():
                          default=False,
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
-    optparser.add_option("--cloud", dest="cloud",
+    optparser.add_option("--cloud_name", dest="cloud_name",
                          default=os.getenv('CLOUD_PROVIDER'),
                          help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC"])
 
@@ -574,8 +574,8 @@ def main():
     if options.poll_interval is None:
         options.poll_interval = 5
 
-    if options.cloud is None:
-        options.cloud = "AWS"
+    if options.cloud_name is None:
+        options.cloud_name = "AWS"
 
     if options.skip_ssl_cert_check is None:
         options.skip_ssl_cert_check = False
@@ -587,7 +587,7 @@ def main():
                      version=options.api_version,
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
-                     cloud=options.cloud)
+                     cloud_name=options.cloud_name)
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")

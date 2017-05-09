@@ -13,11 +13,13 @@ from qds_sdk.connection import Connection
 from test_base import print_command
 from test_base import QdsCliTestCase
 from qds_sdk.cloud.cloud import Cloud
+from qds_sdk.qubole import Qubole
 
 class TestClusterCreate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py','--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                 '--compute-access-key', 'aki', '--compute-secret-key', 'sak']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -37,6 +39,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--max-nodes', '5', '--disallow-cluster-termination', '--enable-ganglia-monitoring',
                     '--node-bootstrap-file', 'test_file_name', '--master-instance-type',
                     'm1.xlarge','--slave-instance-type', 'm1.large', '--encrypted-ephemerals']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -54,6 +57,7 @@ class TestClusterCreate(QdsCliTestCase):
     def test_aws_compute_config(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--enable-account-compute-creds']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -68,6 +72,7 @@ class TestClusterCreate(QdsCliTestCase):
                         '--enable-account-compute-creds', '--vpc-id', 'vpc-12345678', '--subnet-id', 'subnet-12345678',
                         '--bastion-node-public-dns', 'dummydns','--persistent-security-groups',
                         'foopsg','--master-elastic-ip', "10.10.10.10"]
+            Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
             qds.main()
@@ -82,6 +87,7 @@ class TestClusterCreate(QdsCliTestCase):
     def test_aws_location_config(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--aws-region', 'us-east-1', '--aws-availability-zone', 'us-east-1a']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -94,6 +100,7 @@ class TestClusterCreate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--compute-tenant-id', 'xxx11', '--compute-user-id', 'yyyy11', '--compute-key-finger-print',
                     'zzz22', '--compute-api-private-rsa-key', 'aaa']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -108,6 +115,7 @@ class TestClusterCreate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--storage-tenant-id', 'xxx11', '--storage-user-id', 'yyyy11', '--storage-key-finger-print',
                     'zzz22', '--storage-api-private-rsa-key', 'aaa']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -123,6 +131,7 @@ class TestClusterCreate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--compartment-id', 'abc-compartment', '--image-id', 'abc-image', '--vcn-id', 'vcn-1',
                     '--subnet-id', 'subnet-1' ]
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -136,6 +145,7 @@ class TestClusterCreate(QdsCliTestCase):
     def test_oracle_bmc_location_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--oracle-region', 'us-phoenix-1', '--oracle-availability-zone', 'phx-ad-1']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -149,6 +159,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--compute-client-id', 'testclientid', '--compute-client-secret', 'testclientsecret',
                     '--compute-tenant-id', 'testtenantid', '--compute-subscription-id', 'testsubscriptionid',
                     '--disable-account-compute-creds']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -167,6 +178,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--storage-access-key', 'testkey', '--storage-account-name', 'test_account_name',
                     '--disk-storage-account-name', 'testaccname', '--disk-storage-account-resource-group-name',
                     'testgrpname']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -186,6 +198,7 @@ class TestClusterCreate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
                     '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
                     '--vnet-resource-group-name', 'vnetresname']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -202,6 +215,7 @@ class TestClusterCreate(QdsCliTestCase):
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                         '--flavour', 'presto', '--presto-custom-config', temp.name]
+            Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
             qds.main()
@@ -218,6 +232,7 @@ class TestClusterCreate(QdsCliTestCase):
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                         '--flavour', 'spark', '--custom-spark-config', 'spark-overrides']
+            Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
             qds.main()
@@ -232,6 +247,7 @@ class TestClusterCreate(QdsCliTestCase):
     def test_persistent_security_groups_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--persistent-security-groups', 'sg1, sg2']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -247,6 +263,7 @@ class TestClusterCreate(QdsCliTestCase):
     def test_data_disk_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--count', '1', '--size', '100', '--disk-type', 'standard']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -258,6 +275,7 @@ class TestClusterCreate(QdsCliTestCase):
     def test_heterogeneous_config_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--heterogeneous-config', 'test']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -272,6 +290,7 @@ class TestClusterCreate(QdsCliTestCase):
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -281,6 +300,7 @@ class TestClusterUpdate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
                     '--compute-access-key', 'aki', '--aws-region', 'us-east-1',
                     '--bastion-node-public-dns', 'dummydns']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -298,6 +318,7 @@ class TestClusterUpdate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'update', '123',
                     '--vnet-name', 'testvnet', '--storage-account-name', 'test_account_name',
                     '--compute-subscription-id', 'testsubscriptionid']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -310,6 +331,7 @@ class TestClusterUpdate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'update', '123',
                     '--oracle-region', 'us-phoenix-1', '--compartment-id', 'abc-compartment',
                     '--storage-tenant-id', 'xxx11', '--compute-user-id', 'yyyy11']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -329,6 +351,7 @@ class TestClusterUpdate(QdsCliTestCase):
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
                         '--use-qubole-placement-policy', '--custom-hadoop-config',
                         temp.name]
+            Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
             qds.main()
@@ -342,6 +365,7 @@ class TestClusterUpdate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
                     '--slave-request-type', 'ondemand', '--max-nodes', '6',
                     '--disable-ganglia-monitoring']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -355,6 +379,7 @@ class TestClusterClone(QdsCliTestCase):
 
     def test_minimal(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'clone', '1234', '--label', 'test_label1', 'test_label2']
+        Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
