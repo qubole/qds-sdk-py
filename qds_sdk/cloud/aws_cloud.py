@@ -32,7 +32,7 @@ class AwsCloud(Cloud):
             compute_secret_key: The secret access key for customer's aws
                 account. This is required for creating the cluster.
 
-            use_account_compute_creds: Set it to true to use the account’s compute
+            use_account_compute_creds: Set it to true to use the account's compute
                 credentials for all clusters of the account.The default value is false
 
             aws_region: The AWS region in which the cluster is created. The default value is, us-east-1.
