@@ -1,7 +1,6 @@
 #!/bin/env python
 
 from __future__ import print_function
-from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
 from qds_sdk.cluster import *
 import qds_sdk.exception
@@ -16,8 +15,8 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
+from qds_sdk.clusterv2 import ClusterCmdLine
 from qds_sdk.sensors import *
-
 import os
 import sys
 import traceback
@@ -49,7 +48,9 @@ usage_str = (
     "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbimportcmd|dbtapquerycmd|sparkcmd> <action>\n"
     "    submit [cmd-specific-args .. ] : submit cmd & print id\n"
     "    run [cmd-specific-args .. ] : submit cmd & wait. print results\n"
-    "    check <id> : print the cmd object for this id\n"
+    "    check <id> <include-query-properties> : id -> print the cmd object for this id\n"
+    "                                            include-query-properties(true/false) -> to include query properties like\n"
+    "                                            tags, comments and user actions\n"
     "    cancel <id> : cancels the cmd with this id\n"
     "    getresult <id> <include_header>: id -> get the results for the cmd with this id\n"
     "                                     include_header -> to include headers in results(true/false)\n"
@@ -143,9 +144,20 @@ def runaction(cmdclass, args):
 
 
 def checkaction(cmdclass, args):
-    checkargs_id(args)
-    o = cmdclass.find(args.pop(0))
-    print(str(o))
+    if len(args) > 2:
+        sys.stderr.write("expecting not more than 2 arguments\n")
+        usage()
+
+    conn = Qubole.agent()
+    id = args.pop(0)
+    include_query_properties="false"
+    if len(args) == 1:
+        include_query_properties=args.pop(0)
+        if include_query_properties not in ('true', 'false'):
+            raise ParseError("include-query-properties can be either true or false")
+
+    r = conn.get(cmdclass.element_path(id), {'include_query_properties': include_query_properties})
+    print(str(r))
     return 0
 
 
@@ -225,7 +237,6 @@ def cluster_create_action(clusterclass, args, api_version=1.2):
     result = clusterclass.create(cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
-
 
 def cluster_update_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "update", api_version)
@@ -459,6 +470,23 @@ def clustermain(args, api_version):
     else:
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
+def clustermainv2(args):
+    action = args[0]
+    actionset = set(
+        ["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node",
+         "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule",
+         "update_snapshot_schedule"])
+
+    result = None
+    if action not in actionset:
+        sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
+        usage()
+    elif action in set(["create", "update", "clone"]):
+        result =  ClusterCmdLine.run(args)
+    else:
+        result =  globals()["cluster_" + action + "_action"](Cluster, args)
+    print(result)
+
 def accountmain(args):
     result = AccountCmdLine.run(args)
     print(result)
@@ -503,7 +531,7 @@ def nezhamain(args):
 def templatemain(args):
     result = TemplateCmdLine.run(args)
     print(result)
-    
+
 
 def main():
     optparser = OptionParser(usage=usage_str)
@@ -527,6 +555,10 @@ def main():
     optparser.add_option("--skip_ssl_cert_check", dest="skip_ssl_cert_check", action="store_true",
                          default=False,
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
+
+    optparser.add_option("--cloud_name", dest="cloud_name",
+                         default=os.getenv('CLOUD_PROVIDER'),
+                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC"])
 
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
@@ -559,6 +591,9 @@ def main():
     if options.poll_interval is None:
         options.poll_interval = 5
 
+    if options.cloud_name is None:
+        options.cloud_name = "AWS"
+
     if options.skip_ssl_cert_check is None:
         options.skip_ssl_cert_check = False
     elif options.skip_ssl_cert_check:
@@ -568,7 +603,8 @@ def main():
                      api_url=options.api_url,
                      version=options.api_version,
                      poll_interval=options.poll_interval,
-                     skip_ssl_cert_check=options.skip_ssl_cert_check)
+                     skip_ssl_cert_check=options.skip_ssl_cert_check,
+                     cloud_name=options.cloud_name)
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")
@@ -586,7 +622,10 @@ def main():
 
     if a0 == "cluster":
         api_version_number = float(options.api_version[1:])
-        return clustermain(args, api_version_number)
+        if api_version_number >= 2.0:
+            return clustermainv2(args)
+        else:
+            return clustermain(args, api_version_number)
 
     if a0 == "action":
         return actionmain(args)
