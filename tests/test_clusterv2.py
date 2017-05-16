@@ -209,6 +209,56 @@ class TestClusterCreate(QdsCliTestCase):
                                                                        'vnet_name': 'testvnet'}},
                                                     'cluster_info': {'label': ['test_label']}})
 
+    def test_oracle_opc_compute_config(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
+                    '--username', 'testusername', '--password', 'testpassword',
+                    '--rest-api-endpoint', 'testrestapiendpoint', '--disable-account-compute-creds']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'compute_config': {'username': 'testusername',
+                                                                       'password': 'testpassword',
+                                                                       'rest_api_endpoint': 'testrestapiendpoint',
+                                                                       'use_account_compute_creds': False}},
+                                                    'cluster_info': {'label': ['test_label']}})
+
+    def test_oracle_opc_storage_config(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
+                    '--storage-username', 'testusername', '--storage-password', 'testpassword',
+                    '--storage-rest-api-endpoint', 'testrestapiendpoint']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':
+                                                     {'label': ['test_label']},
+                                                 'cloud_config':
+                                                     {'storage_config':
+                                                          {'storage_username': 'testusername',
+                                                           'storage_password': 'testpassword',
+                                                           'storage_rest_api_endpoint': 'testrestapiendpoint'}
+                                                      }
+                                                 })
+
+    def test_oracle_opc_network_config(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
+                    '--vnic-set', 'testvnic', '--ip-network', 'testipnetwork']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnic_set': 'testvnic',
+                                                                       'ip_network': 'testipnetwork'}},
+                                                    'cluster_info': {'label': ['test_label']}})
+
+
+
     def test_presto_engine_config(self):
         with tempfile.NamedTemporaryFile() as temp:
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
@@ -286,6 +336,18 @@ class TestClusterCreate(QdsCliTestCase):
                                                       }
                                                  })
 
+    def test_image_override(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--image-overrides', 'test/image1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':{'label': ['test_label']},
+                                                'internal':{'image_uri_overrides': 'test/image1'}
+                                                })
+
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -343,6 +405,23 @@ class TestClusterUpdate(QdsCliTestCase):
                                                                               'location': {'region': 'us-phoenix-1'}
                                                                               }
                                                                          })
+
+    def test_oracle_opc_cloud_config(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'update', '123',
+                    '--vnic-set', 'vnic_set_1', '--rest-api-endpoint', 'rest_api_endpoint_1',
+                    '--storage-rest-api-endpoint', 'storage_rest_api_endpoint_1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',  {'cloud_config':
+                                                                             {'network_config':
+                                                                                  {'vnic_set': 'vnic_set_1'},
+                                                                              'compute_config': {'rest_api_endpoint': 'rest_api_endpoint_1'},
+                                                                              'storage_config': {'storage_rest_api_endpoint': 'storage_rest_api_endpoint_1'}
+                                                                              }
+                                                                         })
+
 
     def test_engine_config(self):
         with tempfile.NamedTemporaryFile() as temp:
