@@ -38,7 +38,7 @@ class OracleBmcCloud(Cloud):
 
             compute_api_private_rsa_key: compute api private rsa key for oracle cluster
 
-            use_account_compute_creds: Set it to true to use the account’s compute
+            use_account_compute_creds: Set it to true to use the account's compute
                 credentials for all clusters of the account.The default value is false
 
             subnet_id: subnet id for oracle
