@@ -1,6 +1,6 @@
 import re
 import optparse
-
+import sys
 
 class OptionParsingError(RuntimeError):
     def __init__(self, msg):
@@ -142,3 +142,31 @@ def underscore(word):
     """
     return re.sub(r'\B((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))',
                   r'_\1', word).lower()
+
+def _make_minimal(dictionary):
+    """
+    This function removes all the keys whose value is either None or an empty
+    dictionary.
+    """
+    new_dict = {}
+    for key, value in dictionary.items():
+        if value is not None:
+            if isinstance(value, dict):
+                new_value = _make_minimal(value)
+                if new_value:
+                    new_dict[key] = new_value
+            else:
+                new_dict[key] = value
+    return new_dict
+
+def _read_file(file_path):
+    file_content = None
+    if file_path is not None:
+        try:
+            with open(file_path) as f:
+                file_content = f.read()
+        except IOError as e:
+            sys.stderr.write("Unable to read %s: %s\n" % (file_path, str(e)))
+            raise IOError("Unable to read %s: %s\n" % (file_path, str(e)))
+    return file_content
+
