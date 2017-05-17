@@ -23,23 +23,23 @@ class OracleOpcCloud(Cloud):
         '''
 
         Args:
-            username: Username for customer's oracle opc account. This
+            username: Username for customers oracle opc account. This
                 is required for creating the cluster.
 
-            password: Password for customer's oracle opc account. This
+            password: Password for customers oracle opc account. This
                 is required for creating the cluster.
 
-            rest_api_endpoint: Rest API endpoint for customer's oracle opc cloud.
+            rest_api_endpoint: Rest API endpoint for customers oracle opc cloud.
 
-            use_account_compute_creds: Set it to true to use the account’s compute
+            use_account_compute_creds: Set it to true to use the accounts compute
                 credentials for all clusters of the account.The default value is false
 
             storage_rest_api_endpoint: Rest API endpoint for storage related operations.
 
-            storage_username: Username for customer's oracle opc account. This
+            storage_username: Username for customers oracle opc account. This
                 is required for creating the cluster.
 
-            storage_password: Password for customer's oracle opc account. This
+            storage_password: Password for customers oracle opc account. This
                 is required for creating the cluster.
 
             vnic_set: vnic set for oracle opc.
