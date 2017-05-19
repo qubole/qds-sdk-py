@@ -1342,7 +1342,18 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
             raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
         log.info("Downloading file from %s" % s3_path)
         if delim is None:
-            key_instance.get_contents_to_file(fp)  # cb=_callback
+            try:
+                key_instance.get_contents_to_file(fp)  # cb=_callback
+            except boto.exception.S3ResponseError as e:
+                if (e.status == 403):
+                    # SDK-191, boto gives an error while fetching the objects using versions which happens by default
+                    # in the get_contents_to_file() api. So attempt one without specifying version.
+                    log.warn("Access denied while fetching the s3 object. Retrying without specifying the version....")
+                    key_instance.open()
+                    fp.write(key_instance.read())
+                    key_instance.close()
+                else:
+                    raise
         else:
             # Get contents as string. Replace parameters and write to file.
             _read_iteratively(key_instance, fp, delim=delim)
