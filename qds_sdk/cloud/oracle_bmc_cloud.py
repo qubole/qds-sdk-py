@@ -1,4 +1,15 @@
 from qds_sdk.cloud.cloud import Cloud
+from qds_sdk.commands import Command,PrestoCommand
+
+import sys
+import logging
+import re
+import uuid
+import os
+
+log = logging.getLogger("qds_commands")
+Oracle_URI_RE = re.compile(r'oraclebmc://([^@]+)([^/]+)/?(.*)')
+
 class OracleBmcCloud(Cloud):
     '''
     qds_sdk.cloud.OracleBmcCloud is the class which stores information about oracle bmc cloud config settings.
@@ -201,3 +212,89 @@ class OracleBmcCloud(Cloud):
                                     dest="storage_api_private_rsa_key",
                                     default=None,
                                     help="storage api private rsa key for oracle cluster")
+
+
+    def get_results(self, fp=sys.stdout, storage_credentials=None, r={}, delim=None, qlog=None, include_header=None):
+        import oraclebmc
+        private_key = storage_credentials.get('storage_config').get('api_private_rsa_key')
+        private_key_file_path = "/tmp/" + uuid.uuid4().hex
+        with open(private_key_file_path, 'w+') as private_key_file:
+            private_key_file.write(private_key)
+        os.chmod(private_key_file_path, 0o744)
+        oracle_config = {"user": storage_credentials.get('storage_config').get('user_id'),
+                         "key_file": private_key_file_path,
+                         "fingerprint": storage_credentials.get('storage_config').get('key_finger_print'),
+                         "tenancy": storage_credentials.get('storage_config').get('tenant_id'),
+                         "region": "us-phoenix-1",  # just now added us-phoenix-1 , have to change api to get this param
+                         "pass_phrase": None,
+                         "additional_user_agent": "",
+                         "log_requests": False
+                         }
+        object_storage = oraclebmc.object_storage.ObjectStorageClient(oracle_config)
+        log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
+        num_result_dir = Command.find(self.id).num_result_dir
+        for oracle_path in r['result_location']:
+            _download_to_local_oracle(object_storage, oracle_path, fp, delim=delim,
+                                      skip_data_avail_check=isinstance(self, PrestoCommand))
+
+
+def _download_to_local_oracle(storage_conn, oracle_path, fp, delim=None, skip_data_avail_check=False):
+
+    def get_contents_to_file_using_delim():
+        if sys.version_info < (3, 0, 0):
+            fp.write(str(content).replace(chr(1), delim))
+        else:
+            import io
+            if isinstance(fp, io.TextIOBase):
+                fp.buffer.write(content.decode('utf-8').replace(chr(1), delim).encode('utf8'))
+            elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                fp.write(content.decode('utf8').replace(chr(1), delim).encode('utf8'))
+            else:
+                # Can this happen? Don't know what's the right thing to do in this case.
+                pass
+
+    def get_contents_to_file_oracle():
+        if sys.version_info < (3, 0, 0):
+            fp.write(content.encode('utf8'))
+        else:
+            import io
+            if isinstance(fp, io.TextIOBase):
+                fp.buffer.write(content.encode('utf8'))
+            elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
+                fp.write(content.encode('utf8'))
+            else:
+                # Can this happen? Don't know what's the right thing to do in this case.
+                pass
+
+
+    try:
+        m = Oracle_URI_RE.match(oracle_path)
+        bucket_name = m.group(1)
+        object_name = m.group(3)
+        namespace_name = storage_conn.get_namespace().data
+        if oracle_path.endswith('/') is False:
+
+            response = storage_conn.get_object(namespace_name, bucket_name, object_name)
+            content = response.data.content if response.data is not None else ""
+
+            if delim is not None:
+                get_contents_to_file_using_delim()
+            else:
+                get_contents_to_file_oracle()
+        else:
+            # Write check for results if incomplete data available
+            # For folders
+            list = storage_conn.list_objects(namespace_name,bucket_name,prefix=object_name)
+            objects = list.data.objects
+            for one_path in objects:
+                name = one_path.name
+                if name.endswith('/') is False:
+                    log.info("Downloading file from %s" % name)
+                    response = storage_conn.get_object(namespace_name, bucket_name, name)
+                    content = response.data.content if response.data is not None else ""
+                    if delim is not None:
+                        get_contents_to_file_using_delim()
+                    else:
+                        get_contents_to_file_oracle()
+    except Exception as e:
+        raise Exception("Not able to download results: %s" % e.message)
