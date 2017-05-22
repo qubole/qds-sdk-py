@@ -180,14 +180,13 @@ class AwsCloud(Cloud):
                                           help="master elastic ip for cluster")
 
 
-    def get_results(self, fp=sys.stdout, storage_credentials=None, r={}, delim=None, qlog=None, include_header=None):
-        boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
-                                    aws_secret_access_key=storage_credentials['storage_secret_key'],
-                                    security_token=storage_credentials['session_token'])
+    def get_results(self, cmd, fp=sys.stdout, storage_credentials=None, r={}, delim=None, qlog=None, include_header=None):
+        boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_config']['access_key'],
+                                    aws_secret_access_key=storage_credentials['storage_config']['secret_key'])
 
         log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
         # fetch latest value of num_result_dir
-        num_result_dir = Command.find(self.id).num_result_dir
+        num_result_dir = Command.find(cmd.id).num_result_dir
 
         for s3_path in r['result_location']:
 

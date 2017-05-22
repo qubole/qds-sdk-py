@@ -216,13 +216,13 @@ class AzureCloud(Cloud):
                                     help="disk storage account resource group for azure cluster")
 
 
-    def get_results(self, fp=sys.stdout, storage_credentials=None, r={}, delim=None, qlog=None, include_header=None):
+    def get_results(self, cmd, fp=sys.stdout, storage_credentials=None, r={}, delim=None, qlog=None, include_header=None):
         from azure.storage.blob import BlockBlobService
         account_name = storage_credentials.get('storage_config').get('account_name')
         account_key = storage_credentials.get('storage_config').get('access_key')
         block_blob_service = BlockBlobService(account_name=account_name, account_key=account_key)
         log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
-        num_result_dir = Command.find(self.id).num_result_dir
+        num_result_dir = Command.find(cmd.id).num_result_dir
         for azure_path in r['result_location']:
             _download_to_local_azure(block_blob_service, azure_path, fp, delim=delim,
                                      skip_data_avail_check=isinstance(self, PrestoCommand))

@@ -232,7 +232,7 @@ class Command(Resource):
             if fetch:
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
                 cloud = Qubole.get_cloud()
-                cloud.get_results(fp, storage_credentials, r, delim, qlog, include_header)
+                cloud.get_results(self, fp, storage_credentials, r, delim, qlog, include_header)
             else:
                 fp.write(",".join(r['result_location']))
 

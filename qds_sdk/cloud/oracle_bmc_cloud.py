@@ -214,7 +214,7 @@ class OracleBmcCloud(Cloud):
                                     help="storage api private rsa key for oracle cluster")
 
 
-    def get_results(self, fp=sys.stdout, storage_credentials=None, r={}, delim=None, qlog=None, include_header=None):
+    def get_results(self, cmd, fp=sys.stdout, storage_credentials=None, r={}, delim=None, qlog=None, include_header=None):
         import oraclebmc
         private_key = storage_credentials.get('storage_config').get('api_private_rsa_key')
         private_key_file_path = "/tmp/" + uuid.uuid4().hex
@@ -232,7 +232,7 @@ class OracleBmcCloud(Cloud):
                          }
         object_storage = oraclebmc.object_storage.ObjectStorageClient(oracle_config)
         log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
-        num_result_dir = Command.find(self.id).num_result_dir
+        num_result_dir = Command.find(cmd.id).num_result_dir
         for oracle_path in r['result_location']:
             _download_to_local_oracle(object_storage, oracle_path, fp, delim=delim,
                                       skip_data_avail_check=isinstance(self, PrestoCommand))
