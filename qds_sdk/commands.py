@@ -194,7 +194,7 @@ class Command(Resource):
         return r.text
 
 
-    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True, qlog=None, arguments=[]):
         """
         Fetches the result for the command represented by this object
 
@@ -214,7 +214,14 @@ class Command(Resource):
 
         conn = Qubole.agent()
 
-        r = conn.get(result_path, {'inline': inline})
+        include_header = "false"
+        if len(arguments) == 1:
+            include_header = arguments.pop(0)
+            if include_header not in ('true', 'false'):
+                raise ParseError("incude_header can be either true or false")
+
+
+        r = conn.get(result_path, {'inline': inline, 'include_headers': include_header})
         if r.get('inline'):
             if sys.version_info < (3, 0, 0):
                 fp.write(r['results'].encode('utf8'))
@@ -231,20 +238,26 @@ class Command(Resource):
             if fetch:
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
                 if Qubole.cloud == 'aws':
-                    boto_conn = boto.connect_s3(
-                        aws_access_key_id=storage_credentials.get('storage_config').get('access_key'),
-                        aws_secret_access_key=storage_credentials.get('storage_config').get('secret_key'),
-                        security_token=storage_credentials.get('storage_config').get('session_token'))
+                    boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
+                                                aws_secret_access_key=storage_credentials['storage_secret_key'],
+                                                security_token=storage_credentials['session_token'])
 
                     log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                     # fetch latest value of num_result_dir
                     num_result_dir = Command.find(self.id).num_result_dir
+
                     for s3_path in r['result_location']:
+
+                        # If column/header names are not able to fetch then use include header as true
+                        if include_header.lower() == "true" and qlog is not None:
+                            write_headers(qlog, fp)
+
                         # In Python 3,
                         # If the delim is None, fp should be in binary mode because
                         # boto expects it to be.
                         # If the delim is not None, then both text and binary modes
                         # work.
+
                         _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim,
                                            skip_data_avail_check=isinstance(self, PrestoCommand))
 
@@ -478,6 +491,8 @@ class SparkCommand(Command):
 
     optparser.add_option("--sql", dest="sql", help="sql for Spark")
 
+    optparser.add_option("--note-id", dest="note_id", help="Id of the Notebook to run.")
+
     optparser.add_option("-f", "--script_location", dest="script_location",
                          help="Path where spark program to run is stored. Has to be a local file path")
 
@@ -510,12 +525,12 @@ class SparkCommand(Command):
     @classmethod
     def validate_program(cls, options):
         bool_program = options.program is not None
-        bool_other_options = options.script_location is not None or options.cmdline is not None or options.sql is not None
+        bool_other_options = options.script_location is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
         # if both are false then no option is specified ==> raise ParseError
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_program == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
         if bool_program:
             if options.language is None:
                 raise ParseError("Unspecified language for Program", cls.optparser.format_help())
@@ -523,12 +538,12 @@ class SparkCommand(Command):
     @classmethod
     def validate_cmdline(cls, options):
         bool_cmdline = options.cmdline is not None
-        bool_other_options = options.script_location is not None or options.program is not None or options.sql is not None
+        bool_other_options = options.script_location is not None or options.program is not None or options.sql is not None or options.note_id is not None
 
         # if both are false then no option is specified ==> raise ParseError
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_cmdline == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
         if bool_cmdline:
             if options.language is not None:
                 raise ParseError("Language cannot be specified with the commandline option", cls.optparser.format_help())
@@ -538,12 +553,12 @@ class SparkCommand(Command):
     @classmethod
     def validate_sql(cls, options):
         bool_sql = options.sql is not None
-        bool_other_options = options.script_location is not None or options.program is not None or options.cmdline is not None
+        bool_other_options = options.script_location is not None or options.program is not None or options.cmdline is not None or options.note_id is not None
 
         # if both are false then no option is specified => raise PraseError
         # if both are true then atleast two option specified => raise ParseError
         if bool_sql == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
         if bool_sql:
             if options.language is not None:
                 raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
@@ -551,17 +566,31 @@ class SparkCommand(Command):
     @classmethod
     def validate_script_location(cls, options):
         bool_script_location = options.script_location is not None
-        bool_other_options = options.program is not None or options.cmdline is not None or options.sql is not None
+        bool_other_options = options.program is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
         # if both are false then no option is specified ==> raise ParseError
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_script_location == bool_other_options:
-            raise ParseError("Exactly One of script location or program or cmdline or sql should be specified", cls.optparser.format_help())
+            raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
 
         if bool_script_location:
             if options.language is not None:
                 raise ParseError("Both script location and language cannot be specified together", cls.optparser.format_help())
             # for now, aws script_location is not supported and throws an error
+            fileName, fileExtension = os.path.splitext(options.script_location)
+            # getting the language of the program from the file extension
+            if fileExtension == ".py":
+                options.language = "python"
+            elif fileExtension == ".scala":
+                options.language = "scala"
+            elif fileExtension == ".R":
+                options.language = "R"
+            elif fileExtension == ".sql":
+                options.language = "sql"
+            else:
+                raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
+                                 cls.optparser.format_help())
+                
             if ((options.script_location.find("s3://") != 0) and
                 (options.script_location.find("s3n://") != 0)):
 
@@ -574,30 +603,14 @@ class SparkCommand(Command):
                                      str(e),
                                      cls.optparser.format_help())
 
-
-                fileName, fileExtension = os.path.splitext(options.script_location)
-                # getting the language of the program from the file extension
-                if fileExtension == ".py":
-                    options.language = "python"
-                elif fileExtension == ".scala":
-                    options.language = "scala"
-                elif fileExtension == ".R":
-                    options.language = "R"
-                elif fileExtension == ".sql":
-                    options.language = "sql"
+            
+                options.script_location = None
+                if options.language == "sql":
+                    options.sql = q
+                    options.language = None
                 else:
-                    raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
-                                     cls.optparser.format_help())
-            else:
-                raise ParseError("Invalid location, Please choose a local file location",
-                                 cls.optparser.format_help())
+                    options.program = q
 
-            options.script_location = None
-            if options.language == "sql":
-                options.sql = q
-                options.language = None
-            else:
-                options.program = q
 
     @classmethod
     def parse(cls, args):
@@ -1287,6 +1300,20 @@ def _read_iteratively(key_instance, fp, delim):
             # Stream closes itself when the exception is raised
             return
 
+def write_headers(qlog,fp):
+    col_names = []
+    qlog = json.loads(qlog)
+    if qlog["QBOL-QUERY-SCHEMA"] is not None:
+        qlog_hash = qlog["QBOL-QUERY-SCHEMA"]["-1"] if qlog["QBOL-QUERY-SCHEMA"]["-1"] is not None else qlog["QBOL-QUERY-SCHEMA"][qlog["QBOL-QUERY-SCHEMA"].keys[0]]
+
+        for qlog_item in qlog_hash:
+            col_names.append(qlog_item["ColumnName"])
+
+        col_names = "\t".join(col_names)
+        col_names += "\n"
+
+    fp.write(col_names)
+
 
 def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_data_avail_check=False):
     '''
@@ -1356,7 +1383,18 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
             raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
         log.info("Downloading file from %s" % s3_path)
         if delim is None:
-            key_instance.get_contents_to_file(fp)  # cb=_callback
+            try:
+                key_instance.get_contents_to_file(fp)  # cb=_callback
+            except boto.exception.S3ResponseError as e:
+                if (e.status == 403):
+                    # SDK-191, boto gives an error while fetching the objects using versions which happens by default
+                    # in the get_contents_to_file() api. So attempt one without specifying version.
+                    log.warn("Access denied while fetching the s3 object. Retrying without specifying the version....")
+                    key_instance.open()
+                    fp.write(key_instance.read())
+                    key_instance.close()
+                else:
+                    raise
         else:
             # Get contents as string. Replace parameters and write to file.
             _read_iteratively(key_instance, fp, delim=delim)
