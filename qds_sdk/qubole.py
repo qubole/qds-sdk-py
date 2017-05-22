@@ -92,7 +92,7 @@ class Qubole:
 
         return cls.cached_agent
 
-
+    @classmethod
     def get_cloud(cls, cloud_name=None):
         if cloud_name and cloud_name.lower() not in ["aws", "oracle_bmc", "azure"]:
             raise Exception("cloud should be 'aws', 'oracle_bmc' or 'azure'")
