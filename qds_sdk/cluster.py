@@ -1768,7 +1768,7 @@ class ClusterInfoV2(object):
                         stable_maximum_bid_price_percentage=150,
                         stable_timeout_for_request=10,
                         kafka_brokers=None,
-                        kafka_version=None
+                        kafka_version=None,
                          **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
