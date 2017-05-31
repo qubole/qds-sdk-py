@@ -80,7 +80,8 @@ class ClusterCmdLine:
                                       disk_size=arguments.size,
                                       upscaling_config=arguments.upscaling_config,
                                       enable_encryption=arguments.encrypted_ephemerals,
-                                      customer_ssh_key=customer_ssh_key)
+                                      customer_ssh_key=customer_ssh_key,
+                                      image_uri_overrides=arguments.image_uri_overrides)
 
         #  This will set cloud config settings
         cloud_config = Qubole.get_cloud()
@@ -160,7 +161,8 @@ class ClusterInfoV2(object):
                          enable_encryption=None,
                          customer_ssh_key=None,
                          cluster_name=None,
-                         force_tunnel=None):
+                         force_tunnel=None,
+                         image_uri_overrides=None):
         """
         Args:
 
@@ -240,6 +242,8 @@ class ClusterInfoV2(object):
 
                 `datadog_app_token` : Specify the Datadog APP token to use the Datadog monitoring service
 
+                `image_uri_overrides` : Override the image name provided
+
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
@@ -269,6 +273,7 @@ class ClusterInfoV2(object):
         self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
+        self.set_internal(image_uri_overrides)
 
     def set_datadog_setting(self,
                             datadog_api_token=None,
@@ -319,6 +324,9 @@ class ClusterInfoV2(object):
         self.cluster_info['datadisk']['type'] = disk_type
         self.cluster_info['datadisk']['upscaling_config'] = upscaling_config
         self.cluster_info['datadisk']['encryption'] = enable_encryption
+
+    def set_internal(self, image_uri_overrides=None):
+        self.internal['image_uri_overrides'] = image_uri_overrides
 
     @staticmethod
     def cluster_info_parser(argparser, action):
@@ -508,6 +516,12 @@ class ClusterInfoV2(object):
                                    dest="datadog_app_token",
                                    default=None,
                                    help="overrides for airflow cluster", )
+
+        internal_group = argparser.add_argument_group("internal settings")
+        internal_group.add_argument("--image-overrides",
+                                    dest="image_uri_overrides",
+                                    default=None,
+                                    help="overrides for image", )
 
 class ClusterV2(Resource):
 
