@@ -3,7 +3,6 @@ import logging
 from qds_sdk.connection import Connection
 from qds_sdk.exception import ConfigError
 
-
 log = logging.getLogger("qds_qubole")
 
 class QuboleAuth(requests.auth.AuthBase):
@@ -29,11 +28,12 @@ class Qubole:
     version = None
     poll_interval = None
     skip_ssl_cert_check = None
+    cloud_name = None
 
     @classmethod
     def configure(cls, api_token,
                   api_url="https://api.qubole.com/api/", version="v1.2",
-                  poll_interval=5, skip_ssl_cert_check=False):
+                  poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS"):
         """
         Set parameters governing interaction with QDS
 
@@ -46,6 +46,7 @@ class Qubole:
 
             `poll_interval`: interval in secs when polling QDS for events
         """
+
         cls._auth = QuboleAuth(api_token)
         cls.api_token = api_token
         cls.version = version
@@ -56,8 +57,13 @@ class Qubole:
         else:
             cls.poll_interval = poll_interval
         cls.skip_ssl_cert_check = skip_ssl_cert_check
+        cls.cloud_name = cloud_name.lower()
+
+
 
     cached_agent = None
+    cloud = None
+
 
     @classmethod
     def agent(cls, version=None):
@@ -87,3 +93,30 @@ class Qubole:
           cls.cached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check)
 
         return cls.cached_agent
+
+    @classmethod
+    def get_cloud(cls, cloud_name=None):
+        if cloud_name and cloud_name.lower() not in ["aws", "oracle_bmc", "azure", "oracle_opc"]:
+            raise Exception("cloud should be 'aws', 'oracle_bmc', 'azure' or 'oracle_opc'")
+
+        if cloud_name:
+            return Qubole.get_cloud_object(cloud_name)
+        else:
+            if cls.cloud is None:
+                cls.cloud = cls.get_cloud_object(cls.cloud_name)
+            return cls.cloud
+
+    @classmethod
+    def get_cloud_object(cls, cloud_name):
+        if cloud_name.lower() == "aws":
+            import qds_sdk.cloud.aws_cloud
+            return qds_sdk.cloud.aws_cloud.AwsCloud()
+        elif cloud_name.lower()  == "oracle_bmc":
+            import qds_sdk.cloud.oracle_bmc_cloud
+            return qds_sdk.cloud.oracle_bmc_cloud.OracleBmcCloud()
+        elif cloud_name.lower()  == "azure":
+            import qds_sdk.cloud.azure_cloud
+            return qds_sdk.cloud.azure_cloud.AzureCloud()
+        elif cloud_name.lower()  == "oracle_opc":
+            import qds_sdk.cloud.oracle_opc_cloud
+            return qds_sdk.cloud.oracle_opc_cloud.OracleOpcCloud()   
