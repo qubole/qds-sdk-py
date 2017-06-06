@@ -33,7 +33,20 @@ class ClusterCmdLine:
             ClusterCmdLine.create_update_clone_parser(clone, action="clone")
             clone.set_defaults(func=ClusterV2.clone)
 
+        if action == "list":
+            li = subparsers.add_parser("list", help="list clusters from existing clusters depenging upon state")
+            ClusterCmdLine.list_parser(li, action="list")
+            li.set_defaults(func=ClusterV2.list)
         return argparser
+
+    @staticmethod
+    def list_parser(subparser, action=None):
+
+        # cluster info parser
+        ClusterInfoV2.list_info_parser(subparser, action)
+
+        # engine config parser
+        Engine.engine_parser(subparser)
 
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
@@ -51,8 +64,14 @@ class ClusterCmdLine:
     def run(args):
         parser = ClusterCmdLine.parsers(args[0])
         arguments = parser.parse_args(args)
-        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
+        if args[0] in ["create", "clone", "update"]:
+            ClusterCmdLine.get_cluster_create_clone_update(arguments, args[0])
+        else:
+            return arguments.func(arguments.label)
 
+    @staticmethod
+    def get_cluster_create_clone_update(arguments, args):
+        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
         # This will set cluster info and monitoring settings
         cluster_info = ClusterInfoV2(arguments.label)
         cluster_info.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
@@ -92,7 +111,7 @@ class ClusterCmdLine:
 
         cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
 
-        action = args[0]
+        action = args
         if action == "create":
             return arguments.func(cluster_request)
         else:
@@ -127,6 +146,7 @@ class ClusterInfoV2(object):
         `label`: A list of labels that identify the cluster. At least one label
             must be provided when creating a cluster.
         """
+        print("In ClusterInfo V2")
         self.cluster_info = {}
         self.cluster_info['label'] = label
         self.monitoring = {}
@@ -321,11 +341,18 @@ class ClusterInfoV2(object):
         self.cluster_info['datadisk']['encryption'] = enable_encryption
 
     @staticmethod
+    def list_info_parser(argparser, action):
+        argparser.add_argument("--state", dest="label",
+                               help="State of the cluster")
+
+    @staticmethod
     def cluster_info_parser(argparser, action):
         create_required = False
         label_required = False
         if action == "create":
             create_required = True
+            #argparser.add_argument("cluster_id_label",
+            #                       help="id/label of the cluster to update")
         elif action == "update":
             argparser.add_argument("cluster_id_label",
                                    help="id/label of the cluster to update")
@@ -539,7 +566,25 @@ class ClusterV2(Resource):
         conn = Qubole.agent(version="v2")
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
-    # implementation needed
     @classmethod
-    def list(self, state=None):
-        pass
+    def list(cls, state=None):
+        """
+        List existing clusters present in your account.
+
+        Kwargs:
+            `state`: list only those clusters which are in this state
+
+        Returns:
+            List of clusters satisfying the given criteria
+        """
+        conn = Qubole.agent(version="v2")
+        if state is None:
+            return conn.get(cls.rest_entity_path)
+        elif state is not None:
+            cluster_list = conn.get(cls.rest_entity_path)
+            result = []
+            if 'clusters' in cluster_list:
+                for cluster in cluster_list['clusters']:
+                    if state.lower() == cluster['state'].lower():
+                        result.append(cluster)
+            return result
