@@ -19,7 +19,9 @@ class OracleOpcCloud(Cloud):
                          storage_username=None,
                          storage_password=None,
                          vnic_set=None,
-                         ip_network=None):
+                         ip_network=None,
+                         data_disk_count=None,
+                         data_disk_size=None):
         '''
 
         Args:
@@ -52,7 +54,7 @@ class OracleOpcCloud(Cloud):
                                 password, rest_api_endpoint)
         self.set_network_config(vnic_set, ip_network)
         self.set_storage_config(storage_username, storage_password,
-                                storage_rest_api_endpoint)
+                                storage_rest_api_endpoint, data_disk_count, data_disk_size)
 
     def set_compute_config(self,
                            use_account_compute_creds=None,
@@ -74,10 +76,14 @@ class OracleOpcCloud(Cloud):
     def set_storage_config(self,
                            storage_username=None,
                            storage_password=None,
-                           storage_rest_api_endpoint=None):
+                           storage_rest_api_endpoint=None,
+                           data_disk_count=None,
+                           data_disk_size=None):
         self.storage_config['storage_username'] = storage_username
         self.storage_config['storage_password'] = storage_password
         self.storage_config['storage_rest_api_endpoint'] = storage_rest_api_endpoint
+        self.storage_config['data_disk_count'] = data_disk_count
+        self.storage_config['data_disk_size'] =data_disk_size
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(username=arguments.username,
@@ -88,7 +94,9 @@ class OracleOpcCloud(Cloud):
                               storage_username=arguments.storage_username,
                               storage_password=arguments.storage_password,
                               vnic_set=arguments.vnic_set,
-                              ip_network=arguments.ip_network)
+                              ip_network=arguments.ip_network,
+                              data_disk_count=arguments.count,
+                              data_disk_size=arguments.size)
 
     def create_parser(self, argparser):
 

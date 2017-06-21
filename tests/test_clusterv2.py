@@ -228,19 +228,23 @@ class TestClusterCreate(QdsCliTestCase):
     def test_oracle_opc_storage_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
                     '--storage-username', 'testusername', '--storage-password', 'testpassword',
-                    '--storage-rest-api-endpoint', 'testrestapiendpoint']
+                    '--storage-rest-api-endpoint', 'testrestapiendpoint', '--count', '1', '--size', '100']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                                                 {'cluster_info':
-                                                     {'label': ['test_label']},
+                                                     {'label': ['test_label'],
+                                                     'datadisk': {'count': 1, 'size': 100}
+                                                     },
                                                  'cloud_config':
                                                      {'storage_config':
                                                           {'storage_username': 'testusername',
                                                            'storage_password': 'testpassword',
-                                                           'storage_rest_api_endpoint': 'testrestapiendpoint'}
+                                                           'storage_rest_api_endpoint': 'testrestapiendpoint',
+                                                           'data_disk_count': 1,
+                                                           'data_disk_size': 100}
                                                       }
                                                  })
 
