@@ -18,7 +18,7 @@ class OracleOpcCloud(Cloud):
                          storage_rest_api_endpoint=None,
                          storage_username=None,
                          storage_password=None,
-                         vnic_set=None,
+                         acl=None,
                          ip_network=None,
                          data_disk_count=None,
                          data_disk_size=None):
@@ -44,7 +44,7 @@ class OracleOpcCloud(Cloud):
             storage_password: Password for customers oracle opc account. This
                 is required for creating the cluster.
 
-            vnic_set: vnic set for oracle opc.
+            acl: acl for oracle opc.
 
             ip_network: subnet name for oracle opc
 
@@ -52,7 +52,7 @@ class OracleOpcCloud(Cloud):
 
         self.set_compute_config(use_account_compute_creds, username,
                                 password, rest_api_endpoint)
-        self.set_network_config(vnic_set, ip_network)
+        self.set_network_config(acl, ip_network)
         self.set_storage_config(storage_username, storage_password,
                                 storage_rest_api_endpoint, data_disk_count, data_disk_size)
 
@@ -68,9 +68,9 @@ class OracleOpcCloud(Cloud):
 
     
     def set_network_config(self,
-                           vnic_set=None,
+                           acl=None,
                            ip_network=None):
-        self.network_config['vnic_set'] = vnic_set
+        self.network_config['acl'] = acl
         self.network_config['ip_network'] = ip_network
 
     def set_storage_config(self,
@@ -93,7 +93,7 @@ class OracleOpcCloud(Cloud):
                               storage_rest_api_endpoint=arguments.storage_rest_api_endpoint,
                               storage_username=arguments.storage_username,
                               storage_password=arguments.storage_password,
-                              vnic_set=arguments.vnic_set,
+                              acl=arguments.acl,
                               ip_network=arguments.ip_network,
                               data_disk_count=arguments.count,
                               data_disk_size=arguments.size)
@@ -128,9 +128,9 @@ class OracleOpcCloud(Cloud):
 
         # network settings parser
         network_config_group = argparser.add_argument_group("network config settings")
-        network_config_group.add_argument("--vnic-set",
-                                          dest="vnic_set",
-                                          help="vnic set for opc", )
+        network_config_group.add_argument("--acl",
+                                          dest="acl",
+                                          help="acl for opc", )
         network_config_group.add_argument("--ip-network",
                                           dest="ip_network",
                                           help="subnet name for opc")
