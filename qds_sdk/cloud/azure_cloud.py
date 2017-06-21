@@ -39,7 +39,7 @@ class AzureCloud(Cloud):
 
             compute_tenant_id: Tenant id for azure cluster
 
-            use_account_compute_creds: Set it to true to use the account’s compute
+            use_account_compute_creds: Set it to true to use the account's compute
                 credentials for all clusters of the account.The default value is false
 
             location: Location for azure cluster
