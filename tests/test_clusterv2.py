@@ -228,32 +228,36 @@ class TestClusterCreate(QdsCliTestCase):
     def test_oracle_opc_storage_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
                     '--storage-username', 'testusername', '--storage-password', 'testpassword',
-                    '--storage-rest-api-endpoint', 'testrestapiendpoint']
+                    '--storage-rest-api-endpoint', 'testrestapiendpoint', '--count', '1', '--size', '100']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                                                 {'cluster_info':
-                                                     {'label': ['test_label']},
+                                                     {'label': ['test_label'],
+                                                     'datadisk': {'count': 1, 'size': 100}
+                                                     },
                                                  'cloud_config':
                                                      {'storage_config':
                                                           {'storage_username': 'testusername',
                                                            'storage_password': 'testpassword',
-                                                           'storage_rest_api_endpoint': 'testrestapiendpoint'}
+                                                           'storage_rest_api_endpoint': 'testrestapiendpoint',
+                                                           'data_disk_count': 1,
+                                                           'data_disk_size': 100}
                                                       }
                                                  })
 
     def test_oracle_opc_network_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
-                    '--vnic-set', 'testvnic', '--ip-network', 'testipnetwork']
+                    '--acl', 'testacl', '--ip-network', 'testipnetwork']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                                                 {'cloud_config': {
-                                                    'network_config': {'vnic_set': 'testvnic',
+                                                    'network_config': {'acl': 'testacl',
                                                                        'ip_network': 'testipnetwork'}},
                                                     'cluster_info': {'label': ['test_label']}})
 
@@ -408,7 +412,7 @@ class TestClusterUpdate(QdsCliTestCase):
 
     def test_oracle_opc_cloud_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'update', '123',
-                    '--vnic-set', 'vnic_set_1', '--rest-api-endpoint', 'rest_api_endpoint_1',
+                    '--acl', 'acl_1', '--rest-api-endpoint', 'rest_api_endpoint_1',
                     '--storage-rest-api-endpoint', 'storage_rest_api_endpoint_1']
         Qubole.cloud = None
         print_command()
@@ -416,7 +420,7 @@ class TestClusterUpdate(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',  {'cloud_config':
                                                                              {'network_config':
-                                                                                  {'vnic_set': 'vnic_set_1'},
+                                                                                  {'acl': 'acl_1'},
                                                                               'compute_config': {'rest_api_endpoint': 'rest_api_endpoint_1'},
                                                                               'storage_config': {'storage_rest_api_endpoint': 'storage_rest_api_endpoint_1'}
                                                                               }
