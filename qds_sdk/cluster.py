@@ -1562,18 +1562,15 @@ class ClusterInfoV2(object):
                             dbtap_id=None,
                             fernet_key=None,
                             overrides=None,
-                            cl_type=None,
                             kafka_brokers=None,
                             kafka_version=None
                             ):
-        self.engine_config['type'] = cl_type
-        self.engine_config['kafka_brokers'] = kafka_brokers
-        self.engine_config['kafka_version'] = kafka_version
 
         self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy)
         self.set_presto_settings(flavour, presto_version, custom_presto_config)
         self.set_spark_settings(flavour, spark_version, custom_spark_config)
         self.set_airflow_settings(flavour, dbtap_id, fernet_key, overrides)
+        self.set_streamx_settings(flavour, kafka_brokers, kafka_version)
 
     def set_hadoop_settings(self,
                             flavour,
@@ -1613,6 +1610,16 @@ class ClusterInfoV2(object):
         self.engine_config['airflow_settings']['dbtap_id'] = dbtap_id
         self.engine_config['airflow_settings']['fernet_key'] = fernet_key
         self.engine_config['airflow_settings']['overrides'] = overrides
+
+    def set_streamx_settings(self,
+                                flavour,
+                                kafka_brokers=None,
+                                kafka_version=None):
+
+        self.engine_config['flavour'] = flavour
+        self.engine_config['streamx_settings'] = {}
+        self.engine_config['streamx_settings']['kafka_brokers'] = kafka_brokers
+        self.engine_config['streamx_settings']['kafka_version'] = kafka_version
 
     def set_monitoring(self, enable_ganglia_monitoring=None, datadog_api_token=None, datadog_app_token=None):
         self.monitoring['ganglia'] = enable_ganglia_monitoring
@@ -1770,7 +1777,6 @@ class ClusterInfoV2(object):
                         maximum_spot_instance_percentage=50,
                         stable_maximum_bid_price_percentage=150,
                         stable_timeout_for_request=10,
-                        cl_type=None,
                         kafka_brokers=None,
                         kafka_version=None,
                          **kwargs):
@@ -1819,7 +1825,6 @@ class ClusterInfoV2(object):
                                 dbtap_id,
                                 fernet_key,
                                 overrides,
-                                cl_type,
                                 kafka_brokers,
                                 kafka_version)
         self.set_fairscheduler_settings(fairscheduler_config_xml,
