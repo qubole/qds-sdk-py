@@ -71,7 +71,7 @@ class Cluster(Resource):
         if state is None:
             return conn.get(cls.rest_entity_path, params=params)
         elif state is not None:
-            cluster_list = conn.get(cls.rest_entity_path)
+            cluster_list = conn.get(cls.rest_entity_path, params=params)
             result = []
             if Cluster.api_version == 'v1.2':
                 for cluster in cluster_list:
