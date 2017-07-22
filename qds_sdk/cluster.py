@@ -1510,6 +1510,8 @@ class ClusterInfoV2(object):
                             subnet_id=None,
                             bastion_node_public_dns=None,
                             persistent_security_groups=None,
+                            persistent_security_group_resource_group_name=None,
+                            persistent_security_group_name=None,
                             master_elastic_ip=None,
                             vnet_name =None,
                             subnet_name=None,
@@ -1520,6 +1522,9 @@ class ClusterInfoV2(object):
         self.cloud_config['network_config'] = {}
         self.cloud_config['network_config']['bastion_node_public_dns'] = bastion_node_public_dns
         self.cloud_config['network_config']['persistent_security_groups'] = persistent_security_groups
+        self.cloud_config['network_config']['bastion_node_public_dns'] = bastion_node_public_dns
+        self.cloud_config['network_config']['persistent_security_group_resource_group_name'] = persistent_security_group_resource_group_name
+        self.cloud_config['network_config']['persistent_security_group_name'] = persistent_security_group_name
         self.cloud_config['network_config']['master_elastic_ip'] = master_elastic_ip
 
         self.cloud_config['network_config']['vpc_id'] = vpc_id
@@ -1537,6 +1542,9 @@ class ClusterInfoV2(object):
                             storage_account_name=None,
                             disk_storage_account_name=None,
                             disk_storage_account_resource_group_name=None,
+                            data_disk_count=None,
+                            data_disk_size=None,
+                            managed_disk_account_type=None,
                             storage_tenant_id=None,
                             storage_user_id=None,
                             storage_key_finger_print=None,
@@ -1547,6 +1555,9 @@ class ClusterInfoV2(object):
         self.cloud_config['storage_config']['disk_storage_account_name'] = disk_storage_account_name
         self.cloud_config['storage_config']['disk_storage_account_resource_group_name'] \
             = disk_storage_account_resource_group_name
+        self.cloud_config['storage_config']['data_disk_count'] = data_disk_count
+        self.cloud_config['storage_config']['data_disk_size'] = data_disk_size
+        self.cloud_config['storage_config']['managed_disk_account_type'] = managed_disk_account_type
         self.cloud_config['storage_config']['storage_tenant_id'] = storage_tenant_id
         self.cloud_config['storage_config']['storage_user_id'] = storage_user_id
         self.cloud_config['storage_config']['storage_key_finger_print'] = storage_key_finger_print
@@ -1722,6 +1733,8 @@ class ClusterInfoV2(object):
                         subnet_id=None,
                         bastion_node_public_dns=None,
                         persistent_security_groups=None,
+                        persistent_security_group_resource_group_name=None,
+                        persistent_security_group_name=None,
                         master_elastic_ip=None,
                         subnet_name=None,
                         vnet_resource_group_name=None,
@@ -1733,6 +1746,9 @@ class ClusterInfoV2(object):
                         storage_account_name=None,
                         disk_storage_account_name=None,
                         disk_storage_account_resource_group_name=None,
+                        data_disk_count=None,
+                        data_disk_size=None,
+                        managed_disk_account_type=None,
                         storage_tenant_id=None,
                         storage_user_id=None,
                         storage_key_finger_print=None,
@@ -1800,6 +1816,8 @@ class ClusterInfoV2(object):
                                 subnet_id,
                                 bastion_node_public_dns,
                                 persistent_security_groups,
+                                persistent_security_group_resource_group_name,
+                                persistent_security_group_name,
                                 master_elastic_ip,
                                 vnet_name,
                                 subnet_name,
@@ -1811,6 +1829,9 @@ class ClusterInfoV2(object):
                                 storage_account_name,
                                 disk_storage_account_name,
                                 disk_storage_account_resource_group_name,
+                                data_disk_count,
+                                data_disk_size,
+                                managed_disk_account_type,
                                 storage_tenant_id,
                                 storage_user_id,
                                 storage_key_finger_print,
