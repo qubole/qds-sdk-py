@@ -388,6 +388,20 @@ class TestClusterClone(QdsCliTestCase):
 
 class TestClusterList(QdsCliTestCase):
 
+    def test_id(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--id', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "clusters/123", params=None)
+
+    def test_label(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--label', 'test_label']
+        print_command()
+        Connection._api_call = Mock(return_value={"provider": "aws"})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "clusters/test_label", params=None)
+
     def test_minimal(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list']
         Qubole.cloud = None
@@ -400,7 +414,7 @@ class TestClusterList(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--state', 'up']
         Qubole.cloud = None
         print_command()
-        Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "up"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
 
@@ -408,7 +422,7 @@ class TestClusterList(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--state', 'down']
         Qubole.cloud = None
         print_command()
-        Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "down"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
 
@@ -416,7 +430,7 @@ class TestClusterList(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--state', 'terminating']
         Qubole.cloud = None
         print_command()
-        Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "terminating"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
 
@@ -424,7 +438,7 @@ class TestClusterList(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--state', 'pending']
         Qubole.cloud = None
         print_command()
-        Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "pending"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
 
@@ -432,6 +446,6 @@ class TestClusterList(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--state', 'invalid']
         Qubole.cloud = None
         print_command()
-        Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "invalid"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)

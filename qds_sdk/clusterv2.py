@@ -34,7 +34,7 @@ class ClusterCmdLine:
             clone.set_defaults(func=ClusterV2.clone)
 
         if action == "list":
-            li = subparsers.add_parser("list", help="list clusters from existing clusters depenging upon state")
+            li = subparsers.add_parser("list", help="list clusters from existing clusters depending upon state")
             ClusterCmdLine.list_parser(li, action="list")
             li.set_defaults(func=ClusterV2.list)
         return argparser
@@ -67,10 +67,10 @@ class ClusterCmdLine:
         if args[0] in ["create", "clone", "update"]:
             ClusterCmdLine.get_cluster_create_clone_update(arguments, args[0])
         else:
-            return arguments.func(arguments.label)
+            return arguments.func(arguments.label, arguments.cluster_id, arguments.state)
 
     @staticmethod
-    def get_cluster_create_clone_update(arguments, args):
+    def get_cluster_create_clone_update(arguments, action):
         customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
         # This will set cluster info and monitoring settings
         cluster_info = ClusterInfoV2(arguments.label)
@@ -111,7 +111,7 @@ class ClusterCmdLine:
 
         cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
 
-        action = args
+        action = action
         if action == "create":
             return arguments.func(cluster_request)
         else:
@@ -146,7 +146,6 @@ class ClusterInfoV2(object):
         `label`: A list of labels that identify the cluster. At least one label
             must be provided when creating a cluster.
         """
-        print("In ClusterInfo V2")
         self.cluster_info = {}
         self.cluster_info['label'] = label
         self.monitoring = {}
@@ -342,7 +341,13 @@ class ClusterInfoV2(object):
 
     @staticmethod
     def list_info_parser(argparser, action):
-        argparser.add_argument("--state", dest="label",
+        argparser.add_argument("--id", dest="cluster_id",
+                               help="show cluster with this id")
+
+        argparser.add_argument("--label", dest="label",
+                               help="show cluster with this label")
+        argparser.add_argument("--state", dest="state",
+                               choices=['invalid', 'up', 'down', 'pending', 'terminating'],
                                help="State of the cluster")
 
     @staticmethod
@@ -351,8 +356,6 @@ class ClusterInfoV2(object):
         label_required = False
         if action == "create":
             create_required = True
-            #argparser.add_argument("cluster_id_label",
-            #                       help="id/label of the cluster to update")
         elif action == "update":
             argparser.add_argument("cluster_id_label",
                                    help="id/label of the cluster to update")
@@ -567,7 +570,7 @@ class ClusterV2(Resource):
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
-    def list(cls, state=None):
+    def list(cls, label=None, cluster_id=None, state=None):
         """
         List existing clusters present in your account.
 
@@ -577,14 +580,27 @@ class ClusterV2(Resource):
         Returns:
             List of clusters satisfying the given criteria
         """
+        if cluster_id is not None:
+            return cls.show(cluster_id)
+        if label is not None:
+            return cls.show(label)
         conn = Qubole.agent(version="v2")
+        cluster_list = conn.get(cls.rest_entity_path)
         if state is None:
+            # return the complete list since state is None
             return conn.get(cls.rest_entity_path)
-        elif state is not None:
-            cluster_list = conn.get(cls.rest_entity_path)
-            result = []
-            if 'clusters' in cluster_list:
-                for cluster in cluster_list['clusters']:
-                    if state.lower() == cluster['state'].lower():
-                        result.append(cluster)
-            return result
+        # filter clusters based on state
+        result = []
+        if 'clusters' in cluster_list:
+            for cluster in cluster_list['clusters']:
+                if state.lower() == cluster['state'].lower():
+                    result.append(cluster)
+        return result
+
+    @classmethod
+    def show(cls, cluster_id_label):
+        """
+        Show information about the cluster with id/label `cluster_id_label`.
+        """
+        conn = Qubole.agent()
+        return conn.get(cls.element_path(cluster_id_label))
