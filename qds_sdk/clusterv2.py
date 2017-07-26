@@ -45,9 +45,6 @@ class ClusterCmdLine:
         # cluster info parser
         ClusterInfoV2.list_info_parser(subparser, action)
 
-        # engine config parser
-        Engine.engine_parser(subparser)
-
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
         # cloud config parser
