@@ -1432,7 +1432,7 @@ class TestDbImportCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'customer_cluster_label': None,
-                 'use_customer_cluster': None,
+                 'use_customer_cluster': False,
                  'db_parallelism': None,
                  'name': None,
                  'dbtap_id': '1',
@@ -1457,7 +1457,7 @@ class TestDbImportCommand(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
                 {'customer_cluster_label': None,
-                 'use_customer_cluster': None,
+                 'use_customer_cluster': False,
                  'db_parallelism': None,
                  'name': None,
                  'dbtap_id': '1',
