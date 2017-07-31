@@ -1499,12 +1499,40 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_extract_query': None,
                  'retry': 2})
 
+    def test_use_customer_cluster_command(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+                    '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 3, '--use_customer_cluster',
+                    True, '--customer_cluster_label', 'hadoop2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'customer_cluster_label': 'hadoop2',
+                                                 'use_customer_cluster': True,
+                                                 'db_parallelism': None,
+                                                 'name': None,
+                                                 'hive_serde': None,
+                                                 'tags': None,
+                                                 'db_where': None,
+                                                 'mode': '1',
+                                                 'db_boundary_query': None,
+                                                 'db_extract_query': None,
+                                                 'db_split_column': None,
+                                                 'retry': 3,
+                                                 'command_type': 'DbImportCommand',
+                                                 'dbtap_id': '1',
+                                                 'can_notify': False,
+                                                 'hive_table': 'myhivetable',
+                                                 'db_table': 'mydbtable'
+                                                })
+
     def test_retry_out_of_range(self):
         sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
          '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 6]
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
+
 
 class TestDbTapQueryCommand(QdsCliTestCase):
 
