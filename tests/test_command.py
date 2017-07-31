@@ -1291,7 +1291,9 @@ class TestDbExportCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'export_dir': None,
+                {'customer_cluster_label': None,
+                 'use_customer_cluster': False,
+                 'export_dir': None,
                  'name': None,
                  'db_update_keys': None,
                  'partition_spec': None,
@@ -1319,7 +1321,9 @@ class TestDbExportCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'export_dir': None,
+                {'customer_cluster_label': None,
+                 'use_customer_cluster': False,
+                 'export_dir': None,
                  'name': None,
                  'db_update_keys': None,
                  'partition_spec': None,
@@ -1341,7 +1345,9 @@ class TestDbExportCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'export_dir': None,
+                {'customer_cluster_label': None,
+                 'use_customer_cluster': False,
+                 'export_dir': None,
                  'name': 'commandname',
                  'db_update_keys': None,
                  'partition_spec': None,
@@ -1364,7 +1370,9 @@ class TestDbExportCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'export_dir': None,
+                {'customer_cluster_label': None,
+                 'use_customer_cluster': False,
+                 'export_dir': None,
                  'name': None,
                  'db_update_keys': 'key1',
                  'partition_spec': None,
@@ -1387,7 +1395,9 @@ class TestDbExportCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'export_dir': 's3:///export-path/',
+                {'customer_cluster_label': None,
+                 'use_customer_cluster': False,
+                 'export_dir': 's3:///export-path/',
                  'name': None,
                  'db_update_keys': None,
                  'partition_spec': None,
@@ -1421,7 +1431,9 @@ class TestDbImportCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'db_parallelism': None,
+                {'customer_cluster_label': None,
+                 'use_customer_cluster': None,
+                 'db_parallelism': None,
                  'name': None,
                  'dbtap_id': '1',
                  'db_where': None,
@@ -1444,7 +1456,9 @@ class TestDbImportCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'db_parallelism': None,
+                {'customer_cluster_label': None,
+                 'use_customer_cluster': None,
+                 'db_parallelism': None,
                  'name': None,
                  'dbtap_id': '1',
                  'db_where': None,
