@@ -1566,6 +1566,7 @@ class ClusterInfoV2(object):
     def set_engine_config(self, flavour=None,
                             custom_hadoop_config =None,
                             use_qubole_placement_policy=None,
+                            node_bootstrap_timeout=None,
                             presto_version=None,
                             custom_presto_config=None,
                             spark_version=None,
@@ -1577,7 +1578,7 @@ class ClusterInfoV2(object):
                             kafka_version=None
                             ):
 
-        self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy)
+        self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy, node_bootstrap_timeout)
         self.set_presto_settings(flavour, presto_version, custom_presto_config)
         self.set_spark_settings(flavour, spark_version, custom_spark_config)
         self.set_airflow_settings(flavour, dbtap_id, fernet_key, overrides)
@@ -1586,11 +1587,13 @@ class ClusterInfoV2(object):
     def set_hadoop_settings(self,
                             flavour,
                             custom_hadoop_config=None,
-                            use_qubole_placement_policy=None):
+                            use_qubole_placement_policy=None,
+                            node_bootstrap_timeout=None):
         self.engine_config['flavour'] = flavour
         self.engine_config['hadoop_settings'] = {}
         self.engine_config['hadoop_settings']['custom_hadoop_config'] = custom_hadoop_config
         self.engine_config['hadoop_settings']['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.engine_config['hadoop_settings']['node_bootstrap_timeout'] = node_bootstrap_timeout
 
     def set_fairscheduler_settings(self, fairscheduler_config_xml=None, default_pool=None):
         self.engine_config['hadoop_settings']['fairscheduler_settings'] = {}
@@ -1677,6 +1680,11 @@ class ClusterInfoV2(object):
         self.cluster_info['heterogeneous_config'] = heterogeneous_config
         self.cluster_info['slave_request_type'] = slave_request_type
         self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
+
+    def set_spot_block_settings(self, spot_block_duration=None):
+        self.cluster_info['spot_block_settings'] = {}
+        self.cluster_info['spot_block_settings']['duration'] = spot_block_duration
+
 
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=100,
@@ -1795,6 +1803,8 @@ class ClusterInfoV2(object):
                         stable_timeout_for_request=10,
                         kafka_brokers=None,
                         kafka_version=None,
+                        spot_block_duration=None,
+                        node_bootstrap_timeout=None,
                          **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
@@ -1839,6 +1849,7 @@ class ClusterInfoV2(object):
         self.set_engine_config(flavour,
                                 custom_hadoop_config,
                                 use_qubole_placement_policy,
+                                node_bootstrap_timeout,
                                 presto_version,
                                 custom_presto_config,
                                 spark_version,
@@ -1872,6 +1883,7 @@ class ClusterInfoV2(object):
                            disk_type,
                            upscaling_config,
                            enable_encryption)
+        self.set_spot_block_settings(spot_block_duration)
         self.cluster_info['spot_settings'] = {}
         self.set_spot_instance_settings(maximum_bid_price_percentage,
                                         timeout_for_request,
