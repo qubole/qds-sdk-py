@@ -356,6 +356,17 @@ class ClusterInfoV2(object):
                                help="State of the cluster")
 
     @staticmethod
+    def list_info_parser(argparser, action):
+        argparser.add_argument("--id", dest="cluster_id",
+                               help="show cluster with this id")
+
+        argparser.add_argument("--label", dest="label",
+                               help="show cluster with this label")
+        argparser.add_argument("--state", dest="state",
+                               choices=['invalid', 'up', 'down', 'pending', 'terminating'],
+                               help="State of the cluster")
+
+    @staticmethod
     def cluster_info_parser(argparser, action):
         create_required = False
         label_required = False
