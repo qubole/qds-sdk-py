@@ -1011,6 +1011,8 @@ class DbExportCommand(Command):
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--use_customer_cluster", dest="use_customer_cluster", default="false", choices=["true", "false"], help="To Run query on specific customer cluster.")
+    optparser.add_option("--customer_cluster_label", dest="customer_cluster_label", help="The label of the Hadoop 1 or Hadoop 2 cluster on which you want to run query.")
 
     @classmethod
     def parse(cls, args):
@@ -1120,6 +1122,8 @@ class DbImportCommand(Command):
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--use_customer_cluster", dest="use_customer_cluster", default="false", choices=["true", "false"], help="To Run query on specific customer cluster.")
+    optparser.add_option("--customer_cluster_label", dest="customer_cluster_label", help="The label of the Hadoop 1 or Hadoop 2 cluster on which you want to run query.")
 
     @classmethod
     def parse(cls, args):
