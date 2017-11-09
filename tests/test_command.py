@@ -25,7 +25,6 @@ class TestCommandCheck(QdsCliTestCase):
         print_.assert_called_with('{"command_source": "API"}')
         Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
-
     def test_sparkcmd(self):
         sys.argv = ['qds.py', 'sparkcmd', 'check', '123']
         print_command()
