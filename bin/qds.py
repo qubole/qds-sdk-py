@@ -156,7 +156,7 @@ def checkaction(cmdclass, args):
         if include_query_properties not in ('true', 'false'):
             raise ParseError("include-query-properties can be either true or false")
 
-    r = conn.get(cmdclass.element_path(id), {'include_query_properties': include_query_properties})
+    r = Resource(conn.get(cmdclass.element_path(id), {'include_query_properties': include_query_properties}))
     print(str(r))
     return 0
 

@@ -14,14 +14,15 @@ from qds_sdk.connection import Connection
 from test_base import print_command
 from test_base import QdsCliTestCase
 
-
 class TestCommandCheck(QdsCliTestCase):
 
-    def test_hivecmd(self):
+    @patch("qds.print",create=True)
+    def test_hivecmd(self, print_):
         sys.argv = ['qds.py', 'hivecmd', 'check', '123']
         print_command()
-        Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(return_value={u'command_source': u'API'})
         qds.main()
+        print_.assert_called_with("{'command_source': 'API'}")
         Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
     def test_sparkcmd(self):
