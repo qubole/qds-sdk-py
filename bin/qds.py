@@ -270,7 +270,8 @@ def _create_cluster_info(arguments, api_version):
                                       enable_presto=arguments.enable_presto,
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
                                       role_instance_profile=arguments.role_instance_profile,
-                                      presto_custom_config=presto_custom_config)
+                                      presto_custom_config=presto_custom_config,
+                                      enable_rubix=arguments.enable_rubix)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,

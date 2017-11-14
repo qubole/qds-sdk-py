@@ -224,6 +224,17 @@ class Cluster(Resource):
                                               default=None,
                                               help="Do not use Qubole Block Placement policy" +
                                                    " for clusters with spot nodes",)
+          enable_rubix_group = hadoop_group.add_mutually_exclusive_group()
+          enable_rubix_group.add_argument("--enable-rubix",
+                                        dest="enable_rubix",
+                                        action="store_true",
+                                        default=None,
+                                        help="Enable rubix for cluster",)
+          enable_rubix_group.add_argument("--no-enable-rubix",
+                                        dest="enable_rubix",
+                                        action="store_false",
+                                        default=None,
+                                        help="Do not enable rubix for cluster",)
           fallback_to_ondemand_group = node_config_group.add_mutually_exclusive_group()
           fallback_to_ondemand_group.add_argument("--fallback-to-ondemand",
                                  dest="fallback_to_ondemand",
@@ -1052,6 +1063,8 @@ class ClusterInfoV13():
         `presto_custom_config`: Custom Presto configuration overrides.
 
         `bastion_node_public_dns`: Public dns name of the bastion node. Required only if cluster is in private subnet.
+
+        `enable_rubix`: Enable rubix caching on the cluster.
 
         """
 
