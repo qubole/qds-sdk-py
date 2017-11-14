@@ -946,7 +946,8 @@ class ClusterInfoV13():
                          enable_presto=None,
                          bastion_node_public_dns=None,
                          role_instance_profile=None,
-                         presto_custom_config=None):
+                         presto_custom_config=None,
+                         enable_rubix=None):
         """
         Kwargs:
 
@@ -1060,7 +1061,7 @@ class ClusterInfoV13():
         self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                                 bastion_node_public_dns, role_instance_profile)
-        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy)
+        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, enable_rubix)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
         self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
@@ -1104,12 +1105,14 @@ class ClusterInfoV13():
                             custom_ec2_tags=None,
                             use_hadoop2=None,
                             use_spark=None,
-                            use_qubole_placement_policy=None,):
+                            use_qubole_placement_policy=None,
+                            enable_rubix=None):
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['use_hbase'] = use_hbase
         self.hadoop_settings['use_hadoop2'] = use_hadoop2
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.hadoop_settings['enable_rubix'] = enable_rubix
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
