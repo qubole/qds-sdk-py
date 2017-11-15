@@ -349,6 +349,17 @@ class Cluster(Resource):
                                                        default=None,
                                                        help="Do not use Qubole Block Placement policy" +
                                                             " for clusters with spot nodes", )
+            enable_rubix_group = hadoop_group.add_mutually_exclusive_group()
+            enable_rubix_group.add_argument("--enable-rubix",
+                                            dest="enable_rubix",
+                                            action="store_true",
+                                            default=None,
+                                            help="Enable rubix for cluster", )
+            enable_rubix_group.add_argument("--no-enable-rubix",
+                                            dest="enable_rubix",
+                                            action="store_false",
+                                            default=None,
+                                            help="Do not enable rubix for cluster", )
             fallback_to_ondemand_group = node_config_group.add_mutually_exclusive_group()
             fallback_to_ondemand_group.add_argument("--fallback-to-ondemand",
                                                     dest="fallback_to_ondemand",
@@ -1184,6 +1195,7 @@ class ClusterInfoV13(object):
                          use_hadoop2=None,
                          use_spark=None,
                          use_qubole_placement_policy=None,
+                         enable_rubix=None,
                          maximum_bid_price_percentage=None,
                          timeout_for_request=None,
                          maximum_spot_instance_percentage=None,
@@ -1307,6 +1319,8 @@ class ClusterInfoV13(object):
 
         `bastion_node_public_dns`: Public dns name of the bastion node. Required only if cluster is in private subnet.
 
+        `enable_rubix`: Enable rubix_caching on the cluster.
+
         """
 
         self.disallow_cluster_termination = disallow_cluster_termination
@@ -1317,7 +1331,7 @@ class ClusterInfoV13(object):
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone,
                               vpc_id, subnet_id, bastion_node_public_dns, role_instance_profile)
         self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2,
-                                 use_spark, use_qubole_placement_policy)
+                                 use_spark, use_qubole_placement_policy, enable_rubix)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
                                         maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request,
@@ -1362,12 +1376,14 @@ class ClusterInfoV13(object):
                             custom_ec2_tags=None,
                             use_hadoop2=None,
                             use_spark=None,
-                            use_qubole_placement_policy=None,):
+                            use_qubole_placement_policy=None,
+                            enable_rubix=None,):
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['use_hbase'] = use_hbase
         self.hadoop_settings['use_hadoop2'] = use_hadoop2
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.hadoop_settings['enable_rubix'] = enable_rubix
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
@@ -1566,6 +1582,7 @@ class ClusterInfoV2(object):
     def set_engine_config(self, flavour=None,
                             custom_hadoop_config =None,
                             use_qubole_placement_policy=None,
+                            enable_rubix=None,
                             node_bootstrap_timeout=None,
                             presto_version=None,
                             custom_presto_config=None,
@@ -1578,7 +1595,7 @@ class ClusterInfoV2(object):
                             kafka_version=None
                             ):
 
-        self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy, node_bootstrap_timeout)
+        self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy, node_bootstrap_timeout, enable_rubix)
         self.set_presto_settings(flavour, presto_version, custom_presto_config)
         self.set_spark_settings(flavour, spark_version, custom_spark_config)
         self.set_airflow_settings(flavour, dbtap_id, fernet_key, overrides)
@@ -1588,11 +1605,13 @@ class ClusterInfoV2(object):
                             flavour,
                             custom_hadoop_config=None,
                             use_qubole_placement_policy=None,
+                            enable_rubix=None,
                             node_bootstrap_timeout=None):
         self.engine_config['flavour'] = flavour
         self.engine_config['hadoop_settings'] = {}
         self.engine_config['hadoop_settings']['custom_hadoop_config'] = custom_hadoop_config
         self.engine_config['hadoop_settings']['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.engine_config['hadoop_settings']['enable_rubix'] = enable_rubix
         self.engine_config['hadoop_settings']['node_bootstrap_timeout'] = node_bootstrap_timeout
 
     def set_fairscheduler_settings(self, fairscheduler_config_xml=None, default_pool=None):
@@ -1764,6 +1783,7 @@ class ClusterInfoV2(object):
                         flavour=None,
                         custom_hadoop_config=None,
                         use_qubole_placement_policy=None,
+                        enable_rubix=None,
                         presto_version=None,
                         custom_presto_config=None,
                         spark_version=None,
@@ -1849,6 +1869,7 @@ class ClusterInfoV2(object):
         self.set_engine_config(flavour,
                                 custom_hadoop_config,
                                 use_qubole_placement_policy,
+                                enable_rubix,
                                 node_bootstrap_timeout,
                                 presto_version,
                                 custom_presto_config,
