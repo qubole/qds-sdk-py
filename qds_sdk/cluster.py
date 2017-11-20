@@ -1595,7 +1595,7 @@ class ClusterInfoV2(object):
                             kafka_version=None
                             ):
 
-        self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy, node_bootstrap_timeout, enable_rubix)
+        self.set_hadoop_settings(flavour, custom_hadoop_config, use_qubole_placement_policy, enable_rubix, node_bootstrap_timeout)
         self.set_presto_settings(flavour, presto_version, custom_presto_config)
         self.set_spark_settings(flavour, spark_version, custom_spark_config)
         self.set_airflow_settings(flavour, dbtap_id, fernet_key, overrides)
