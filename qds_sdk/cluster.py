@@ -231,6 +231,17 @@ class Cluster(Resource):
                                               default=None,
                                               help="Do not use Qubole Block Placement policy" +
                                                    " for clusters with spot nodes",)
+          enable_rubix_group = hadoop_group.add_mutually_exclusive_group()
+          enable_rubix_group.add_argument("--enable-rubix",
+                                          dest="enable_rubix",
+                                          action="store_true",
+                                          default=None,
+                                          help="Enable rubix for cluster", )
+          enable_rubix_group.add_argument("--no-enable-rubix",
+                                          dest="enable_rubix",
+                                          action="store_false",
+                                          default=None,
+                                          help="Do not enable rubix for cluster", )
           fallback_to_ondemand_group = node_config_group.add_mutually_exclusive_group()
           fallback_to_ondemand_group.add_argument("--fallback-to-ondemand",
                                  dest="fallback_to_ondemand",
@@ -944,6 +955,7 @@ class ClusterInfoV13():
                          use_hadoop2=None,
                          use_spark=None,
                          use_qubole_placement_policy=None,
+                         enable_rubix=None,
                          maximum_bid_price_percentage=None,
                          timeout_for_request=None,
                          maximum_spot_instance_percentage=None,
@@ -1022,6 +1034,8 @@ class ClusterInfoV13():
         `use_qubole_placement_policy`: Use Qubole Block Placement policy for 
             clusters with spot nodes.
 
+        `enable_rubix`: Enable rubix_caching on the cluster.
+
         `maximum_bid_price_percentage`: ( Valid only when `slave_request_type` 
             is hybrid or spot.) Maximum value to bid for spot
             instances, expressed as a percentage of the base price 
@@ -1080,7 +1094,7 @@ class ClusterInfoV13():
         self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                               master_elastic_ip, bastion_node_public_dns, role_instance_profile)
-        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
+        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, enable_rubix, is_ha)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
         self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
@@ -1127,12 +1141,14 @@ class ClusterInfoV13():
                             use_hadoop2=None,
                             use_spark=None,
                             use_qubole_placement_policy=None,
+                            enable_rubix=None,
                             is_ha=None):
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['use_hbase'] = use_hbase
         self.hadoop_settings['use_hadoop2'] = use_hadoop2
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.hadoop_settings['enable_rubix'] = enable_rubix
         self.hadoop_settings['is_ha'] = is_ha
 
         if custom_ec2_tags and custom_ec2_tags.strip():
