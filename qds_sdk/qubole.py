@@ -63,9 +63,6 @@ class Qubole:
         cls.cached_agent = None
 
 
-
-
-
     @classmethod
     def agent(cls, version=None):
         """
