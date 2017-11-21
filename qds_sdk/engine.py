@@ -16,6 +16,7 @@ class Engine:
     def set_engine_config(self,
                           custom_hadoop_config=None,
                           use_qubole_placement_policy=None,
+                          enable_rubix=None,
                           fairscheduler_config_xml=None,
                           default_pool=None,
                           presto_version=None,
@@ -33,6 +34,8 @@ class Engine:
 
             use_qubole_placement_policy: Use Qubole Block Placement policy for
                 clusters with spot nodes.
+
+            enable_rubix: Enable rubix_caching for clusters.
 
             fairscheduler_config_xml: XML string with custom configuration
                 parameters for the fair scheduler.
@@ -59,7 +62,7 @@ class Engine:
 
         '''
 
-        self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, fairscheduler_config_xml, default_pool)
+        self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, enable_rubix, is_ha, fairscheduler_config_xml, default_pool)
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
         self.set_airflow_settings(dbtap_id, fernet_key, overrides)
@@ -75,11 +78,13 @@ class Engine:
     def set_hadoop_settings(self,
                             custom_hadoop_config=None,
                             use_qubole_placement_policy=None,
+                            enable_rubix=None,
                             is_ha=None,
                             fairscheduler_config_xml=None,
                             default_pool=None):
         self.hadoop_settings['custom_hadoop_config'] = custom_hadoop_config
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
+        self.hadoop_settings['enable_rubix'] = enable_rubix
         self.hadoop_settings['is_ha'] = is_ha
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
 
@@ -110,6 +115,7 @@ class Engine:
 
         self.set_engine_config(custom_hadoop_config=custom_hadoop_config,
                                use_qubole_placement_policy=arguments.use_qubole_placement_policy,
+                               enable_rubix=arguments.enable_rubix,
                                fairscheduler_config_xml=fairscheduler_config_xml,
                                default_pool=arguments.default_pool,
                                presto_version=arguments.presto_version,
@@ -148,6 +154,17 @@ class Engine:
                                                    default=None,
                                                    help="Do not use Qubole Block Placement policy" +
                                                         " for clusters with spot nodes", )
+        enable_rubix_group = hadoop_group.add_mutually_exclusive_group()
+        enable_rubix_group.add_argument("--enable-rubix",
+                                        dest="enable_rubix",
+                                        action="store_true",
+                                        default=None,
+                                        help="Enable rubix for cluster", )
+        enable_rubix_group.add_argument("--no-enable-rubix",
+                                        dest="enable_rubix",
+                                        action="store_false",
+                                        default=None,
+                                        help="Do not enable rubix for cluster", )
 
         fairscheduler_group = argparser.add_argument_group(
             "fairscheduler configuration options")

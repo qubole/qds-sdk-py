@@ -1426,6 +1426,35 @@ class TestClusterCreate(QdsCliTestCase):
                                                                   'bastion_node_public_dns': 'dummydns'},
                                                  })
 
+    def test_use_enable_rubix_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--use-hadoop2', '--enable-rubix']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'enable_rubix': True,
+                                        'use_hadoop2': True},
+                     })
+
+    def test_no_use_enable_rubix_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--use-hadoop2', '--no-enable-rubix']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'enable_rubix': False,
+                                         'use_hadoop2': True},
+                    })
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):

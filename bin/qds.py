@@ -283,6 +283,7 @@ def _create_cluster_info(arguments, api_version):
                                       use_hadoop2=arguments.use_hadoop2,
                                       use_spark=arguments.use_spark,
                                       use_qubole_placement_policy=arguments.use_qubole_placement_policy,
+                                      enable_rubix=arguments.enable_rubix,
                                       maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
                                       timeout_for_request=arguments.timeout_for_request,
                                       maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
