@@ -432,8 +432,7 @@ class TestClusterUpdate(QdsCliTestCase):
             temp.write("a=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
-                        '--use-qubole-placement-policy', '--custom-hadoop-config',
-                        temp.name]
+                        '--use-qubole-placement-policy', '--custom-hadoop-config', temp.name, '--enable-rubix']
             Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
@@ -441,7 +440,8 @@ class TestClusterUpdate(QdsCliTestCase):
             Connection._api_call.assert_called_with('PUT', 'clusters/123',  {'engine_config':
                                                                                  {'hadoop_settings':
                                                                                       {'use_qubole_placement_policy': True,
-                                                                                       'custom_hadoop_config': 'a=1\nb=2'}}
+                                                                                       'custom_hadoop_config': 'a=1\nb=2',
+                                                                                       'enable_rubix': True}}
                                                                              })
 
     def test_cluster_info(self):
@@ -532,3 +532,6 @@ class TestClusterList(QdsCliTestCase):
         Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "invalid"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
+
+if __name__ == '__main__':
+    unittest.main()

@@ -154,7 +154,7 @@ class Engine:
                                                    default=None,
                                                    help="Do not use Qubole Block Placement policy" +
                                                         " for clusters with spot nodes", )
-        enable_rubix_group = hadoop_group.add_mutually_exclusive_group()
+        enable_rubix_group = hadoop_settings_group.add_mutually_exclusive_group()
         enable_rubix_group.add_argument("--enable-rubix",
                                         dest="enable_rubix",
                                         action="store_true",
