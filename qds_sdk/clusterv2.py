@@ -33,7 +33,17 @@ class ClusterCmdLine:
             ClusterCmdLine.create_update_clone_parser(clone, action="clone")
             clone.set_defaults(func=ClusterV2.clone)
 
+        if action == "list":
+            li = subparsers.add_parser("list", help="list clusters from existing clusters depending upon state")
+            ClusterCmdLine.list_parser(li, action="list")
+            li.set_defaults(func=ClusterV2.list)
         return argparser
+
+    @staticmethod
+    def list_parser(subparser, action=None):
+
+        # cluster info parser
+        ClusterInfoV2.list_info_parser(subparser, action)
 
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
@@ -51,8 +61,14 @@ class ClusterCmdLine:
     def run(args):
         parser = ClusterCmdLine.parsers(args[0])
         arguments = parser.parse_args(args)
-        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
+        if args[0] in ["create", "clone", "update"]:
+            ClusterCmdLine.get_cluster_create_clone_update(arguments, args[0])
+        else:
+            return arguments.func(arguments.label, arguments.cluster_id, arguments.state)
 
+    @staticmethod
+    def get_cluster_create_clone_update(arguments, action):
+        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
         # This will set cluster info and monitoring settings
         cluster_info = ClusterInfoV2(arguments.label)
         cluster_info.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
@@ -93,7 +109,7 @@ class ClusterCmdLine:
 
         cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
 
-        action = args[0]
+        action = action
         if action == "create":
             return arguments.func(cluster_request)
         else:
@@ -329,6 +345,17 @@ class ClusterInfoV2(object):
         self.internal['image_uri_overrides'] = image_uri_overrides
 
     @staticmethod
+    def list_info_parser(argparser, action):
+        argparser.add_argument("--id", dest="cluster_id",
+                               help="show cluster with this id")
+
+        argparser.add_argument("--label", dest="label",
+                               help="show cluster with this label")
+        argparser.add_argument("--state", dest="state",
+                               choices=['invalid', 'up', 'down', 'pending', 'terminating'],
+                               help="State of the cluster")
+
+    @staticmethod
     def cluster_info_parser(argparser, action):
         create_required = False
         label_required = False
@@ -553,7 +580,38 @@ class ClusterV2(Resource):
         conn = Qubole.agent(version="v2")
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
-    # implementation needed
     @classmethod
-    def list(self, state=None):
-        pass
+    def list(cls, label=None, cluster_id=None, state=None):
+        """
+        List existing clusters present in your account.
+
+        Kwargs:
+            `state`: list only those clusters which are in this state
+
+        Returns:
+            List of clusters satisfying the given criteria
+        """
+        if cluster_id is not None:
+            return cls.show(cluster_id)
+        if label is not None:
+            return cls.show(label)
+        conn = Qubole.agent(version="v2")
+        cluster_list = conn.get(cls.rest_entity_path)
+        if state is None:
+            # return the complete list since state is None
+            return conn.get(cls.rest_entity_path)
+        # filter clusters based on state
+        result = []
+        if 'clusters' in cluster_list:
+            for cluster in cluster_list['clusters']:
+                if state.lower() == cluster['state'].lower():
+                    result.append(cluster)
+        return result
+
+    @classmethod
+    def show(cls, cluster_id_label):
+        """
+        Show information about the cluster with id/label `cluster_id_label`.
+        """
+        conn = Qubole.agent()
+        return conn.get(cls.element_path(cluster_id_label))

@@ -977,6 +977,10 @@ class DbExportCommand(Command):
                          help="Modes 1 and 2: DbTap Id of the target database in Qubole")
     optparser.add_option("--db_table", dest="db_table",
                          help="Modes 1 and 2: Table to export to in the target database")
+    optparser.add_option("--use_customer_cluster", dest="use_customer_cluster", default=False,
+                         help="Modes 1 and 2: To use cluster to run command ")
+    optparser.add_option("--customer_cluster_label", dest="customer_cluster_label",
+                         help="Modes 1 and 2: the label of the cluster to run the command on")
     optparser.add_option("--db_update_mode", dest="db_update_mode",
                          help="Modes 1 and 2: (optional) can be 'allowinsert' or "
                               "'updateonly'. If updateonly is "
@@ -1085,6 +1089,10 @@ class DbImportCommand(Command):
                          help="Modes 1 and 2: DbTap Id of the target database in Qubole")
     optparser.add_option("--db_table", dest="db_table",
                          help="Modes 1 and 2: Table to export to in the target database")
+    optparser.add_option("--use_customer_cluster", dest="use_customer_cluster", default=False,
+                         help="Modes 1 and 2: To use cluster to run command ")
+    optparser.add_option("--customer_cluster_label", dest="customer_cluster_label",
+                         help="Modes 1 and 2: the label of the cluster to run the command on")
     optparser.add_option("--where_clause", dest="db_where",
                          help="Mode 1: where clause to be applied to the table before extracting rows to be imported")
     optparser.add_option("--parallelism", dest="db_parallelism",
