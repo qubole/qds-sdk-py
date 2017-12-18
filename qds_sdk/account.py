@@ -94,7 +94,7 @@ class AccountCmdLine:
         return result
 
 class Account(SingletonResource):
-    credentials_rest_entity_path = "accounts/get_creds"
+    credentials_rest_entity_path = "accounts/creds"
     rest_entity_path = "account"
 
     @classmethod
