@@ -28,13 +28,13 @@ class TestTemplateCheck(QdsCliTestCase):
         with open(file_path) as f:
             data = json.load(f)
         Connection._api_call.assert_called_with("POST", "command_templates", data)
-    
+
     def test_create_template_without_data(self):
         sys.argv = ['qds.py', 'template', 'create']
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
-    
+
     def test_edit_template(self):
         file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input_edit_template.json')
         sys.argv = ['qds.py', 'template', 'edit', '--id', '12', '--data', file_path]
@@ -44,7 +44,7 @@ class TestTemplateCheck(QdsCliTestCase):
         with open(file_path) as f:
             data = json.load(f)
         Connection._api_call.assert_called_with("PUT", "command_templates/12", data)
-    
+
     def test_edit_template_without_data(self):
         sys.argv = ['qds.py', 'template', 'edit', '--id', '12']
         print_command()
@@ -138,6 +138,14 @@ class TestTemplateCheck(QdsCliTestCase):
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
+
+    def test_delete_template_operation(self):
+        sys.argv = ['qds-py', 'template', 'delete', '--id', '12']
+        print_command()
+        Connection._api_call = Mock()
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "command_templates/12/remove", None)
+
 
 def submit_actions_side_effect(*args, **kwargs):
     res = {

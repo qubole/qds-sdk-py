@@ -62,7 +62,12 @@ class TemplateCmdLine:
         submit.add_argument("--id", dest="id", required=True, help="Id of the template to Submit")
         submit.add_argument("--j", dest="data", required=True, help="Path to JSON file or json string with input field details")
         submit.set_defaults(func=TemplateCmdLine.submit)
-        
+
+        #delete
+        delete = subparsers.add_parser("delete",help="Delete a template using the template id")
+        delete.add_argument("--id",dest='id',required=True,help="id of the template to be deleted")
+        delete.set_defaults(func=TemplateCmdLine.delete)
+
         return argparser
         
     @staticmethod
@@ -109,7 +114,11 @@ class TemplateCmdLine:
     
     @staticmethod
     def list(args):
-        return Template.listTemplates(args)    
+        return Template.listTemplates(args)
+
+    @staticmethod
+    def delete(args):
+        Template.deleteTemplate(args.id)
     
 def getSpec(args):
     if args.data is not None:
@@ -255,7 +264,7 @@ class Template(Resource):
     def listTemplates(args):
         """
         Fetch existing Templates details.
-        
+
         Args:
             `args`: dictionary containing the value of page number and per-page value
         Returns:
@@ -272,3 +281,9 @@ class Template(Resource):
             url_path = "%s?%s" % (url_path, "&".join(page_attr))
 
         return conn.get(url_path)
+
+    @staticmethod
+    def deleteTemplate(id):
+        path = Template.element_path(id) + "/remove"
+        conn = Qubole.agent()
+        conn.put(path)
