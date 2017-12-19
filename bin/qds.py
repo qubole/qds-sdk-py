@@ -484,7 +484,8 @@ def clustermainv2(args):
     elif action in set(["create", "update", "clone", "list"]):
         result =  ClusterCmdLine.run(args)
     else:
-        result =  globals()["cluster_" + action + "_action"](Cluster, args)
+        action = args.pop(0)
+        result = globals()["cluster_" + action + "_action"](Cluster, args)
     print(result)
 
 def accountmain(args):

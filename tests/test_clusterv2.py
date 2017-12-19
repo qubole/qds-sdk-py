@@ -532,3 +532,13 @@ class TestClusterList(QdsCliTestCase):
         Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "invalid"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
+
+class TestClusterStatus(QdsCliTestCase):
+
+    def test_status_api(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'status', '123']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value=[{"state": "DOWN"}])
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'clusters/123/state', params=None)
