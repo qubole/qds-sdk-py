@@ -511,7 +511,7 @@ class Cluster(Resource):
         return conn.put(cls.rest_entity_path + "/reassign-label", data)
 
     @classmethod
-    def delete(cls, cluster_id_label, version):
+    def delete(cls, cluster_id_label):
         """
         Delete the cluster with id/label `cluster_id_label`.
         """
