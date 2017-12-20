@@ -91,7 +91,7 @@ class Cluster(Resource):
         """
         Show the status of the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         return conn.get(cls.element_path(cluster_id_label) + "/state")
 
     @classmethod
@@ -108,7 +108,7 @@ class Cluster(Resource):
         """
         Terminate the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         data = {"state": "terminate"}
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
@@ -503,7 +503,7 @@ class Cluster(Resource):
 
             `label`: label to be moved from the source cluster
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         data = {
                     "destination_cluster": destination_cluster,
                     "label": label
@@ -515,7 +515,7 @@ class Cluster(Resource):
         """
         Delete the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         return conn.delete(cls.element_path(cluster_id_label))
 
     @classmethod
@@ -595,7 +595,7 @@ class Cluster(Resource):
         """
         Create hbase snapshot full/incremental
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         parameters = {}
         parameters['s3_location'] = s3_location
         if backup_type:
@@ -607,7 +607,7 @@ class Cluster(Resource):
         """
         Restoring cluster from a given hbase snapshot id
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         parameters = {}
         parameters['s3_location'] = s3_location
         parameters['backup_id'] = backup_id
@@ -621,7 +621,7 @@ class Cluster(Resource):
         """
         Get details for snapshot schedule
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         return conn.get(cls.element_path(cluster_id_label) + "/snapshot_schedule")
 
     @classmethod
@@ -629,7 +629,7 @@ class Cluster(Resource):
         """
         Update for snapshot schedule
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
 
         data = {}
         if s3_location is not None:
@@ -649,7 +649,7 @@ class Cluster(Resource):
       """
       Add a node to an existing cluster
       """
-      conn = Qubole.agent()
+      conn = Qubole.agent(version=Cluster.api_version)
       parameters = {} if not parameters else parameters
       return conn.post(cls.element_path(cluster_id_label) + "/nodes", data={"parameters" : parameters})
 
@@ -658,7 +658,7 @@ class Cluster(Resource):
         """
         Add a node to an existing cluster
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         parameters = {} if not parameters else parameters
         data = {"private_dns" : private_dns, "parameters" : parameters}
         return conn.delete(cls.element_path(cluster_id_label) + "/nodes", data)
@@ -668,7 +668,7 @@ class Cluster(Resource):
         """
         Add a node to an existing cluster
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=Cluster.api_version)
         parameters = {} if not parameters else parameters
         data = {"command" : command, "private_dns" : private_dns, "parameters" : parameters}
         return conn.put(cls.element_path(cluster_id_label) + "/nodes", data)

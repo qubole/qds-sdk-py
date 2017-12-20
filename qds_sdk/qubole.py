@@ -29,6 +29,8 @@ class Qubole:
     poll_interval = None
     skip_ssl_cert_check = None
     cloud_name = None
+    cached_agent = None
+    cloud = None
 
     @classmethod
     def configure(cls, api_token,
@@ -58,11 +60,7 @@ class Qubole:
             cls.poll_interval = poll_interval
         cls.skip_ssl_cert_check = skip_ssl_cert_check
         cls.cloud_name = cloud_name.lower()
-
-
-
-    cached_agent = None
-    cloud = None
+        cls.cached_agent = None
 
 
     @classmethod
