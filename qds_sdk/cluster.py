@@ -25,7 +25,7 @@ class Cluster(Resource):
     """
 
     rest_entity_path = "clusters"
-    api_version = "v1.2"
+    api_version = "v1.3"
 
     @classmethod
     def _parse_list(cls, args):
@@ -797,7 +797,7 @@ class ClusterInfo():
         self.hadoop_settings['use_hadoop2'] = use_hadoop2
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['is_ha'] = is_ha
-
+        
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
                 self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
@@ -921,6 +921,7 @@ class ClusterInfoV13():
         self.security_settings = {}
         self.presto_settings = {}
         self.node_configuration = {}
+        self.engine_config = {}
 
     def set_cluster_info(self, aws_access_key_id=None,
                          aws_secret_access_key=None,
@@ -930,6 +931,7 @@ class ClusterInfoV13():
                          subnet_id=None,
                          master_elastic_ip=None,
                          disallow_cluster_termination=None,
+                         idle_cluster_timeout=None,
                          enable_ganglia_monitoring=None,
                          node_bootstrap_file=None,
                          master_instance_type=None,
@@ -962,7 +964,10 @@ class ClusterInfoV13():
                          bastion_node_public_dns=None,
                          role_instance_profile=None,
                          presto_custom_config=None,
-                         is_ha=None):
+                         is_ha=None,
+                         spark_version=None,
+                         presto_version=None,
+                         hive_version=None):
         """
         Kwargs:
 
@@ -1077,16 +1082,20 @@ class ClusterInfoV13():
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file
-        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
+        self.spark_version = spark_version
+        self.presto_version = presto_version
+        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand,
+                                    custom_ec2_tags, idle_cluster_timeout)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                               master_elastic_ip, bastion_node_public_dns, role_instance_profile)
-        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
+        self.set_hadoop_settings(custom_config, use_hbase, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
         self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
         self.set_security_settings(encrypted_ephemerals, ssh_public_key, persistent_security_group)
         self.set_presto_settings(enable_presto, presto_custom_config)
+        self.set_engine_config(hive_version)
 
     def set_ec2_settings(self,
                          aws_access_key_id=None,
@@ -1113,17 +1122,26 @@ class ClusterInfoV13():
                             initial_nodes=None,
                             max_nodes=None,
                             slave_request_type=None,
-                            fallback_to_ondemand=None):
+                            fallback_to_ondemand=None,
+                            custom_ec2_tags=None,
+                            idle_cluster_timeout=None):
         self.node_configuration['master_instance_type'] = master_instance_type
         self.node_configuration['slave_instance_type'] = slave_instance_type
         self.node_configuration['initial_nodes'] = initial_nodes
         self.node_configuration['max_nodes'] = max_nodes
         self.node_configuration['slave_request_type'] = slave_request_type
         self.node_configuration['fallback_to_ondemand'] = fallback_to_ondemand
+        self.node_configuration['idle_cluster_timeout'] = idle_cluster_timeout
+
+        if custom_ec2_tags and custom_ec2_tags.strip():
+            try:
+                self.node_configuration['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
+                #print('Loaded custom EC2 tags: %s' % custom_ec2_tags.strip())
+            except Exception as e:
+                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
     def set_hadoop_settings(self, custom_config=None,
                             use_hbase=None,
-                            custom_ec2_tags=None,
                             use_hadoop2=None,
                             use_spark=None,
                             use_qubole_placement_policy=None,
@@ -1134,12 +1152,6 @@ class ClusterInfoV13():
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
         self.hadoop_settings['is_ha'] = is_ha
-
-        if custom_ec2_tags and custom_ec2_tags.strip():
-            try:
-                self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
-            except Exception as e:
-                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
@@ -1182,6 +1194,12 @@ class ClusterInfoV13():
     def set_presto_settings(self, enable_presto=None, presto_custom_config=None):
         self.presto_settings['enable_presto'] = enable_presto
         self.presto_settings['custom_config'] = presto_custom_config
+
+    def set_engine_config(self, hive_version=None):
+        if hive_version:
+            self.engine_config['type'] = 'hadoop2'
+            self.engine_config['hive_settings'] = {
+                'hive_version': hive_version}
 
     def minimal_payload(self):
         """
