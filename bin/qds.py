@@ -139,7 +139,8 @@ def runaction(cmdclass, args):
         print_logs = args.pop("print_logs") # We don't want to send this to the API.
         cmd = cmdclass.run(**args)
         if print_logs:
-            sys.stderr.write(cmd.get_log())
+            encoding = 'utf-8'
+            sys.stderr.write(cmd.get_log().encode(encoding))
         return _getresult(cmdclass, cmd)
 
 
@@ -187,7 +188,8 @@ def getresultaction(cmdclass, args):
 
 def getlogaction(cmdclass, args):
     checkargs_id(args)
-    print(cmdclass.get_log_id(args.pop(0)))
+    encoding = 'utf-8'
+    print(cmdclass.get_log_id(args.pop(0)).encode(encoding)))
     return 0
 
 
