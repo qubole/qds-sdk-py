@@ -12,6 +12,7 @@ class Engine:
         self.presto_settings = {}
         self.spark_settings = {}
         self.airflow_settings ={}
+        self.engine_config = {}
 
     def set_engine_config(self,
                           custom_hadoop_config=None,
@@ -25,7 +26,8 @@ class Engine:
                           dbtap_id=None,
                           fernet_key=None,
                           overrides=None,
-                          is_ha=None):
+                          is_ha=None,
+                          is_deeplearning=False):
         '''
 
         Args:
@@ -56,6 +58,7 @@ class Engine:
                 <section>.<property>=<value>\n<section>.<property>=<value>...
 
             is_ha: Enabling HA config for cluster
+            is_deeplearning : this is a deeplearning cluster config
 
         '''
 
@@ -63,6 +66,14 @@ class Engine:
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
         self.set_airflow_settings(dbtap_id, fernet_key, overrides)
+        if is_deeplearning:
+            self.set_deeplearning_settings(spark_version)
+
+    def set_deeplearning_settings(self,spark_version="2.1-latest"):
+        if spark_version == None:
+            self.set_spark_settings(spark_version="2.1-latest")
+        else:
+            self.set_spark_settings(spark_version)
 
     def set_fairscheduler_settings(self,
                                    fairscheduler_config_xml=None,
@@ -107,6 +118,10 @@ class Engine:
         custom_hadoop_config = util._read_file(arguments.custom_hadoop_config_file)
         fairscheduler_config_xml = util._read_file(arguments.fairscheduler_config_xml_file)
         custom_presto_config = util._read_file(arguments.presto_custom_config_file)
+        is_deeplearning=False
+
+        if self.flavour == "deeplearning":
+            is_deeplearning = True
 
         self.set_engine_config(custom_hadoop_config=custom_hadoop_config,
                                use_qubole_placement_policy=arguments.use_qubole_placement_policy,
@@ -118,14 +133,15 @@ class Engine:
                                custom_spark_config=arguments.custom_spark_config,
                                dbtap_id=arguments.dbtap_id,
                                fernet_key=arguments.fernet_key,
-                               overrides=arguments.overrides)
+                               overrides=arguments.overrides,
+                               is_deeplearning=is_deeplearning)
 
     @staticmethod
     def engine_parser(argparser):
         engine_group = argparser.add_argument_group("engine settings")
         engine_group.add_argument("--flavour",
                                   dest="flavour",
-                                  choices=["hadoop", "hadoop2", "presto", "spark", "hbase", "airflow"],
+                                  choices=["hadoop", "hadoop2", "presto", "spark", "hbase", "airflow", "deeplearning"],
                                   default=None,
                                   help="Set engine flavour")
 
@@ -194,3 +210,4 @@ class Engine:
                                             dest="overrides",
                                             default=None,
                                             help="overrides for airflow cluster", )
+
