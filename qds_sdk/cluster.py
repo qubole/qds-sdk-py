@@ -1701,8 +1701,8 @@ class ClusterInfoV2(object):
         self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
 
     def set_spot_block_settings(self, spot_block_duration=None):
-        self.cluster_info['spot_block_settings'] = {}
-        self.cluster_info['spot_block_settings']['duration'] = spot_block_duration
+        self.cluster_info['spot_settings']['spot_block_settings'] = {}
+        self.cluster_info['spot_settings']['spot_block_settings']['duration'] = spot_block_duration
 
 
 
@@ -1904,8 +1904,8 @@ class ClusterInfoV2(object):
                            disk_type,
                            upscaling_config,
                            enable_encryption)
-        self.set_spot_block_settings(spot_block_duration)
         self.cluster_info['spot_settings'] = {}
+        self.set_spot_block_settings(spot_block_duration)
         self.set_spot_instance_settings(maximum_bid_price_percentage,
                                         timeout_for_request,
                                         maximum_spot_instance_percentage)
