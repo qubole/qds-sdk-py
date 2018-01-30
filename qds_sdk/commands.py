@@ -1108,7 +1108,8 @@ class DbImportCommand(Command):
 
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
-
+    optparser.add_option("--schema", dest="schema",
+                         help="Hive database to import into. THe default schema is default")
     optparser.add_option("--tags", dest="tags",
                          help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
 
