@@ -64,5 +64,5 @@ def get_results(command):
 
 if __name__ == '__main__':
     # Stting API token
-    Qubole.configure(api_token='b5f34251d5cb474d9673ce65285345hjhj34234ikjsf8365c90cfe58d0b0')
+    Qubole.configure(api_token='YOUR-QUBOLE-API-TOKEN')
     get_results(execute_query("select * from  default.cities limit 100;"))
