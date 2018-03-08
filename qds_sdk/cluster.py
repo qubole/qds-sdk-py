@@ -1679,7 +1679,8 @@ class ClusterInfoV2(object):
                                 custom_tags=None,
                                 heterogeneous_config=None,
                                 slave_request_type=None,
-                                idle_cluster_timeout=None):
+                                idle_cluster_timeout=None
+                                ):
         self.cluster_info['master_instance_type'] = master_instance_type
         self.cluster_info['slave_instance_type']  = slave_instance_type
         self.cluster_info['min_nodes'] = min_nodes
@@ -1699,6 +1700,12 @@ class ClusterInfoV2(object):
         self.cluster_info['heterogeneous_config'] = heterogeneous_config
         self.cluster_info['slave_request_type'] = slave_request_type
         self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
+
+    def set_environment_settings(self,python_version=None,
+                                r_version=None):
+        self.cluster_info['env_settings']={}
+        self.cluster_info['env_settings']['python_version'] = python_version
+        self.cluster_info['env_settings']['r_version'] = r_version
 
     def set_spot_block_settings(self, spot_block_duration=None):
         self.cluster_info['spot_settings']['spot_block_settings'] = {}
@@ -1825,6 +1832,8 @@ class ClusterInfoV2(object):
                         kafka_version=None,
                         spot_block_duration=None,
                         node_bootstrap_timeout=None,
+                        python_version=None,
+                        r_version=None,
                          **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
@@ -1898,7 +1907,10 @@ class ClusterInfoV2(object):
                                     custom_tags,
                                     heterogeneous_config,
                                     slave_request_type,
-                                    idle_cluster_timeout)
+                                    idle_cluster_timeout
+                                    )
+        self.set_environment_settings(python_version,
+                                    r_version)
         self.set_data_disk(size,
                            count,
                            disk_type,
