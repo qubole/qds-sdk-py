@@ -221,14 +221,19 @@ class Command(Resource):
 
         r = conn.get(result_path, {'inline': inline, 'include_headers': include_header})
         if r.get('inline'):
+            raw_results = r['results']
+            encoded_results = raw_results.encode('utf8')
             if sys.version_info < (3, 0, 0):
-                fp.write(r['results'].encode('utf8'))
+                fp.write(encoded_results)
             else:
                 import io
                 if isinstance(fp, io.TextIOBase):
-                    fp.buffer.write(r['results'].encode('utf8'))
+                    if hasattr(fp, 'buffer'):
+                        fp.buffer.write(encoded_results)
+                    else:
+                        fp.write(raw_results)
                 elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
-                    fp.write(r['results'].encode('utf8'))
+                    fp.write(encoded_results)
                 else:
                     # Can this happen? Don't know what's the right thing to do in this case.
                     pass
