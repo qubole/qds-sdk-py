@@ -57,7 +57,7 @@ class Cluster(Resource):
         return vars(arguments)
 
     @classmethod
-    def list(cls, state=None):
+    def list(cls, state=None, per_page=10):
         """
         List existing clusters present in your account.
 
@@ -67,11 +67,13 @@ class Cluster(Resource):
         Returns:
             List of clusters satisfying the given criteria
         """
+        params = dict()
+        params['per_page'] = per_page
         conn = Qubole.agent()
         if state is None:
-            return conn.get(cls.rest_entity_path)
+            return conn.get(cls.rest_entity_path, params=params)
         elif state is not None:
-            cluster_list = conn.get(cls.rest_entity_path)
+            cluster_list = conn.get(cls.rest_entity_path, params=params)
             result = []
             for cluster in cluster_list:
                 if state.lower() == cluster['cluster']['state'].lower():
