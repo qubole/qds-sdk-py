@@ -1524,6 +1524,7 @@ class ClusterInfoV2(object):
 
     def set_network_config(self, vpc_id=None,
                             subnet_id=None,
+                            availability_domain_info_map=None,
                             bastion_node_public_dns=None,
                             persistent_security_groups=None,
                             persistent_security_group_resource_group_name=None,
@@ -1536,6 +1537,7 @@ class ClusterInfoV2(object):
                             compartment_id=None,
                             image_id=None):
         self.cloud_config['network_config'] = {}
+        self.cloud_config['network_config']['availability_domain_info_map'] = availability_domain_info_map
         self.cloud_config['network_config']['bastion_node_public_dns'] = bastion_node_public_dns
         self.cloud_config['network_config']['persistent_security_groups'] = persistent_security_groups
         self.cloud_config['network_config']['bastion_node_public_dns'] = bastion_node_public_dns
@@ -1765,6 +1767,7 @@ class ClusterInfoV2(object):
                         region=None,
                         vpc_id=None,
                         subnet_id=None,
+                        availability_domain_info_map=None,
                         bastion_node_public_dns=None,
                         persistent_security_groups=None,
                         persistent_security_group_resource_group_name=None,
@@ -1853,6 +1856,7 @@ class ClusterInfoV2(object):
         self.set_provider(provider)
         self.set_network_config(vpc_id,
                                 subnet_id,
+                                availability_domain_info_map,
                                 bastion_node_public_dns,
                                 persistent_security_groups,
                                 persistent_security_group_resource_group_name,
