@@ -1,4 +1,6 @@
 from qds_sdk import util
+
+
 class Engine:
     '''
     Use this class to set engine config settings of cluster
@@ -12,6 +14,7 @@ class Engine:
         self.presto_settings = {}
         self.spark_settings = {}
         self.airflow_settings ={}
+        self.engine_config = {}
 
     def set_engine_config(self,
                           custom_hadoop_config=None,
@@ -56,6 +59,7 @@ class Engine:
                 <section>.<property>=<value>\n<section>.<property>=<value>...
 
             is_ha: Enabling HA config for cluster
+            is_deeplearning : this is a deeplearning cluster config
 
         '''
 
@@ -107,6 +111,7 @@ class Engine:
         custom_hadoop_config = util._read_file(arguments.custom_hadoop_config_file)
         fairscheduler_config_xml = util._read_file(arguments.fairscheduler_config_xml_file)
         custom_presto_config = util._read_file(arguments.presto_custom_config_file)
+        is_deeplearning=False
 
         self.set_engine_config(custom_hadoop_config=custom_hadoop_config,
                                use_qubole_placement_policy=arguments.use_qubole_placement_policy,
@@ -125,7 +130,7 @@ class Engine:
         engine_group = argparser.add_argument_group("engine settings")
         engine_group.add_argument("--flavour",
                                   dest="flavour",
-                                  choices=["hadoop", "hadoop2", "presto", "spark", "hbase", "airflow"],
+                                  choices=["hadoop", "hadoop2", "presto", "spark", "hbase", "airflow", "deeplearning"],
                                   default=None,
                                   help="Set engine flavour")
 
@@ -194,3 +199,4 @@ class Engine:
                                             dest="overrides",
                                             default=None,
                                             help="overrides for airflow cluster", )
+
