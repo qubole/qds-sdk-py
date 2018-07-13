@@ -1511,6 +1511,9 @@ class ClusterInfoV2(object):
         self.cloud_config['compute_config']['compute_key_finger_print'] = compute_key_finger_print
         self.cloud_config['compute_config']['compute_api_private_rsa_key'] = compute_api_private_rsa_key
 
+    def set_resource_group_name(self, resource_group_name):
+        self.cloud_config['resource_group_name'] = resource_group_name
+
     def set_location(self, location=None, aws_region=None, aws_availability_zone=None,
                      availability_domain=None, region=None):
         self.cloud_config['location'] = {}
@@ -1535,7 +1538,9 @@ class ClusterInfoV2(object):
                             vnet_resource_group_name=None,
                             vcn_id=None,
                             compartment_id=None,
-                            image_id=None):
+                            image_id=None,
+                            master_static_nic_name=None,
+                            master_static_public_ip_name=None):
         self.cloud_config['network_config'] = {}
         self.cloud_config['network_config']['availability_domain_info_map'] = availability_domain_info_map
         self.cloud_config['network_config']['bastion_node_public_dns'] = bastion_node_public_dns
@@ -1555,6 +1560,9 @@ class ClusterInfoV2(object):
         self.cloud_config['network_config']['vcn_id'] = vcn_id
         self.cloud_config['network_config']['compartment_id'] = compartment_id
         self.cloud_config['network_config']['image_id'] = image_id
+
+        self.cloud_config['network_config']['master_static_nic_name'] = master_static_nic_name
+        self.cloud_config['network_config']['master_static_public_ip_name'] = master_static_public_ip_name
 
     def set_storage_config(self, storage_access_key=None,
                             storage_account_name=None,
@@ -1765,6 +1773,7 @@ class ClusterInfoV2(object):
                         compute_user_id=None,
                         compute_key_finger_print=None,
                         compute_api_private_rsa_key=None,
+                        resource_group_name=None,
                         role_instance_profile=None,
                         compute_subscription_id=None,
                         location=None,
@@ -1785,6 +1794,8 @@ class ClusterInfoV2(object):
                         vcn_id=None,
                         compartment_id=None,
                         image_id=None,
+                        master_static_nic_name=None,
+                        master_static_public_ip_name=None,
                         vnet_name=None,
                         storage_access_key=None,
                         storage_account_name=None,
@@ -1860,6 +1871,7 @@ class ClusterInfoV2(object):
                                 compute_user_id,
                                 compute_key_finger_print,
                                 compute_api_private_rsa_key)
+        self.set_resource_group_name(resource_group_name)
         self.set_location(location, aws_region, aws_availability_zone, availability_domain, region)
         self.set_provider(provider)
         self.set_network_config(vpc_id,
@@ -1875,7 +1887,9 @@ class ClusterInfoV2(object):
                                 vnet_resource_group_name,
                                 vcn_id,
                                 compartment_id,
-                                image_id)
+                                image_id,
+                                master_static_nic_name,
+                                master_static_public_ip_name)
         self.set_storage_config(storage_access_key,
                                 storage_account_name,
                                 disk_storage_account_name,
