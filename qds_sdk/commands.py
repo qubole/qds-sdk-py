@@ -969,6 +969,8 @@ class DbExportCommand(Command):
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
+    optparser.add_option("--schema", help="Hive schema name assumed to be 'default' if not specified",
+                              default="default", dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--partition_spec", dest="partition_spec",
@@ -1073,11 +1075,6 @@ class DbExportCommand(Command):
         v["command_type"] = "DbExportCommand"
         return v
 
-
-class DbexportCommand(DbExportCommand):
-    pass
-
-
 class DbImportCommand(Command):
     usage = "dbimportcmd <submit|run> [options]"
 
@@ -1085,7 +1082,7 @@ class DbImportCommand(Command):
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
     optparser.add_option("--schema", help="Hive database to import into. 'default' is assumed if nothing is specified",
-                         default="default", dest="schema")
+                         default="deafult", dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--hive_serde", dest="hive_serde",
