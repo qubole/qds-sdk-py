@@ -969,6 +969,8 @@ class DbExportCommand(Command):
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
+    optparser.add_option("--schema", help="Hive schema name assumed to be 'default' if not specified",
+                              default="default", dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--partition_spec", dest="partition_spec",
@@ -1005,6 +1007,9 @@ class DbExportCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--additional_options",
+                         help="Additional Sqoop options which are needed enclose options in double or single quots e.g. '--map-column-hive id=int,data=string'")
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
@@ -1070,17 +1075,14 @@ class DbExportCommand(Command):
         v["command_type"] = "DbExportCommand"
         return v
 
-
-class DbexportCommand(DbExportCommand):
-    pass
-
-
 class DbImportCommand(Command):
     usage = "dbimportcmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
+    optparser.add_option("--schema", help="Hive database to import into. 'default' is assumed if nothing is specified",
+                         default="default", dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--hive_serde", dest="hive_serde",
@@ -1089,7 +1091,8 @@ class DbImportCommand(Command):
                          help="Modes 1 and 2: DbTap Id of the target database in Qubole")
     optparser.add_option("--db_table", dest="db_table",
                          help="Modes 1 and 2: Table to export to in the target database")
-    optparser.add_option("--use_customer_cluster", dest="use_customer_cluster", default=False,
+    optparser.add_option("--use_customer_cluster", action="store_true",
+                         dest="use_customer_cluster", default=False,
                          help="Modes 1 and 2: To use cluster to run command ")
     optparser.add_option("--customer_cluster_label", dest="customer_cluster_label",
                          help="Modes 1 and 2: the label of the cluster to run the command on")
@@ -1097,7 +1100,6 @@ class DbImportCommand(Command):
                          help="Mode 1: where clause to be applied to the table before extracting rows to be imported")
     optparser.add_option("--parallelism", dest="db_parallelism",
                          help="Mode 1 and 2: Number of parallel threads to use for extracting data")
-
     optparser.add_option("--extract_query", dest="db_extract_query",
                          help="Modes 2: SQL query to be applied at the source database for extracting data. "
                               "$CONDITIONS must be part of the where clause")
@@ -1105,21 +1107,22 @@ class DbImportCommand(Command):
                          help="Mode 2: query to be used get range of rowids to be extracted")
     optparser.add_option("--split_column", dest="db_split_column",
                          help="column used as rowid to split data into range")
-
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
-
     optparser.add_option("--tags", dest="tags",
                          help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
-
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
-
+    optparser.add_option("--additional_options",
+                          help="Additional Sqoop options which are needed enclose options in double or single quotes")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+
+
+
 
     @classmethod
     def parse(cls, args):
