@@ -1696,7 +1696,9 @@ class ClusterInfoV2(object):
                                 custom_tags=None,
                                 heterogeneous_config=None,
                                 slave_request_type=None,
-                                idle_cluster_timeout=None
+                                idle_cluster_timeout=None,
+                                node_base_cooldown_period=None,
+                                node_spot_cooldown_period=None
                                 ):
         self.cluster_info['master_instance_type'] = master_instance_type
         self.cluster_info['slave_instance_type']  = slave_instance_type
@@ -1717,6 +1719,9 @@ class ClusterInfoV2(object):
         self.cluster_info['heterogeneous_config'] = heterogeneous_config
         self.cluster_info['slave_request_type'] = slave_request_type
         self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
+
+        self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
+        self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
 
     def set_environment_settings(self,python_version=None,
                                 r_version=None):
@@ -1856,7 +1861,9 @@ class ClusterInfoV2(object):
                         node_bootstrap_timeout=None,
                         python_version=None,
                         r_version=None,
-                         **kwargs):
+                        node_base_cooldown_period=None,
+                        node_spot_cooldown_period=None,
+                        **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
                                 compute_access_key,
@@ -1934,7 +1941,9 @@ class ClusterInfoV2(object):
                                     custom_tags,
                                     heterogeneous_config,
                                     slave_request_type,
-                                    idle_cluster_timeout
+                                    idle_cluster_timeout,
+                                    node_base_cooldown_period,
+                                    node_spot_cooldown_period
                                     )
         self.set_environment_settings(python_version,
                                     r_version)
