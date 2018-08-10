@@ -1698,7 +1698,8 @@ class ClusterInfoV2(object):
                                 slave_request_type=None,
                                 idle_cluster_timeout=None,
                                 node_base_cooldown_period=None,
-                                node_spot_cooldown_period=None
+                                node_spot_cooldown_period=None,
+                                root_disk_size=None
                                 ):
         self.cluster_info['master_instance_type'] = master_instance_type
         self.cluster_info['slave_instance_type']  = slave_instance_type
@@ -1722,6 +1723,8 @@ class ClusterInfoV2(object):
 
         self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
         self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
+        self.cluster_info['rootdisk'] = {}
+        self.cluster_info['rootdisk']['size'] = root_disk_size
 
     def set_environment_settings(self,python_version=None,
                                 r_version=None):
@@ -1863,6 +1866,7 @@ class ClusterInfoV2(object):
                         r_version=None,
                         node_base_cooldown_period=None,
                         node_spot_cooldown_period=None,
+                        root_disk_size=None
                         **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
@@ -1943,7 +1947,8 @@ class ClusterInfoV2(object):
                                     slave_request_type,
                                     idle_cluster_timeout,
                                     node_base_cooldown_period,
-                                    node_spot_cooldown_period
+                                    node_spot_cooldown_period,
+                                    root_disk_size
                                     )
         self.set_environment_settings(python_version,
                                     r_version)
