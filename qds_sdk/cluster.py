@@ -1866,7 +1866,7 @@ class ClusterInfoV2(object):
                         r_version=None,
                         node_base_cooldown_period=None,
                         node_spot_cooldown_period=None,
-                        root_disk_size=None
+                        root_disk_size=None,
                         **kwargs):
         self.set_compute_config(compute_validated,
                                 use_account_compute_creds,
