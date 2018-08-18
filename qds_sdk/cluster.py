@@ -1574,7 +1574,10 @@ class ClusterInfoV2(object):
                             storage_tenant_id=None,
                             storage_user_id=None,
                             storage_key_finger_print=None,
-                            storage_api_private_rsa_key=None):
+                            storage_api_private_rsa_key=None,
+                            block_volume_size=None,
+                            block_volume_count=None
+                           ):
         self.cloud_config['storage_config'] = {}
         self.cloud_config['storage_config']['storage_access_key'] = storage_access_key
         self.cloud_config['storage_config']['storage_account_name'] = storage_account_name
@@ -1588,6 +1591,9 @@ class ClusterInfoV2(object):
         self.cloud_config['storage_config']['storage_user_id'] = storage_user_id
         self.cloud_config['storage_config']['storage_key_finger_print'] = storage_key_finger_print
         self.cloud_config['storage_config']['storage_api_private_rsa_key'] = storage_api_private_rsa_key
+
+        self.cloud_config['storage_config']['block_volume_size'] = block_volume_size
+        self.cloud_config['storage_config']['block_volume_count'] = block_volume_count
 
     def set_engine_config(self, flavour=None,
                             custom_hadoop_config =None,
@@ -1816,6 +1822,8 @@ class ClusterInfoV2(object):
                         storage_user_id=None,
                         storage_key_finger_print=None,
                         storage_api_private_rsa_key=None,
+                        block_volume_size=None,
+                        block_volume_count=None,
                         flavour=None,
                         custom_hadoop_config=None,
                         use_qubole_placement_policy=None,
@@ -1911,7 +1919,9 @@ class ClusterInfoV2(object):
                                 storage_tenant_id,
                                 storage_user_id,
                                 storage_key_finger_print,
-                                storage_api_private_rsa_key)
+                                storage_api_private_rsa_key,
+                                block_volume_size,
+                                block_volume_count)
         self.set_engine_config(flavour,
                                 custom_hadoop_config,
                                 use_qubole_placement_policy,
