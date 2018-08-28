@@ -255,8 +255,7 @@ class Command(Resource):
                     # If the delim is not None, then both text and binary modes
                     # work.
 
-                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim,
-                                       skip_data_avail_check=isinstance(self, PrestoCommand))
+                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
             else:
                 fp.write(",".join(r['result_location']))
 
@@ -1285,7 +1284,7 @@ def write_headers(qlog,fp):
     fp.write(col_names)
 
 
-def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_data_avail_check=False):
+def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
 
@@ -1310,32 +1309,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
         sys.stderr.flush()
-
-    def _is_complete_data_available(bucket_paths, num_result_dir):
-        if num_result_dir == -1:
-            return True
-        unique_paths = set()
-        files = {}
-        for one_path in bucket_paths:
-            name = one_path.name.replace(key_prefix, "", 1)
-            if name.startswith('_tmp.'):
-                continue
-            path = name.split("/")
-            dir = path[0].replace("_$folder$", "", 1)
-            unique_paths.add(dir)
-            if len(path) > 1:
-                file = int(path[1])
-                if dir not in files:
-                    files[dir] = []
-                files[dir].append(file)
-        if len(unique_paths) < num_result_dir:
-            return False
-        for k in files:
-            v = files.get(k)
-            if len(v) > 0 and max(v) + 1 > len(v):
-                return False
-        return True
-
+        
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
@@ -1373,16 +1347,6 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         #It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
-        if not skip_data_avail_check:
-            complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-            while complete_data_available is False and retries > 0:
-                retries = retries - 1
-                log.info("Results dir is not available on s3. Retry: " + str(6-retries))
-                time.sleep(10)
-                complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-            if complete_data_available is False:
-                raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
-
         for one_path in bucket_paths:
             name = one_path.name
 
