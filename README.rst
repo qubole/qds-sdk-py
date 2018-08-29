@@ -115,3 +115,10 @@ An example Python application needs to do the following:
        print "Id: %s, Status: %s" % (str(hc.id), hc.status)
 
 ``example/mr_1.py`` contains a Hadoop Streaming example
+
+
+Reporting Bugs and Contributing Code
+------------------------------------
+
+* Want to report a bug or request a feature? Please open `an issue <https://github.com/qubole/qds-sdk-py/issues/new>`_.
+* Want to contribute? Fork the project and create a pull request with your changes against ``unreleased`` branch.
