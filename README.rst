@@ -115,7 +115,7 @@ An example Python application needs to do the following:
 
        Qubole.configure(api_token='ksbdvcwdkjn123423')
 
-       OR
+       # or
 
        Qubole.configure(api_token='ksbdvcwdkjn123423', api_url='https://<env>.qubole.com/api')
 
