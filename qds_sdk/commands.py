@@ -22,6 +22,7 @@ import re
 import pipes
 import os
 import json
+import signal
 
 log = logging.getLogger("qds_commands")
 
@@ -94,7 +95,14 @@ class Command(Resource):
         print_logs_live = kwargs.pop("print_logs_live", None) # We don't want to send this to the API.
 
         cmd = cls.create(**kwargs)
+
+        sighandler = SignalHandler()
+
         while not Command.is_done(cmd.status):
+            if sighandler.received_term_signal:
+                logging.warning("Received signal {}. Canceling Qubole Command ID: {}".format(sighandler.last_signal, cmd.id))
+                cls.cancel(cmd)
+                exit()
             time.sleep(Qubole.poll_interval)
             cmd = cls.find(cmd.id)
             if print_logs_live is True:
@@ -1253,6 +1261,23 @@ class DbTapQueryCommand(Command):
         v = vars(options)
         v["command_type"] = "DbTapQueryCommand"
         return v
+
+class SignalHandler:
+    """
+    Catch terminate signals to allow graceful termination of run()
+    """
+
+    def __init__(self):
+        self.last_signal = None
+        self.received_term_signal = False
+        self.term_signals = [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]
+        for signum in self.term_signals:
+            signal.signal(signum, self.handler)
+
+    def handler(self, signum, frame):
+        self.last_signal = signum
+        if signum in self.term_signals:
+            self.received_term_signal = True
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
