@@ -1317,7 +1317,9 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
-    bucket = boto_conn.get_bucket(bucket_name)
+    bucket = boto_conn.lookup(bucket_name)
+    if not bucket:
+        raise boto.exception.S3ResponseError("Bucket doesn't exists.")
     retries = 6
     if s3_path.endswith('/') is False:
         #It is a file
