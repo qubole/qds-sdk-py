@@ -97,28 +97,11 @@ class Command(Resource):
 
         # in case of any SIGINT or SIGTERM signals, it sends cancel signal to Qds
         def sig_handler(id, signal, frame):
-            sys.stdout.write("sending kill signal to '%s'" % id)
-            conn = Qubole.agent()
-            data = {"status": "kill"}
-            r = conn.put(cls.element_path(id), data)
-            skey = 'kill_succeeded'
-            if r.get(skey) is None:
-                sys.stderr.write("Invalid Json Response %s - missing field '%s'" % (str(r), skey))
-                return 11
-            elif r['kill_succeeded']:
-                print("Command killed successfully")
-                return 0
-            else:
-                sys.stderr.write("Cancel failed with reason '%s'\n" % r.get('result'))
-                return 12
-            sys.exit(0)
+            cls.cancel(id)
 
         cmd = cls.create(**kwargs)
-        cmdid = cmd.id
 
-        signal.signal(signal.SIGTERM, partial(sig_handler, cmdid))
-
-        signal.signal(signal.SIGINT, partial(sig_handler, cmdid))
+        signal.signal(signal.SIGTERM, partial(sig_handler, cmd))
 
         while not Command.is_done(cmd.status):
             time.sleep(Qubole.poll_interval)
