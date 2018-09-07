@@ -22,6 +22,8 @@ import re
 import pipes
 import os
 import json
+import signal
+from functools import partial
 
 log = logging.getLogger("qds_commands")
 
@@ -93,7 +95,31 @@ class Command(Resource):
         err_pointer, tmp_pointer, new_bytes = 0, 0, 0
         print_logs_live = kwargs.pop("print_logs_live", None) # We don't want to send this to the API.
 
+        # in case of any SIGINT or SIGTERM signals, it sends cancel signal to Qds
+        def sig_handler(id, signal, frame):
+            sys.stdout.write("sending kill signal to '%s'" % id)
+            conn = Qubole.agent()
+            data = {"status": "kill"}
+            r = conn.put(cls.element_path(id), data)
+            skey = 'kill_succeeded'
+            if r.get(skey) is None:
+                sys.stderr.write("Invalid Json Response %s - missing field '%s'" % (str(r), skey))
+                return 11
+            elif r['kill_succeeded']:
+                print("Command killed successfully")
+                return 0
+            else:
+                sys.stderr.write("Cancel failed with reason '%s'\n" % r.get('result'))
+                return 12
+            sys.exit(0)
+
         cmd = cls.create(**kwargs)
+        cmdid = cmd.id
+
+        signal.signal(signal.SIGTERM, partial(sig_handler, cmdid))
+
+        signal.signal(signal.SIGINT, partial(sig_handler, cmdid))
+
         while not Command.is_done(cmd.status):
             time.sleep(Qubole.poll_interval)
             cmd = cls.find(cmd.id)
@@ -221,14 +247,19 @@ class Command(Resource):
 
         r = conn.get(result_path, {'inline': inline, 'include_headers': include_header})
         if r.get('inline'):
+            raw_results = r['results']
+            encoded_results = raw_results.encode('utf8')
             if sys.version_info < (3, 0, 0):
-                fp.write(r['results'].encode('utf8'))
+                fp.write(encoded_results)
             else:
                 import io
                 if isinstance(fp, io.TextIOBase):
-                    fp.buffer.write(r['results'].encode('utf8'))
+                    if hasattr(fp, 'buffer'):
+                        fp.buffer.write(encoded_results)
+                    else:
+                        fp.write(raw_results)
                 elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
-                    fp.write(r['results'].encode('utf8'))
+                    fp.write(encoded_results)
                 else:
                     # Can this happen? Don't know what's the right thing to do in this case.
                     pass
@@ -255,8 +286,7 @@ class Command(Resource):
                     # If the delim is not None, then both text and binary modes
                     # work.
 
-                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim,
-                                       skip_data_avail_check=isinstance(self, PrestoCommand))
+                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
             else:
                 fp.write(",".join(r['result_location']))
 
@@ -969,6 +999,8 @@ class DbExportCommand(Command):
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
+    optparser.add_option("--schema", help="Hive schema name assumed to be 'default' if not specified",
+                              default="default", dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--partition_spec", dest="partition_spec",
@@ -1005,6 +1037,9 @@ class DbExportCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--additional_options",
+                         help="Additional Sqoop options which are needed enclose options in double or single quots e.g. '--map-column-hive id=int,data=string'")
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
@@ -1070,17 +1105,14 @@ class DbExportCommand(Command):
         v["command_type"] = "DbExportCommand"
         return v
 
-
-class DbexportCommand(DbExportCommand):
-    pass
-
-
 class DbImportCommand(Command):
     usage = "dbimportcmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
+    optparser.add_option("--schema", help="Hive database to import into. 'default' is assumed if nothing is specified",
+                         default="default", dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--hive_serde", dest="hive_serde",
@@ -1089,7 +1121,8 @@ class DbImportCommand(Command):
                          help="Modes 1 and 2: DbTap Id of the target database in Qubole")
     optparser.add_option("--db_table", dest="db_table",
                          help="Modes 1 and 2: Table to export to in the target database")
-    optparser.add_option("--use_customer_cluster", dest="use_customer_cluster", default=False,
+    optparser.add_option("--use_customer_cluster", action="store_true",
+                         dest="use_customer_cluster", default=False,
                          help="Modes 1 and 2: To use cluster to run command ")
     optparser.add_option("--customer_cluster_label", dest="customer_cluster_label",
                          help="Modes 1 and 2: the label of the cluster to run the command on")
@@ -1097,7 +1130,6 @@ class DbImportCommand(Command):
                          help="Mode 1: where clause to be applied to the table before extracting rows to be imported")
     optparser.add_option("--parallelism", dest="db_parallelism",
                          help="Mode 1 and 2: Number of parallel threads to use for extracting data")
-
     optparser.add_option("--extract_query", dest="db_extract_query",
                          help="Modes 2: SQL query to be applied at the source database for extracting data. "
                               "$CONDITIONS must be part of the where clause")
@@ -1105,21 +1137,22 @@ class DbImportCommand(Command):
                          help="Mode 2: query to be used get range of rowids to be extracted")
     optparser.add_option("--split_column", dest="db_split_column",
                          help="column used as rowid to split data into range")
-
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
-
     optparser.add_option("--tags", dest="tags",
                          help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
-
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
-
+    optparser.add_option("--additional_options",
+                          help="Additional Sqoop options which are needed enclose options in double or single quotes")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+
+
+
 
     @classmethod
     def parse(cls, args):
@@ -1282,7 +1315,7 @@ def write_headers(qlog,fp):
     fp.write(col_names)
 
 
-def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_data_avail_check=False):
+def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
 
@@ -1307,32 +1340,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
         sys.stderr.flush()
-
-    def _is_complete_data_available(bucket_paths, num_result_dir):
-        if num_result_dir == -1:
-            return True
-        unique_paths = set()
-        files = {}
-        for one_path in bucket_paths:
-            name = one_path.name.replace(key_prefix, "", 1)
-            if name.startswith('_tmp.'):
-                continue
-            path = name.split("/")
-            dir = path[0].replace("_$folder$", "", 1)
-            unique_paths.add(dir)
-            if len(path) > 1:
-                file = int(path[1])
-                if dir not in files:
-                    files[dir] = []
-                files[dir].append(file)
-        if len(unique_paths) < num_result_dir:
-            return False
-        for k in files:
-            v = files.get(k)
-            if len(v) > 0 and max(v) + 1 > len(v):
-                return False
-        return True
-
+        
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
@@ -1370,16 +1378,6 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         #It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
-        if not skip_data_avail_check:
-            complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-            while complete_data_available is False and retries > 0:
-                retries = retries - 1
-                log.info("Results dir is not available on s3. Retry: " + str(6-retries))
-                time.sleep(10)
-                complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-            if complete_data_available is False:
-                raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
-
         for one_path in bucket_paths:
             name = one_path.name
 
