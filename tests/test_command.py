@@ -1524,7 +1524,7 @@ class TestDbImportCommand(QdsCliTestCase):
 
     def test_use_customer_cluster_command(self):
         sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
-                    '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 3, '--use_customer_cluster',
+                    '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--retry', 3, '--use_customer_cluster',True,
                      '--customer_cluster_label', 'hadoop2']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
