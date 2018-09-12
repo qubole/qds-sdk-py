@@ -242,7 +242,8 @@ class Command(Resource):
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
                 boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                             aws_secret_access_key=storage_credentials['storage_secret_key'],
-                                            security_token = storage_credentials['session_token'])
+                                            security_token = storage_credentials['session_token'],
+                                            host = storage_credentials['region_endpoint'])
 
                 log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                 #fetch latest value of num_result_dir
@@ -1317,9 +1318,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
-    bucket = boto_conn.lookup(bucket_name)
-    if not bucket:
-        raise boto.exception.S3ResponseError("Bucket doesn't exists.")
+    bucket = boto_conn.get_bucket(bucket_name)
     retries = 6
     if s3_path.endswith('/') is False:
         #It is a file
