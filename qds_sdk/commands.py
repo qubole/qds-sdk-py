@@ -1096,8 +1096,7 @@ class DbImportCommand(Command):
                          help="Modes 1 and 2: DbTap Id of the target database in Qubole")
     optparser.add_option("--db_table", dest="db_table",
                          help="Modes 1 and 2: Table to export to in the target database")
-    optparser.add_option("--use_customer_cluster", action="store_true",
-                         dest="use_customer_cluster", default=False,
+    optparser.add_option("--use_customer_cluster", dest="use_customer_cluster", default=False,
                          help="Modes 1 and 2: To use cluster to run command ")
     optparser.add_option("--customer_cluster_label", dest="customer_cluster_label",
                          help="Modes 1 and 2: the label of the cluster to run the command on")
