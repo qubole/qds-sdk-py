@@ -57,6 +57,14 @@ class Command(Resource):
         return status == "done"
 
     @classmethod
+    def list(cls, **kwargs):
+        """
+        List a command by issuing a GET request to the /command endpoint
+        """
+        conn = Qubole.agent()
+        return conn.get(cls.rest_entity_path, params=kwargs)
+
+    @classmethod
     def create(cls, **kwargs):
         """
         Create a command object by issuing a POST request to the /command endpoint
