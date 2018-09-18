@@ -246,7 +246,7 @@ class Command(Resource):
                                                 aws_secret_access_key=storage_credentials['storage_secret_key'],
                                                 security_token = storage_credentials['session_token'],
                                                 host = storage_credentials['region_endpoint'])
-                    os.environ['S3_USE_SIGV4']
+                    del os.environ['S3_USE_SIGV4']
                 else:
                     boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                                 aws_secret_access_key=storage_credentials['storage_secret_key'],
