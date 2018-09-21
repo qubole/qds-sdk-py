@@ -466,7 +466,7 @@ class SparkCommand(Command):
     optparser.add_option("--note-id", dest="note_id", help="Id of the Notebook to run.")
 
     optparser.add_option("-f", "--script_location", dest="script_location",
-                         help="Path where spark program to run is stored. Has to be a local file path")
+                         help="Path where spark program to run is stored. Can be S3 URI or local file path")
 
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
