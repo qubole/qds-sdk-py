@@ -240,7 +240,7 @@ class Command(Resource):
         else:
             if fetch:
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
-                if 'region_endpoint' in storage_credentials and storage_credentials['region_endpoint'] is not None:
+                if storage_credentials['region_endpoint'] is not None:
                     os.environ['S3_USE_SIGV4'] = 'True'
                     boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                                 aws_secret_access_key=storage_credentials['storage_secret_key'],
