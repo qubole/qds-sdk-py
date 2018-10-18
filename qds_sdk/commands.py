@@ -262,11 +262,11 @@ class Command(Resource):
                 #fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
 
-                for s3_path in r['result_location']:
+                # If column/header names are not able to fetch then use include header as true
+                if include_header.lower() == "true" and qlog is not None:
+                    write_headers(qlog, fp)
 
-                    # If column/header names are not able to fetch then use include header as true
-                    if include_header.lower() == "true" and qlog is not None:
-                        write_headers(qlog, fp)
+                for s3_path in r['result_location']:
 
                     # In Python 3,
                     # If the delim is None, fp should be in binary mode because
@@ -1308,15 +1308,14 @@ def write_headers(qlog,fp):
     col_names = []
     qlog = json.loads(qlog)
     if qlog["QBOL-QUERY-SCHEMA"] is not None:
-        qlog_hash = qlog["QBOL-QUERY-SCHEMA"]["-1"] if qlog["QBOL-QUERY-SCHEMA"]["-1"] is not None else qlog["QBOL-QUERY-SCHEMA"][qlog["QBOL-QUERY-SCHEMA"].keys[0]]
+        qlog_hash = qlog["QBOL-QUERY-SCHEMA"].get("-1") or qlog["QBOL-QUERY-SCHEMA"][list(qlog["QBOL-QUERY-SCHEMA"].keys())[0]]
 
         for qlog_item in qlog_hash:
             col_names.append(qlog_item["ColumnName"])
 
         col_names = "\t".join(col_names)
         col_names += "\n"
-
-    fp.write(col_names)
+    fp.write(col_names.encode())
 
 
 def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
