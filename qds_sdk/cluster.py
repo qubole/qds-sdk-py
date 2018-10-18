@@ -95,6 +95,17 @@ class Cluster(Resource):
         return conn.get(cls.element_path(cluster_id_label) + "/state")
 
     @classmethod
+    def master(cls, cluster_id_label):
+        """
+        Show the details of the master of the cluster with id/label `cluster_id_label`.
+        """
+        cluster_status = cls.status(cluster_id_label)
+        if cluster_status.get("state") == 'UP':
+            return list(filter(lambda x: x["role"] == "master", cluster_status.get("nodes")))[0]
+        else:
+            return cluster_status
+
+    @classmethod
     def start(cls, cluster_id_label):
         """
         Start the cluster with id/label `cluster_id_label`.

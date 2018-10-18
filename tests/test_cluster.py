@@ -163,6 +163,28 @@ class TestClusterStatus(QdsCliTestCase):
             qds.main()
 
 
+class TestClusterMaster(QdsCliTestCase):
+    def test_success(self):
+        sys.argv = ['qds.py', 'cluster', 'master', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "clusters/123/state",
+                                                params=None)
+
+    def test_no_argument(self):
+        sys.argv = ['qds.py', 'cluster', 'master']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_more_arguments(self):
+        sys.argv = ['qds.py', 'cluster', 'master', '1', '2']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+
 class TestClusterReassignLabel(QdsCliTestCase):
     def test_success(self):
         sys.argv = ['qds.py', 'cluster', 'reassign_label', '123', 'test_label']
