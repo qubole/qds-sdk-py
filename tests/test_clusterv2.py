@@ -314,7 +314,7 @@ class TestClusterCreate(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters', {'cloud_config': {'location':
-                                                                                          {'region': 'xxx1'}},
+                                                                                          {'region': 'xxx'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_presto_engine_config(self):

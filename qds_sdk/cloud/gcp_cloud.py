@@ -76,7 +76,7 @@ class GcpCloud(Cloud):
                            compute_project_id=None,
                            compute_client_email=None,
                            compute_private_key_id=None,
-                           compute_private_key=None)
+                           compute_private_key=None):
         self.compute_config['use_account_compute_creds'] = use_account_compute_creds
         self.compute_config['compute_client_id'] = compute_client_id
         self.compute_config['compute_project_id'] = compute_project_id
