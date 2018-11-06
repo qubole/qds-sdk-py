@@ -170,7 +170,7 @@ class GcpCloud(Cloud):
         network_config_group = argparser.add_argument_group("network config settings")
         network_config_group.add_argument("--bastion-node-public-dns",
                                           dest="bastion_node_public_dns",
-                                          help="compartment id for oracle cluster")
+                                          help="public dns name of the bastion node. Required only if cluster is in private subnet")
         network_config_group.add_argument("--vpc-id",
                                           dest="vpc_id",
                                           help="vpc id to create the cluster in")
