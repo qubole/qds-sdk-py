@@ -1124,7 +1124,7 @@ class ClusterInfoV13():
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:
-                self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
+                self.node_configuration['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
             except Exception as e:
                 raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
