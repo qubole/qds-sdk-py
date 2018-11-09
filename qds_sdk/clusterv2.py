@@ -90,6 +90,7 @@ class ClusterCmdLine:
                                       stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
                                       stable_timeout_for_request=arguments.stable_timeout_for_request,
                                       stable_spot_fallback=arguments.stable_spot_fallback,
+                                      spot_block_duration=arguments.spot_block_duration,
                                       idle_cluster_timeout=arguments.idle_cluster_timeout,
                                       disk_count=arguments.count,
                                       disk_type=arguments.disk_type,
@@ -169,6 +170,7 @@ class ClusterInfoV2(object):
                          stable_maximum_bid_price_percentage=None,
                          stable_timeout_for_request=None,
                          stable_spot_fallback=None,
+                         spot_block_duration=None,
                          idle_cluster_timeout=None,
                          disk_count=None,
                          disk_type=None,
@@ -232,6 +234,9 @@ class ClusterInfoV2(object):
                 `stable_spot_fallback`: Whether to fallback to on-demand instances for
                     stable nodes if spot instances are not available
 
+                `spot_block_duration`: Time for which the spot block instance is provisioned (Unit:
+                    minutes)
+
                 `disk_count`: Number of EBS volumes to attach
                     to each instance of the cluster.
 
@@ -287,6 +292,7 @@ class ClusterInfoV2(object):
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
+        self.set_spot_block_settings(spot_block_duration)
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
         self.set_internal(image_uri_overrides)
@@ -327,6 +333,11 @@ class ClusterInfoV2(object):
             stable_timeout_for_request
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
             stable_spot_fallback
+
+    def set_spot_block_settings(self,
+                                spot_block_duration=None):
+        self.cluster_info['spot_settings']['spot_block_settings'] = {}
+        self.cluster_info['spot_settings']['spot_block_settings']['duration'] = spot_block_duration
 
     def set_data_disk(self,
                       disk_size=None,
@@ -518,6 +529,14 @@ class ClusterInfoV2(object):
                                        type=str2bool,
                                        help="whether to fallback to on-demand instances for stable nodes" +
                                             " if spot instances aren't available")
+
+        spot_block_group = argparser.add_argument_group("spot block settings")
+        spot_block_group.add_argument("--spot-block-duration",
+                                      dest="spot_block_duration",
+                                      type=int,
+                                      help="spot block duration" +
+                                           " unit: minutes")
+
         # monitoring settings
         monitoring_group = argparser.add_argument_group("monitoring settings")
         ganglia = monitoring_group.add_mutually_exclusive_group()

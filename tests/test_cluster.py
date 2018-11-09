@@ -1292,6 +1292,23 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_spot_block_duration_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--spot-block-duration', '120']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'label': ['test_label'],
+                                                 'ec2_settings': {'compute_secret_key': 'sak',
+                                                                  'compute_access_key': 'aki'},
+                                                 'node_configuration':
+                                                     {'spot_block_settings':
+                                                          {'duration': 120}
+                                                      }
+                                                 })
+
     def test_ssh_public_key_v13(self):
         with tempfile.NamedTemporaryFile() as temp:
             temp.write("ssh-rsa Blah1/Blah2+BLAH3==".encode("utf8"))
@@ -2143,6 +2160,23 @@ class TestClusterUpdate(QdsCliTestCase):
                                                 'hadoop_settings': {'is_ha': True},
                                                 'label': ['test_label']
                                                 })
+
+    def test_spot_block_duration_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--spot-block-duration', '120']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'ec2_settings': {'compute_secret_key': 'sak',
+                                                                  'compute_access_key': 'aki'},
+                                                 'node_configuration':
+                                                     {'spot_block_settings':
+                                                          {'duration': 120}
+                                                      }
+                                                 })
+
 
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):

@@ -289,6 +289,7 @@ def _create_cluster_info(arguments, api_version):
                                       stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
                                       stable_timeout_for_request=arguments.stable_timeout_for_request,
                                       stable_allow_fallback=arguments.stable_allow_fallback,
+                                      spot_block_duration=arguments.spot_block_duration,
                                       ebs_volume_count=arguments.ebs_volume_count,
                                       ebs_volume_type=arguments.ebs_volume_type,
                                       ebs_volume_size=arguments.ebs_volume_size,
