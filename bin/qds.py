@@ -559,7 +559,7 @@ def main():
 
     optparser.add_option("--cloud_name", dest="cloud_name",
                          default=os.getenv('CLOUD_PROVIDER'),
-                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC"])
+                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC", "GCP"])
 
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,

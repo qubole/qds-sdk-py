@@ -94,8 +94,8 @@ class Qubole:
 
     @classmethod
     def get_cloud(cls, cloud_name=None):
-        if cloud_name and cloud_name.lower() not in ["aws", "oracle_bmc", "azure", "oracle_opc"]:
-            raise Exception("cloud should be 'aws', 'oracle_bmc', 'azure' or 'oracle_opc'")
+        if cloud_name and cloud_name.lower() not in ["aws", "oracle_bmc", "azure", "oracle_opc", "gcp"]:
+            raise Exception("cloud should be 'aws', 'oracle_bmc', 'azure', 'oracle_opc' or 'gcp'")
 
         if cloud_name:
             return Qubole.get_cloud_object(cloud_name)
@@ -117,4 +117,7 @@ class Qubole:
             return qds_sdk.cloud.azure_cloud.AzureCloud()
         elif cloud_name.lower()  == "oracle_opc":
             import qds_sdk.cloud.oracle_opc_cloud
-            return qds_sdk.cloud.oracle_opc_cloud.OracleOpcCloud()   
+            return qds_sdk.cloud.oracle_opc_cloud.OracleOpcCloud()
+        elif cloud_name.lower() == "gcp":
+            import qds_sdk.cloud.gcp_cloud
+            return qds_sdk.cloud.gcp_cloud.GcpCloud()
