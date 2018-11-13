@@ -1274,7 +1274,10 @@ class SignalHandler:
     def __init__(self):
         self.last_signal = None
         self.received_term_signal = False
-        self.term_signals = [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]
+        if os.name == 'nt':
+            self.term_signals = [signal.SIGINT, signal.SIGTERM]
+        else:
+            self.term_signals = [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]
         for signum in self.term_signals:
             signal.signal(signum, self.handler)
 
