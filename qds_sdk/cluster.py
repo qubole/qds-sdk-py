@@ -205,7 +205,7 @@ class Cluster(Resource):
                                        " may be auto-scaled up to")
         node_config_group.add_argument("--slave-request-type",
                                   dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid"],
+                                  choices=["ondemand", "spot", "hybrid", "spotblock"],
                                   help="purchasing option for slave instaces",)
         hadoop_group.add_argument("--custom-config",
                                   dest="custom_config_file",

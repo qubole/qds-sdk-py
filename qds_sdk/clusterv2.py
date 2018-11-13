@@ -487,7 +487,7 @@ class ClusterInfoV2(object):
 
         cluster_info.add_argument("--slave-request-type",
                                   dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid"],
+                                  choices=["ondemand", "spot", "hybrid", "spotblock"],
                                   help="purchasing option for slave instaces", )
 
         # spot settings
