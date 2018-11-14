@@ -1519,8 +1519,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_extract_query': None,
                  'retry': 2,
                  'schema': 'default',
-                 'additional_options': None,
-                 'part_spec': None
+                 'additional_options': None
                  })
 
     def test_use_customer_cluster_command(self):
@@ -1549,8 +1548,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'hive_table': 'myhivetable',
                  'db_table': 'mydbtable',
                  'schema': 'default',
-                 'additional_options': None,
-                 'part_spec': None
+                 'additional_options': None
                  })
 
     def test_use_customer_cluster_command_set_false(self):
@@ -1579,8 +1577,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'hive_table': 'myhivetable',
                  'db_table': 'mydbtable',
                  'schema': 'default',
-                 'additional_options': None,
-                 'part_spec': None
+                 'additional_options': None
                  })
 
     def test_submit_command_with_hive_serde(self):

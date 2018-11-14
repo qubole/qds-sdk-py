@@ -1132,7 +1132,7 @@ class DbImportCommand(Command):
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
-    optparser.add_option("--partition_spec", dest="part_spec",help="Mode 1: (optional) Partition specification for Hive table")
+    optparser.add_option("--partition_spec", dest="part_spec", default=None, help="Mode 1: (optional) Partition specification for Hive table")
 
 
 
