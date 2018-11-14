@@ -970,6 +970,23 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_custom_ec2_tags(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                    '--custom-ec2-tags', '{"foo":"bar", "bar":"baz"}']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster': {
+                                                    'label': ['test_label'],
+                                                    'hadoop_settings': {
+                                                        "custom_ec2_tags": {
+                                                            "foo": "bar",
+                                                            "bar": "baz"
+                                                        }
+                                                    }
+                                                }})
+
     def test_ebs_volume_type_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3','cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1473,6 +1490,19 @@ class TestClusterCreate(QdsCliTestCase):
                                                                   'bastion_node_public_dns': 'dummydns'},
                                                  })
 
+    def test_custom_ec2_tags_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--custom-ec2-tags', '{"foo":"bar", "bar":"baz"}']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'label': ['test_label'],
+                                                'node_configuration': {
+                                                    "custom_ec2_tags": {
+                                                        "foo": "bar",
+                                                        "bar": "baz"
+                                                }}})
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -2219,6 +2249,20 @@ class TestClusterUpdate(QdsCliTestCase):
                                                           {'duration': 120}
                                                       }
                                                  })
+
+    def test_custom_ec2_tags_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                    '--custom-ec2-tags', '{"foo":"bar", "bar":"baz"}']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'node_configuration': {
+                                                    "custom_ec2_tags": {
+                                                        "foo": "bar",
+                                                        "bar": "baz"
+                                                }}})
+
 
     def test_slave_request_type_spotblock_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
