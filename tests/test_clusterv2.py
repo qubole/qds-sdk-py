@@ -406,6 +406,27 @@ class TestClusterCreate(QdsCliTestCase):
                                                 'internal':{'image_uri_overrides': 'test/image1'}
                                                 })
 
+    def test_spot_block_duration_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--spot-block-duration', '120']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':
+                                                     {'spot_settings':
+                                                          {'spot_block_settings': {'duration': 120}},
+                                                      'label': ['test_label']}})
+
+    def test_slave_request_type_spotblock_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--slave-request-type', 'spotblock']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'slave_request_type': 'spotblock'}})
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -527,6 +548,24 @@ class TestClusterUpdate(QdsCliTestCase):
                                                                             'slave_request_type': 'ondemand',
                                                                             'max_nodes': 6}})
 
+    def test_spot_block_duration_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123', '--spot-block-duration', '120']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info':
+                                                     {'spot_settings':
+                                                          {'spot_block_settings': {'duration': 120}}}})
+
+    def test_slave_request_type_spotblock_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--slave-request-type', 'spotblock']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info': {'slave_request_type': 'spotblock'}})
 
 class TestClusterClone(QdsCliTestCase):
 
