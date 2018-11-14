@@ -769,6 +769,7 @@ class HadoopCommand(Command):
         parsed["command_type"] = "HadoopCommand"
         parsed['print_logs'] = options.print_logs
         parsed['print_logs_live'] = options.print_logs_live
+        parsed['pool'] = options.pool
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
