@@ -648,6 +648,22 @@ class TestClusterCreate(QdsCliTestCase):
                     }
                 })
 
+    def test_slave_request_type_spotblock(self):
+        sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--slave-request-type', 'spotblock']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'cluster':
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'slave_request_type': 'spotblock'}
+                    }
+                })
+
     def test_use_hbase(self):
         sys.argv = ['qds.py', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1153,6 +1169,20 @@ class TestClusterCreate(QdsCliTestCase):
                  'node_configuration': {'slave_request_type': 'hybrid'}
                 })
 
+    def test_slave_request_type_spotblock_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--slave-request-type', 'spotblock']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'label': ['test_label'],
+                 'ec2_settings': {'compute_secret_key': 'sak',
+                                  'compute_access_key': 'aki'},
+                 'node_configuration': {'slave_request_type': 'spotblock'}
+                })
+
     def test_slave_request_type_invalid_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1291,6 +1321,23 @@ class TestClusterCreate(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         with self.assertRaises(SystemExit):
             qds.main()
+
+    def test_spot_block_duration_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--spot-block-duration', '120']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'label': ['test_label'],
+                                                 'ec2_settings': {'compute_secret_key': 'sak',
+                                                                  'compute_access_key': 'aki'},
+                                                 'node_configuration':
+                                                     {'spot_block_settings':
+                                                          {'duration': 120}
+                                                      }
+                                                 })
 
     def test_ssh_public_key_v13(self):
         with tempfile.NamedTemporaryFile() as temp:
@@ -1849,6 +1896,19 @@ class TestClusterUpdate(QdsCliTestCase):
                     }
                 })
 
+    def test_slave_request_type_spotblock(self):
+        sys.argv = ['qds.py', 'cluster', 'update', '123',
+                '--slave-request-type', 'spotblock']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'cluster':
+                    {
+                     'hadoop_settings': {'slave_request_type': 'spotblock'}
+                    }
+                })
+
     def test_slave_request_type_invalid(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123',
                 '--slave-request-type', 'invalid']
@@ -2143,6 +2203,35 @@ class TestClusterUpdate(QdsCliTestCase):
                                                 'hadoop_settings': {'is_ha': True},
                                                 'label': ['test_label']
                                                 })
+
+    def test_spot_block_duration_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--spot-block-duration', '120']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'ec2_settings': {'compute_secret_key': 'sak',
+                                                                  'compute_access_key': 'aki'},
+                                                 'node_configuration':
+                                                     {'spot_block_settings':
+                                                          {'duration': 120}
+                                                      }
+                                                 })
+
+    def test_slave_request_type_spotblock_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--slave-request-type', 'spotblock']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'ec2_settings': {'compute_secret_key': 'sak',
+                                  'compute_access_key': 'aki'},
+                 'node_configuration': {'slave_request_type': 'spotblock'}
+                })
 
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):

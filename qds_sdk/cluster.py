@@ -205,7 +205,7 @@ class Cluster(Resource):
                                        " may be auto-scaled up to")
         node_config_group.add_argument("--slave-request-type",
                                   dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid"],
+                                  choices=["ondemand", "spot", "hybrid", "spotblock"],
                                   help="purchasing option for slave instaces",)
         hadoop_group.add_argument("--custom-config",
                                   dest="custom_config_file",
@@ -315,6 +315,13 @@ class Cluster(Resource):
                                        type=str2bool,
                                        help="whether to fallback to on-demand instances for stable nodes" +
                                        " if spot instances aren't available")
+
+        spot_block_group = argparser.add_argument_group("spot block settings")
+        spot_block_group.add_argument("--spot-block-duration",
+                                      dest="spot_block_duration",
+                                      type=int,
+                                      help="spot block duration" +
+                                           " unit: minutes")
 
         fairscheduler_group = argparser.add_argument_group(
                               "fairscheduler configuration options")
@@ -950,6 +957,7 @@ class ClusterInfoV13():
                          stable_maximum_bid_price_percentage=None,
                          stable_timeout_for_request=None,
                          stable_allow_fallback=True,
+                         spot_block_duration=None,
                          ebs_volume_count=None,
                          ebs_volume_type=None,
                          ebs_volume_size=None,
@@ -1044,6 +1052,9 @@ class ClusterInfoV13():
         `stable_allow_fallback`: Whether to fallback to on-demand instances for
             stable nodes if spot instances are not available
 
+        `spot_block_duration`: Time for which the spot block instance is provisioned (Unit:
+            minutes)
+
         `ebs_volume_count`: Number of EBS volumes to attach 
             to each instance of the cluster.
 
@@ -1083,6 +1094,7 @@ class ClusterInfoV13():
         self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
+        self.set_spot_block_settings(spot_block_duration)
         self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
         self.set_security_settings(encrypted_ephemerals, ssh_public_key, persistent_security_group)
@@ -1156,6 +1168,9 @@ class ClusterInfoV13():
                'maximum_bid_price_percentage': maximum_bid_price_percentage,
                'timeout_for_request': timeout_for_request,
                'allow_fallback': allow_fallback}
+
+    def set_spot_block_settings(self, spot_block_duration=None):
+        self.node_configuration['spot_block_settings'] = {'duration': spot_block_duration}
 
     def set_ebs_volume_settings(self, ebs_volume_count=None,
                                  ebs_volume_type=None,
