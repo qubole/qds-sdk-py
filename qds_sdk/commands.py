@@ -308,6 +308,9 @@ class HiveCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this query")
 
+    optparser.add_option("--pool", dest="pool",
+                         help="Specify the Fairscheduler pool name for the command to use")
+
     optparser.add_option("--hive-version", dest="hive_version",
                          help="Specifies the hive version to be used. eg: 0.13,1.2,etc.")
 
@@ -488,6 +491,9 @@ class SparkCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
 
     optparser.add_option("--name", dest="name", help="Assign a name to this query")
+
+    optparser.add_option("--pool", dest="pool",
+                         help="Specify the Fairscheduler pool name for the command to use")
 
     optparser.add_option("--arguments", dest = "arguments", help = "Spark Submit Command Line Options")
 
@@ -723,6 +729,9 @@ class HadoopCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
 
+    optparser.add_option("--pool", dest="pool",
+                         help="Specify the Fairscheduler pool name for the command to use")
+
     optparser.add_option("--tags", dest="tags",
                          help="comma-separated list of tags to be associated with the query ( e.g., tag1 tag1,tag2 )")
 
@@ -765,6 +774,7 @@ class HadoopCommand(Command):
         parsed["command_type"] = "HadoopCommand"
         parsed['print_logs'] = options.print_logs
         parsed['print_logs_live'] = options.print_logs_live
+        parsed['pool'] = options.pool
 
         if len(args) < 2:
             raise ParseError("Need at least two arguments", cls.usage)
@@ -806,6 +816,9 @@ class ShellCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--pool", dest="pool",
+                         help="Specify the Fairscheduler pool name for the command to use")
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
@@ -901,6 +914,9 @@ class PigCommand(Command):
 
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
+
+    optparser.add_option("--pool", dest="pool",
+                         help="Specify the Fairscheduler pool name for the command to use")
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")

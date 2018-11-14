@@ -205,7 +205,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': None,
-                 'retry': 2})
+                 'retry': 2,
+                 'pool': None})
 
     def test_submit_query_with_hive_version(self):
             sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--hive-version', '0.13']
@@ -223,7 +224,8 @@ class TestHiveCommand(QdsCliTestCase):
                      'command_type': 'HiveCommand',
                      'can_notify': False,
                      'script_location': None,
-                     'retry': 0})
+                     'retry': 0,
+                     'pool': None})
 
     def test_submit_script_location(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script']
@@ -241,7 +243,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script',
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_none(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit']
@@ -273,7 +276,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script',
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_tags(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', 's3://bucket/path-to-script',
@@ -292,7 +296,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script',
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_cluster_label(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -311,7 +316,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_name(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -330,7 +336,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_notify(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -349,7 +356,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': True,
                  'script_location': None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_sample_size(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -368,7 +376,8 @@ class TestHiveCommand(QdsCliTestCase):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_retry_out_of_range(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables',
@@ -376,6 +385,25 @@ class TestHiveCommand(QdsCliTestCase):
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
+
+    def test_submit_pool(self):
+        sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--pool', 'batch']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'hive_version': None,
+                 'label': None,
+                 'tags': None,
+                 'sample_size': None,
+                 'name': None,
+                 'query': 'show tables',
+                 'command_type': 'HiveCommand',
+                 'can_notify': False,
+                 'script_location': None,
+                 'retry': 0,
+                 'pool': 'batch'})
 
 class TestSparkCommand(QdsCliTestCase):
 
@@ -400,7 +428,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_notebook(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--note-id', '111','--name', 'notebook-cmd']
@@ -423,7 +452,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : '111',
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_notebook_with_cmdline(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--note-id', '111', '--cmdline', 'ls']
@@ -457,7 +487,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script.py',
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_script_location_aws_scala(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.scala']
@@ -480,7 +511,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script.scala',
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_script_location_aws_R(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.R']
@@ -503,7 +535,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script.R',
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_script_location_aws_sql(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.sql']
@@ -526,7 +559,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script.sql',
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_script_location_aws_java(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--script_location', 's3://bucket/path-to-script.java']
@@ -558,7 +592,8 @@ class TestSparkCommand(QdsCliTestCase):
                      'can_notify': False,
                      'script_location': None,
                      'note_id' : None,
-                     'retry': 0})
+                     'retry': 0,
+                     'pool': None})
 
     def test_submit_script_location_local_scala(self):
         with NamedTemporaryFile(suffix=".scala") as tmp:
@@ -584,7 +619,8 @@ class TestSparkCommand(QdsCliTestCase):
                      'can_notify': False,
                      'script_location': None,
                      'note_id' : None,
-                     'retry': 0})
+                     'retry': 0,
+                     'pool': None})
 
     def test_submit_script_location_local_java(self):
         with NamedTemporaryFile(suffix=".java") as tmp:
@@ -619,7 +655,8 @@ class TestSparkCommand(QdsCliTestCase):
                      'can_notify': False,
                      'script_location': None,
                      'note_id' : None,
-                     'retry': 0})
+                     'retry': 0,
+                     'pool': None})
 
     def test_submit_script_location_local_sql(self):
         with NamedTemporaryFile(suffix=".sql") as tmp:
@@ -645,7 +682,8 @@ class TestSparkCommand(QdsCliTestCase):
                      'can_notify': False,
                      'script_location': None,
                      'note_id' : None,
-                     'retry': 0})
+                     'retry': 0,
+                     'pool': None})
 
     def test_submit_sql(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show dummy']
@@ -668,7 +706,8 @@ class TestSparkCommand(QdsCliTestCase):
                      'can_notify': False,
                      'script_location': None,
                      'note_id' : None,
-                     'retry': 0})
+                     'retry': 0,
+                     'pool': None})
 
     def test_submit_sql_with_language(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','python', '--sql', 'show dummy']
@@ -731,7 +770,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_tags(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program',"println(\"hello, world!\")",
@@ -755,7 +795,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_cluster_label(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
@@ -779,7 +820,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_name(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
@@ -803,7 +845,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_notify(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline', '/usr/lib/spark/bin/spark-submit --class Test Test.jar',
@@ -827,7 +870,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': True,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_python_program(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','python','--program', 'print "hello, world!"']
@@ -850,7 +894,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_user_program_arguments(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program',
@@ -876,7 +921,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_scala_program(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','scala','--program', 'println("hello, world!")']
@@ -899,7 +945,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_R_program(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language','R','--program', 'cat("hello, world!")']
@@ -922,7 +969,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_program_to_app(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--language', 'scala',
@@ -946,7 +994,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_sql_to_app(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--sql', 'show tables',
@@ -970,7 +1019,8 @@ class TestSparkCommand(QdsCliTestCase):
                  'can_notify': False,
                  'script_location': None,
                  'note_id' : None,
-                 'retry': 0})
+                 'retry': 0,
+                 'pool': None})
 
     def test_submit_script_location_local_py_to_app(self):
         with NamedTemporaryFile(suffix=".py") as tmp:
@@ -997,7 +1047,8 @@ class TestSparkCommand(QdsCliTestCase):
                      'can_notify': False,
                      'script_location': None,
                      'note_id' : None,
-                     'retry': 0})
+                     'retry': 0,
+                     'pool': None})
 
     def test_submit_cmdline_to_app(self):
         sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline',
@@ -1007,6 +1058,30 @@ class TestSparkCommand(QdsCliTestCase):
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
+    def test_submit_pool(self):
+        sys.argv = ['qds.py', 'sparkcmd', 'submit', '--cmdline',
+                    '/usr/lib/spark/bin/spark-submit --class Test Test.jar', '--pool', 'batch']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'macros': None,
+                 'label': None,
+                 'language': None,
+                 'tags': None,
+                 'name': None,
+                 'sql': None,
+                 'program': None,
+                 'app_id': None,
+                 'cmdline':'/usr/lib/spark/bin/spark-submit --class Test Test.jar',
+                 'command_type': 'SparkCommand',
+                 'arguments': None,
+                 'user_program_arguments': None,
+                 'can_notify': False,
+                 'script_location': None,
+                 'note_id' : None,
+                 'retry': 0,
+                 'pool': 'batch'})
 
 class TestPrestoCommand(QdsCliTestCase):
 
@@ -1161,7 +1236,8 @@ class TestHadoopCommand(QdsCliTestCase):
                  'label': None,
                  'tags': None,
                  'command_type': 'HadoopCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_jar_invalid(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'submit', 'jar']
@@ -1181,7 +1257,8 @@ class TestHadoopCommand(QdsCliTestCase):
                  'label': None,
                  'tags': None,
                  'command_type': 'HadoopCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_s3distcp_invalid(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'submit', 's3distcp']
@@ -1206,7 +1283,8 @@ class TestHadoopCommand(QdsCliTestCase):
                  'label': None,
                  'tags': None,
                  'command_type': 'HadoopCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_streaming_invalid(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'submit', 'streaming']
@@ -1226,7 +1304,8 @@ class TestHadoopCommand(QdsCliTestCase):
                  'label': 'test_label',
                  'tags': None,
                  'command_type': 'HadoopCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_jar_name(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--name', 'test_name', 'jar', 's3://bucket/path-to-jar']
@@ -1240,7 +1319,8 @@ class TestHadoopCommand(QdsCliTestCase):
                  'label': None,
                  'tags': None,
                  'command_type': 'HadoopCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_jar_notify(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--notify', 'jar', 's3://bucket/path-to-jar']
@@ -1254,7 +1334,8 @@ class TestHadoopCommand(QdsCliTestCase):
                  'label': None,
                  'tags': None,
                  'command_type': 'HadoopCommand',
-                 'can_notify': True})
+                 'can_notify': True,
+                 'pool': None})
 
     def test_submit_tags(self):
         sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--name', 'test_name',  '--tags', 'abc,def', 'jar', 's3://bucket/path-to-jar']
@@ -1268,7 +1349,23 @@ class TestHadoopCommand(QdsCliTestCase):
                  'tags': ['abc', 'def'],
                  'label': None,
                  'command_type': 'HadoopCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_pool(self):
+        sys.argv = ['qds.py', 'hadoopcmd', 'submit', '--pool', 'batch', 'jar', 's3://bucket/path-to-jar']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'sub_command': 'jar',
+                 'sub_command_args': "'s3://bucket/path-to-jar'",
+                 'name': None,
+                 'label': None,
+                 'tags': None,
+                 'command_type': 'HadoopCommand',
+                 'can_notify': False,
+                 'pool': 'batch'})
 
 
 class TestShellCommand(QdsCliTestCase):
@@ -1276,11 +1373,79 @@ class TestShellCommand(QdsCliTestCase):
     def test_stub(self):
         pass
 
+    def test_submit_inline(self):
+        sys.argv = ['qds.py', 'shellcmd', 'submit', '--script', 'ls /tmp']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'inline': 'ls /tmp',
+                                                 'files': None,
+                                                 'name': None,
+                                                 'tags': None,
+                                                 'script_location': None,
+                                                 'label': None,
+                                                 'archives': None,
+                                                 'command_type': 'ShellCommand',
+                                                 'can_notify': False,
+                                                 'pool': None})
+
+    def test_submit_pool(self):
+        sys.argv = ['qds.py', 'shellcmd', 'submit', '--script', 'ls /tmp', '--pool', 'batch']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'inline': 'ls /tmp',
+                                                 'files': None,
+                                                 'name': None,
+                                                 'tags': None,
+                                                 'script_location': None,
+                                                 'label': None,
+                                                 'archives': None,
+                                                 'command_type': 'ShellCommand',
+                                                 'can_notify': False,
+                                                 'pool': 'batch'})
 
 class TestPigCommand(QdsCliTestCase):
 
     def test_stub(self):
         pass
+
+    def test_submit_latin_statements(self):
+        sys.argv = ['qds.py', 'pigcmd', 'submit',
+                    '--script', 'A = LOAD "s3://xxx/yyy.log"; dump A;']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'retry': 0,
+                                                 'name': None,
+                                                 'tags': None,
+                                                 'label': None,
+                                                 'script_location': None,
+                                                 'command_type': 'PigCommand',
+                                                 'latin_statements': 'A = LOAD "s3://xxx/yyy.log"; dump A;',
+                                                 'can_notify': False,
+                                                 'pool': None})
+
+    def test_submit_pool(self):
+        sys.argv = ['qds.py', 'pigcmd', 'submit',
+                    '--script', 'A = LOAD "s3://xxx/yyy.log"; dump A;',
+                    '--pool', 'batch']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'retry': 0,
+                                                 'name': None,
+                                                 'tags': None,
+                                                 'label': None,
+                                                 'script_location': None,
+                                                 'command_type': 'PigCommand',
+                                                 'latin_statements': 'A = LOAD "s3://xxx/yyy.log"; dump A;',
+                                                 'can_notify': False,
+                                                 'pool': 'batch'})
 
 
 class TestDbExportCommand(QdsCliTestCase):
