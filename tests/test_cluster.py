@@ -2263,7 +2263,6 @@ class TestClusterUpdate(QdsCliTestCase):
                                                         "bar": "baz"
                                                 }}})
 
-
     def test_slave_request_type_spotblock_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
                 '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -2276,6 +2275,7 @@ class TestClusterUpdate(QdsCliTestCase):
                                   'compute_access_key': 'aki'},
                  'node_configuration': {'slave_request_type': 'spotblock'}
                 })
+
 
 class TestClusterClone(QdsCliTestCase):
     def test_minimal(self):
