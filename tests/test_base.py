@@ -18,3 +18,4 @@ def print_command():
 class QdsCliTestCase(unittest.TestCase):
     def setUp(self):
         os.environ['QDS_API_TOKEN'] = 'dummy_token'
+        os.environ['QDS_API_URL'] = 'https://qds.api.url/api'

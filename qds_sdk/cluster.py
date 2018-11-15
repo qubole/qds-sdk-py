@@ -83,7 +83,7 @@ class Cluster(Resource):
         """
         Show information about the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent(version=Cluster.api_version)
+        conn = Qubole.agent()
         return conn.get(cls.element_path(cluster_id_label))
 
     @classmethod
