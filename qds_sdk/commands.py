@@ -987,7 +987,7 @@ class DbExportCommand(Command):
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
-    optparser.add_option("--db-schema", help="Db schema name assumed accordingly by database if not specified",
+    optparser.add_option("--schema", help="Db schema name assumed accordingly by database if not specified",
                          default=None, dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
