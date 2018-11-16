@@ -1518,7 +1518,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_table': 'mydbtable',
                  'db_extract_query': None,
                  'retry': 2,
-                 'schema': 'default',
+                 'schema': None,
                  'additional_options': None
                  })
 
@@ -1547,7 +1547,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'can_notify': False,
                  'hive_table': 'myhivetable',
                  'db_table': 'mydbtable',
-                 'schema': 'default',
+                 'schema': None,
                  'additional_options': None
                  })
 
@@ -1576,7 +1576,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'can_notify': False,
                  'hive_table': 'myhivetable',
                  'db_table': 'mydbtable',
-                 'schema': 'default',
+                 'schema': None,
                  'additional_options': None
                  })
 
@@ -1604,7 +1604,7 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_table': 'mydbtable',
                  'db_extract_query': None,
                  'retry': 2,
-                 'schema': 'default',
+                 'schema': None,
                  'additional_options': None
                  })
 
