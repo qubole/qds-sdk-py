@@ -142,6 +142,24 @@ class TestClusterCreate(QdsCliTestCase):
                                                                                            'image_id': 'abc-image'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
+    def test_oracle_bmc_network_config_az_info_map(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
+                    '--compartment-id', 'abc-compartment', '--image-id', 'abc-image', '--vcn-id', 'vcn-1',
+                    '--availability-domain-info-map', '{"availability_domain": "AD-1", "subnet_id": "subnet-1"}']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters', {'cloud_config':
+                                                                         {'network_config':
+                                                                              {'vcn_id': 'vcn-1',
+                                                                               'compartment_id': 'abc-compartment',
+                                                                               'image_id': 'abc-image',
+                                                                               'availability_domain_info_map':
+                                                                                   {'availability_domain': 'AD-1',
+                                                                                    'subnet_id': 'subnet-1'}}},
+                                                                     'cluster_info': {'label': ['test_label']}})
+
     def test_oracle_bmc_location_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--oracle-region', 'us-phoenix-1', '--oracle-availability-zone', 'phx-ad-1']
