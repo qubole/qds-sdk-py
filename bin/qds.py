@@ -277,6 +277,8 @@ def _create_cluster_info(arguments, api_version):
                                       max_nodes=arguments.max_nodes,
                                       slave_request_type=arguments.slave_request_type,
                                       fallback_to_ondemand=arguments.fallback_to_ondemand,
+                                      node_base_cooldown_period=arguments.node_base_cooldown_period,
+                                      node_spot_cooldown_period=arguments.node_spot_cooldown_period,
                                       custom_config=custom_config,
                                       use_hbase=arguments.use_hbase,
                                       custom_ec2_tags=arguments.custom_ec2_tags,
