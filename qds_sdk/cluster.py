@@ -244,6 +244,17 @@ class Cluster(Resource):
                                  default=None,
                                  help="Dont Fallback to on-demand nodes if spot nodes" +
                                  " could not be obtained. Valid only if slave_request_type is spot",)
+          node_cooldown_period_group = argparser.add_argument_group("node cooldown period settings")
+          node_cooldown_period_group.add_argument("--node-base-cooldown-period",
+                                                  dest="node_base_cooldown_period",
+                                                  type=int,
+                                                  help="Cooldown period for on-demand nodes" +
+                                                       " unit: minutes")
+          node_cooldown_period_group.add_argument("--node-spot-cooldown-period",
+                                                  dest="node_spot_cooldown_period",
+                                                  type=int,
+                                                  help="Cooldown period for spot nodes" +
+                                                       " unit: minutes")
           ebs_volume_group = argparser.add_argument_group("ebs volume settings")
           ebs_volume_group.add_argument("--ebs-volume-count",
                                   dest="ebs_volume_count",
@@ -945,6 +956,8 @@ class ClusterInfoV13():
                          max_nodes=None,
                          slave_request_type=None,
                          fallback_to_ondemand=None,
+                         node_base_cooldown_period=None,
+                         node_spot_cooldown_period=None,
                          custom_config=None,
                          use_hbase=None,
                          custom_ec2_tags=None,
@@ -1019,6 +1032,10 @@ class ClusterInfoV13():
         `fallback_to_ondemand`: Fallback to on-demand nodes if spot nodes could not be
             obtained. Valid only if slave_request_type is 'spot'.
 
+        `node_base_cooldown_period`: Time for which an on-demand node waits before termination (Unit: minutes)
+
+        `node_spot_cooldown_period`: Time for which a spot node waits before termination (Unit: minutes)
+
         `custom_config`: Custom Hadoop configuration overrides.
 
         `use_hbase`: Start hbase daemons on the cluster. Uses Hadoop2
@@ -1088,7 +1105,9 @@ class ClusterInfoV13():
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file
-        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
+        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes,
+                                    slave_request_type, fallback_to_ondemand,
+                                    node_base_cooldown_period, node_spot_cooldown_period)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                               master_elastic_ip, bastion_node_public_dns, role_instance_profile)
         self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
@@ -1125,13 +1144,17 @@ class ClusterInfoV13():
                             initial_nodes=None,
                             max_nodes=None,
                             slave_request_type=None,
-                            fallback_to_ondemand=None):
+                            fallback_to_ondemand=None,
+                            node_base_cooldown_period=None,
+                            node_spot_cooldown_period=None):
         self.node_configuration['master_instance_type'] = master_instance_type
         self.node_configuration['slave_instance_type'] = slave_instance_type
         self.node_configuration['initial_nodes'] = initial_nodes
         self.node_configuration['max_nodes'] = max_nodes
         self.node_configuration['slave_request_type'] = slave_request_type
         self.node_configuration['fallback_to_ondemand'] = fallback_to_ondemand
+        self.node_configuration['node_base_cooldown_period'] = node_base_cooldown_period
+        self.node_configuration['node_spot_cooldown_period'] = node_spot_cooldown_period
 
     def set_hadoop_settings(self, custom_config=None,
                             use_hbase=None,
