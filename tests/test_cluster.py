@@ -5,7 +5,7 @@ if sys.version_info > (2, 7, 0):
     import unittest
 else:
     import unittest2 as unittest
-from mock import Mock
+from mock import Mock, ANY
 import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
@@ -73,6 +73,40 @@ class TestClusterList(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_connection(self):
+        sys.argv = ['qds.py', 'cluster', 'list']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY)
+
+    def test_connection_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'list']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY)
+
+
+class TestClusterShow(QdsCliTestCase):
+
+    def test_connection(self):
+        sys.argv = ['qds.py', 'cluster', 'list', '--label', 'test_label']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY)
+
+    def test_connection_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'list', '--label', 'test_label']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY)
 
 class TestClusterDelete(QdsCliTestCase):
     def test_success(self):
