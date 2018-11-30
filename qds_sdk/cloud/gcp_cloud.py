@@ -19,11 +19,15 @@ class GcpCloud(Cloud):
                          compute_private_key=None,
                          use_account_compute_creds=None,
                          gcp_region=None,
+                         gcp_zone=None,
                          storage_client_id=None,
                          storage_project_id=None,
                          storage_client_email=None,
                          storage_private_key_id=None,
                          storage_private_key=None,
+                         disk_size_in_gb=None,
+                         disk_count=None,
+                         disk_type=None,
                          bastion_node_public_dns=None,
                          vpc_id=None,
                          subnet_id=None):
@@ -65,10 +69,10 @@ class GcpCloud(Cloud):
 
         self.set_compute_config(use_account_compute_creds, compute_client_id, compute_project_id, compute_client_email,
                                 compute_private_key_id, compute_private_key)
-        self.set_location(gcp_region)
+        self.set_location(gcp_region, gcp_zone)
         self.set_network_config(bastion_node_public_dns, vpc_id, subnet_id)
         self.set_storage_config(storage_client_id, storage_project_id, storage_client_email, storage_private_key_id,
-                                storage_private_key)
+                                storage_private_key, disk_size_in_gb, disk_count, disk_type)
 
     def set_compute_config(self,
                            use_account_compute_creds=None,
@@ -85,15 +89,18 @@ class GcpCloud(Cloud):
         self.compute_config['compute_private_key'] = compute_private_key
 
     def set_location(self,
-                     gcp_region=None):
+                     gcp_region=None,
+                     gcp_zone=None,
+                     ):
         self.location['region'] = gcp_region
+        self.location['zone'] = gcp_zone
 
     def set_network_config(self,
                            bastion_node_public_dns=None,
                            vpc_id=None,
                            subnet_id=None):
         self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
-        self.network_config['vpc'] = vpc_id
+        self.network_config['network'] = vpc_id
         self.network_config['subnet'] = subnet_id
 
     def set_storage_config(self,
@@ -101,12 +108,19 @@ class GcpCloud(Cloud):
                            storage_project_id=None,
                            storage_client_email=None,
                            storage_private_key_id=None,
-                           storage_private_key=None):
+                           storage_private_key=None,
+                           disk_size_in_gb=None,
+                           disk_count=None,
+                           disk_type=None
+                           ):
         self.storage_config['storage_client_id'] = storage_client_id
         self.storage_config['storage_project_id'] = storage_project_id
         self.storage_config['storage_client_email'] = storage_client_email
         self.storage_config['storage_private_key_id'] = storage_private_key_id
         self.storage_config['storage_private_key'] = storage_private_key
+        self.storage_config['disk_size_in_gb'] = disk_size_in_gb
+        self.storage_config['disk_count'] = disk_count
+        self.storage_config['disk_type'] = disk_type
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_client_id=arguments.compute_client_id,
