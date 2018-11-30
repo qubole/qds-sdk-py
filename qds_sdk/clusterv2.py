@@ -100,7 +100,10 @@ class ClusterCmdLine:
                                       upscaling_config=arguments.upscaling_config,
                                       enable_encryption=arguments.encrypted_ephemerals,
                                       customer_ssh_key=customer_ssh_key,
-                                      image_uri_overrides=arguments.image_uri_overrides)
+                                      image_uri_overrides=arguments.image_uri_overrides,
+                                      env_name=arguments.env_name,
+                                      python_version=arguments.python_version,
+                                      r_version=arguments.r_version)
 
         #  This will set cloud config settings
         cloud_config = Qubole.get_cloud()
@@ -184,7 +187,10 @@ class ClusterInfoV2(object):
                          customer_ssh_key=None,
                          cluster_name=None,
                          force_tunnel=None,
-                         image_uri_overrides=None):
+                         image_uri_overrides=None,
+                         env_name=None,
+                         python_version=None,
+                         r_version=None):
         """
         Args:
 
@@ -273,6 +279,12 @@ class ClusterInfoV2(object):
 
                 `image_uri_overrides` : Override the image name provided
 
+                `env_name`: Name of python and R environment. (For Spark clusters)
+
+                `python_version`: Version of Python for environment. (For Spark clusters)
+
+                `r_version`: Version of R for environment. (For Spark clusters)
+
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
@@ -306,6 +318,7 @@ class ClusterInfoV2(object):
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
         self.set_internal(image_uri_overrides)
+        self.set_env_settings(env_name, python_version, r_version)
 
     def set_datadog_setting(self,
                             datadog_api_token=None,
@@ -364,6 +377,12 @@ class ClusterInfoV2(object):
 
     def set_internal(self, image_uri_overrides=None):
         self.internal['image_uri_overrides'] = image_uri_overrides
+
+    def set_env_settings(self, env_name=None, python_version=None, r_version=None):
+        self.cluster_info['env_settings'] = {}
+        self.cluster_info['env_settings']['name'] = env_name
+        self.cluster_info['env_settings']['python_version'] = python_version
+        self.cluster_info['env_settings']['r_version'] = r_version
 
     @staticmethod
     def list_info_parser(argparser, action):
@@ -589,6 +608,20 @@ class ClusterInfoV2(object):
                                     dest="image_uri_overrides",
                                     default=None,
                                     help="overrides for image", )
+
+        env_group = argparser.add_argument_group("environment settings")
+        env_group.add_argument("--env-name",
+                               dest="env_name",
+                               default=None,
+                               help="name of Python and R environment")
+        env_group.add_argument("--python-version",
+                               dest="python_version",
+                               default=None,
+                               help="version of Python in environment")
+        env_group.add_argument("--r-version",
+                               dest="r_version",
+                               default=None,
+                               help="version of R in environment")
 
 class ClusterV2(Resource):
 
