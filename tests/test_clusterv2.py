@@ -209,6 +209,38 @@ class TestClusterCreate(QdsCliTestCase):
                                                                        'vnet_name': 'testvnet'}},
                                                     'cluster_info': {'label': ['test_label']}})
 
+    def test_azure_master_static_nic(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-nic-name', 'nic1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_nic_name':'nic1'}},
+                                                    'cluster_info': {'label': ['test_label']}})
+
+    def test_azure_master_static_pip(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-public-ip-name', 'pip1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_public_ip_name':'pip1'}},
+                                                    'cluster_info': {'label': ['test_label']}})
+
     def test_oracle_opc_compute_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
                     '--username', 'testusername', '--password', 'testpassword',
@@ -467,6 +499,36 @@ class TestClusterUpdate(QdsCliTestCase):
                                                                                              {'compute_subscription_id': 'testsubscriptionid'},
                                                                                          'storage_config': {'storage_account_name': 'test_account_name'},
                                                                                          'network_config': {'vnet_name': 'testvnet'}}})
+
+    def test_azure_master_static_nic(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'update', '123',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-nic-name', 'nic1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_nic_name':'nic1'}}})
+
+    def test_azure_master_static_pip(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'update', '123',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-public-ip-name', 'pip1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_public_ip_name':'pip1'}}})
 
     def test_oracle_bmc_cloud_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'update', '123',
