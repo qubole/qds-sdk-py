@@ -179,6 +179,9 @@ class GcpCloud(Cloud):
         location_group.add_argument("--gcp-region",
                                     dest="gcp_region",
                                     help="region to create the cluster in")
+        location_group.add_argument("--gcp-zone",
+                                    dest="gcp_zone",
+                                    help="zone to create the cluster in")
 
         # network settings parser
         network_config_group = argparser.add_argument_group("network config settings")
@@ -186,10 +189,10 @@ class GcpCloud(Cloud):
                                           dest="bastion_node_public_dns",
                                           help="public dns name of the bastion node. Required only if cluster is in private subnet")
         network_config_group.add_argument("--vpc-id",
-                                          dest="vpc_id",
+                                          dest="network",
                                           help="vpc id to create the cluster in")
         network_config_group.add_argument("--subnet-id",
-                                          dest="subnet_id",
+                                          dest="subnet",
                                           help="subnet id to create the cluster in")
 
         # storage config settings parser
@@ -214,3 +217,15 @@ class GcpCloud(Cloud):
                                     dest="storage_private_key",
                                     default=None,
                                     help="storage private key for gcp cluster")
+        storage_config.add_argument("--disk-size-in-gb",
+                                    dest="disk_size_in_gb",
+                                    default=None,
+                                    help="disk size in gb for gcp cluster")
+        storage_config.add_argument("--disk-count",
+                                    dest="disk_count",
+                                    default=None,
+                                    help="disk count for gcp cluster")
+        storage_config.add_argument("--disk-type",
+                                    dest="disk_type",
+                                    default=None,
+                                    help="disk type for gcp cluster")

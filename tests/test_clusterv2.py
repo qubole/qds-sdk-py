@@ -353,7 +353,7 @@ class TestClusterCreate(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters', {'cloud_config': {'network_config':
                                                                                           {'subnet': 'subnet-1',
-                                                                                           'vpc': 'vpc-1'}},
+                                                                                           'network': 'vpc-1'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_gcp_location_config(self):
