@@ -130,11 +130,15 @@ class GcpCloud(Cloud):
                               compute_private_key=arguments.compute_private_key,
                               use_account_compute_creds=arguments.use_account_compute_creds,
                               gcp_region=arguments.gcp_region,
+                              gcp_zone=arguments.gcp_zone,
                               storage_client_id=arguments.storage_client_id,
                               storage_project_id=arguments.storage_project_id,
                               storage_client_email=arguments.storage_client_email,
                               storage_private_key_id=arguments.storage_private_key_id,
                               storage_private_key=arguments.storage_private_key,
+                              disk_size_in_gb=arguments.gcp_disk_size_in_gb,
+                              disk_count=arguments.gcp_disk_count,
+                              disk_type=arguments.gcp_disk_type,
                               bastion_node_public_dns=arguments.bastion_node_public_dns,
                               vpc_id=arguments.vpc_id,
                               subnet_id=arguments.subnet_id)
@@ -189,10 +193,10 @@ class GcpCloud(Cloud):
                                           dest="bastion_node_public_dns",
                                           help="public dns name of the bastion node. Required only if cluster is in private subnet")
         network_config_group.add_argument("--vpc-id",
-                                          dest="network",
+                                          dest="vpc_id",
                                           help="vpc id to create the cluster in")
         network_config_group.add_argument("--subnet-id",
-                                          dest="subnet",
+                                          dest="subnet_id",
                                           help="subnet id to create the cluster in")
 
         # storage config settings parser
@@ -217,15 +221,15 @@ class GcpCloud(Cloud):
                                     dest="storage_private_key",
                                     default=None,
                                     help="storage private key for gcp cluster")
-        storage_config.add_argument("--disk-size-in-gb",
-                                    dest="disk_size_in_gb",
+        storage_config.add_argument("--gcp-disk-size-in-gb",
+                                    dest="gcp_disk_size_in_gb",
                                     default=None,
                                     help="disk size in gb for gcp cluster")
-        storage_config.add_argument("--disk-count",
-                                    dest="disk_count",
+        storage_config.add_argument("--gcp-disk-count",
+                                    dest="gcp_disk_count",
                                     default=None,
                                     help="disk count for gcp cluster")
-        storage_config.add_argument("--disk-type",
-                                    dest="disk_type",
+        storage_config.add_argument("--gcp-disk-type",
+                                    dest="gcp_disk_type",
                                     default=None,
                                     help="disk type for gcp cluster")
