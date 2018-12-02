@@ -330,8 +330,8 @@ class TestClusterCreate(QdsCliTestCase):
     def test_gcp_storage_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'GCP', 'cluster', 'create', '--label', 'test_label',
                     '--storage-client-id', 'xxx11', '--storage-project-id', 'yyyy11', '--storage-client-email', 'www11',
-                    '--storage-private-key-id', 'zzz22', '--storage-private-key', 'aaa', '--gcp-disk-size-in-gb', 'aaa',
-                    '--gcp-disk-count', 'bbb', '--gcp-disk-type', 'ccc' ]
+                    '--storage-private-key-id', 'zzz22', '--storage-private-key', 'aaa', '--storage-disk-size-in-gb', 'aaa',
+                    '--storage-disk-count', 'bbb', '--storage-disk-type', 'ccc' ]
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})

@@ -25,9 +25,9 @@ class GcpCloud(Cloud):
                          storage_client_email=None,
                          storage_private_key_id=None,
                          storage_private_key=None,
-                         disk_size_in_gb=None,
-                         disk_count=None,
-                         disk_type=None,
+                         storage_disk_size_in_gb=None,
+                         storage_disk_count=None,
+                         storage_disk_type=None,
                          bastion_node_public_dns=None,
                          vpc_id=None,
                          subnet_id=None):
@@ -72,7 +72,7 @@ class GcpCloud(Cloud):
         self.set_location(gcp_region, gcp_zone)
         self.set_network_config(bastion_node_public_dns, vpc_id, subnet_id)
         self.set_storage_config(storage_client_id, storage_project_id, storage_client_email, storage_private_key_id,
-                                storage_private_key, disk_size_in_gb, disk_count, disk_type)
+                                storage_private_key, storage_disk_size_in_gb, storage_disk_count, storage_disk_type)
 
     def set_compute_config(self,
                            use_account_compute_creds=None,
@@ -109,18 +109,18 @@ class GcpCloud(Cloud):
                            storage_client_email=None,
                            storage_private_key_id=None,
                            storage_private_key=None,
-                           disk_size_in_gb=None,
-                           disk_count=None,
-                           disk_type=None
+                           storage_disk_size_in_gb=None,
+                           storage_disk_count=None,
+                           storage_disk_type=None
                            ):
         self.storage_config['storage_client_id'] = storage_client_id
         self.storage_config['storage_project_id'] = storage_project_id
         self.storage_config['storage_client_email'] = storage_client_email
         self.storage_config['storage_private_key_id'] = storage_private_key_id
         self.storage_config['storage_private_key'] = storage_private_key
-        self.storage_config['disk_size_in_gb'] = disk_size_in_gb
-        self.storage_config['disk_count'] = disk_count
-        self.storage_config['disk_type'] = disk_type
+        self.storage_config['disk_size_in_gb'] = storage_disk_size_in_gb
+        self.storage_config['disk_count'] = storage_disk_count
+        self.storage_config['disk_type'] = storage_disk_type
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_client_id=arguments.compute_client_id,
@@ -136,9 +136,9 @@ class GcpCloud(Cloud):
                               storage_client_email=arguments.storage_client_email,
                               storage_private_key_id=arguments.storage_private_key_id,
                               storage_private_key=arguments.storage_private_key,
-                              disk_size_in_gb=arguments.gcp_disk_size_in_gb,
-                              disk_count=arguments.gcp_disk_count,
-                              disk_type=arguments.gcp_disk_type,
+                              storage_disk_size_in_gb=arguments.storage_disk_size_in_gb,
+                              storage_disk_count=arguments.storage_disk_count,
+                              storage_disk_type=arguments.storage_disk_type,
                               bastion_node_public_dns=arguments.bastion_node_public_dns,
                               vpc_id=arguments.vpc_id,
                               subnet_id=arguments.subnet_id)
@@ -221,15 +221,15 @@ class GcpCloud(Cloud):
                                     dest="storage_private_key",
                                     default=None,
                                     help="storage private key for gcp cluster")
-        storage_config.add_argument("--gcp-disk-size-in-gb",
-                                    dest="gcp_disk_size_in_gb",
+        storage_config.add_argument("--storage-disk-size-in-gb",
+                                    dest="storage_disk_size_in_gb",
                                     default=None,
                                     help="disk size in gb for gcp cluster")
-        storage_config.add_argument("--gcp-disk-count",
-                                    dest="gcp_disk_count",
+        storage_config.add_argument("--storage-disk-count",
+                                    dest="storage_disk_count",
                                     default=None,
                                     help="disk count for gcp cluster")
-        storage_config.add_argument("--gcp-disk-type",
-                                    dest="gcp_disk_type",
+        storage_config.add_argument("--storage-disk-type",
+                                    dest="storage_disk_type",
                                     default=None,
                                     help="disk type for gcp cluster")
