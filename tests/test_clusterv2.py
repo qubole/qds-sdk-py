@@ -142,6 +142,24 @@ class TestClusterCreate(QdsCliTestCase):
                                                                                            'image_id': 'abc-image'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
+    def test_oracle_bmc_network_config_az_info_map(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
+                    '--compartment-id', 'abc-compartment', '--image-id', 'abc-image', '--vcn-id', 'vcn-1',
+                    '--availability-domain-info-map', '{"availability_domain": "AD-1", "subnet_id": "subnet-1"}']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters', {'cloud_config':
+                                                                         {'network_config':
+                                                                              {'vcn_id': 'vcn-1',
+                                                                               'compartment_id': 'abc-compartment',
+                                                                               'image_id': 'abc-image',
+                                                                               'availability_domain_info_map':
+                                                                                   {'availability_domain': 'AD-1',
+                                                                                    'subnet_id': 'subnet-1'}}},
+                                                                     'cluster_info': {'label': ['test_label']}})
+
     def test_oracle_bmc_location_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--oracle-region', 'us-phoenix-1', '--oracle-availability-zone', 'phx-ad-1']
@@ -207,6 +225,38 @@ class TestClusterCreate(QdsCliTestCase):
                                                     'network_config': {'vnet_resource_group_name': 'vnetresname',
                                                                        'subnet_name': 'testsubnet',
                                                                        'vnet_name': 'testvnet'}},
+                                                    'cluster_info': {'label': ['test_label']}})
+
+    def test_azure_master_static_nic(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-nic-name', 'nic1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_nic_name':'nic1'}},
+                                                    'cluster_info': {'label': ['test_label']}})
+
+    def test_azure_master_static_pip(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-public-ip-name', 'pip1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_public_ip_name':'pip1'}},
                                                     'cluster_info': {'label': ['test_label']}})
 
     def test_oracle_opc_compute_config(self):
@@ -428,6 +478,40 @@ class TestClusterCreate(QdsCliTestCase):
                                                 {'cluster_info': {'label': ['test_label'],
                                                                   'slave_request_type': 'spotblock'}})
 
+    def test_node_base_cooldown_period_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                '--node-base-cooldown-period', '10']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'node_base_cooldown_period': 10}})
+
+    def test_node_base_cooldown_period_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                '--node-base-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_node_spot_cooldown_period_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                '--node-spot-cooldown-period', '15']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'node_spot_cooldown_period': 15}})
+
+    def test_node_spot_cooldown_period_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                '--node-spot-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123']
@@ -467,6 +551,36 @@ class TestClusterUpdate(QdsCliTestCase):
                                                                                              {'compute_subscription_id': 'testsubscriptionid'},
                                                                                          'storage_config': {'storage_account_name': 'test_account_name'},
                                                                                          'network_config': {'vnet_name': 'testvnet'}}})
+
+    def test_azure_master_static_nic(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'update', '123',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-nic-name', 'nic1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_nic_name':'nic1'}}})
+
+    def test_azure_master_static_pip(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'update', '123',
+                    '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
+                    '--vnet-resource-group-name', 'vnetresname', '--master-static-public-ip-name', 'pip1']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cloud_config': {
+                                                    'network_config': {'vnet_resource_group_name': 'vnetresname',
+                                                                       'subnet_name': 'testsubnet',
+                                                                       'vnet_name': 'testvnet',
+                                                                       'master_static_public_ip_name':'pip1'}}})
 
     def test_oracle_bmc_cloud_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'update', '123',
@@ -566,6 +680,38 @@ class TestClusterUpdate(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
                                                 {'cluster_info': {'slave_request_type': 'spotblock'}})
+
+    def test_node_base_cooldown_period_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                '--node-base-cooldown-period', '10']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info': {'node_base_cooldown_period': 10}})
+
+    def test_node_base_cooldown_period_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                '--node-base-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_node_spot_cooldown_period_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                '--node-spot-cooldown-period', '15']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info': {'node_spot_cooldown_period': 15}})
+
+    def test_node_spot_cooldown_period_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                '--node-spot-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
 
 class TestClusterClone(QdsCliTestCase):
 

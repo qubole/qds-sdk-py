@@ -5,7 +5,7 @@ if sys.version_info > (2, 7, 0):
     import unittest
 else:
     import unittest2 as unittest
-from mock import Mock
+from mock import Mock, ANY
 import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
@@ -73,6 +73,40 @@ class TestClusterList(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_connection(self):
+        sys.argv = ['qds.py', 'cluster', 'list']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY)
+
+    def test_connection_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'list']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY)
+
+
+class TestClusterShow(QdsCliTestCase):
+
+    def test_connection(self):
+        sys.argv = ['qds.py', 'cluster', 'list', '--label', 'test_label']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY)
+
+    def test_connection_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'list', '--label', 'test_label']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY)
 
 class TestClusterDelete(QdsCliTestCase):
     def test_success(self):
@@ -1497,12 +1531,57 @@ class TestClusterCreate(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
-                                                {'label': ['test_label'],
-                                                'node_configuration': {
-                                                    "custom_ec2_tags": {
-                                                        "foo": "bar",
-                                                        "bar": "baz"
-                                                }}})
+                                                 {'label': ['test_label'],
+                                                 'node_configuration': {
+                                                     "custom_ec2_tags": {
+                                                         "foo": "bar",
+                                                         "bar": "baz"
+                                                 }}})
+
+    def test_node_base_cooldown_period_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-base-cooldown-period', '10']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'label': ['test_label'],
+                 'ec2_settings': {'compute_secret_key': 'sak',
+                                  'compute_access_key': 'aki'},
+                 'node_configuration': {'node_base_cooldown_period': 10}
+                })
+
+    def test_node_base_cooldown_period_invalid_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-base-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_node_spot_cooldown_period_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-spot-cooldown-period', '15']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                {'label': ['test_label'],
+                 'ec2_settings': {'compute_secret_key': 'sak',
+                                  'compute_access_key': 'aki'},
+                 'node_configuration': {'node_spot_cooldown_period': 15}
+                })
+
+    def test_node_spot_cooldown_period_invalid_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-spot-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -2275,6 +2354,48 @@ class TestClusterUpdate(QdsCliTestCase):
                                   'compute_access_key': 'aki'},
                  'node_configuration': {'slave_request_type': 'spotblock'}
                 })
+
+    def test_node_base_cooldown_period_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-base-cooldown-period', '10']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'ec2_settings': {'compute_secret_key': 'sak',
+                                  'compute_access_key': 'aki'},
+                 'node_configuration': {'node_base_cooldown_period': 10},
+                })
+
+    def test_node_base_cooldown_period_invalid_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-base-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_node_spot_cooldown_period_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-spot-cooldown-period', '15']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                {'ec2_settings': {'compute_secret_key': 'sak',
+                                  'compute_access_key': 'aki'},
+                 'node_configuration': {'node_spot_cooldown_period': 15},
+                })
+
+    def test_node_spot_cooldown_period_invalid_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'update', '123',
+                '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                '--node-spot-cooldown-period', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
 
 
 class TestClusterClone(QdsCliTestCase):

@@ -27,7 +27,9 @@ class AzureCloud(Cloud):
                          vnet_name=None,
                          subnet_name=None,
                          vnet_resource_group_name=None,
-                         master_elastic_ip=None):
+                         master_elastic_ip=None,
+                         master_static_nic_name=None,
+                         master_static_public_ip_name=None):
         '''
 
         Args:
@@ -67,6 +69,11 @@ class AzureCloud(Cloud):
 
             master_elastic_ip: It is the Elastic IP address for attaching to the cluster master
 
+            master_static_nic_name: Name of NIC that has to be attached to cluster's master node
+
+            master_static_public_ip_name: Name of Static Public Ip address that has to be attached
+                to cluster's master node
+
         '''
 
         self.set_compute_config(use_account_compute_creds, compute_tenant_id,
@@ -75,7 +82,7 @@ class AzureCloud(Cloud):
         self.set_location(location)
         self.set_network_config(bastion_node_public_dns, persistent_security_groups,
                                 master_elastic_ip, vnet_name, subnet_name,
-                                vnet_resource_group_name)
+                                vnet_resource_group_name, master_static_nic_name, master_static_public_ip_name)
         self.set_storage_config(storage_access_key, storage_account_name,
                                 disk_storage_account_name,
                                 disk_storage_account_resource_group_name)
@@ -102,13 +109,17 @@ class AzureCloud(Cloud):
                            master_elastic_ip=None,
                            vnet_name=None,
                            subnet_name=None,
-                           vnet_resource_group_name=None):
+                           vnet_resource_group_name=None,
+                           master_static_nic_name=None,
+                           master_static_public_ip_name=None):
         self.network_config['bastion_node_public_dns'] = bastion_node_public_dns
         self.network_config['persistent_security_groups'] = persistent_security_groups
         self.network_config['master_elastic_ip'] = master_elastic_ip
         self.network_config['vnet_name'] = vnet_name
         self.network_config['subnet_name'] = subnet_name
         self.network_config['vnet_resource_group_name'] = vnet_resource_group_name
+        self.network_config['master_static_nic_name'] = master_static_nic_name
+        self.network_config['master_static_public_ip_name'] = master_static_public_ip_name
 
     def set_storage_config(self,
                            storage_access_key=None,
@@ -134,7 +145,9 @@ class AzureCloud(Cloud):
                               disk_storage_account_resource_group_name=arguments.disk_storage_account_resource_group_name,
                               vnet_name=arguments.vnet_name,
                               subnet_name=arguments.subnet_name,
-                              vnet_resource_group_name=arguments.vnet_resource_group_name)
+                              vnet_resource_group_name=arguments.vnet_resource_group_name,
+                              master_static_nic_name=arguments.master_static_nic_name,
+                              master_static_public_ip_name=arguments.master_static_public_ip_name)
 
     def create_parser(self, argparser):
         # compute settings parser
@@ -185,7 +198,12 @@ class AzureCloud(Cloud):
         network_config_group.add_argument("--vnet-resource-group-name",
                                           dest="vnet_resource_group_name",
                                           help="vnet resource group name for azure")
-
+        network_config_group.add_argument("--master-static-nic-name",
+                                          dest="master_static_nic_name",
+                                          help="name of NIC to be attached to master node")
+        network_config_group.add_argument("--master-static-public-ip-name",
+                                          dest="master_static_public_ip_name",
+                                          help="name of public IP to be attached to master node")
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
         storage_config.add_argument("--storage-access-key",

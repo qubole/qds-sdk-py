@@ -82,6 +82,8 @@ class ClusterCmdLine:
                                       max_nodes=arguments.max_nodes,
                                       slave_request_type=arguments.slave_request_type,
                                       fallback_to_ondemand=arguments.fallback_to_ondemand,
+                                      node_base_cooldown_period=arguments.node_base_cooldown_period,
+                                      node_spot_cooldown_period=arguments.node_spot_cooldown_period,
                                       custom_tags=arguments.custom_tags,
                                       heterogeneous_config=arguments.heterogeneous_config,
                                       maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
@@ -162,6 +164,8 @@ class ClusterInfoV2(object):
                          max_nodes=None,
                          slave_request_type=None,
                          fallback_to_ondemand=None,
+                         node_base_cooldown_period=None,
+                         node_spot_cooldown_period=None,
                          custom_tags=None,
                          heterogeneous_config=None,
                          maximum_bid_price_percentage=None,
@@ -211,6 +215,10 @@ class ClusterInfoV2(object):
 
                 `fallback_to_ondemand`: Fallback to on-demand nodes if spot nodes could not be
                     obtained. Valid only if slave_request_type is 'spot'.
+
+                `node_base_cooldown_period`: Time for which an on-demand node waits before termination (Unit: minutes)
+
+                `node_spot_cooldown_period`: Time for which a spot node waits before termination (Unit: minutes)
 
                 `maximum_bid_price_percentage`: ( Valid only when `slave_request_type`
                     is hybrid or spot.) Maximum value to bid for spot
@@ -278,6 +286,8 @@ class ClusterInfoV2(object):
         self.cluster_info['disallow_cluster_termination'] = disallow_cluster_termination
         self.cluster_info['force_tunnel'] = force_tunnel
         self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
+        self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
+        self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
         if custom_tags and custom_tags.strip():
             try:
@@ -437,6 +447,17 @@ class ClusterInfoV2(object):
                                                 default=None,
                                                 help="Dont Fallback to on-demand nodes if spot nodes" +
                                                      " could not be obtained. Valid only if slave_request_type is spot", )
+        node_cooldown_period_group = argparser.add_argument_group("node cooldown period settings")
+        node_cooldown_period_group.add_argument("--node-base-cooldown-period",
+                                                dest="node_base_cooldown_period",
+                                                type=int,
+                                                help="Cooldown period for on-demand nodes" +
+                                                     " unit: minutes")
+        node_cooldown_period_group.add_argument("--node-spot-cooldown-period",
+                                                dest="node_spot_cooldown_period",
+                                                type=int,
+                                                help="Cooldown period for spot nodes" +
+                                                     " unit: minutes")
         cluster_info.add_argument("--customer-ssh-key",
                                   dest="customer_ssh_key_file",
                                   help="location for ssh key to use to" +

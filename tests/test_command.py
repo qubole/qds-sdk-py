@@ -1684,7 +1684,8 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_extract_query': None,
                  'retry': 2,
                  'schema': 'default',
-                 'additional_options': None
+                 'additional_options': None,
+                 'part_spec': None
                  })
 
     def test_use_customer_cluster_command(self):
@@ -1713,7 +1714,8 @@ class TestDbImportCommand(QdsCliTestCase):
                  'hive_table': 'myhivetable',
                  'db_table': 'mydbtable',
                  'schema': 'default',
-                 'additional_options': None
+                 'additional_options': None,
+                 'part_spec': None
                  })
 
     def test_use_customer_cluster_command_set_false(self):
@@ -1742,7 +1744,8 @@ class TestDbImportCommand(QdsCliTestCase):
                  'hive_table': 'myhivetable',
                  'db_table': 'mydbtable',
                  'schema': 'default',
-                 'additional_options': None
+                 'additional_options': None,
+                 'part_spec': None
                  })
 
     def test_submit_command_with_hive_serde(self):
@@ -1770,7 +1773,8 @@ class TestDbImportCommand(QdsCliTestCase):
                  'db_extract_query': None,
                  'retry': 2,
                  'schema': 'default',
-                 'additional_options': None
+                 'additional_options': None,
+                 'part_spec': None
                  })
 
     def test_retry_out_of_range(self):
@@ -1779,6 +1783,36 @@ class TestDbImportCommand(QdsCliTestCase):
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
+
+    def test_use_hive_partition(self):
+        sys.argv = ['qds.py', 'dbimportcmd', 'submit', '--mode', '1', '--dbtap_id', '1',
+         '--db_table', 'mydbtable', '--hive_table', 'myhivetable', '--hive_serde', 'orc', '--retry', 2, '--partition_spec', 'dt=2013/country=us']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'customer_cluster_label': None,
+                                                 'use_customer_cluster': False,
+                                                 'db_parallelism': None,
+                                                 'name': None,
+                                                 'dbtap_id': '1',
+                                                 'db_where': None,
+                                                 'db_boundary_query': None,
+                                                 'mode': '1',
+                                                 'tags': None,
+                                                 'command_type': 'DbImportCommand',
+                                                 'db_split_column': None,
+                                                 'can_notify': False,
+                                                 'hive_table': 'myhivetable',
+                                                 'hive_serde': 'orc',
+                                                 'db_table': 'mydbtable',
+                                                 'db_extract_query': None,
+                                                 'retry': 2,
+                                                 'schema': 'default',
+                                                 'additional_options': None,
+                                                 'part_spec': 'dt=2013/country=us'
+                                                 })
+
 
 class TestDbTapQueryCommand(QdsCliTestCase):
 
