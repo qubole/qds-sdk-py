@@ -429,6 +429,19 @@ class Cluster(Resource):
                                of the cluster. Specified as JSON object (key-value pairs)
                                e.g. --custom-ec2-tags '{"key1":"value1", "key2":"value2"}'
                                """,)
+        env_group = argparser.add_argument_group("environment settings")
+        env_group.add_argument("--env-name",
+                               dest="env_name",
+                               default=None,
+                               help="name of Python and R environment")
+        env_group.add_argument("--python-version",
+                               dest="python_version",
+                               default=None,
+                               help="version of Python in environment")
+        env_group.add_argument("--r-version",
+                               dest="r_version",
+                               default=None,
+                               help="version of R in environment")
 
         arguments = argparser.parse_args(args)
         return arguments
@@ -983,7 +996,10 @@ class ClusterInfoV13():
                          bastion_node_public_dns=None,
                          role_instance_profile=None,
                          presto_custom_config=None,
-                         is_ha=None):
+                         is_ha=None,
+                         env_name=None,
+                         python_version=None,
+                         r_version=None):
         """
         Kwargs:
 
@@ -1100,6 +1116,12 @@ class ClusterInfoV13():
 
         `is_ha`: Enabling HA config for cluster
 
+        `env_name`: Name of python and R environment. (For Spark clusters)
+
+        `python_version`: Version of Python for environment. (For Spark clusters)
+
+        `r_version`: Version of R for environment. (For Spark clusters)
+
         """
 
         self.disallow_cluster_termination = disallow_cluster_termination
@@ -1118,6 +1140,7 @@ class ClusterInfoV13():
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
         self.set_security_settings(encrypted_ephemerals, ssh_public_key, persistent_security_group)
         self.set_presto_settings(enable_presto, presto_custom_config)
+        self.set_env_settings(env_name, python_version, r_version)
 
     def set_ec2_settings(self,
                          aws_access_key_id=None,
@@ -1220,6 +1243,12 @@ class ClusterInfoV13():
     def set_presto_settings(self, enable_presto=None, presto_custom_config=None):
         self.presto_settings['enable_presto'] = enable_presto
         self.presto_settings['custom_config'] = presto_custom_config
+
+    def set_env_settings(self, env_name=None, python_version=None, r_version=None):
+        self.node_configuration['env_settings'] = {}
+        self.node_configuration['env_settings']['name'] = env_name
+        self.node_configuration['env_settings']['python_version'] = python_version
+        self.node_configuration['env_settings']['r_version'] = r_version
 
     def minimal_payload(self):
         """
