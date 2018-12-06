@@ -305,7 +305,10 @@ def _create_cluster_info(arguments, api_version):
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
                                       role_instance_profile=arguments.role_instance_profile,
                                       presto_custom_config=presto_custom_config,
-                                      is_ha=arguments.is_ha)
+                                      is_ha=arguments.is_ha,
+                                      env_name=arguments.env_name,
+                                      python_version=arguments.python_version,
+                                      r_version=arguments.r_version)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,

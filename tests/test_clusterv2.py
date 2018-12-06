@@ -512,6 +512,19 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_env_settings_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                '--env-name', 'test_env', '--python-version', '2.7', '--r-version', '3.3']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'env_settings': {'name':'test_env',
+                                                                                   'python_version':'2.7',
+                                                                                   'r_version':'3.3'}}})
+
+
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123']
