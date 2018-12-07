@@ -330,7 +330,8 @@ class TestClusterCreate(QdsCliTestCase):
     def test_gcp_storage_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'GCP', 'cluster', 'create', '--label', 'test_label',
                     '--storage-client-id', 'xxx11', '--storage-project-id', 'yyyy11', '--storage-client-email', 'www11',
-                    '--storage-private-key-id', 'zzz22', '--storage-private-key', 'aaa']
+                    '--storage-private-key-id', 'zzz22', '--storage-private-key', 'aaa', '--storage-disk-size-in-gb', 'aaa',
+                    '--storage-disk-count', 'bbb', '--storage-disk-type', 'ccc' ]
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -341,7 +342,10 @@ class TestClusterCreate(QdsCliTestCase):
                                                                                'storage_private_key': 'aaa',
                                                                                'storage_client_email': 'www11',
                                                                                'storage_project_id': 'yyyy11',
-                                                                               'storage_client_id': 'xxx11'}},
+                                                                               'storage_client_id': 'xxx11',
+                                                                               'disk_size_in_gb': 'aaa',
+                                                                               'disk_count': 'bbb',
+                                                                               'disk_type': 'ccc'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_gcp_network_config(self):
@@ -353,18 +357,19 @@ class TestClusterCreate(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters', {'cloud_config': {'network_config':
                                                                                           {'subnet': 'subnet-1',
-                                                                                           'vpc': 'vpc-1'}},
+                                                                                           'network': 'vpc-1'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_gcp_location_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'GCP', 'cluster', 'create', '--label', 'test_label',
-                    '--gcp-region', 'xxx']
+                    '--gcp-region', 'xxx', '--gcp-zone', 'yyy']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters', {'cloud_config': {'location':
-                                                                                          {'region': 'xxx'}},
+                                                                                          {'region': 'xxx',
+                                                                                           'zone': 'yyy'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_presto_engine_config(self):
