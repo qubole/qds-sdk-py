@@ -4,7 +4,7 @@ The Template Module contains the base definition for Executing Templates
 import json
 import logging
 import os
-
+import cStringIO
 from argparse import ArgumentParser
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
@@ -256,7 +256,8 @@ class Template(Resource):
     def getResult(cmdClass, cmd):
         if Command.is_success(cmd.status):
             log.info("Fetching results for %s, Id: %s" % (cmdClass.__name__, cmd.id))
-            results = cmd.get_results(sys.stdout, delim='\t')
+            stdout = cStringIO.StringIO()
+            results = cmd.get_results(stdout)
             return results
         else:
             log.error("Cannot fetch results - command Id: %s failed with status: %s" % (cmd.id, cmd.status))
