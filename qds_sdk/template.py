@@ -257,8 +257,8 @@ class Template(Resource):
         if Command.is_success(cmd.status):
             log.info("Fetching results for %s, Id: %s" % (cmdClass.__name__, cmd.id))
             stdout = cStringIO.StringIO()
-            results = cmd.get_results(stdout)
-            return results
+            cmd.get_results(stdout)
+            return stdout.getvalue()
         else:
             log.error("Cannot fetch results - command Id: %s failed with status: %s" % (cmd.id, cmd.status))
             return 1
