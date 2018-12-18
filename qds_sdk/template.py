@@ -4,10 +4,13 @@ The Template Module contains the base definition for Executing Templates
 import json
 import logging
 import os
-import cStringIO
 from argparse import ArgumentParser
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
+try:
+    from cStringIO import StringIO
+except:
+    from io  import StringIO
 
 log = logging.getLogger("qds_template")
 
@@ -114,8 +117,7 @@ class TemplateCmdLine:
     
     @staticmethod
     def list(args):
-        with open(args.data) as f:
-            spec = json.load(f)
+        spec = vars(args)
         return Template.listTemplates(spec)
 
     @staticmethod
@@ -256,7 +258,7 @@ class Template(Resource):
     def getResult(cmdClass, cmd):
         if Command.is_success(cmd.status):
             log.info("Fetching results for %s, Id: %s" % (cmdClass.__name__, cmd.id))
-            stdout = cStringIO.StringIO()
+            stdout = StringIO()
             cmd.get_results(stdout)
             return stdout.getvalue()
         else:
