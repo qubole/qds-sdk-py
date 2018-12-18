@@ -99,13 +99,15 @@ class Connection:
         else:
             raise NotImplemented
 
+        self._validate_json(r)
         self._handle_error(r)
         return r
 
     def _api_call(self, req_type, path, data=None, params=None):
         return self._api_call_raw(req_type, path, data=data, params=params).json()
 
-    def _handle_error(self, response):
+    @staticmethod
+    def _handle_error(response):
         """Raise exceptions in response to any http errors
 
         Args:
@@ -160,3 +162,12 @@ class Connection:
             raise ServerError(response)
         else:
             raise ConnectionError(response)
+
+    @staticmethod
+    def _validate_json(response):
+        # checks if the repose received is json decode-able
+        try:
+            response.json()
+        except Exception as e:
+            sys.stderr.write("Error: {0}\nInvalid Response from Server, please contact Qubole Support".format(str(e)))
+            raise ServerError(response)
