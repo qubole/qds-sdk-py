@@ -5,7 +5,7 @@ if sys.version_info > (2, 7, 0):
     import unittest
 else:
     import unittest2 as unittest
-from mock import Mock
+from mock import Mock, ANY
 import tempfile
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 import qds
@@ -805,6 +805,16 @@ class TestClusterList(QdsCliTestCase):
         Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "invalid"}}])
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
+
+class TestClusterShow(QdsCliTestCase):
+
+    def test_connection(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--label', 'test_label']
+        print_command()
+        Connection.__init__ = Mock(return_value=None)
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v2', ANY)
 
 class TestClusterStatus(QdsCliTestCase):
 
