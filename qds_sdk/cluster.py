@@ -95,11 +95,11 @@ class Cluster(Resource):
         return conn.get(cls.element_path(cluster_id_label) + "/state")
 
     @classmethod
-    def start(cls, cluster_id_label):
+    def start(cls, cluster_id_label, api_version=None):
         """
         Start the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=api_version)
         data = {"state": "start"}
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
