@@ -73,6 +73,36 @@ class TestClusterList(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_page(self):
+        sys.argv = ['qds.py', 'cluster', 'list', '--page', '2']
+        print_command()
+        Connection._api_call = Mock(return_value=[{"cluster": {"state": "up"}}])
+        params = {'page': 2}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "clusters", params=params)
+
+    def test_page_invalid(self):
+        sys.argv = ['qds.py', 'cluster', 'list', '--page', 'string_value']
+        print_command()
+        Connection._api_call = Mock(return_value=[{"cluster": {"state": "up"}}])
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_per_page(self):
+        sys.argv = ['qds.py', 'cluster', 'list', '--per-page', '5']
+        print_command()
+        Connection._api_call = Mock(return_value=[{"cluster": {"state": "up"}}])
+        params = {'per_page': 5}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "clusters", params=params)
+
+    def test_per_page_invalid(self):
+        sys.argv = ['qds.py', 'cluster', 'list', '--per-page', 'string_value']
+        print_command()
+        Connection._api_call = Mock(return_value=[{"cluster": {"state": "up"}}])
+        with self.assertRaises(SystemExit):
+            qds.main()
+
     def test_connection(self):
         sys.argv = ['qds.py', 'cluster', 'list']
         print_command()
