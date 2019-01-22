@@ -277,6 +277,8 @@ def _create_cluster_info(arguments, api_version):
                                       max_nodes=arguments.max_nodes,
                                       slave_request_type=arguments.slave_request_type,
                                       fallback_to_ondemand=arguments.fallback_to_ondemand,
+                                      node_base_cooldown_period=arguments.node_base_cooldown_period,
+                                      node_spot_cooldown_period=arguments.node_spot_cooldown_period,
                                       custom_config=custom_config,
                                       use_hbase=arguments.use_hbase,
                                       custom_ec2_tags=arguments.custom_ec2_tags,
@@ -289,6 +291,7 @@ def _create_cluster_info(arguments, api_version):
                                       stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
                                       stable_timeout_for_request=arguments.stable_timeout_for_request,
                                       stable_allow_fallback=arguments.stable_allow_fallback,
+                                      spot_block_duration=arguments.spot_block_duration,
                                       ebs_volume_count=arguments.ebs_volume_count,
                                       ebs_volume_type=arguments.ebs_volume_type,
                                       ebs_volume_size=arguments.ebs_volume_size,
@@ -301,7 +304,10 @@ def _create_cluster_info(arguments, api_version):
                                       bastion_node_public_dns=arguments.bastion_node_public_dns,
                                       role_instance_profile=arguments.role_instance_profile,
                                       presto_custom_config=presto_custom_config,
-                                      is_ha=arguments.is_ha)
+                                      is_ha=arguments.is_ha,
+                                      env_name=arguments.env_name,
+                                      python_version=arguments.python_version,
+                                      r_version=arguments.r_version)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,
@@ -559,7 +565,7 @@ def main():
 
     optparser.add_option("--cloud_name", dest="cloud_name",
                          default=os.getenv('CLOUD_PROVIDER'),
-                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC"])
+                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC", "GCP"])
 
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,

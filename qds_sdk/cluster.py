@@ -83,7 +83,7 @@ class Cluster(Resource):
         """
         Show information about the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent(version=Cluster.api_version)
+        conn = Qubole.agent()
         return conn.get(cls.element_path(cluster_id_label))
 
     @classmethod
@@ -95,11 +95,11 @@ class Cluster(Resource):
         return conn.get(cls.element_path(cluster_id_label) + "/state")
 
     @classmethod
-    def start(cls, cluster_id_label):
+    def start(cls, cluster_id_label, api_version=None):
         """
         Start the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version=api_version)
         data = {"state": "start"}
         return conn.put(cls.element_path(cluster_id_label) + "/state", data)
 
@@ -205,7 +205,7 @@ class Cluster(Resource):
                                        " may be auto-scaled up to")
         node_config_group.add_argument("--slave-request-type",
                                   dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid"],
+                                  choices=["ondemand", "spot", "hybrid", "spotblock"],
                                   help="purchasing option for slave instaces",)
         hadoop_group.add_argument("--custom-config",
                                   dest="custom_config_file",
@@ -244,6 +244,17 @@ class Cluster(Resource):
                                  default=None,
                                  help="Dont Fallback to on-demand nodes if spot nodes" +
                                  " could not be obtained. Valid only if slave_request_type is spot",)
+          node_cooldown_period_group = argparser.add_argument_group("node cooldown period settings")
+          node_cooldown_period_group.add_argument("--node-base-cooldown-period",
+                                                  dest="node_base_cooldown_period",
+                                                  type=int,
+                                                  help="Cooldown period for on-demand nodes" +
+                                                       " unit: minutes")
+          node_cooldown_period_group.add_argument("--node-spot-cooldown-period",
+                                                  dest="node_spot_cooldown_period",
+                                                  type=int,
+                                                  help="Cooldown period for spot nodes" +
+                                                       " unit: minutes")
           ebs_volume_group = argparser.add_argument_group("ebs volume settings")
           ebs_volume_group.add_argument("--ebs-volume-count",
                                   dest="ebs_volume_count",
@@ -315,6 +326,13 @@ class Cluster(Resource):
                                        type=str2bool,
                                        help="whether to fallback to on-demand instances for stable nodes" +
                                        " if spot instances aren't available")
+
+        spot_block_group = argparser.add_argument_group("spot block settings")
+        spot_block_group.add_argument("--spot-block-duration",
+                                      dest="spot_block_duration",
+                                      type=int,
+                                      help="spot block duration" +
+                                           " unit: minutes")
 
         fairscheduler_group = argparser.add_argument_group(
                               "fairscheduler configuration options")
@@ -411,6 +429,19 @@ class Cluster(Resource):
                                of the cluster. Specified as JSON object (key-value pairs)
                                e.g. --custom-ec2-tags '{"key1":"value1", "key2":"value2"}'
                                """,)
+        env_group = argparser.add_argument_group("environment settings")
+        env_group.add_argument("--env-name",
+                               dest="env_name",
+                               default=None,
+                               help="name of Python and R environment")
+        env_group.add_argument("--python-version",
+                               dest="python_version",
+                               default=None,
+                               help="version of Python in environment")
+        env_group.add_argument("--r-version",
+                               dest="r_version",
+                               default=None,
+                               help="version of R in environment")
 
         arguments = argparser.parse_args(args)
         return arguments
@@ -938,6 +969,8 @@ class ClusterInfoV13():
                          max_nodes=None,
                          slave_request_type=None,
                          fallback_to_ondemand=None,
+                         node_base_cooldown_period=None,
+                         node_spot_cooldown_period=None,
                          custom_config=None,
                          use_hbase=None,
                          custom_ec2_tags=None,
@@ -950,6 +983,7 @@ class ClusterInfoV13():
                          stable_maximum_bid_price_percentage=None,
                          stable_timeout_for_request=None,
                          stable_allow_fallback=True,
+                         spot_block_duration=None,
                          ebs_volume_count=None,
                          ebs_volume_type=None,
                          ebs_volume_size=None,
@@ -962,7 +996,10 @@ class ClusterInfoV13():
                          bastion_node_public_dns=None,
                          role_instance_profile=None,
                          presto_custom_config=None,
-                         is_ha=None):
+                         is_ha=None,
+                         env_name=None,
+                         python_version=None,
+                         r_version=None):
         """
         Kwargs:
 
@@ -1011,6 +1048,10 @@ class ClusterInfoV13():
         `fallback_to_ondemand`: Fallback to on-demand nodes if spot nodes could not be
             obtained. Valid only if slave_request_type is 'spot'.
 
+        `node_base_cooldown_period`: Time for which an on-demand node waits before termination (Unit: minutes)
+
+        `node_spot_cooldown_period`: Time for which a spot node waits before termination (Unit: minutes)
+
         `custom_config`: Custom Hadoop configuration overrides.
 
         `use_hbase`: Start hbase daemons on the cluster. Uses Hadoop2
@@ -1044,6 +1085,9 @@ class ClusterInfoV13():
         `stable_allow_fallback`: Whether to fallback to on-demand instances for
             stable nodes if spot instances are not available
 
+        `spot_block_duration`: Time for which the spot block instance is provisioned (Unit:
+            minutes)
+
         `ebs_volume_count`: Number of EBS volumes to attach 
             to each instance of the cluster.
 
@@ -1072,21 +1116,31 @@ class ClusterInfoV13():
 
         `is_ha`: Enabling HA config for cluster
 
+        `env_name`: Name of python and R environment. (For Spark clusters)
+
+        `python_version`: Version of Python for environment. (For Spark clusters)
+
+        `r_version`: Version of R for environment. (For Spark clusters)
+
         """
 
         self.disallow_cluster_termination = disallow_cluster_termination
         self.enable_ganglia_monitoring = enable_ganglia_monitoring
         self.node_bootstrap_file = node_bootstrap_file
-        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes, slave_request_type, fallback_to_ondemand)
+        self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes,
+                                    slave_request_type, fallback_to_ondemand, custom_ec2_tags,
+                                    node_base_cooldown_period, node_spot_cooldown_period)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                               master_elastic_ip, bastion_node_public_dns, role_instance_profile)
-        self.set_hadoop_settings(custom_config, use_hbase, custom_ec2_tags, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
+        self.set_hadoop_settings(custom_config, use_hbase, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
+        self.set_spot_block_settings(spot_block_duration)
         self.set_ebs_volume_settings(ebs_volume_count, ebs_volume_type, ebs_volume_size)
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
         self.set_security_settings(encrypted_ephemerals, ssh_public_key, persistent_security_group)
         self.set_presto_settings(enable_presto, presto_custom_config)
+        self.set_env_settings(env_name, python_version, r_version)
 
     def set_ec2_settings(self,
                          aws_access_key_id=None,
@@ -1113,17 +1167,27 @@ class ClusterInfoV13():
                             initial_nodes=None,
                             max_nodes=None,
                             slave_request_type=None,
-                            fallback_to_ondemand=None):
+                            fallback_to_ondemand=None,
+                            custom_ec2_tags=None,
+                            node_base_cooldown_period=None,
+                            node_spot_cooldown_period=None):
         self.node_configuration['master_instance_type'] = master_instance_type
         self.node_configuration['slave_instance_type'] = slave_instance_type
         self.node_configuration['initial_nodes'] = initial_nodes
         self.node_configuration['max_nodes'] = max_nodes
         self.node_configuration['slave_request_type'] = slave_request_type
         self.node_configuration['fallback_to_ondemand'] = fallback_to_ondemand
+        self.node_configuration['node_base_cooldown_period'] = node_base_cooldown_period
+        self.node_configuration['node_spot_cooldown_period'] = node_spot_cooldown_period
+
+        if custom_ec2_tags and custom_ec2_tags.strip():
+            try:
+                self.node_configuration['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
+            except Exception as e:
+                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
     def set_hadoop_settings(self, custom_config=None,
                             use_hbase=None,
-                            custom_ec2_tags=None,
                             use_hadoop2=None,
                             use_spark=None,
                             use_qubole_placement_policy=None,
@@ -1134,12 +1198,6 @@ class ClusterInfoV13():
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
         self.hadoop_settings['is_ha'] = is_ha
-
-        if custom_ec2_tags and custom_ec2_tags.strip():
-            try:
-                self.hadoop_settings['custom_ec2_tags'] = json.loads(custom_ec2_tags.strip())
-            except Exception as e:
-                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,
@@ -1156,6 +1214,9 @@ class ClusterInfoV13():
                'maximum_bid_price_percentage': maximum_bid_price_percentage,
                'timeout_for_request': timeout_for_request,
                'allow_fallback': allow_fallback}
+
+    def set_spot_block_settings(self, spot_block_duration=None):
+        self.node_configuration['spot_block_settings'] = {'duration': spot_block_duration}
 
     def set_ebs_volume_settings(self, ebs_volume_count=None,
                                  ebs_volume_type=None,
@@ -1182,6 +1243,12 @@ class ClusterInfoV13():
     def set_presto_settings(self, enable_presto=None, presto_custom_config=None):
         self.presto_settings['enable_presto'] = enable_presto
         self.presto_settings['custom_config'] = presto_custom_config
+
+    def set_env_settings(self, env_name=None, python_version=None, r_version=None):
+        self.node_configuration['env_settings'] = {}
+        self.node_configuration['env_settings']['name'] = env_name
+        self.node_configuration['env_settings']['python_version'] = python_version
+        self.node_configuration['env_settings']['r_version'] = r_version
 
     def minimal_payload(self):
         """

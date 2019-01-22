@@ -82,6 +82,8 @@ class ClusterCmdLine:
                                       max_nodes=arguments.max_nodes,
                                       slave_request_type=arguments.slave_request_type,
                                       fallback_to_ondemand=arguments.fallback_to_ondemand,
+                                      node_base_cooldown_period=arguments.node_base_cooldown_period,
+                                      node_spot_cooldown_period=arguments.node_spot_cooldown_period,
                                       custom_tags=arguments.custom_tags,
                                       heterogeneous_config=arguments.heterogeneous_config,
                                       maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
@@ -90,6 +92,7 @@ class ClusterCmdLine:
                                       stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
                                       stable_timeout_for_request=arguments.stable_timeout_for_request,
                                       stable_spot_fallback=arguments.stable_spot_fallback,
+                                      spot_block_duration=arguments.spot_block_duration,
                                       idle_cluster_timeout=arguments.idle_cluster_timeout,
                                       disk_count=arguments.count,
                                       disk_type=arguments.disk_type,
@@ -97,7 +100,10 @@ class ClusterCmdLine:
                                       upscaling_config=arguments.upscaling_config,
                                       enable_encryption=arguments.encrypted_ephemerals,
                                       customer_ssh_key=customer_ssh_key,
-                                      image_uri_overrides=arguments.image_uri_overrides)
+                                      image_uri_overrides=arguments.image_uri_overrides,
+                                      env_name=arguments.env_name,
+                                      python_version=arguments.python_version,
+                                      r_version=arguments.r_version)
 
         #  This will set cloud config settings
         cloud_config = Qubole.get_cloud()
@@ -161,6 +167,8 @@ class ClusterInfoV2(object):
                          max_nodes=None,
                          slave_request_type=None,
                          fallback_to_ondemand=None,
+                         node_base_cooldown_period=None,
+                         node_spot_cooldown_period=None,
                          custom_tags=None,
                          heterogeneous_config=None,
                          maximum_bid_price_percentage=None,
@@ -169,6 +177,7 @@ class ClusterInfoV2(object):
                          stable_maximum_bid_price_percentage=None,
                          stable_timeout_for_request=None,
                          stable_spot_fallback=None,
+                         spot_block_duration=None,
                          idle_cluster_timeout=None,
                          disk_count=None,
                          disk_type=None,
@@ -178,7 +187,10 @@ class ClusterInfoV2(object):
                          customer_ssh_key=None,
                          cluster_name=None,
                          force_tunnel=None,
-                         image_uri_overrides=None):
+                         image_uri_overrides=None,
+                         env_name=None,
+                         python_version=None,
+                         r_version=None):
         """
         Args:
 
@@ -210,6 +222,10 @@ class ClusterInfoV2(object):
                 `fallback_to_ondemand`: Fallback to on-demand nodes if spot nodes could not be
                     obtained. Valid only if slave_request_type is 'spot'.
 
+                `node_base_cooldown_period`: Time for which an on-demand node waits before termination (Unit: minutes)
+
+                `node_spot_cooldown_period`: Time for which a spot node waits before termination (Unit: minutes)
+
                 `maximum_bid_price_percentage`: ( Valid only when `slave_request_type`
                     is hybrid or spot.) Maximum value to bid for spot
                     instances, expressed as a percentage of the base price
@@ -231,6 +247,9 @@ class ClusterInfoV2(object):
 
                 `stable_spot_fallback`: Whether to fallback to on-demand instances for
                     stable nodes if spot instances are not available
+
+                `spot_block_duration`: Time for which the spot block instance is provisioned (Unit:
+                    minutes)
 
                 `disk_count`: Number of EBS volumes to attach
                     to each instance of the cluster.
@@ -260,6 +279,12 @@ class ClusterInfoV2(object):
 
                 `image_uri_overrides` : Override the image name provided
 
+                `env_name`: Name of python and R environment. (For Spark clusters)
+
+                `python_version`: Version of Python for environment. (For Spark clusters)
+
+                `r_version`: Version of R for environment. (For Spark clusters)
+
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
@@ -273,6 +298,8 @@ class ClusterInfoV2(object):
         self.cluster_info['disallow_cluster_termination'] = disallow_cluster_termination
         self.cluster_info['force_tunnel'] = force_tunnel
         self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
+        self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
+        self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
         if custom_tags and custom_tags.strip():
             try:
@@ -287,9 +314,11 @@ class ClusterInfoV2(object):
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
+        self.set_spot_block_settings(spot_block_duration)
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
         self.set_internal(image_uri_overrides)
+        self.set_env_settings(env_name, python_version, r_version)
 
     def set_datadog_setting(self,
                             datadog_api_token=None,
@@ -328,6 +357,11 @@ class ClusterInfoV2(object):
         self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
             stable_spot_fallback
 
+    def set_spot_block_settings(self,
+                                spot_block_duration=None):
+        self.cluster_info['spot_settings']['spot_block_settings'] = {}
+        self.cluster_info['spot_settings']['spot_block_settings']['duration'] = spot_block_duration
+
     def set_data_disk(self,
                       disk_size=None,
                       disk_count=None,
@@ -343,6 +377,12 @@ class ClusterInfoV2(object):
 
     def set_internal(self, image_uri_overrides=None):
         self.internal['image_uri_overrides'] = image_uri_overrides
+
+    def set_env_settings(self, env_name=None, python_version=None, r_version=None):
+        self.cluster_info['env_settings'] = {}
+        self.cluster_info['env_settings']['name'] = env_name
+        self.cluster_info['env_settings']['python_version'] = python_version
+        self.cluster_info['env_settings']['r_version'] = r_version
 
     @staticmethod
     def list_info_parser(argparser, action):
@@ -426,6 +466,17 @@ class ClusterInfoV2(object):
                                                 default=None,
                                                 help="Dont Fallback to on-demand nodes if spot nodes" +
                                                      " could not be obtained. Valid only if slave_request_type is spot", )
+        node_cooldown_period_group = argparser.add_argument_group("node cooldown period settings")
+        node_cooldown_period_group.add_argument("--node-base-cooldown-period",
+                                                dest="node_base_cooldown_period",
+                                                type=int,
+                                                help="Cooldown period for on-demand nodes" +
+                                                     " unit: minutes")
+        node_cooldown_period_group.add_argument("--node-spot-cooldown-period",
+                                                dest="node_spot_cooldown_period",
+                                                type=int,
+                                                help="Cooldown period for spot nodes" +
+                                                     " unit: minutes")
         cluster_info.add_argument("--customer-ssh-key",
                                   dest="customer_ssh_key_file",
                                   help="location for ssh key to use to" +
@@ -476,7 +527,7 @@ class ClusterInfoV2(object):
 
         cluster_info.add_argument("--slave-request-type",
                                   dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid"],
+                                  choices=["ondemand", "spot", "hybrid", "spotblock"],
                                   help="purchasing option for slave instaces", )
 
         # spot settings
@@ -518,6 +569,14 @@ class ClusterInfoV2(object):
                                        type=str2bool,
                                        help="whether to fallback to on-demand instances for stable nodes" +
                                             " if spot instances aren't available")
+
+        spot_block_group = argparser.add_argument_group("spot block settings")
+        spot_block_group.add_argument("--spot-block-duration",
+                                      dest="spot_block_duration",
+                                      type=int,
+                                      help="spot block duration" +
+                                           " unit: minutes")
+
         # monitoring settings
         monitoring_group = argparser.add_argument_group("monitoring settings")
         ganglia = monitoring_group.add_mutually_exclusive_group()
@@ -549,6 +608,20 @@ class ClusterInfoV2(object):
                                     dest="image_uri_overrides",
                                     default=None,
                                     help="overrides for image", )
+
+        env_group = argparser.add_argument_group("environment settings")
+        env_group.add_argument("--env-name",
+                               dest="env_name",
+                               default=None,
+                               help="name of Python and R environment")
+        env_group.add_argument("--python-version",
+                               dest="python_version",
+                               default=None,
+                               help="version of Python in environment")
+        env_group.add_argument("--r-version",
+                               dest="r_version",
+                               default=None,
+                               help="version of R in environment")
 
 class ClusterV2(Resource):
 
@@ -613,5 +686,5 @@ class ClusterV2(Resource):
         """
         Show information about the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent()
+        conn = Qubole.agent(version="v2")
         return conn.get(cls.element_path(cluster_id_label))

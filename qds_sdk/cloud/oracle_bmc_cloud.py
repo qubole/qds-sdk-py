@@ -1,4 +1,6 @@
 from qds_sdk.cloud.cloud import Cloud
+import json
+
 class OracleBmcCloud(Cloud):
     '''
     qds_sdk.cloud.OracleBmcCloud is the class which stores information about oracle bmc cloud config settings.
@@ -23,6 +25,7 @@ class OracleBmcCloud(Cloud):
                          compartment_id=None,
                          image_id=None,
                          vcn_id=None,
+                         availability_domain_info_map=None,
                          storage_tenant_id=None,
                          storage_user_id=None,
                          storage_key_finger_print=None,
@@ -53,6 +56,8 @@ class OracleBmcCloud(Cloud):
 
             vcn_id: vcn to create the cluster in
 
+            availability_domain_info_map: availability domain and subnet mapping for the cluster
+
             storage_tenant_id: tenant id for oracle cluster
 
             storage_user_id: storage user id for oracle cluster
@@ -68,7 +73,7 @@ class OracleBmcCloud(Cloud):
                                 compute_api_private_rsa_key)
         self.set_location(oracle_region, oracle_availability_domain)
         self.set_network_config(vcn_id, subnet_id,
-                                compartment_id, image_id)
+                                compartment_id, image_id, availability_domain_info_map)
         self.set_storage_config(storage_tenant_id, storage_user_id,
                                 storage_key_finger_print, storage_api_private_rsa_key)
 
@@ -94,11 +99,17 @@ class OracleBmcCloud(Cloud):
                            vcn_id=None,
                            subnet_id=None,
                            compartment_id=None,
-                           image_id=None):
+                           image_id=None,
+                           availability_domain_info_map=None):
         self.network_config['vcn_id'] = vcn_id
         self.network_config['subnet_id'] = subnet_id
         self.network_config['compartment_id'] = compartment_id
         self.network_config['image_id'] = image_id
+        if availability_domain_info_map and availability_domain_info_map.strip():
+            try:
+                self.network_config['availability_domain_info_map'] = json.loads(availability_domain_info_map.strip())
+            except Exception as e:
+                raise Exception("Invalid JSON string for availability domain info map: %s" % e.message)
 
     def set_storage_config(self,
                            storage_tenant_id=None,
@@ -122,6 +133,7 @@ class OracleBmcCloud(Cloud):
                               compartment_id=arguments.compartment_id,
                               image_id=arguments.image_id,
                               vcn_id=arguments.vcn_id,
+                              availability_domain_info_map=arguments.availability_domain_info_map,
                               storage_tenant_id=arguments.storage_tenant_id,
                               storage_user_id=arguments.storage_user_id,
                               storage_key_finger_print=arguments.storage_key_finger_print,
@@ -182,6 +194,9 @@ class OracleBmcCloud(Cloud):
         network_config_group.add_argument("--subnet-id",
                                           dest="subnet_id",
                                           help="subnet id for oracle")
+        network_config_group.add_argument("--availability-domain-info-map",
+                                          dest="availability_domain_info_map",
+                                          help="availability domain and subnet mapping for the cluster")
 
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
