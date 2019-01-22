@@ -175,6 +175,11 @@ def cancelaction(cmdclass, args):
         sys.stderr.write("Cancel failed with reason '%s'\n" % r.get('result'))
         return 12
 
+def listaction(cmdclass, args):
+    args = cmdclass.listparse(args)
+    if args is not None:
+        return json.dumps(cmdclass.list(**args), indent=4)
+
 
 def getresultaction(cmdclass, args):
     if len(args) > 2:
@@ -206,7 +211,7 @@ def getjobsaction(cmdclass, args):
 def cmdmain(cmd, args):
     cmdclass = CommandClasses[cmd]
 
-    actionset = set(["submit", "run", "check", "cancel", "getresult", "getlog", "getjobs"])
+    actionset = set(["list", "submit", "run", "check", "cancel", "getresult", "getlog", "getjobs"])
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
         usage()
