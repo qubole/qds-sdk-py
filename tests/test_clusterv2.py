@@ -529,6 +529,16 @@ class TestClusterCreate(QdsCliTestCase):
                                                                                    'python_version':'2.7',
                                                                                    'r_version':'3.3'}}})
 
+    def test_root_disk_size_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--root-disk-size', '100']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'rootdisk': {'size': 100}}})
+
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
