@@ -539,6 +539,13 @@ class TestClusterCreate(QdsCliTestCase):
                                                 {'cluster_info': {'label': ['test_label'],
                                                                   'rootdisk': {'size': 100}}})
 
+    def test_root_disk_size_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--root-disk-size', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -740,6 +747,24 @@ class TestClusterUpdate(QdsCliTestCase):
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
+
+    def test_root_disk_size_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--root-disk-size', '100']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info': {
+                                                                  'rootdisk': {'size': 100}}})
+
+    def test_root_disk_size_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--root-disk-size', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 
 class TestClusterClone(QdsCliTestCase):
 
