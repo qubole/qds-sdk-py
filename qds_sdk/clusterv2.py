@@ -81,6 +81,7 @@ class ClusterCmdLine:
                                       min_nodes=arguments.initial_nodes,
                                       max_nodes=arguments.max_nodes,
                                       slave_request_type=arguments.slave_request_type,
+                                      volatile_percentage=arguments.volatile_percentage,
                                       fallback_to_ondemand=arguments.fallback_to_ondemand,
                                       node_base_cooldown_period=arguments.node_base_cooldown_period,
                                       node_spot_cooldown_period=arguments.node_spot_cooldown_period,
@@ -164,6 +165,7 @@ class ClusterInfoV2(object):
                          node_bootstrap=None,
                          master_instance_type=None,
                          slave_instance_type=None,
+                         volatile_percentage=None,
                          min_nodes=None,
                          max_nodes=None,
                          slave_request_type=None,
@@ -212,6 +214,8 @@ class ClusterInfoV2(object):
 
                 `slave_instance_type`: The instance type to use for the Hadoop slave
                     nodes.
+
+                `volatile_percentage`: Percentage of volatile nodes.
 
                 `min_nodes`: Number of nodes to start the cluster with.
 
@@ -305,6 +309,7 @@ class ClusterInfoV2(object):
         self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
         self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
+        self.cluster_info['volatile_percentage'] = volatile_percentage
         if custom_tags and custom_tags.strip():
             try:
                 self.cluster_info['custom_tags'] = json.loads(custom_tags.strip())
@@ -452,6 +457,10 @@ class ClusterInfoV2(object):
                                   dest="root_disk_size",
                                   type=int,
                                   help="size of the root volume in GB")
+        cluster_info.add_argument("--volatile-percentage",
+                                  dest="volatile_percentage",
+                                  type=int,
+                                  help="percentage of volatile nodes")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",
