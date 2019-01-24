@@ -40,6 +40,22 @@ class Command(Resource):
     """all commands use the /commands endpoint"""
     rest_entity_path = "commands"
 
+    listusage = "<subcommand> list [options]"
+    listparser = GentleOptionParser(usage=listusage)
+    listparser.add_option("-p", "--page", dest="page", type="int",
+                          help="page number")
+    listparser.add_option("-r", "--per-page", dest="per_page", type="int",
+                          help="number of commands to be retrieved per page")
+    listparser.add_option("-a", "--all-users", dest="all_users", type="int", default=0,
+                          help="get the command history of all users. default: 0")
+    listparser.add_option("-i", "--include-query-properties", action="store_true", dest="include_query_properties",
+                          default=False, help="displays query properties such as tags and query history comments. "
+                                              "default: False")
+    listparser.add_option("-s", "--start-date", dest="start_date",
+                          help="the date from which you want the command history")
+    listparser.add_option("-e", "--end-date", dest="end_date",
+                          help="the date until which you want the command history")
+
     @staticmethod
     def is_done(status):
         """
@@ -55,6 +71,30 @@ class Command(Resource):
     @staticmethod
     def is_success(status):
         return status == "done"
+
+    @classmethod
+    def list(cls, **kwargs):
+        """
+        List a command by issuing a GET request to the /command endpoint
+        """
+        conn = Qubole.agent()
+        params = {}
+        for k in kwargs:
+            if kwargs[k]:
+                params[k] = kwargs[k]
+        params = None if not params else params
+        return conn.get(cls.rest_entity_path, params=params)
+
+    @classmethod
+    def listparse(cls, args):
+        try:
+            (options, args) = cls.listparser.parse_args(args)
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.listparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        return vars(options)
 
     @classmethod
     def create(cls, **kwargs):

@@ -14,6 +14,65 @@ from qds_sdk.connection import Connection
 from test_base import print_command
 from test_base import QdsCliTestCase
 
+
+class TestCommandList(QdsCliTestCase):
+
+    def test_list_minimal(self):
+        sys.argv = ['qds.py', 'shellcmd', 'list']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = None
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands", params=params)
+
+    def test_list_page(self):
+        sys.argv = ['qds.py', 'shellcmd', 'list', '--page', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = {'page': 2}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands", params=params)
+
+    def test_list_per_page(self):
+        sys.argv = ['qds.py', 'shellcmd', 'list', '--per-page', '5']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = {'per_page': 5}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands", params=params)
+
+    def test_list_all_users(self):
+        sys.argv = ['qds.py', 'shellcmd', 'list', '--all-users', '1']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = {'all_users': 1}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands", params=params)
+
+    def test_list_include_query_properties(self):
+        sys.argv = ['qds.py', 'shellcmd', 'list', '--include-query-properties']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = {'include_query_properties': True}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands", params=params)
+
+    def test_list_start_date(self):
+        sys.argv = ['qds.py', 'shellcmd', 'list', '--start-date', '2019-01-22T15:11:00Z']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = {'start_date': '2019-01-22T15:11:00Z'}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands", params=params)
+
+    def test_list_end_date(self):
+        sys.argv = ['qds.py', 'shellcmd', 'list', '--end-date', '2019-01-22T15:11:00Z']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = {'end_date': '2019-01-22T15:11:00Z'}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands", params=params)
+
 class TestCommandCheck(QdsCliTestCase):
 
     @patch("qds.print",create=True)
