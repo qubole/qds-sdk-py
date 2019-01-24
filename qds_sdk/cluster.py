@@ -207,6 +207,10 @@ class Cluster(Resource):
                                   dest="slave_request_type",
                                   choices=["ondemand", "spot", "hybrid", "spotblock"],
                                   help="purchasing option for slave instaces",)
+        node_config_group.add_argument("--root-volume-size",
+                                       dest="root_volume_size",
+                                       type=int,
+                                       help="size of root volume in GB")
         hadoop_group.add_argument("--custom-config",
                                   dest="custom_config_file",
                                   help="location of file containg custom" +
@@ -987,6 +991,7 @@ class ClusterInfoV13():
                          ebs_volume_count=None,
                          ebs_volume_type=None,
                          ebs_volume_size=None,
+                         root_volume_size=None,
                          fairscheduler_config_xml=None,
                          default_pool=None,
                          encrypted_ephemerals=None,
@@ -1096,6 +1101,8 @@ class ClusterInfoV13():
 
         `ebs_volume_size`: Size of each EBS volume, in GB. 
 
+        `root_volume_size`: Size of root volume, in GB.
+
         `fairscheduler_config_xml`: XML string with custom configuration
             parameters for the fair scheduler.
 
@@ -1129,7 +1136,7 @@ class ClusterInfoV13():
         self.node_bootstrap_file = node_bootstrap_file
         self.set_node_configuration(master_instance_type, slave_instance_type, initial_nodes, max_nodes,
                                     slave_request_type, fallback_to_ondemand, custom_ec2_tags,
-                                    node_base_cooldown_period, node_spot_cooldown_period)
+                                    node_base_cooldown_period, node_spot_cooldown_period, root_volume_size)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                               master_elastic_ip, bastion_node_public_dns, role_instance_profile)
         self.set_hadoop_settings(custom_config, use_hbase, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
@@ -1170,7 +1177,8 @@ class ClusterInfoV13():
                             fallback_to_ondemand=None,
                             custom_ec2_tags=None,
                             node_base_cooldown_period=None,
-                            node_spot_cooldown_period=None):
+                            node_spot_cooldown_period=None,
+                            root_volume_size=None):
         self.node_configuration['master_instance_type'] = master_instance_type
         self.node_configuration['slave_instance_type'] = slave_instance_type
         self.node_configuration['initial_nodes'] = initial_nodes
@@ -1179,6 +1187,7 @@ class ClusterInfoV13():
         self.node_configuration['fallback_to_ondemand'] = fallback_to_ondemand
         self.node_configuration['node_base_cooldown_period'] = node_base_cooldown_period
         self.node_configuration['node_spot_cooldown_period'] = node_spot_cooldown_period
+        self.node_configuration['root_volume_size'] = root_volume_size
 
         if custom_ec2_tags and custom_ec2_tags.strip():
             try:

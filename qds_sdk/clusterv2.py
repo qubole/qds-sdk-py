@@ -97,6 +97,7 @@ class ClusterCmdLine:
                                       disk_count=arguments.count,
                                       disk_type=arguments.disk_type,
                                       disk_size=arguments.size,
+                                      root_disk_size=arguments.root_disk_size,
                                       upscaling_config=arguments.upscaling_config,
                                       enable_encryption=arguments.encrypted_ephemerals,
                                       customer_ssh_key=customer_ssh_key,
@@ -182,6 +183,7 @@ class ClusterInfoV2(object):
                          disk_count=None,
                          disk_type=None,
                          disk_size=None,
+                         root_disk_size=None,
                          upscaling_config=None,
                          enable_encryption=None,
                          customer_ssh_key=None,
@@ -259,6 +261,8 @@ class ClusterInfoV2(object):
 
                 `disk_size`: Size of each EBS volume, in GB.
 
+                `root_disk_size`: Size of root volume, in GB.
+
                 `enable_encryption`: Encrypt the ephemeral drives on the instance.
 
                 `customer_ssh_key`: SSH key to use to login to the instances.
@@ -311,6 +315,9 @@ class ClusterInfoV2(object):
         self.cluster_info['slave_request_type'] = slave_request_type
         self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
         self.cluster_info['spot_settings'] = {}
+
+        self.cluster_info['rootdisk'] = {}
+        self.cluster_info['rootdisk']['size'] = root_disk_size
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
@@ -441,6 +448,10 @@ class ClusterInfoV2(object):
                                    should be in stored in S3 at
                                    <account-default-location>/scripts/hadoop/NODE_BOOTSTRAP_FILE
                                    """, )
+        cluster_info.add_argument("--root-disk-size",
+                                  dest="root_disk_size",
+                                  type=int,
+                                  help="size of the root volume in GB")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",

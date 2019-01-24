@@ -295,6 +295,7 @@ def _create_cluster_info(arguments, api_version):
                                       ebs_volume_count=arguments.ebs_volume_count,
                                       ebs_volume_type=arguments.ebs_volume_type,
                                       ebs_volume_size=arguments.ebs_volume_size,
+                                      root_volume_size=arguments.root_volume_size,
                                       fairscheduler_config_xml=fairscheduler_config_xml,
                                       default_pool=arguments.default_pool,
                                       encrypted_ephemerals=arguments.encrypted_ephemerals,
