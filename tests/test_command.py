@@ -1918,7 +1918,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
 
-    def test_submit_with_script_location(self):
+    def test_submit_with_s3_script_location(self):
         sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--script_location', 's3://bucket/path-to-script',
                     '--db_tap_id', 1, '--tags', 'tag1,tag2']
         print_command()
@@ -1933,6 +1933,42 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'name': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
+
+    def test_submit_with_script_location_and_query(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', 'show tables;','--script_location', 's3://bucket/path-to-script',
+                    '--db_tap_id', 1, '--tags', 'tag1,tag2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+
+    def test_submit_with_invalid_local_script_location(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit','--script_location', '/temp/bucket/path-to-script',
+                    '--db_tap_id', 1, '--tags', 'tag1,tag2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_with_invalid_local_script_location(self):
+        with NamedTemporaryFile() as tmp:
+            tmp.write('show tables;'.encode("utf8"))
+            tmp.seek(0)
+            sys.argv = ['qds.py', 'dbtapquerycmd', 'submit','--script_location', tmp.name,
+                        '--db_tap_id', 1, '--tags', 'tag1,tag2']
+            print_command()
+            Connection._api_call = Mock(return_value={'id': 1234})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'commands',
+                                                    {'macros': None,
+                                                     'db_tap_id': 1,
+                                                     'query': 'show tables;',
+                                                     'script_location': None,
+                                                     'tags': ["tag1", "tag2"],
+                                                     'name': None,
+                                                     'command_type': 'DbTapQueryCommand',
+                                                     'can_notify': False})
 
 class TestGetResultsCommand(QdsCliTestCase):
 

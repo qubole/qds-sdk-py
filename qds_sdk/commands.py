@@ -1266,12 +1266,32 @@ class DbTapQueryCommand(Command):
 
         try:
             (options, args) = cls.optparser.parse_args(args)
-            if (options.db_tap_id is None):
+            if options.db_tap_id is None:
                 raise ParseError("db_tap_id is required",
                                  cls.optparser.format_help())
             if options.query is None and options.script_location is None:
                 raise ParseError("query or script location is required",
                                  cls.optparser.format_help())
+
+            if options.script_location is not None:
+                if options.query is not None:
+                    raise ParseError(
+                        "Both query and script_location cannot be specified",
+                        cls.optparser.format_help())
+
+                if ((options.script_location.find("s3://") != 0) and
+                        (options.script_location.find("s3n://") != 0)):
+
+                    # script location is local file
+
+                    try:
+                        q = open(options.script_location).read()
+                    except IOError as e:
+                        raise ParseError("Unable to open script location: %s" %
+                                         str(e),
+                                         cls.optparser.format_help())
+                    options.script_location = None
+                    options.query = q
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
