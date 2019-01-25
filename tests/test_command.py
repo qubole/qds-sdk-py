@@ -1849,6 +1849,13 @@ class TestDbTapQueryCommand(QdsCliTestCase):
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
+    def test_submit_with_no_query_or_script_location_passed(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--db_tap_id', 1, '--notify']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1})
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
     def test_submit_with_notify(self):
          sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', 'show tables', '--db_tap_id', 1, '--notify']
          print_command()

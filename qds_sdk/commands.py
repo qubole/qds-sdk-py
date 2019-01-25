@@ -1269,8 +1269,8 @@ class DbTapQueryCommand(Command):
             if (options.db_tap_id is None):
                 raise ParseError("db_tap_id is required",
                                  cls.optparser.format_help())
-            if (options.query is None):
-                raise ParseError("query is required",
+            if options.query is None and options.script_location is None:
+                raise ParseError("query or script location is required",
                                  cls.optparser.format_help())
 
         except OptionParsingError as e:
