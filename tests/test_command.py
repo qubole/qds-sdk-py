@@ -1827,6 +1827,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'name': None,
                                                  'tags': None,
                                                  'macros': None,
+                                                 'script_location': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
 
@@ -1859,6 +1860,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                   'tags': None,
                                                   'name': None,
                                                   'macros': None,
+                                                  'script_location': None,
                                                   'command_type': 'DbTapQueryCommand',
                                                   'can_notify': True})
 
@@ -1873,6 +1875,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                   'tags': None,
                                                   'name': 'test_name',
                                                   'macros': None,
+                                                  'script_location': None,
                                                   'command_type': 'DbTapQueryCommand',
                                                   'can_notify': False})
 
@@ -1888,6 +1891,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'query': "select * from table_1 limit  \$limit\$",
                                                  'tags': None,
                                                  'name': None,
+                                                 'script_location': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
 
@@ -1903,6 +1907,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'query': "select * from table_1 limit  \$limit\$",
                                                  'tags': ["tag1", "tag2"],
                                                  'name': None,
+                                                 'script_location': None,
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
 
@@ -1915,6 +1920,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                                                 {'macros': None,
                                                  'db_tap_id': 1,
+                                                 'query': None,
                                                  'script_location': 's3://bucket/path-to-script',
                                                  'tags': ["tag1", "tag2"],
                                                  'name': None,
