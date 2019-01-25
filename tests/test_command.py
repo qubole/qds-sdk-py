@@ -1906,6 +1906,21 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'command_type': 'DbTapQueryCommand',
                                                  'can_notify': False})
 
+    def test_submit_with_script_location(self):
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--script_location', 's3://bucket/path-to-script',
+                    '--db_tap_id', 1, '--tags', 'tag1,tag2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                                                {'macros': None,
+                                                 'db_tap_id': 1,
+                                                 'script_location': 's3://bucket/path-to-script',
+                                                 'tags': ["tag1", "tag2"],
+                                                 'name': None,
+                                                 'command_type': 'DbTapQueryCommand',
+                                                 'can_notify': False})
+
 class TestGetResultsCommand(QdsCliTestCase):
 
     def test_result_with_enable_header_true(self):

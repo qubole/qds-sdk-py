@@ -1233,6 +1233,8 @@ class DbTapQueryCommand(Command):
     optparser.add_option("-q", "--query", dest="query", help="query string")
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
+    optparser.add_option("-f", "--script_location", dest="script_location",
+                         help="Path where hive query to run is stored. Can be S3 URI or local file path")
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
