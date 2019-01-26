@@ -1942,7 +1942,6 @@ class TestDbTapQueryCommand(QdsCliTestCase):
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
-
     def test_submit_with_invalid_local_script_location(self):
         sys.argv = ['qds.py', 'dbtapquerycmd', 'submit','--script_location', '/temp/bucket/path-to-script',
                     '--db_tap_id', 1, '--tags', 'tag1,tag2']
@@ -1951,7 +1950,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
-    def test_submit_with_invalid_local_script_location(self):
+    def test_submit_with_valid_local_script_location(self):
         with NamedTemporaryFile() as tmp:
             tmp.write('show tables;'.encode("utf8"))
             tmp.seek(0)
