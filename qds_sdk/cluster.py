@@ -52,9 +52,10 @@ class Cluster(Resource):
         group.add_argument("--state", dest="state", action="store",
                            choices=['up', 'down', 'pending', 'terminating'],
                            help="list only clusters in the given state")
-        group.add_argument("--page", dest="page", action="store", type=int,
+        pagination_group = group.add_argument_group()
+        pagination_group.add_argument("--page", dest="page", action="store", type=int,
                            help="page number")
-        group.add_argument("--per-page", dest="per_page", action="store", type=int,
+        pagination_group.add_argument("--per-page", dest="per_page", action="store", type=int,
                            help="number of clusters to be retrieved per page")
 
         arguments = argparser.parse_args(args)
