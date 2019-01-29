@@ -78,6 +78,8 @@ class Cluster(Resource):
             params['page'] = page
         if per_page:
             params['per_page'] = per_page
+        if (params.get('page') or params.get('per_page')) and Qubole.version == 'v1.2':
+            log.warn("Pagination is not supported with API v1.2. Fetching all clusters.")
         params = None if not params else params
         cluster_list = conn.get(cls.rest_entity_path, params=params)
         if state is None:
