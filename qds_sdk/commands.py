@@ -1233,6 +1233,8 @@ class DbTapQueryCommand(Command):
     optparser.add_option("-q", "--query", dest="query", help="query string")
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
+    optparser.add_option("-f", "--script_location", dest="script_location",
+                         help="Path where query to run is stored. Can be S3 URI or local file path")
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
@@ -1264,12 +1266,32 @@ class DbTapQueryCommand(Command):
 
         try:
             (options, args) = cls.optparser.parse_args(args)
-            if (options.db_tap_id is None):
+            if options.db_tap_id is None:
                 raise ParseError("db_tap_id is required",
                                  cls.optparser.format_help())
-            if (options.query is None):
-                raise ParseError("query is required",
+            if options.query is None and options.script_location is None:
+                raise ParseError("query or script location is required",
                                  cls.optparser.format_help())
+
+            if options.script_location is not None:
+                if options.query is not None:
+                    raise ParseError(
+                        "Both query and script_location cannot be specified",
+                        cls.optparser.format_help())
+
+                if ((options.script_location.find("s3://") != 0) and
+                        (options.script_location.find("s3n://") != 0)):
+
+                    # script location is local file
+
+                    try:
+                        q = open(options.script_location).read()
+                    except IOError as e:
+                        raise ParseError("Unable to open script location: %s" %
+                                         str(e),
+                                         cls.optparser.format_help())
+                    options.script_location = None
+                    options.query = q
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
