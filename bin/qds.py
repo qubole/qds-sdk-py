@@ -65,6 +65,7 @@ usage_str = (
     "    start: start an existing cluster\n"
     "    terminate: terminate a running cluster\n"
     "    status: show whether the cluster is up or down\n"
+    "    master: returns details of the master node of the cluster\n"
     "    reassign_label: reassign label from one cluster to another\n"
     "    snapshot: take snapshot of cluster\n"
     "    restore_point: restore cluster from snapshot\n"
@@ -387,10 +388,10 @@ def cluster_list_action(clusterclass, args):
         result = clusterclass.show(arguments['cluster_id'])
     elif arguments['label'] is not None:
         result = clusterclass.show(arguments['label'])
-    elif arguments['state'] is not None:
-        result = clusterclass.list(state=arguments['state'])
     else:
-        result = clusterclass.list()
+        result = clusterclass.list(state=arguments['state'],
+                                   page=arguments['page'],
+                                   per_page=arguments['per_page'])
     print(json.dumps(result, indent=4))
     return 0
 
@@ -412,6 +413,13 @@ def cluster_terminate_action(clusterclass, args):
 def cluster_status_action(clusterclass, args):
     checkargs_cluster_id_label(args)
     result = clusterclass.status(args.pop(0))
+    print(json.dumps(result, indent=4))
+    return 0
+
+
+def cluster_master_action(clusterclass, args):
+    checkargs_cluster_id_label(args)
+    result = clusterclass.master(args.pop(0))
     print(json.dumps(result, indent=4))
     return 0
 
@@ -467,7 +475,7 @@ def cluster_update_node_action(clusterclass, args):
 
 def clustermain(args, api_version):
     clusterclass = Cluster
-    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "master", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")

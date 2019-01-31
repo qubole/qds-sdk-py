@@ -21,8 +21,10 @@ see http://stackoverflow.com/questions/14102416/python-requests-requests-excepti
 
 
 class MyAdapter(HTTPAdapter):
-    def init_poolmanager(self, connections, maxsize,
-                         block=False):
+    def __init__(self, *args, **kwargs):
+        super(MyAdapter, self).__init__(*args, **kwargs)
+
+    def init_poolmanager(self, connections, maxsize,block=False):
         self.poolmanager = PoolManager(num_pools=connections,
                                        maxsize=maxsize,
                                        block=block,
@@ -42,6 +44,10 @@ class Connection:
         if reuse:
             self.session = requests.Session()
             self.session.mount('https://', MyAdapter())
+
+            # retries for get requests
+            self.session_with_retries = requests.Session()
+            self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
 
     @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
     def get_raw(self, path, params=None):
@@ -65,8 +71,11 @@ class Connection:
 
         if self.reuse:
             x = self.session
+            x_with_retries = self.session_with_retries
         else:
             x = requests
+            x_with_retries = requests.Session()
+            x_with_retries.mount('https://', MyAdapter(max_retries=3))
 
         kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
 
@@ -80,7 +89,7 @@ class Connection:
         log.info("Params: %s" % params)
 
         if req_type == 'GET':
-            r = x.get(url, timeout=300, **kwargs)
+            r = x_with_retries.get(url, timeout=300, **kwargs)
         elif req_type == 'POST':
             r = x.post(url, timeout=300, **kwargs)
         elif req_type == 'PUT':
@@ -94,9 +103,12 @@ class Connection:
         return r
 
     def _api_call(self, req_type, path, data=None, params=None):
-        return self._api_call_raw(req_type, path, data=data, params=params).json()
+        response = self._api_call_raw(req_type, path, data=data, params=params)
+        self._validate_json(response)
+        return response.json()
 
-    def _handle_error(self, response):
+    @staticmethod
+    def _handle_error(response):
         """Raise exceptions in response to any http errors
 
         Args:
@@ -151,3 +163,12 @@ class Connection:
             raise ServerError(response)
         else:
             raise ConnectionError(response)
+
+    @staticmethod
+    def _validate_json(response):
+        # checks if the repose received is json decode-able
+        try:
+            response.json()
+        except Exception as e:
+            sys.stderr.write("Error: {0}\nInvalid Response from Server, please contact Qubole Support".format(str(e)))
+            raise ServerError(response)

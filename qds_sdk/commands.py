@@ -288,19 +288,25 @@ class Command(Resource):
         else:
             if fetch:
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
-                boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials.get('storage_config').get('access_key'),
-                                            aws_secret_access_key=storage_credentials.get('storage_config').get('secret_key'),
-                                            security_token = storage_credentials.get('storage_config').get('session_token'))
+                if storage_credentials['region_endpoint'] is not None:
+                    boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
+                                                aws_secret_access_key=storage_credentials['storage_secret_key'],
+                                                security_token = storage_credentials['session_token'],
+                                                host = storage_credentials['region_endpoint'])
+                else:
+                    boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
+                                                aws_secret_access_key=storage_credentials['storage_secret_key'],
+                                                security_token=storage_credentials['session_token'])
 
                 log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                 #fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
 
-                for s3_path in r['result_location']:
+                # If column/header names are not able to fetch then use include header as true
+                if include_header.lower() == "true" and qlog is not None:
+                    write_headers(qlog, fp)
 
-                    # If column/header names are not able to fetch then use include header as true
-                    if include_header.lower() == "true" and qlog is not None:
-                        write_headers(qlog, fp)
+                for s3_path in r['result_location']:
 
                     # In Python 3,
                     # If the delim is None, fp should be in binary mode because
@@ -308,8 +314,7 @@ class Command(Resource):
                     # If the delim is not None, then both text and binary modes
                     # work.
 
-                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim,
-                                       skip_data_avail_check=isinstance(self, PrestoCommand))
+                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
             else:
                 fp.write(",".join(r['result_location']))
 
@@ -1038,8 +1043,8 @@ class DbExportCommand(Command):
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
-    optparser.add_option("--schema", help="Hive schema name assumed to be 'default' if not specified",
-                              default="default", dest="schema")
+    optparser.add_option("--schema", help="Db schema name, assumed accordingly by database if not specified",
+                         default=None, dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--partition_spec", dest="partition_spec",
@@ -1150,8 +1155,8 @@ class DbImportCommand(Command):
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("-m", "--mode", dest="mode",
                          help="Can be 1 for Hive export or 2 for HDFS/S3 export")
-    optparser.add_option("--schema", help="Hive database to import into. 'default' is assumed if nothing is specified",
-                         default="default", dest="schema")
+    optparser.add_option("--schema", help="Db schema name, assumed accordingly by database if not specified",
+                         default=None, dest="schema")
     optparser.add_option("--hive_table", dest="hive_table",
                          help="Mode 1: Name of the Hive Table from which data will be exported")
     optparser.add_option("--hive_serde", dest="hive_serde",
@@ -1268,6 +1273,8 @@ class DbTapQueryCommand(Command):
     optparser.add_option("-q", "--query", dest="query", help="query string")
     optparser.add_option("--notify", action="store_true", dest="can_notify",
                          default=False, help="sends an email on command completion")
+    optparser.add_option("-f", "--script_location", dest="script_location",
+                         help="Path where query to run is stored. Can be S3 URI or local file path")
     optparser.add_option("--macros", dest="macros",
                          help="expressions to expand macros used in query")
 
@@ -1299,12 +1306,32 @@ class DbTapQueryCommand(Command):
 
         try:
             (options, args) = cls.optparser.parse_args(args)
-            if (options.db_tap_id is None):
+            if options.db_tap_id is None:
                 raise ParseError("db_tap_id is required",
                                  cls.optparser.format_help())
-            if (options.query is None):
-                raise ParseError("query is required",
+            if options.query is None and options.script_location is None:
+                raise ParseError("query or script location is required",
                                  cls.optparser.format_help())
+
+            if options.script_location is not None:
+                if options.query is not None:
+                    raise ParseError(
+                        "Both query and script_location cannot be specified",
+                        cls.optparser.format_help())
+
+                if ((options.script_location.find("s3://") != 0) and
+                        (options.script_location.find("s3n://") != 0)):
+
+                    # script location is local file
+
+                    try:
+                        q = open(options.script_location).read()
+                    except IOError as e:
+                        raise ParseError("Unable to open script location: %s" %
+                                         str(e),
+                                         cls.optparser.format_help())
+                    options.script_location = None
+                    options.query = q
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
@@ -1325,7 +1352,10 @@ class SignalHandler:
     def __init__(self):
         self.last_signal = None
         self.received_term_signal = False
-        self.term_signals = [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]
+        if os.name == 'nt':
+            self.term_signals = [signal.SIGINT, signal.SIGTERM]
+        else:
+            self.term_signals = [signal.SIGINT, signal.SIGQUIT, signal.SIGTERM]
         for signum in self.term_signals:
             signal.signal(signum, self.handler)
 
@@ -1359,18 +1389,17 @@ def write_headers(qlog,fp):
     col_names = []
     qlog = json.loads(qlog)
     if qlog["QBOL-QUERY-SCHEMA"] is not None:
-        qlog_hash = qlog["QBOL-QUERY-SCHEMA"]["-1"] if qlog["QBOL-QUERY-SCHEMA"]["-1"] is not None else qlog["QBOL-QUERY-SCHEMA"][qlog["QBOL-QUERY-SCHEMA"].keys[0]]
+        qlog_hash = qlog["QBOL-QUERY-SCHEMA"].get("-1") or qlog["QBOL-QUERY-SCHEMA"][list(qlog["QBOL-QUERY-SCHEMA"].keys())[0]]
 
         for qlog_item in qlog_hash:
             col_names.append(qlog_item["ColumnName"])
 
         col_names = "\t".join(col_names)
         col_names += "\n"
+    fp.write(col_names.encode())
 
-    fp.write(col_names)
 
-
-def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_data_avail_check=False):
+def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
 
@@ -1395,32 +1424,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
         sys.stderr.flush()
-
-    def _is_complete_data_available(bucket_paths, num_result_dir):
-        if num_result_dir == -1:
-            return True
-        unique_paths = set()
-        files = {}
-        for one_path in bucket_paths:
-            name = one_path.name.replace(key_prefix, "", 1)
-            if name.startswith('_tmp.'):
-                continue
-            path = name.split("/")
-            dir = path[0].replace("_$folder$", "", 1)
-            unique_paths.add(dir)
-            if len(path) > 1:
-                file = int(path[1])
-                if dir not in files:
-                    files[dir] = []
-                files[dir].append(file)
-        if len(unique_paths) < num_result_dir:
-            return False
-        for k in files:
-            v = files.get(k)
-            if len(v) > 0 and max(v) + 1 > len(v):
-                return False
-        return True
-
+        
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
@@ -1458,16 +1462,6 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None, skip_
         #It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
-        if not skip_data_avail_check:
-            complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-            while complete_data_available is False and retries > 0:
-                retries = retries - 1
-                log.info("Results dir is not available on s3. Retry: " + str(6-retries))
-                time.sleep(10)
-                complete_data_available = _is_complete_data_available(bucket_paths, num_result_dir)
-            if complete_data_available is False:
-                raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
-
         for one_path in bucket_paths:
             name = one_path.name
 

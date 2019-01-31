@@ -841,6 +841,37 @@ class TestClusterList(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('GET', 'clusters', params=None)
 
+    def test_page(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--page', '2']
+        Qubole.cloud = None
+        params = {"page": 2}
+        print_command()
+        Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "up"}}])
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'clusters', params=params)
+
+    def test_page_invalid(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--page', 'string_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_per_page(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--per-page', '5']
+        Qubole.cloud = None
+        params = {"per_page": 5}
+        print_command()
+        Connection._api_call = Mock(return_value=[{"cluster" : {"state" : "up"}}])
+        qds.main()
+        Connection._api_call.assert_called_with('GET', 'clusters', params=params)
+
+    def test_per_page_invalid(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'list', '--per-page', 'string_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+
 class TestClusterShow(QdsCliTestCase):
 
     def test_connection(self):

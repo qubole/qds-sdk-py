@@ -4,10 +4,13 @@ The Template Module contains the base definition for Executing Templates
 import json
 import logging
 import os
-
 from argparse import ArgumentParser
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
+try:
+    from cStringIO import StringIO
+except:
+    from io  import StringIO
 
 log = logging.getLogger("qds_template")
 
@@ -114,7 +117,8 @@ class TemplateCmdLine:
     
     @staticmethod
     def list(args):
-        return Template.listTemplates(args)
+        spec = vars(args)
+        return Template.listTemplates(spec)
 
     @staticmethod
     def delete(args):
@@ -182,7 +186,7 @@ class Template(Resource):
         return conn.put(Template.element_path(id), data)
     
     @staticmethod
-    def cloneTemplate(id, data):
+    def cloneTemplate(id, data={}):
         """
         Clone an existing template.
 
@@ -211,7 +215,7 @@ class Template(Resource):
         return conn.get(Template.element_path(id))
     
     @staticmethod
-    def submitTemplate(id, data):
+    def submitTemplate(id, data={}):
         """
         Submit an existing Template.
 
@@ -226,7 +230,7 @@ class Template(Resource):
         return conn.post(Template.element_path(path), data)
     
     @staticmethod
-    def runTemplate(id, data):
+    def runTemplate(id, data={}):
         """
         Run an existing Template and waits for the Result.
         Prints result to stdout. 
@@ -254,29 +258,30 @@ class Template(Resource):
     def getResult(cmdClass, cmd):
         if Command.is_success(cmd.status):
             log.info("Fetching results for %s, Id: %s" % (cmdClass.__name__, cmd.id))
-            cmd.get_results(sys.stdout, delim='\t')
-            return 0
+            stdout = StringIO()
+            cmd.get_results(stdout, delim='\t')
+            return stdout.getvalue()
         else:
             log.error("Cannot fetch results - command Id: %s failed with status: %s" % (cmd.id, cmd.status))
             return 1
     
     @staticmethod
-    def listTemplates(args):
+    def listTemplates(data={}):
         """
         Fetch existing Templates details.
 
         Args:
-            `args`: dictionary containing the value of page number and per-page value
+            `data`: dictionary containing the value of page number and per-page value
         Returns:
             Dictionary containing paging_info and command_templates details
         """
         conn = Qubole.agent()
         url_path = Template.rest_entity_path
         page_attr = []
-        if args.page is not None:
-            page_attr.append("page=%s" % args.page)
-        if args.per_page is not None:
-            page_attr.append("per_page=%s" % args.per_page)
+        if "page" in data and data["page"] is not None:
+            page_attr.append("page=%s" % data["page"])
+        if "per_page" in data and data["per_page"] is not None:
+            page_attr.append("per_page=%s" % data["per_page"])
         if page_attr:
             url_path = "%s?%s" % (url_path, "&".join(page_attr))
 
@@ -286,4 +291,4 @@ class Template(Resource):
     def deleteTemplate(id):
         path = Template.element_path(id) + "/remove"
         conn = Qubole.agent()
-        conn.put(path)
+        return conn.put(path)

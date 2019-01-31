@@ -91,18 +91,33 @@ Examples:
        $ qds.py hivecmd check 12345678
        {"status": "done", ... }
 
+5. If you are hitting api\_url other than api.qubole.com, then you can pass it in command line as ``--url`` or set in as env variable
+
+   ::
+
+       $ qds.py --token 'xxyyzz' --url https://<env>.qubole.com/api hivecmd ...
+
+       or
+
+       $ export QDS_API_URL=https://<env>.qubole.com/api
+
+
 SDK API
 -------
 
 An example Python application needs to do the following:
 
-1. Set the api\_token:
+1. Set the api\_token and api\_url (if api\_url other than api.qubole.com):
 
    ::
 
        from qds_sdk.qubole import Qubole
 
        Qubole.configure(api_token='ksbdvcwdkjn123423')
+
+       # or
+
+       Qubole.configure(api_token='ksbdvcwdkjn123423', api_url='https://<env>.qubole.com/api')
 
 2. Use the Command classes defined in commands.py to execute commands.
    To run Hive Command:
