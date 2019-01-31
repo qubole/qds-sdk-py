@@ -99,12 +99,13 @@ class Connection:
         else:
             raise NotImplemented
 
-        self._validate_json(r)
         self._handle_error(r)
         return r
 
     def _api_call(self, req_type, path, data=None, params=None):
-        return self._api_call_raw(req_type, path, data=data, params=params).json()
+        response = self._api_call_raw(req_type, path, data=data, params=params)
+        self._validate_json(response)
+        return response.json()
 
     @staticmethod
     def _handle_error(response):
