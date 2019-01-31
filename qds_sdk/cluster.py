@@ -52,12 +52,17 @@ class Cluster(Resource):
         group.add_argument("--state", dest="state", action="store",
                            choices=['up', 'down', 'pending', 'terminating'],
                            help="list only clusters in the given state")
+        pagination_group = group.add_argument_group()
+        pagination_group.add_argument("--page", dest="page", action="store", type=int,
+                           help="page number")
+        pagination_group.add_argument("--per-page", dest="per_page", action="store", type=int,
+                           help="number of clusters to be retrieved per page")
 
         arguments = argparser.parse_args(args)
         return vars(arguments)
 
     @classmethod
-    def list(cls, state=None):
+    def list(cls, state=None, page=None, per_page=None):
         """
         List existing clusters present in your account.
 
@@ -68,14 +73,28 @@ class Cluster(Resource):
             List of clusters satisfying the given criteria
         """
         conn = Qubole.agent()
+        params = {}
+        if page:
+            params['page'] = page
+        if per_page:
+            params['per_page'] = per_page
+        if (params.get('page') or params.get('per_page')) and Qubole.version == 'v1.2':
+            log.warn("Pagination is not supported with API v1.2. Fetching all clusters.")
+        params = None if not params else params
+        cluster_list = conn.get(cls.rest_entity_path, params=params)
         if state is None:
-            return conn.get(cls.rest_entity_path)
+            return cluster_list
         elif state is not None:
-            cluster_list = conn.get(cls.rest_entity_path)
             result = []
-            for cluster in cluster_list:
-                if state.lower() == cluster['cluster']['state'].lower():
-                    result.append(cluster)
+            if Qubole.version == 'v1.2':
+                for cluster in cluster_list:
+                    if state.lower() == cluster['cluster']['state'].lower():
+                        result.append(cluster)
+            elif Qubole.version == 'v1.3':
+                cluster_list = cluster_list['clusters']
+                for cluster in cluster_list:
+                    if state.lower() == cluster['state'].lower():
+                        result.append(cluster)
             return result
 
     @classmethod

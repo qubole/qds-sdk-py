@@ -388,10 +388,10 @@ def cluster_list_action(clusterclass, args):
         result = clusterclass.show(arguments['cluster_id'])
     elif arguments['label'] is not None:
         result = clusterclass.show(arguments['label'])
-    elif arguments['state'] is not None:
-        result = clusterclass.list(state=arguments['state'])
     else:
-        result = clusterclass.list()
+        result = clusterclass.list(state=arguments['state'],
+                                   page=arguments['page'],
+                                   per_page=arguments['per_page'])
     print(json.dumps(result, indent=4))
     return 0
 

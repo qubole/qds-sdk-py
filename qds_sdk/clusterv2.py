@@ -64,7 +64,8 @@ class ClusterCmdLine:
         if args[0] in ["create", "clone", "update"]:
             ClusterCmdLine.get_cluster_create_clone_update(arguments, args[0])
         else:
-            return arguments.func(arguments.label, arguments.cluster_id, arguments.state)
+            return arguments.func(arguments.label, arguments.cluster_id, arguments.state,
+                                  arguments.page, arguments.per_page)
 
     @staticmethod
     def get_cluster_create_clone_update(arguments, action):
@@ -401,6 +402,12 @@ class ClusterInfoV2(object):
         argparser.add_argument("--state", dest="state",
                                choices=['invalid', 'up', 'down', 'pending', 'terminating'],
                                help="State of the cluster")
+        argparser.add_argument("--page", dest="page",
+                               type=int,
+                               help="Page number")
+        argparser.add_argument("--per-page", dest="per_page",
+                               type=int,
+                               help="Number of clusters to be retrieved per page")
 
     @staticmethod
     def cluster_info_parser(argparser, action):
@@ -665,12 +672,14 @@ class ClusterV2(Resource):
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
-    def list(cls, label=None, cluster_id=None, state=None):
+    def list(cls, label=None, cluster_id=None, state=None, page=None, per_page=None):
         """
         List existing clusters present in your account.
 
         Kwargs:
             `state`: list only those clusters which are in this state
+            `page`: page number
+            `per_page`: number of clusters to be retrieved per page
 
         Returns:
             List of clusters satisfying the given criteria
@@ -679,11 +688,17 @@ class ClusterV2(Resource):
             return cls.show(cluster_id)
         if label is not None:
             return cls.show(label)
+        params = {}
+        if page:
+            params['page'] = page
+        if per_page:
+            params['per_page'] = per_page
+        params = None if not params else params
         conn = Qubole.agent(version="v2")
         cluster_list = conn.get(cls.rest_entity_path)
         if state is None:
             # return the complete list since state is None
-            return conn.get(cls.rest_entity_path)
+            return conn.get(cls.rest_entity_path, params=params)
         # filter clusters based on state
         result = []
         if 'clusters' in cluster_list:
