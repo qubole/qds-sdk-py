@@ -546,6 +546,57 @@ class TestClusterCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
+    def test_master_node_type_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--master-node-type', 'volatile']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'master_node_type': 'volatile'}})
+
+    def test_master_node_type_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--master-node-type', 'invalid_choice']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_min_nodes_volatile_percentage_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--min-nodes-volatile-percentage', '75']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'min_nodes_volatile_percentage': 75}})
+
+    def test_min_nodes_volatile_percentage_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--min-nodes-volatile-percentage', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_autoscale_nodes_volatile_percentage_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--autoscale-nodes-volatile-percentage', '50']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info': {'label': ['test_label'],
+                                                                  'autoscale_nodes_volatile_percentage': 50}})
+
+    def test_autoscale_nodes_volatile_percentage_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--autoscale-nodes-volatile-percentage', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
@@ -761,6 +812,54 @@ class TestClusterUpdate(QdsCliTestCase):
     def test_root_disk_size_invalid_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
                     '--root-disk-size', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_master_node_type_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--master-node-type', 'volatile']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info': {'master_node_type': 'volatile'}})
+
+    def test_master_node_type_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--master-node-type', 'invalid_choice']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_min_nodes_volatile_percentage_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--min-nodes-volatile-percentage', '75']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info': {'min_nodes_volatile_percentage': 75}})
+
+    def test_min_nodes_volatile_percentage_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--min-nodes-volatile-percentage', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+    def test_autoscale_nodes_volatile_percentage_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--autoscale-nodes-volatile-percentage', '50']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('PUT', 'clusters/123',
+                                                {'cluster_info': {'autoscale_nodes_volatile_percentage': 50}})
+
+    def test_autoscale_nodes_volatile_percentage_invalid_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
+                    '--autoscale-nodes-volatile-percentage', 'invalid_value']
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()

@@ -94,6 +94,9 @@ class ClusterCmdLine:
                                       stable_timeout_for_request=arguments.stable_timeout_for_request,
                                       stable_spot_fallback=arguments.stable_spot_fallback,
                                       spot_block_duration=arguments.spot_block_duration,
+                                      master_node_type=arguments.master_node_type,
+                                      min_nodes_volatile_percentage=arguments.min_nodes_volatile_percentage,
+                                      autoscale_nodes_volatile_percentage=arguments.autoscale_nodes_volatile_percentage,
                                       idle_cluster_timeout=arguments.idle_cluster_timeout,
                                       disk_count=arguments.count,
                                       disk_type=arguments.disk_type,
@@ -180,6 +183,9 @@ class ClusterInfoV2(object):
                          stable_timeout_for_request=None,
                          stable_spot_fallback=None,
                          spot_block_duration=None,
+                         master_node_type=None,
+                         min_nodes_volatile_percentage=None,
+                         autoscale_nodes_volatile_percentage=None,
                          idle_cluster_timeout=None,
                          disk_count=None,
                          disk_type=None,
@@ -254,6 +260,12 @@ class ClusterInfoV2(object):
                 `spot_block_duration`: Time for which the spot block instance is provisioned (Unit:
                     minutes)
 
+                `master_node_type`: Type of master node. Choices: volatile, ondemand.
+
+                `min_nodes_volatile_percentage`: Percentage of minimum nodes that are volatile.
+
+                `autoscale_nodes_volatile_percentage`: Percentage of autoscale nodes that are volatile.
+
                 `disk_count`: Number of EBS volumes to attach
                     to each instance of the cluster.
 
@@ -319,6 +331,10 @@ class ClusterInfoV2(object):
 
         self.cluster_info['rootdisk'] = {}
         self.cluster_info['rootdisk']['size'] = root_disk_size
+
+        self.cluster_info['master_node_type'] = master_node_type
+        self.cluster_info['min_nodes_volatile_percentage'] = min_nodes_volatile_percentage
+        self.cluster_info['autoscale_nodes_volatile_percentage'] = autoscale_nodes_volatile_percentage
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
@@ -459,6 +475,19 @@ class ClusterInfoV2(object):
                                   dest="root_disk_size",
                                   type=int,
                                   help="size of the root volume in GB")
+        cluster_info.add_argument("--master-node-type",
+                                  dest="master_node_type",
+                                  type=str,
+                                  choices=["ondemand", "volatile"],
+                                  help="type of the master node")
+        cluster_info.add_argument("--min-nodes-volatile-percentage",
+                                  dest="min_nodes_volatile_percentage",
+                                  type=int,
+                                  help="percentage of minimum nodes that are volatile")
+        cluster_info.add_argument("--autoscale-nodes-volatile-percentage",
+                                  dest="autoscale_nodes_volatile_percentage",
+                                  type=int,
+                                  help="percentage of autoscale nodes that are volatile")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",
