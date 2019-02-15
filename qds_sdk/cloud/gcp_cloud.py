@@ -12,19 +12,16 @@ class GcpCloud(Cloud):
         self.storage_config = {}
 
     def set_cloud_config(self,
-                         compute_client_id=None,
-                         compute_project_id=None,
-                         compute_client_email=None,
-                         compute_private_key_id=None,
-                         compute_private_key=None,
+                         qsa_client_id=None,
+                         customer_project_id=None,
+                         qsa_client_email=None,
+                         qsa_private_key_id=None,
+                         qsa_private_key=None,
+                         comp_client_email=None,
+                         inst_client_email=None,
                          use_account_compute_creds=None,
                          gcp_region=None,
                          gcp_zone=None,
-                         storage_client_id=None,
-                         storage_project_id=None,
-                         storage_client_email=None,
-                         storage_private_key_id=None,
-                         storage_private_key=None,
                          storage_disk_size_in_gb=None,
                          storage_disk_count=None,
                          storage_disk_type=None,
@@ -34,30 +31,24 @@ class GcpCloud(Cloud):
         '''
 
         Args:
-            compute_client_id: Compute client id for gcp cluster
+            qsa_client_id: Compute client id for gcp cluster
 
-            compute_project_id: Compute project id for gcp cluster
+            customer_project_id: Compute project id for gcp cluster
 
-            compute_client_email: Compute client email for gcp cluster
+            qsa_client_email: Compute client email for gcp cluster
 
-            compute_private_key_id: Compute private key id for gcp cluster
+            qsa_private_key_id: Compute private key id for gcp cluster
 
-            compute_private_key: Compute private key for gcp cluster
+            qsa_private_key: Compute private key for gcp cluster
+
+            comp_client_email: Client compute service account email
+            
+            inst_client_email: Client storage/instance service account email
 
             use_account_compute_creds: Set it to true to use the account's compute
                 credentials for all clusters of the account.The default value is false
 
             gcp_region: Region for gcp cluster
-
-            storage_client_id: Storage client id for gcp cluster
-
-            storage_project_id: Storage project id for gcp cluster
-
-            storage_client_email: Storage client email for gcp cluster
-
-            storage_private_key_id: Storage private key id for gcp cluster
-
-            storage_private_key: Storage private key  for gcp cluster
 
             bastion_node_public_dns: public dns name of the bastion node.
                 Required only if cluster is in a private subnet.
@@ -67,26 +58,27 @@ class GcpCloud(Cloud):
             subnet_id: Subnet id for gcp cluster
         '''
 
-        self.set_compute_config(use_account_compute_creds, compute_client_id, compute_project_id, compute_client_email,
-                                compute_private_key_id, compute_private_key)
+        self.set_compute_config(use_account_compute_creds, qsa_client_id, customer_project_id, qsa_client_email,
+                                qsa_private_key_id, qsa_private_key, comp_client_email)
         self.set_location(gcp_region, gcp_zone)
         self.set_network_config(bastion_node_public_dns, vpc_id, subnet_id)
-        self.set_storage_config(storage_client_id, storage_project_id, storage_client_email, storage_private_key_id,
-                                storage_private_key, storage_disk_size_in_gb, storage_disk_count, storage_disk_type)
+        self.set_storage_config(inst_client_email, storage_disk_size_in_gb, storage_disk_count, storage_disk_type)
 
     def set_compute_config(self,
                            use_account_compute_creds=None,
-                           compute_client_id=None,
-                           compute_project_id=None,
-                           compute_client_email=None,
-                           compute_private_key_id=None,
-                           compute_private_key=None):
+                           qsa_client_id=None,
+                           customer_project_id=None,
+                           qsa_client_email=None,
+                           qsa_private_key_id=None,
+                           qsa_private_key=None,
+                           comp_client_email=None):
         self.compute_config['use_account_compute_creds'] = use_account_compute_creds
-        self.compute_config['compute_client_id'] = compute_client_id
-        self.compute_config['compute_project_id'] = compute_project_id
-        self.compute_config['compute_client_email'] = compute_client_email
-        self.compute_config['compute_private_key_id'] = compute_private_key_id
-        self.compute_config['compute_private_key'] = compute_private_key
+        self.compute_config['qsa_client_id'] = qsa_client_id
+        self.compute_config['customer_project_id'] = customer_project_id
+        self.compute_config['qsa_client_email'] = qsa_client_email
+        self.compute_config['qsa_private_key_id'] = qsa_private_key_id
+        self.compute_config['qsa_private_key'] = qsa_private_key
+        self.compute_config['comp_client_email'] = comp_client_email
 
     def set_location(self,
                      gcp_region=None,
@@ -104,38 +96,27 @@ class GcpCloud(Cloud):
         self.network_config['subnet'] = subnet_id
 
     def set_storage_config(self,
-                           storage_client_id=None,
-                           storage_project_id=None,
-                           storage_client_email=None,
-                           storage_private_key_id=None,
-                           storage_private_key=None,
+                           inst_client_email=None,
                            storage_disk_size_in_gb=None,
                            storage_disk_count=None,
                            storage_disk_type=None
                            ):
-        self.storage_config['storage_client_id'] = storage_client_id
-        self.storage_config['storage_project_id'] = storage_project_id
-        self.storage_config['storage_client_email'] = storage_client_email
-        self.storage_config['storage_private_key_id'] = storage_private_key_id
-        self.storage_config['storage_private_key'] = storage_private_key
+        self.storage_config['inst_client_email'] = inst_client_email
         self.storage_config['disk_size_in_gb'] = storage_disk_size_in_gb
         self.storage_config['disk_count'] = storage_disk_count
         self.storage_config['disk_type'] = storage_disk_type
 
     def set_cloud_config_from_arguments(self, arguments):
-        self.set_cloud_config(compute_client_id=arguments.compute_client_id,
-                              compute_project_id=arguments.compute_project_id,
-                              compute_client_email=arguments.compute_client_email,
-                              compute_private_key_id=arguments.compute_private_key_id,
-                              compute_private_key=arguments.compute_private_key,
+        self.set_cloud_config(qsa_client_id=arguments.qsa_client_id,
+                              customer_project_id=arguments.customer_project_id,
+                              qsa_client_email=arguments.qsa_client_email,
+                              qsa_private_key_id=arguments.qsa_private_key_id,
+                              qsa_private_key=arguments.qsa_private_key,
+                              inst_client_email=arguments.inst_client_email,
+                              comp_client_email=arguments.comp_client_email,
                               use_account_compute_creds=arguments.use_account_compute_creds,
                               gcp_region=arguments.gcp_region,
                               gcp_zone=arguments.gcp_zone,
-                              storage_client_id=arguments.storage_client_id,
-                              storage_project_id=arguments.storage_project_id,
-                              storage_client_email=arguments.storage_client_email,
-                              storage_private_key_id=arguments.storage_private_key_id,
-                              storage_private_key=arguments.storage_private_key,
                               storage_disk_size_in_gb=arguments.storage_disk_size_in_gb,
                               storage_disk_count=arguments.storage_disk_count,
                               storage_disk_type=arguments.storage_disk_type,
@@ -157,26 +138,30 @@ class GcpCloud(Cloud):
                                    action="store_false",
                                    default=None,
                                    help="to disable account compute credentials")
-        compute_config.add_argument("--compute-client-id",
-                                    dest="compute_client_id",
+        compute_config.add_argument("--qsa-client-id",
+                                    dest="qsa_client_id",
                                     default=None,
-                                    help="compute client id for gcp cluster")
-        compute_config.add_argument("--compute-project-id",
-                                    dest="compute_project_id",
+                                    help="qsa client id for gcp cluster")
+        compute_config.add_argument("--customer-project-id",
+                                    dest="customer_project_id",
                                     default=None,
-                                    help="compute project id for gcp cluster")
+                                    help="customer project id for gcp cluster")
+        compute_config.add_argument("--qsa-client-email",
+                                    dest="qsa_client_email",
+                                    default=None,
+                                    help="qsa client email for gcp cluster")
+        compute_config.add_argument("--qsa-private-key-id",
+                                    dest="qsa_private_key_id",
+                                    default=None,
+                                    help="qsa private key id for gcp cluster")
+        compute_config.add_argument("--qsa-private-key",
+                                    dest="qsa_private_key",
+                                    default=None,
+                                    help="qsa private key for gcp cluster")
         compute_config.add_argument("--compute-client-email",
-                                    dest="compute_client_email",
+                                    dest="comp_client_email",
                                     default=None,
-                                    help="compute client email for gcp cluster")
-        compute_config.add_argument("--compute-private-key-id",
-                                    dest="compute_private_key_id",
-                                    default=None,
-                                    help="compute private key id for gcp cluster")
-        compute_config.add_argument("--compute-private-key",
-                                    dest="compute_private_key",
-                                    default=None,
-                                    help="compute private key for gcp cluster")
+                                    help="client compute service account email")
 
         # location settings parser
         location_group = argparser.add_argument_group("location config settings")
@@ -201,26 +186,11 @@ class GcpCloud(Cloud):
 
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
-        storage_config.add_argument("--storage-client-id",
-                                    dest="storage_client_id",
-                                    default=None,
-                                    help="storage client id for gcp cluster")
-        storage_config.add_argument("--storage-project-id",
-                                    dest="storage_project_id",
-                                    default=None,
-                                    help="storage project id for gcp cluster")
+
         storage_config.add_argument("--storage-client-email",
-                                    dest="storage_client_email",
+                                    dest="inst_client_email",
                                     default=None,
-                                    help="storage client email for gcp cluster")
-        storage_config.add_argument("--storage-private-key-id",
-                                    dest="storage_private_key_id",
-                                    default=None,
-                                    help="storage private key id for gcp cluster")
-        storage_config.add_argument("--storage-private-key",
-                                    dest="storage_private_key",
-                                    default=None,
-                                    help="storage private key for gcp cluster")
+                                    help="client storage service account email")
         storage_config.add_argument("--storage-disk-size-in-gb",
                                     dest="storage_disk_size_in_gb",
                                     default=None,
