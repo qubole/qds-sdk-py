@@ -304,6 +304,17 @@ class Cluster(Resource):
                                   dest="ebs_volume_size",
                                   type=int,
                                   help="Size of each EBS volume, in GB",)
+          enable_rubix_group = hadoop_group.add_mutually_exclusive_group()
+          enable_rubix_group.add_argument("--enable-rubix",
+                                              dest="enable_rubix",
+                                              action="store_true",
+                                              default=None,
+                                              help="Enable rubix for cluster", )
+          enable_rubix_group.add_argument("--no-enable-rubix",
+                                              dest="enable_rubix",
+                                              action="store_false",
+                                              default=None,
+                                              help="Do not enable rubix for cluster", )
 
         hadoop2 = hadoop_group.add_mutually_exclusive_group()
         hadoop2.add_argument("--use-hadoop2",
@@ -1034,7 +1045,8 @@ class ClusterInfoV13():
                          is_ha=None,
                          env_name=None,
                          python_version=None,
-                         r_version=None):
+                         r_version=None,
+                         enable_rubix=None):
         """
         Kwargs:
 
@@ -1159,6 +1171,7 @@ class ClusterInfoV13():
 
         `r_version`: Version of R for environment. (For Spark clusters)
 
+        `enable_rubix`: Enable rubix on the cluster (For Presto clusters)
         """
 
         self.disallow_cluster_termination = disallow_cluster_termination
@@ -1169,7 +1182,7 @@ class ClusterInfoV13():
                                     node_base_cooldown_period, node_spot_cooldown_period, root_volume_size)
         self.set_ec2_settings(aws_access_key_id, aws_secret_access_key, aws_region, aws_availability_zone, vpc_id, subnet_id,
                               master_elastic_ip, bastion_node_public_dns, role_instance_profile)
-        self.set_hadoop_settings(custom_config, use_hbase, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha)
+        self.set_hadoop_settings(custom_config, use_hbase, use_hadoop2, use_spark, use_qubole_placement_policy, is_ha, enable_rubix)
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
         self.set_stable_spot_instance_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_allow_fallback)
         self.set_spot_block_settings(spot_block_duration)
@@ -1230,13 +1243,15 @@ class ClusterInfoV13():
                             use_hadoop2=None,
                             use_spark=None,
                             use_qubole_placement_policy=None,
-                            is_ha=None):
+                            is_ha=None,
+                            enable_rubix=None):
         self.hadoop_settings['custom_config'] = custom_config
         self.hadoop_settings['use_hbase'] = use_hbase
         self.hadoop_settings['use_hadoop2'] = use_hadoop2
         self.hadoop_settings['use_spark'] = use_spark
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
         self.hadoop_settings['is_ha'] = is_ha
+        self.hadoop_settings['enable_rubix'] = enable_rubix
 
     def set_spot_instance_settings(self, maximum_bid_price_percentage=None,
                                    timeout_for_request=None,

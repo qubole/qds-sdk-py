@@ -377,7 +377,7 @@ class TestClusterCreate(QdsCliTestCase):
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
-                        '--flavour', 'presto', '--presto-custom-config', temp.name]
+                        '--flavour', 'presto', '--enable-rubix' , '--presto-custom-config', temp.name]
             Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
@@ -386,7 +386,10 @@ class TestClusterCreate(QdsCliTestCase):
                                                     {'engine_config':
                                                          {'flavour': 'presto',
                                                           'presto_settings': {
-                                                              'custom_presto_config': 'config.properties:\na=1\nb=2'}},
+                                                              'custom_presto_config': 'config.properties:\na=1\nb=2'},
+                                                          'hadoop_settings':{
+                                                              'enable_rubix': True
+                                                          }},
                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_spark_engine_config(self):
@@ -672,8 +675,8 @@ class TestClusterUpdate(QdsCliTestCase):
             temp.write("a=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
-                        '--use-qubole-placement-policy', '--custom-hadoop-config',
-                        temp.name]
+                        '--use-qubole-placement-policy', '--enable-rubix', 
+                        '--custom-hadoop-config',temp.name]
             Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
@@ -681,7 +684,8 @@ class TestClusterUpdate(QdsCliTestCase):
             Connection._api_call.assert_called_with('PUT', 'clusters/123',  {'engine_config':
                                                                                  {'hadoop_settings':
                                                                                       {'use_qubole_placement_policy': True,
-                                                                                       'custom_hadoop_config': 'a=1\nb=2'}}
+                                                                                       'custom_hadoop_config': 'a=1\nb=2',
+                                                                                       'enable_rubix': True}}
                                                                              })
 
     def test_cluster_info(self):
