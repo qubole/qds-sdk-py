@@ -1700,6 +1700,7 @@ class TestClusterCreate(QdsCliTestCase):
                      'hadoop_settings': {'enable_rubix': False},
                     })
 
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
     def test_conflict_enable_rubix_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
@@ -1707,9 +1708,6 @@ class TestClusterCreate(QdsCliTestCase):
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
-
-
-
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
