@@ -367,6 +367,46 @@ class TestClusterCreate(QdsCliTestCase):
                                                                                            'zone': 'yyy'}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
+    def test_gcp_cluster_composition(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'GCP', 'cluster', 'create', '--label', 'test_label',
+                    '--master-preemptible',
+                    '--min-nodes-preemptible', '--min-nodes-preemptible-percentage', '50',
+                    '--autoscaling-nodes-preemptible', '--autoscaling-nodes-preemptible-percentage', '75']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {
+                                                    'cloud_config': {
+                                                        'cluster_composition': {
+                                                            'master': {
+                                                                'preemptible': True
+                                                            },
+                                                            'min_nodes': {
+                                                                'preemptible': True,
+                                                                'percentage': 50
+                                                            },
+                                                            'autoscaling_nodes': {
+                                                                'preemptible': True,
+                                                                'percentage': 75
+                                                            }
+                                                        }
+                                                    },
+                                                    'cluster_info': {
+                                                        'label': ['test_label']
+                                                    }
+                                                })
+
+    def test_gcp_cluster_composition_invalid(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'GCP', 'cluster', 'create', '--label', 'test_label',
+                    '--master-preemptible',
+                    '--min-nodes-preemptible', '--min-nodes-preemptible-percentage', 'invalid_value']
+        Qubole.cloud = None
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
     def test_presto_engine_config(self):
         with tempfile.NamedTemporaryFile() as temp:
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
