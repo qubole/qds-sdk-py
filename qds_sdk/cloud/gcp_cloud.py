@@ -246,20 +246,25 @@ class GcpCloud(Cloud):
         cluster_composition.add_argument("--master-preemptible",
                                          dest="master_preemptible",
                                          action="store_true",
+                                         default=None,
                                          help="if the master node is preemptible")
         cluster_composition.add_argument("--min-nodes-preemptible",
                                          dest="min_nodes_preemptible",
                                          action="store_true",
+                                         default=None,
                                          help="if the min nodes are preemptible")
         cluster_composition.add_argument("--min-nodes-preemptible-percentage",
                                          dest="min_nodes_preemptible_percentage",
                                          type=int,
+                                         default=None,
                                          help="percentage of min nodes that are preemptible")
         cluster_composition.add_argument("--autoscaling-nodes-preemptible",
                                          dest="autoscaling_nodes_preemptible",
                                          action="store_true",
+                                         default=None,
                                          help="if the autoscaling nodes are preemptible")
         cluster_composition.add_argument("--autoscaling-nodes-preemptible-percentage",
                                          dest="autoscaling_nodes_preemptible_percentage",
                                          type=int,
+                                         default=None,
                                          help="percentage of autoscaling nodes that are preemptible")
