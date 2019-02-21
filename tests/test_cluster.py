@@ -1672,6 +1672,43 @@ class TestClusterCreate(QdsCliTestCase):
             qds.main()
 
 
+    def test_use_enable_rubix_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--enable-rubix']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'enable_rubix': True},
+                     })
+
+    def test_no_use_enable_rubix_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                    '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--no-enable-rubix']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                    {'label': ['test_label'],
+                     'ec2_settings': {'compute_secret_key': 'sak',
+                                      'compute_access_key': 'aki'},
+                     'hadoop_settings': {'enable_rubix': False},
+                    })
+
+    @unittest.skipIf(sys.version_info < (2, 7, 0), "Known failure on Python 2.6")
+    def test_conflict_enable_rubix_v13(self):
+        sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'create', '--label', 'test_label',
+                   '--access-key-id', 'aki', '--secret-access-key', 'sak',
+                    '--enable-rubix', '--no-enable-rubix']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
         sys.argv = ['qds.py', 'cluster', 'update', '123']
