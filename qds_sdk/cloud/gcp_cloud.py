@@ -10,6 +10,7 @@ class GcpCloud(Cloud):
         self.location = {}
         self.network_config = {}
         self.storage_config = {}
+        self.cluster_composition = {}
 
     def set_cloud_config(self,
                          qsa_client_id=None,
@@ -27,7 +28,12 @@ class GcpCloud(Cloud):
                          storage_disk_type=None,
                          bastion_node_public_dns=None,
                          vpc_id=None,
-                         subnet_id=None):
+                         subnet_id=None,
+                         master_preemptible=None,
+                         min_nodes_preemptible=None,
+                         min_nodes_preemptible_percentage=None,
+                         autoscaling_nodes_preemptible=None,
+                         autoscaling_nodes_preemptible_percentage=None):
         '''
 
         Args:
@@ -56,6 +62,16 @@ class GcpCloud(Cloud):
             vpc_id: Vpc id for gcp cluster
 
             subnet_id: Subnet id for gcp cluster
+
+            master_preemptible: if the master node is preemptible
+
+            min_nodes_preemptible: if the min nodes are preemptible
+
+            min_nodes_preemptible_percentage: percentage of min nodes that are preemptible
+
+            autoscaling_nodes_preemptible: if the autoscaling nodes are preemptible
+
+            autoscaling_nodes_preemptible_percentage: percentage of autoscaling nodes that are preemptible
         '''
 
         self.set_compute_config(use_account_compute_creds, qsa_client_id, customer_project_id, qsa_client_email,
@@ -63,6 +79,8 @@ class GcpCloud(Cloud):
         self.set_location(gcp_region, gcp_zone)
         self.set_network_config(bastion_node_public_dns, vpc_id, subnet_id)
         self.set_storage_config(inst_client_email, storage_disk_size_in_gb, storage_disk_count, storage_disk_type)
+        self.set_cluster_composition(master_preemptible, min_nodes_preemptible, min_nodes_preemptible_percentage,
+                                     autoscaling_nodes_preemptible, autoscaling_nodes_preemptible_percentage)
 
     def set_compute_config(self,
                            use_account_compute_creds=None,
@@ -106,6 +124,21 @@ class GcpCloud(Cloud):
         self.storage_config['disk_count'] = storage_disk_count
         self.storage_config['disk_type'] = storage_disk_type
 
+    def set_cluster_composition(self,
+                                master_preemptible=None,
+                                min_nodes_preemptible=None,
+                                min_nodes_preemptible_percentage=None,
+                                autoscaling_nodes_preemptible=None,
+                                autoscaling_nodes_preemptible_percentage=None):
+        self.cluster_composition['master'] = {}
+        self.cluster_composition['master']['preemptible'] = master_preemptible
+        self.cluster_composition['min_nodes'] = {}
+        self.cluster_composition['min_nodes']['preemptible'] = min_nodes_preemptible
+        self.cluster_composition['min_nodes']['percentage'] = min_nodes_preemptible_percentage
+        self.cluster_composition['autoscaling_nodes'] = {}
+        self.cluster_composition['autoscaling_nodes']['preemptible'] = autoscaling_nodes_preemptible
+        self.cluster_composition['autoscaling_nodes']['percentage'] = autoscaling_nodes_preemptible_percentage
+
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(qsa_client_id=arguments.qsa_client_id,
                               customer_project_id=arguments.customer_project_id,
@@ -122,7 +155,12 @@ class GcpCloud(Cloud):
                               storage_disk_type=arguments.storage_disk_type,
                               bastion_node_public_dns=arguments.bastion_node_public_dns,
                               vpc_id=arguments.vpc_id,
-                              subnet_id=arguments.subnet_id)
+                              subnet_id=arguments.subnet_id,
+                              master_preemptible=arguments.master_preemptible,
+                              min_nodes_preemptible=arguments.min_nodes_preemptible,
+                              min_nodes_preemptible_percentage=arguments.min_nodes_preemptible_percentage,
+                              autoscaling_nodes_preemptible=arguments.autoscaling_nodes_preemptible,
+                              autoscaling_nodes_preemptible_percentage=arguments.autoscaling_nodes_preemptible_percentage)
 
     def create_parser(self, argparser):
         # compute settings parser
@@ -203,3 +241,30 @@ class GcpCloud(Cloud):
                                     dest="storage_disk_type",
                                     default=None,
                                     help="disk type for gcp cluster")
+        # cluster composition settings parser
+        cluster_composition = argparser.add_argument_group("cluster composition settings")
+        cluster_composition.add_argument("--master-preemptible",
+                                         dest="master_preemptible",
+                                         action="store_true",
+                                         default=None,
+                                         help="if the master node is preemptible")
+        cluster_composition.add_argument("--min-nodes-preemptible",
+                                         dest="min_nodes_preemptible",
+                                         action="store_true",
+                                         default=None,
+                                         help="if the min nodes are preemptible")
+        cluster_composition.add_argument("--min-nodes-preemptible-percentage",
+                                         dest="min_nodes_preemptible_percentage",
+                                         type=int,
+                                         default=None,
+                                         help="percentage of min nodes that are preemptible")
+        cluster_composition.add_argument("--autoscaling-nodes-preemptible",
+                                         dest="autoscaling_nodes_preemptible",
+                                         action="store_true",
+                                         default=None,
+                                         help="if the autoscaling nodes are preemptible")
+        cluster_composition.add_argument("--autoscaling-nodes-preemptible-percentage",
+                                         dest="autoscaling_nodes_preemptible_percentage",
+                                         type=int,
+                                         default=None,
+                                         help="percentage of autoscaling nodes that are preemptible")
