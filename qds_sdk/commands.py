@@ -76,6 +76,17 @@ class Command(Resource):
     def list(cls, **kwargs):
         """
         List a command by issuing a GET request to the /command endpoint
+
+        Various parameters can be used to filter the commands such as:
+        * command_type - HiveQuery, PrestoQuery, etc. The types should be in title case.
+        * status - failed, success, etc
+        * name
+        * command_id
+        * qbol_user_id
+        * command_source
+        * page
+        * cluster_label
+        * session_id, etc
         """
         conn = Qubole.agent()
         params = {}
