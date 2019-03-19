@@ -1379,8 +1379,7 @@ def _read_iteratively(key_instance, fp, delim):
                 elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
                     fp.write(data.replace(bytes([1]), delim.encode('utf8')))
                 else:
-                    # Can this happen? Don't know what's the right thing to do in this case.
-                    pass
+                    raise ValueError('Only subclasses of io.TextIOBase or io.BufferedIOBase supported')
         except StopIteration:
             # Stream closes itself when the exception is raised
             return
