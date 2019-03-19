@@ -72,8 +72,7 @@ class DbTapCmdLine:
                             help="Username")
         edit.add_argument("--password", dest="password",
                             help="Password")
-        edit.add_argument("--port", dest="port",
-                            help="Database Port")
+        edit.add_argument("--port", dest="port", help="Database Port")
         edit.add_argument("--type", dest="type", choices=["mysql","vertica","mongo","postgresql","redshift","sqlserver"],
                             help="Type of database")
         edit.add_argument("--location", dest="location", choices=["us-east-1", "us-west-2", "ap-southeast-1", "eu-west-1", "on-premise"],
@@ -107,7 +106,8 @@ class DbTapCmdLine:
                              db_user=args.user,
                              db_passwd=args.password,
                              db_type=args.type,
-                             db_location=args.location)
+                             db_location=args.location,
+                             port=args.port)
 
         return json.dumps(dbtap.attributes, sort_keys=True, indent=4)
 
@@ -148,6 +148,8 @@ class DbTapCmdLine:
             options["db_type"] = args.type
         if args.location is not None:
             options["db_location"] = args.location
+        if args.port is not None:
+            options["port"] = args.port
         tap = tap.edit(**options)
         return json.dumps(tap.attributes, sort_keys=True, indent=4)
 
