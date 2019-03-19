@@ -105,7 +105,11 @@ class ClusterCmdLine:
                                       image_uri_overrides=arguments.image_uri_overrides,
                                       env_name=arguments.env_name,
                                       python_version=arguments.python_version,
-                                      r_version=arguments.r_version)
+                                      r_version=arguments.r_version,
+                                      disable_cluster_pause=arguments.disable_cluster_pause,
+                                      paused_cluster_timeout=arguments.paused_cluster_timeout,
+                                      disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
+                                      paused_autoscale_node_timeout=arguments.paused_autoscale_node_timeout)
 
         #  This will set cloud config settings
         cloud_config = Qubole.get_cloud()
@@ -193,7 +197,11 @@ class ClusterInfoV2(object):
                          image_uri_overrides=None,
                          env_name=None,
                          python_version=None,
-                         r_version=None):
+                         r_version=None,
+                         disable_cluster_pause=None,
+                         paused_cluster_timeout=None,
+                         disable_autoscale_node_pause=None,
+                         paused_autoscale_node_timeout=None):
         """
         Args:
 
@@ -290,6 +298,14 @@ class ClusterInfoV2(object):
 
                 `r_version`: Version of R for environment. (For Spark clusters)
 
+                `disable_cluster_pause`: Disable cluster pause
+
+                `paused_cluster_timeout`: Paused cluster timeout in mins
+
+                `disable_autoscale_node_pause`: Disable autoscale node pause
+
+                `paused_autoscale_node_timeout`: Paused autoscale node timeout in mins
+
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
@@ -327,6 +343,8 @@ class ClusterInfoV2(object):
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
         self.set_internal(image_uri_overrides)
         self.set_env_settings(env_name, python_version, r_version)
+        self.set_start_stop_settings(disable_cluster_pause, paused_cluster_timeout,
+                                     disable_autoscale_node_pause, paused_autoscale_node_timeout)
 
     def set_datadog_setting(self,
                             datadog_api_token=None,
@@ -391,6 +409,20 @@ class ClusterInfoV2(object):
         self.cluster_info['env_settings']['name'] = env_name
         self.cluster_info['env_settings']['python_version'] = python_version
         self.cluster_info['env_settings']['r_version'] = r_version
+
+    def set_start_stop_settings(self,
+                                disable_cluster_pause=None,
+                                paused_cluster_timeout=None,
+                                disable_autoscale_node_pause=None,
+                                paused_autoscale_node_timeout=None):
+        if disable_cluster_pause is not None:
+            disable_cluster_pause = int(disable_cluster_pause)
+        self.cluster_info['disable_cluster_pause'] = disable_cluster_pause
+        self.cluster_info['paused_cluster_timeout_mins'] = paused_cluster_timeout
+        if disable_autoscale_node_pause is not None:
+            disable_autoscale_node_pause = int(disable_autoscale_node_pause)
+        self.cluster_info['disable_autoscale_node_pause'] = disable_autoscale_node_pause
+        self.cluster_info['paused_autoscale_node_timeout_mins'] = paused_autoscale_node_timeout
 
     @staticmethod
     def list_info_parser(argparser, action):
@@ -640,6 +672,38 @@ class ClusterInfoV2(object):
                                dest="r_version",
                                default=None,
                                help="version of R in environment")
+
+        start_stop_group = argparser.add_argument_group("start stop settings")
+        start_stop_group.add_argument("--disable-cluster-pause",
+                                      dest="disable_cluster_pause",
+                                      action='store_true',
+                                      default=None,
+                                      help="disable cluster pause")
+        start_stop_group.add_argument("--no-disable-cluster-pause",
+                                      dest="disable_cluster_pause",
+                                      action='store_false',
+                                      default=None,
+                                      help="disable cluster pause")
+        start_stop_group.add_argument("--paused-cluster-timeout",
+                                      dest="paused_cluster_timeout",
+                                      default=None,
+                                      type=int,
+                                      help="paused cluster timeout in min")
+        start_stop_group.add_argument("--disable-autoscale-node-pause",
+                                      dest="disable_autoscale_node_pause",
+                                      action='store_true',
+                                      default=None,
+                                      help="disable autoscale node pause")
+        start_stop_group.add_argument("--no-disable-autoscale-node-pause",
+                                      dest="disable_autoscale_node_pause",
+                                      action='store_false',
+                                      default=None,
+                                      help="disable autoscale node pause")
+        start_stop_group.add_argument("--paused-autoscale-node-timeout",
+                                      dest="paused_autoscale_node_timeout",
+                                      default=None,
+                                      type=int,
+                                      help="paused autoscale node timeout in min")
 
 class ClusterV2(Resource):
 

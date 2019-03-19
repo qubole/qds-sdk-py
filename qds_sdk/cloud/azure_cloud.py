@@ -29,7 +29,8 @@ class AzureCloud(Cloud):
                          vnet_resource_group_name=None,
                          master_elastic_ip=None,
                          master_static_nic_name=None,
-                         master_static_public_ip_name=None):
+                         master_static_public_ip_name=None,
+                         resource_group_name=None):
         '''
 
         Args:
@@ -74,6 +75,7 @@ class AzureCloud(Cloud):
             master_static_public_ip_name: Name of Static Public Ip address that has to be attached
                 to cluster's master node
 
+            resource_group_name: Resource group for cluster
         '''
 
         self.set_compute_config(use_account_compute_creds, compute_tenant_id,
@@ -86,6 +88,7 @@ class AzureCloud(Cloud):
         self.set_storage_config(storage_access_key, storage_account_name,
                                 disk_storage_account_name,
                                 disk_storage_account_resource_group_name)
+        self.resource_group_name = resource_group_name
 
     def set_compute_config(self,
                            use_account_compute_creds=None,
@@ -147,7 +150,8 @@ class AzureCloud(Cloud):
                               subnet_name=arguments.subnet_name,
                               vnet_resource_group_name=arguments.vnet_resource_group_name,
                               master_static_nic_name=arguments.master_static_nic_name,
-                              master_static_public_ip_name=arguments.master_static_public_ip_name)
+                              master_static_public_ip_name=arguments.master_static_public_ip_name,
+                              resource_group_name=arguments.resource_group_name)
 
     def create_parser(self, argparser):
         # compute settings parser
@@ -204,6 +208,9 @@ class AzureCloud(Cloud):
         network_config_group.add_argument("--master-static-public-ip-name",
                                           dest="master_static_public_ip_name",
                                           help="name of public IP to be attached to master node")
+        network_config_group.add_argument("--resource-group-name",
+                                          dest="resource_group_name",
+                                          help="resource group for cluster")
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
         storage_config.add_argument("--storage-access-key",
