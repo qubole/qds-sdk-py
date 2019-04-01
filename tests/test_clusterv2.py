@@ -259,6 +259,19 @@ class TestClusterCreate(QdsCliTestCase):
                                                                        'master_static_public_ip_name':'pip1'}},
                                                     'cluster_info': {'label': ['test_label']}})
 
+    def test_azure_resource_group_name(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
+                    '--resource-group-name', 'testrg']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cloud_config': {
+                                                    'resource_group_name': 'testrg'
+                                                },
+                                                'cluster_info': {'label': ['test_label']}})
+
     def test_oracle_opc_compute_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_OPC', 'cluster', 'create', '--label', 'test_label',
                     '--username', 'testusername', '--password', 'testpassword',
@@ -580,6 +593,46 @@ class TestClusterCreate(QdsCliTestCase):
     def test_root_disk_size_invalid_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--root-disk-size', 'invalid_value']
+        print_command()
+        with self.assertRaises(SystemExit):
+            qds.main()
+
+
+    def test_disable_start_stop(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--disable-cluster-pause', '--disable-autoscale-node-pause']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {
+                                                    'cluster_info': {
+                                                        'label': ['test_label'],
+                                                        'disable_cluster_pause': 1,
+                                                        'disable_autoscale_node_pause': 1
+                                                    }
+                                                })
+    def test_start_stop_timeouts(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--no-disable-cluster-pause', '--paused-cluster-timeout', '30',
+                    '--no-disable-autoscale-node-pause', '--paused-autoscale-node-timeout', '60']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {
+                                                    'cluster_info': {
+                                                        'label': ['test_label'],
+                                                        'disable_cluster_pause': 0,
+                                                        'paused_cluster_timeout_mins': 30,
+                                                        'disable_autoscale_node_pause': 0,
+                                                        'paused_autoscale_node_timeout_mins': 60
+                                                    }
+                                                })
+
+    def test_start_stop_timeouts_invalid(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                    '--paused-cluster-timeout', 'invalid_value', '--paused-autoscale-node-timeout', 'invalid_value']
         print_command()
         with self.assertRaises(SystemExit):
             qds.main()
