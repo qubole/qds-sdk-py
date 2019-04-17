@@ -314,7 +314,8 @@ def _create_cluster_info(arguments, api_version):
                                       is_ha=arguments.is_ha,
                                       env_name=arguments.env_name,
                                       python_version=arguments.python_version,
-                                      r_version=arguments.r_version)
+                                      r_version=arguments.r_version,
+                                      enable_rubix=arguments.enable_rubix)
     else:
         cluster_info = ClusterInfo(arguments.label,
                                    arguments.aws_access_key_id,

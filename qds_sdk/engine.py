@@ -30,7 +30,8 @@ class Engine:
                           overrides=None,
                           airflow_version=None,
                           airflow_python_version=None,
-                          is_ha=None):
+                          is_ha=None,
+                          enable_rubix=None):
         '''
 
         Args:
@@ -62,10 +63,11 @@ class Engine:
 
             is_ha: Enabling HA config for cluster
             is_deeplearning : this is a deeplearning cluster config
+            enable_rubix: Enable rubix on the cluster
 
         '''
 
-        self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, fairscheduler_config_xml, default_pool)
+        self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, fairscheduler_config_xml, default_pool, enable_rubix)
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
         self.set_airflow_settings(dbtap_id, fernet_key, overrides, airflow_version, airflow_python_version)
@@ -83,11 +85,13 @@ class Engine:
                             use_qubole_placement_policy=None,
                             is_ha=None,
                             fairscheduler_config_xml=None,
-                            default_pool=None):
+                            default_pool=None,
+                            enable_rubix=None):
         self.hadoop_settings['custom_hadoop_config'] = custom_hadoop_config
         self.hadoop_settings['use_qubole_placement_policy'] = use_qubole_placement_policy
         self.hadoop_settings['is_ha'] = is_ha
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
+        self.hadoop_settings['enable_rubix'] = enable_rubix
 
     def set_presto_settings(self,
                             presto_version=None,
@@ -131,7 +135,8 @@ class Engine:
                                fernet_key=arguments.fernet_key,
                                overrides=arguments.overrides,
                                airflow_version=arguments.airflow_version,
-                               airflow_python_version=arguments.airflow_python_version)
+                               airflow_python_version=arguments.airflow_python_version,
+                               enable_rubix=arguments.enable_rubix)
 
     @staticmethod
     def engine_parser(argparser):
@@ -161,6 +166,17 @@ class Engine:
                                                    default=None,
                                                    help="Do not use Qubole Block Placement policy" +
                                                         " for clusters with spot nodes", )
+        enable_rubix_group = hadoop_settings_group.add_mutually_exclusive_group()
+        enable_rubix_group.add_argument("--enable-rubix",
+                                            dest="enable_rubix",
+                                            action="store_true",
+                                            default=None,
+                                            help="Enable rubix for cluster", )
+        enable_rubix_group.add_argument("--no-enable-rubix",
+                                            dest="enable_rubix",
+                                            action="store_false",
+                                            default=None,
+                                            help="Do not enable rubix for cluster", )
 
         fairscheduler_group = argparser.add_argument_group(
             "fairscheduler configuration options")
