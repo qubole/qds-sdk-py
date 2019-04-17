@@ -28,6 +28,8 @@ class Engine:
                           dbtap_id=None,
                           fernet_key=None,
                           overrides=None,
+                          version=None,
+                          airflow_python_version=None,
                           is_ha=None):
         '''
 
@@ -66,7 +68,7 @@ class Engine:
         self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, fairscheduler_config_xml, default_pool)
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
-        self.set_airflow_settings(dbtap_id, fernet_key, overrides)
+        self.set_airflow_settings(dbtap_id, fernet_key, overrides, version, airflow_python_version)
 
     def set_fairscheduler_settings(self,
                                    fairscheduler_config_xml=None,
@@ -102,10 +104,14 @@ class Engine:
     def set_airflow_settings(self,
                              dbtap_id=None,
                              fernet_key=None,
-                             overrides=None):
+                             overrides=None,
+                             version="1.10.0",
+                             airflow_python_version="2.7"):
         self.airflow_settings['dbtap_id'] = dbtap_id
         self.airflow_settings['fernet_key'] = fernet_key
         self.airflow_settings['overrides'] = overrides
+        self.airflow_settings['version'] = version
+        self.airflow_settings['airflow_python_version'] = airflow_python_version
 
     def set_engine_config_settings(self, arguments):
         custom_hadoop_config = util._read_file(arguments.custom_hadoop_config_file)
@@ -123,7 +129,9 @@ class Engine:
                                custom_spark_config=arguments.custom_spark_config,
                                dbtap_id=arguments.dbtap_id,
                                fernet_key=arguments.fernet_key,
-                               overrides=arguments.overrides)
+                               overrides=arguments.overrides,
+                               version=arguments.version,
+                               airflow_python_version=arguments.airflow_python_version)
 
     @staticmethod
     def engine_parser(argparser):
