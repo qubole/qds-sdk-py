@@ -199,11 +199,11 @@ class Engine:
                                             dest="overrides",
                                             default=None,
                                             help="overrides for airflow cluster", )
-        airflow_settings_group.add_argument("--overrides",
+        airflow_settings_group.add_argument("--airflow-version",
                                             dest="version",
                                             default="1.10.0",
                                             help="overrides for airflow cluster", )
-        airflow_settings_group.add_argument("--overrides",
+        airflow_settings_group.add_argument("--airflow-python-version",
                                             dest="airflow_python_version",
                                             default="2.7",
                                             help="overrides for airflow cluster", )
