@@ -461,7 +461,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                               'dbtap_id': '1',
                                                               'fernet_key': '-1',
                                                               'overrides': 'airflow_overrides',
-                                                              'airflow_version': '1.10.0',
+                                                              'version': '1.10.0',
                                                               'airflow_python_version': '2.7'
                                                           }},
                                                      'cluster_info': {'label': ['test_label'],}})
