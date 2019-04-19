@@ -61,6 +61,10 @@ class Engine:
             overrides: Airflow configuration to override the default settings.Use the following syntax for overrides:
                 <section>.<property>=<value>\n<section>.<property>=<value>...
 
+            airflow_version: The airflow version.
+
+            airflow_python_version: The python version for the environment on the cluster.
+
             is_ha: Enabling HA config for cluster
             is_deeplearning : this is a deeplearning cluster config
             enable_rubix: Enable rubix on the cluster
@@ -226,9 +230,9 @@ class Engine:
         airflow_settings_group.add_argument("--airflow-version",
                                             dest="airflow_version",
                                             default=None,
-                                            help="overrides for airflow cluster", )
+                                            help="airflow version for airflow cluster", )
         airflow_settings_group.add_argument("--airflow-python-version",
                                             dest="airflow_python_version",
                                             default=None,
-                                            help="overrides for airflow cluster", )
+                                            help="python environment version for airflow cluster", )
 
