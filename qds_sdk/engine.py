@@ -225,10 +225,10 @@ class Engine:
                                             help="overrides for airflow cluster", )
         airflow_settings_group.add_argument("--airflow-version",
                                             dest="airflow_version",
-                                            default="1.10.0",
+                                            default=None,
                                             help="overrides for airflow cluster", )
         airflow_settings_group.add_argument("--airflow-python-version",
                                             dest="airflow_python_version",
-                                            default="2.7",
+                                            default=None,
                                             help="overrides for airflow cluster", )
 
