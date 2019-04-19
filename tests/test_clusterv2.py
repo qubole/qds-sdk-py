@@ -457,6 +457,27 @@ class TestClusterCreate(QdsCliTestCase):
                                                               'custom_spark_config': 'spark-overrides'}},
                                                      'cluster_info': {'label': ['test_label'],}})
 
+    def test_airflow_engine_config(self):
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write("config.properties:\na=1\nb=2".encode("utf8"))
+            temp.flush()
+            sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                        '--flavour', 'airflow', '--dbtap-id', '1', '--fernet-key', '-1', '--overrides', 'airflow_overrides', '--airflow-version', '1.10.0', '--airflow-python-version', '2.7']
+            Qubole.cloud = None
+            print_command()
+            Connection._api_call = Mock(return_value={})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'clusters',
+                                                    {'engine_config':
+                                                         {'flavour': 'airflow',
+                                                          'airflow_settings': {
+                                                              'dbtap_id': '1',
+                                                              'fernet_key': '-1',
+                                                              'overrides': 'airflow_overrides',
+                                                              'version': '1.10.0',
+                                                              'airflow_python_version': '2.7'
+                                                          }},
+                                                     'cluster_info': {'label': ['test_label'],}})
 
     def test_persistent_security_groups_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
