@@ -3,12 +3,12 @@ This is the sample code used for submitting a Presto query (PrestoCommand) and g
 Similar way can be followed for HiveCommand etc.
 """
  
-import logging, sys, string, time
-from tempfile import NamedTemporaryFile
-from configparser import SafeConfigParser
+import logging, sys, time
+#from tempfile import NamedTemporaryFile
+#from configparser import SafeConfigParser
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import PrestoCommand
-import boto
+#import boto
 import pandas as pd
 
 # Setting up the logger
