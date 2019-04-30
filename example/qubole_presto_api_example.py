@@ -3,12 +3,12 @@ This is the sample code used for submitting a Presto query (PrestoCommand) and g
 Similar way can be followed for HiveCommand etc.
 """
  
-import logging, sys, time
-#from tempfile import NamedTemporaryFile
-#from configparser import SafeConfigParser
+import logging, sys, string, time
+from tempfile import NamedTemporaryFile
+from configparser import SafeConfigParser
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import PrestoCommand
-#import boto
+import boto
 import pandas as pd
 
 # Setting up the logger
@@ -53,18 +53,27 @@ def execute_presto_query(query, cluster_label='presto'):
     print(cmd.get_log())
     return cmd
 
-def get_raw_results(cmd):
+def get_raw_results(cmd, column_names = None):
     assert cmd is not None
     assert type(cmd) is PrestoCommand
     with open(_get_results_locally(cmd), 'r') as content_file:
         content = content_file.read()
     return content
  
-def get_dataframe(command, **kwargs):
+def get_dataframe(command, column_names = None, **kwargs):
     assert command is not None
     assert type(command) is PrestoCommand
     
     _NA_VALUES = list(pd.io.common._NA_VALUES) + ['\\N'] # The NA Values that should be considered for Presto
     filename = _get_results_locally(command)
-    return pd.read_csv(filename, delimiter='\t', na_values=_NA_VALUES, **kwargs)
-
+    
+    with open(filename) as f:
+        firstline = f.readline()
+    if firstline.strip().split('\t') == column_names :
+        log.debug('It seems that the file already got the right column names...')
+        return pd.read_csv(filename, delimiter='\t', na_values=_NA_VALUES, **kwargs)
+    else :
+        log.debug('It seems that the column names are not present in the file. Adding them :')
+        return pd.read_csv(filename, delimiter='\t', na_values=_NA_VALUES, header=None, names=column_names, **kwargs)
+    
+ 
