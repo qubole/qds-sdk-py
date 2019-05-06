@@ -247,11 +247,7 @@ class TestCommandGetJobs(QdsCliTestCase):
         Connection._api_call_raw.assert_called_with('GET', 'commands/123/jobs', params=None),
 
 
-class TestHiveCommand(object):
-
-    def setUp(self):
-        os.environ['QDS_API_TOKEN'] = 'dummy_token'
-        os.environ['QDS_API_URL'] = 'https://qds.api.url/api'
+class TestHiveCommand(QdsCliTestCase):
 
     def test_submit_query(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--retry', 2]
@@ -360,31 +356,6 @@ class TestHiveCommand(object):
                  'command_type': 'HiveCommand',
                  'can_notify': False,
                  'script_location': 's3://bucket/path-to-script',
-                 'retry': 0,
-                 'pool': None})
-
-    @pytest.mark.parametrize("script_location", [
-        'oci://some_path/file', 'oraclebmc://some_path/file', 'wasb://some_path/file',
-        'gs://some_path/file', 's3://some_path/file', 's3n://some_path/file',
-        's3a://some_path/file', 'swift://some_path/file', 'adl://some_path/file',
-        'abfs://some_path/file', 'abfss://some_path/file'])
-    def test_submit_script_location_multi_cloud(self, script_location):
-        sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', script_location,
-                    '--tags', 'abc,def']
-        print_command()
-        Connection._api_call = Mock(return_value={'id': 1234})
-        qds.main()
-        Connection._api_call.assert_called_with('POST', 'commands',
-                {'macros': None,
-                 'hive_version': None,
-                 'label': None,
-                 'tags': ["abc", "def"],
-                 'sample_size': None,
-                 'name': None,
-                 'query': None,
-                 'command_type': 'HiveCommand',
-                 'can_notify': False,
-                 'script_location': script_location,
                  'retry': 0,
                  'pool': None})
 
@@ -2082,6 +2053,34 @@ class TestGetResultsCommand(QdsCliTestCase):
 
         with self.assertRaises(SystemExit):
             qds.main()
+
+
+@pytest.mark.parametrize("script_location", [
+    'oci://some_path/file', 'oraclebmc://some_path/file', 'wasb://some_path/file',
+    'gs://some_path/file', 's3://some_path/file', 's3n://some_path/file',
+    's3a://some_path/file', 'swift://some_path/file', 'adl://some_path/file',
+    'abfs://some_path/file', 'abfss://some_path/file'])
+def test_submit_script_location_multi_cloud(script_location):
+    os.environ['QDS_API_TOKEN'] = 'dummy_token'
+    os.environ['QDS_API_URL'] = 'https://qds.api.url/api'
+    sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', script_location,
+                '--tags', 'abc,def']
+    print_command()
+    Connection._api_call = Mock(return_value={'id': 1234})
+    qds.main()
+    Connection._api_call.assert_called_with('POST', 'commands',
+            {'macros': None,
+             'hive_version': None,
+             'label': None,
+             'tags': ["abc", "def"],
+             'sample_size': None,
+             'name': None,
+             'query': None,
+             'command_type': 'HiveCommand',
+             'can_notify': False,
+             'script_location': script_location,
+             'retry': 0,
+             'pool': None})
 
 
 if __name__ == '__main__':
