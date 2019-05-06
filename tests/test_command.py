@@ -247,7 +247,11 @@ class TestCommandGetJobs(QdsCliTestCase):
         Connection._api_call_raw.assert_called_with('GET', 'commands/123/jobs', params=None),
 
 
-class TestHiveCommand(QdsCliTestCase):
+class TestHiveCommand(object):
+
+    def setUp(self):
+        os.environ['QDS_API_TOKEN'] = 'dummy_token'
+        os.environ['QDS_API_URL'] = 'https://qds.api.url/api'
 
     def test_submit_query(self):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--query', 'show tables', '--retry', 2]
