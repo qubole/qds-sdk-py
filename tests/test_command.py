@@ -359,12 +359,12 @@ class TestHiveCommand(QdsCliTestCase):
                  'retry': 0,
                  'pool': None})
 
-    @pytest.mark.parametrize("script_location", [
+    @pytest.mark.parametrize("script_location", (
         'oci://some_path/file', 'oraclebmc://some_path/file', 'wasb://some_path/file',
         'gs://some_path/file', 's3://some_path/file', 's3n://some_path/file',
         's3a://some_path/file', 'swift://some_path/file', 'adl://some_path/file',
-        'abfs://some_path/file', 'abfss://some_path/file'
-    ])
+        'abfs://some_path/file', 'abfss://some_path/file')
+    )
     def test_submit_script_location_multi_cloud(self, script_location):
         sys.argv = ['qds.py', 'hivecmd', 'submit', '--script_location', script_location,
                     '--tags', 'abc,def']
