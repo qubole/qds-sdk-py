@@ -9,9 +9,7 @@ from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
 from qds_sdk.account import Account
-from qds_sdk.util import GentleOptionParser
-from qds_sdk.util import OptionParsingError
-from qds_sdk.util import OptionParsingExit
+from qds_sdk.util import GentleOptionParser, OptionParsingError, OptionParsingExit, _is_cloud_url
 from optparse import SUPPRESS_HELP
 
 import boto
@@ -407,8 +405,7 @@ class HiveCommand(Command):
                     "Both query and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -493,8 +490,7 @@ class SqlCommand(Command):
                     "Both query and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -627,9 +623,8 @@ class SparkCommand(Command):
             else:
                 raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
                                  cls.optparser.format_help())
-                
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file so set the program as the text from the file
 
@@ -749,8 +744,7 @@ class PrestoCommand(Command):
                     "Both query and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
                 try:
@@ -912,8 +906,7 @@ class ShellCommand(Command):
                     "Both script and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -1011,8 +1004,7 @@ class PigCommand(Command):
                     "Both script and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -1333,8 +1325,7 @@ class DbTapQueryCommand(Command):
                         "Both query and script_location cannot be specified",
                         cls.optparser.format_help())
 
-                if ((options.script_location.find("s3://") != 0) and
-                        (options.script_location.find("s3n://") != 0)):
+                if not _is_cloud_url(options.script_location):
 
                     # script location is local file
 
