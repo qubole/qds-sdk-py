@@ -124,7 +124,9 @@ class TestClusterCreate(QdsCliTestCase):
                                                                               {'storage_key_finger_print': 'zzz22',
                                                                                'storage_api_private_rsa_key': 'aaa',
                                                                                'storage_user_id': 'yyyy11',
-                                                                               'storage_tenant_id': 'xxx11'}},
+                                                                               'storage_tenant_id': 'xxx11',
+                                                                               'block_volume_count': 1,
+                                                                               'block_volume_size': 100}},
                                                                      'cluster_info': {'label': ['test_label']}})
 
     def test_oracle_bmc_network_config(self):
