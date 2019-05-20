@@ -148,7 +148,10 @@ class OracleBmcCloud(Cloud):
                               storage_tenant_id=arguments.storage_tenant_id,
                               storage_user_id=arguments.storage_user_id,
                               storage_key_finger_print=arguments.storage_key_finger_print,
-                              storage_api_private_rsa_key=arguments.storage_api_private_rsa_key)
+                              storage_api_private_rsa_key=arguments.storage_api_private_rsa_key,
+                              block_volume_count=arguments.block_volume_count,
+                              block_volume_size=arguments.block_volume_size
+                              )
 
     def create_parser(self, argparser):
         # compute settings parser
