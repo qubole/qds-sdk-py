@@ -114,7 +114,8 @@ class TestClusterCreate(QdsCliTestCase):
     def test_oracle_bmc_storage_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'ORACLE_BMC', 'cluster', 'create', '--label', 'test_label',
                     '--storage-tenant-id', 'xxx11', '--storage-user-id', 'yyyy11', '--storage-key-finger-print',
-                    'zzz22', '--storage-api-private-rsa-key', 'aaa']
+                    'zzz22', '--storage-api-private-rsa-key', 'aaa', '--block-volume-count', '1',
+                    '--block-volume-size', '100']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})

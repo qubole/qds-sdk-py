@@ -227,3 +227,13 @@ class OracleBmcCloud(Cloud):
                                     dest="storage_api_private_rsa_key",
                                     default=None,
                                     help="storage api private rsa key for oracle cluster")
+        storage_config.add_argument("--block-volume-count",
+                                    dest="block_volume_count",
+                                    default=None,
+                                    help="count of block volumes to be mounted to an instance as reserved disks",
+                                    type=int)
+        storage_config.add_argument("--block-volume-size",
+                                    dest="block_volume_size",
+                                    default=None,
+                                    help="size (in GB) of each block volume to be mounted to an instance",
+                                    type=int)
