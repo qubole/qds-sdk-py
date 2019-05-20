@@ -299,16 +299,20 @@ class Command(Resource):
                     pass
         else:
             if fetch:
+                if not boto.config.has_section('s3'):
+                    boto.config.add_section('s3')
+                boto.config.set('s3', 'use-sigv4', 'True')
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
                 if storage_credentials['region_endpoint'] is not None:
                     boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                                 aws_secret_access_key=storage_credentials['storage_secret_key'],
-                                                security_token = storage_credentials['session_token'],
-                                                host = storage_credentials['region_endpoint'])
+                                                security_token=storage_credentials['session_token'],
+                                                host=storage_credentials['region_endpoint'])
                 else:
                     boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                                 aws_secret_access_key=storage_credentials['storage_secret_key'],
-                                                security_token=storage_credentials['session_token'])
+                                                security_token=storage_credentials['session_token'],
+                                                host="s3.amazonaws.com")
 
                 log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                 #fetch latest value of num_result_dir
