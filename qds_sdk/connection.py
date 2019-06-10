@@ -156,10 +156,8 @@ class Connection:
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response)
         elif code == 449:
-            message = "Data requested is unavailable. Retrying ..."
             sys.stderr.write(response.text + "\n")
-            sys.stderr.write(message + "\n")
-            raise RetryWithDelay(response, message)
+            raise RetryWithDelay(response, "Data requested is unavailable. Retrying ...")
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
