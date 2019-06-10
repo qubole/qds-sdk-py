@@ -12,9 +12,7 @@ class Error(Exception):
     """A general error derived from Exception."""
 
     def __init__(self, request, message = ""):
-        response = request.text
-        if message:
-           response = message
+        response = message if message else request.text
         Exception.__init__(self, response)
         self.request = request
 
