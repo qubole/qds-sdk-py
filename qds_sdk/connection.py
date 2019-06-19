@@ -152,9 +152,12 @@ class Connection:
         elif code == 422:
             sys.stderr.write(response.text + "\n")
             raise ResourceInvalid(response)
-        elif code in (449, 502, 503, 504):
+        elif code in (502, 503, 504):
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response)
+        elif code == 449:
+            sys.stderr.write(response.text + "\n")
+            raise RetryWithDelay(response, "Data requested is unavailable. Retrying ...")
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
