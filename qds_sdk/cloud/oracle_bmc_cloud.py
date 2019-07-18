@@ -131,6 +131,10 @@ class OracleBmcCloud(Cloud):
         self.storage_config['block_volume_size'] = block_volume_size
 
     def set_cloud_config_from_arguments(self, arguments):
+        try:
+            arguments.availability_domain_info_map = ast.literal_eval(arguments.availability_domain_info_map)
+        except Exception as e:
+            raise Exception("Invalid List format for availability_domain_info_map: %s" % e.message)
         self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
                               compute_user_id=arguments.compute_user_id,
                               compute_key_finger_print=arguments.compute_key_finger_print,
@@ -209,10 +213,6 @@ class OracleBmcCloud(Cloud):
         network_config_group.add_argument("--availability-domain-info-map",
                                           dest="availability_domain_info_map",
                                           help="availability domain and subnet mapping for the cluster")
-        try:
-            compute_config.availability_domain_info_map = ast.literal_eval(compute_config.availability_domain_info_map)
-        except Exception as e:
-            raise Exception("Invalid List format for availability_domain_info_map: %s" % e.message)
 
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
