@@ -134,6 +134,7 @@ class OracleBmcCloud(Cloud):
         if arguments.availability_domain_info_map:
             try:
                 arguments.availability_domain_info_map = ast.literal_eval(arguments.availability_domain_info_map)
+                assert isinstance(arguments.availability_domain_info_map, list)
             except Exception as e:
                 raise Exception("Invalid List format for availability_domain_info_map: %s" % e.message)
         self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
