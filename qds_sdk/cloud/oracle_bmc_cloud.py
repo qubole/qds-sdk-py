@@ -210,7 +210,7 @@ class OracleBmcCloud(Cloud):
                                           dest="availability_domain_info_map",
                                           help="availability domain and subnet mapping for the cluster")
         try:
-            availability_domain_info_map = ast.literal_eval(availability_domain_info_map)
+            availability_domain_info_map = ast.literal_eval(compute_config.availability_domain_info_map)
         except Exception as e:
             raise Exception("Invalid List format for availability_domain_info_map: %s" % e.message)
 
