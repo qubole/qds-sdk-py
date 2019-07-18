@@ -112,11 +112,8 @@ class OracleBmcCloud(Cloud):
         self.network_config['subnet_id'] = subnet_id
         self.network_config['compartment_id'] = compartment_id
         self.network_config['image_id'] = image_id
-        if availability_domain_info_map and availability_domain_info_map.strip():
-            try:
-                self.network_config['availability_domain_info_map'] = json.loads(availability_domain_info_map.strip())
-            except Exception as e:
-                raise Exception("Invalid JSON string for availability domain info map: %s" % e.message)
+        if availability_domain_info_map:
+            self.network_config['availability_domain_info_map'] = availability_domain_info_map
 
     def set_storage_config(self,
                            storage_tenant_id=None,
