@@ -1,5 +1,6 @@
 from qds_sdk.cloud.cloud import Cloud
 import json
+import ast
 
 class OracleBmcCloud(Cloud):
     '''
@@ -113,7 +114,10 @@ class OracleBmcCloud(Cloud):
         self.network_config['compartment_id'] = compartment_id
         self.network_config['image_id'] = image_id
         if availability_domain_info_map:
-            self.network_config['availability_domain_info_map'] = availability_domain_info_map
+            try:
+                self.network_config['availability_domain_info_map'] = ast.literal_eval(availability_domain_info_map)
+            except Exception as e:
+                raise Exception("Invalid list format for availability_domain_info_map: %s" % e.message)
 
     def set_storage_config(self,
                            storage_tenant_id=None,
@@ -207,8 +211,7 @@ class OracleBmcCloud(Cloud):
                                           help="subnet id for oracle")
         network_config_group.add_argument("--availability-domain-info-map",
                                           dest="availability_domain_info_map",
-                                          help="availability domain and subnet mapping for the cluster",
-                                          type=list)
+                                          help="availability domain and subnet mapping for the cluster")
 
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
