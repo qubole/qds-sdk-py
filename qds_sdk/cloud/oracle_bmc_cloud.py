@@ -207,7 +207,8 @@ class OracleBmcCloud(Cloud):
                                           help="subnet id for oracle")
         network_config_group.add_argument("--availability-domain-info-map",
                                           dest="availability_domain_info_map",
-                                          help="availability domain and subnet mapping for the cluster")
+                                          help="availability domain and subnet mapping for the cluster",
+                                          type=list)
 
         # storage config settings parser
         storage_config = argparser.add_argument_group("storage config settings")
