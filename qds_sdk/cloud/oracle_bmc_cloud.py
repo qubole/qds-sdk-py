@@ -1,5 +1,6 @@
 from qds_sdk.cloud.cloud import Cloud
 import json
+import ast
 
 class OracleBmcCloud(Cloud):
     '''
@@ -112,11 +113,8 @@ class OracleBmcCloud(Cloud):
         self.network_config['subnet_id'] = subnet_id
         self.network_config['compartment_id'] = compartment_id
         self.network_config['image_id'] = image_id
-        if availability_domain_info_map and availability_domain_info_map.strip():
-            try:
-                self.network_config['availability_domain_info_map'] = json.loads(availability_domain_info_map.strip())
-            except Exception as e:
-                raise Exception("Invalid JSON string for availability domain info map: %s" % e.message)
+        if availability_domain_info_map:
+            self.network_config['availability_domain_info_map'] = availability_domain_info_map
 
     def set_storage_config(self,
                            storage_tenant_id=None,
@@ -133,6 +131,12 @@ class OracleBmcCloud(Cloud):
         self.storage_config['block_volume_size'] = block_volume_size
 
     def set_cloud_config_from_arguments(self, arguments):
+        if arguments.availability_domain_info_map:
+            try:
+                arguments.availability_domain_info_map = ast.literal_eval(arguments.availability_domain_info_map)
+                assert isinstance(arguments.availability_domain_info_map, list)
+            except Exception as e:
+                raise Exception("Invalid List format for availability_domain_info_map: %s" % e.message)
         self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
                               compute_user_id=arguments.compute_user_id,
                               compute_key_finger_print=arguments.compute_key_finger_print,
