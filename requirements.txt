@@ -1,4 +1,4 @@
-boto==2.49.0
+boto==2.45.0
 certifi==2019.6.16
 chardet==3.0.4
 idna==2.8
