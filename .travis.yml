@@ -14,7 +14,9 @@ install:
   - curl https://deepsource.io/cli | sh
 # command to run tests
 script:
-  - py.test --cov=qds-sdk --cov-report xml
+  - py.test --cov=./ --cov-report xml
   - ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
-env: BOTO_CONFIG=/tmp/nowhere
+env:
+  - BOTO_CONFIG=/tmp/nowhere
+  - DEEPSOURCE_DSN=$DEEPSOURCE_DSN
 dist: trusty
