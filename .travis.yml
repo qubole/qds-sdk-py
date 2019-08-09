@@ -9,9 +9,12 @@ install:
   - pip install -r requirements.txt
   - "python setup.py install"
   - pip install mock
-  - pip install pytest==3.2.0
+  - pip install pytest==3.2.0 pytest-cov
   - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
+  - curl https://deepsource.io/cli | sh
 # command to run tests
-script: py.test
+script:
+  - py.test --cov=qds-sdk --cov-report xml
+  - ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
 env: BOTO_CONFIG=/tmp/nowhere
 dist: trusty
