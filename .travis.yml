@@ -17,6 +17,5 @@ script:
   - py.test --cov=./ --cov-report xml
   - ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
 env:
-  - BOTO_CONFIG=/tmp/nowhere
-  - DEEPSOURCE_DSN=$DEEPSOURCE_DSN
+  - BOTO_CONFIG=/tmp/nowhere DEEPSOURCE_DSN=https://c9d4fb28ce6f41798861936c25b0361e@deepsource.io
 dist: trusty
