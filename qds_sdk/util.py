@@ -143,6 +143,7 @@ def underscore(word):
     return re.sub(r'\B((?<=[a-z])[A-Z]|[A-Z](?=[a-z]))',
                   r'_\1', word).lower()
 
+
 def _make_minimal(dictionary):
     """
     This function removes all the keys whose value is either None or an empty
@@ -159,6 +160,7 @@ def _make_minimal(dictionary):
                 new_dict[key] = value
     return new_dict
 
+
 def _read_file(file_path):
     file_content = None
     if file_path is not None:
@@ -169,4 +171,10 @@ def _read_file(file_path):
             sys.stderr.write("Unable to read %s: %s\n" % (file_path, str(e)))
             raise IOError("Unable to read %s: %s\n" % (file_path, str(e)))
     return file_content
+
+
+def _is_cloud_url(file_path):
+    cloud_prefixes = ('oci://', 'oraclebmc://', 'wasb://', 'gs://', 's3://',
+                      's3n://', 's3a://', 'swift://', 'adl://', 'abfs://', 'abfss://')
+    return file_path.startswith(cloud_prefixes)
 

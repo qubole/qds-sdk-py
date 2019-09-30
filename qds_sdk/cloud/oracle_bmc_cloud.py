@@ -1,5 +1,6 @@
 from qds_sdk.cloud.cloud import Cloud
 import json
+import ast
 
 class OracleBmcCloud(Cloud):
     '''
@@ -29,7 +30,9 @@ class OracleBmcCloud(Cloud):
                          storage_tenant_id=None,
                          storage_user_id=None,
                          storage_key_finger_print=None,
-                         storage_api_private_rsa_key=None):
+                         storage_api_private_rsa_key=None,
+                         block_volume_count=None,
+                         block_volume_size=None):
         '''
 
         Args:
@@ -66,6 +69,10 @@ class OracleBmcCloud(Cloud):
 
             storage_api_private_rsa_key: storage api private rsa key for oracle cluster
 
+            block_volume_count: count of block volumes to be mounted to an instance as reserved disks
+
+            block_volume_size: It is the size (in GB) of each block volume to be mounted to an instance as reserved disk
+
         '''
 
         self.set_compute_config(use_account_compute_creds, compute_tenant_id,
@@ -75,7 +82,8 @@ class OracleBmcCloud(Cloud):
         self.set_network_config(vcn_id, subnet_id,
                                 compartment_id, image_id, availability_domain_info_map)
         self.set_storage_config(storage_tenant_id, storage_user_id,
-                                storage_key_finger_print, storage_api_private_rsa_key)
+                                storage_key_finger_print, storage_api_private_rsa_key, block_volume_count,
+                                block_volume_size)
 
     def  set_compute_config(self,
                             use_account_compute_creds=None,
@@ -105,23 +113,30 @@ class OracleBmcCloud(Cloud):
         self.network_config['subnet_id'] = subnet_id
         self.network_config['compartment_id'] = compartment_id
         self.network_config['image_id'] = image_id
-        if availability_domain_info_map and availability_domain_info_map.strip():
-            try:
-                self.network_config['availability_domain_info_map'] = json.loads(availability_domain_info_map.strip())
-            except Exception as e:
-                raise Exception("Invalid JSON string for availability domain info map: %s" % e.message)
+        if availability_domain_info_map:
+            self.network_config['availability_domain_info_map'] = availability_domain_info_map
 
     def set_storage_config(self,
                            storage_tenant_id=None,
                            storage_user_id=None,
                            storage_key_finger_print=None,
-                           storage_api_private_rsa_key=None):
+                           storage_api_private_rsa_key=None,
+                           block_volume_count=None,
+                           block_volume_size=None):
         self.storage_config['storage_tenant_id'] = storage_tenant_id
         self.storage_config['storage_user_id'] = storage_user_id
         self.storage_config['storage_key_finger_print'] = storage_key_finger_print
         self.storage_config['storage_api_private_rsa_key'] = storage_api_private_rsa_key
+        self.storage_config['block_volume_count'] = block_volume_count
+        self.storage_config['block_volume_size'] = block_volume_size
 
     def set_cloud_config_from_arguments(self, arguments):
+        if arguments.availability_domain_info_map:
+            try:
+                arguments.availability_domain_info_map = ast.literal_eval(arguments.availability_domain_info_map)
+                assert isinstance(arguments.availability_domain_info_map, list)
+            except Exception as e:
+                raise Exception("Invalid List format for availability_domain_info_map: %s" % e.message)
         self.set_cloud_config(compute_tenant_id=arguments.compute_tenant_id,
                               compute_user_id=arguments.compute_user_id,
                               compute_key_finger_print=arguments.compute_key_finger_print,
@@ -137,7 +152,10 @@ class OracleBmcCloud(Cloud):
                               storage_tenant_id=arguments.storage_tenant_id,
                               storage_user_id=arguments.storage_user_id,
                               storage_key_finger_print=arguments.storage_key_finger_print,
-                              storage_api_private_rsa_key=arguments.storage_api_private_rsa_key)
+                              storage_api_private_rsa_key=arguments.storage_api_private_rsa_key,
+                              block_volume_count=arguments.block_volume_count,
+                              block_volume_size=arguments.block_volume_size
+                              )
 
     def create_parser(self, argparser):
         # compute settings parser
@@ -216,3 +234,13 @@ class OracleBmcCloud(Cloud):
                                     dest="storage_api_private_rsa_key",
                                     default=None,
                                     help="storage api private rsa key for oracle cluster")
+        storage_config.add_argument("--block-volume-count",
+                                    dest="block_volume_count",
+                                    default=None,
+                                    help="count of block volumes to be mounted to an instance as reserved disks",
+                                    type=int)
+        storage_config.add_argument("--block-volume-size",
+                                    dest="block_volume_size",
+                                    default=None,
+                                    help="size (in GB) of each block volume to be mounted to an instance",
+                                    type=int)

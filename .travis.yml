@@ -1,17 +1,21 @@
 language: python
 python:
-  - "2.6"
   - "2.7"
   - "3.3"
   - "3.4"
   - "3.5"
 # command to install dependencies
 install:
-  - pip install urllib3==1.22 requests
+  - pip install -r requirements.txt
   - "python setup.py install"
   - pip install mock
-  - pip install pytest
+  - pip install pytest==3.2.0 pytest-cov==2.6.0
   - if [[ $TRAVIS_PYTHON_VERSION == 2.6 ]]; then pip install unittest2; fi
+  - curl https://deepsource.io/cli | sh
 # command to run tests
-script: py.test
-env: BOTO_CONFIG=/tmp/nowhere
+script:
+  - py.test --cov=./ --cov-report xml
+  - ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml
+env:
+  - BOTO_CONFIG=/tmp/nowhere DEEPSOURCE_DSN=https://c9d4fb28ce6f41798861936c25b0361e@deepsource.io
+dist: trusty

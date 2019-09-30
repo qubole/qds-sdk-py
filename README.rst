@@ -21,9 +21,9 @@ The SDK is available on `PyPI <https://pypi.python.org/pypi/qds_sdk>`_.
 
 From source
 ~~~~~~~~~~~
-* Download the source code:
+* Get the source code:
 
-  - Either clone the project: ``git clone git@github.com:qubole/qds-sdk-py.git``
+  - Either clone the project: ``git clone git@github.com:qubole/qds-sdk-py.git`` and checkout latest release tag from `Releases <https://github.com/qubole/qds-sdk-py/releases>`_.
   
   - Or download one of the releases from https://github.com/qubole/qds-sdk-py/releases
 

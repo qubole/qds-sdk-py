@@ -9,9 +9,7 @@ from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
 from qds_sdk.account import Account
-from qds_sdk.util import GentleOptionParser
-from qds_sdk.util import OptionParsingError
-from qds_sdk.util import OptionParsingExit
+from qds_sdk.util import GentleOptionParser, OptionParsingError, OptionParsingExit, _is_cloud_url
 from optparse import SUPPRESS_HELP
 
 import boto
@@ -76,6 +74,20 @@ class Command(Resource):
     def list(cls, **kwargs):
         """
         List a command by issuing a GET request to the /command endpoint
+
+        Args:
+            `**kwargs`: Various parameters can be used to filter the commands such as:
+                        * command_type - HiveQuery, PrestoQuery, etc. The types should be in title case.
+                        * status - failed, success, etc
+                        * name
+                        * command_id
+                        * qbol_user_id
+                        * command_source
+                        * page
+                        * cluster_label
+                        * session_id, etc
+
+            For example - Command.list(command_type = "HiveQuery", status = "success")
         """
         conn = Qubole.agent()
         params = {}
@@ -287,19 +299,17 @@ class Command(Resource):
                     pass
         else:
             if fetch:
+                if not boto.config.has_section('s3'):
+                    boto.config.add_section('s3')
+                boto.config.set('s3', 'use-sigv4', 'True')
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
-                if storage_credentials['region_endpoint'] is not None:
-                    boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
-                                                aws_secret_access_key=storage_credentials['storage_secret_key'],
-                                                security_token = storage_credentials['session_token'],
-                                                host = storage_credentials['region_endpoint'])
-                else:
-                    boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
-                                                aws_secret_access_key=storage_credentials['storage_secret_key'],
-                                                security_token=storage_credentials['session_token'])
-
+                host = storage_credentials['region_endpoint'] if storage_credentials['region_endpoint'] else "s3.amazonaws.com"
+                boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
+                                            aws_secret_access_key=storage_credentials['storage_secret_key'],
+                                            security_token=storage_credentials['session_token'],
+                                            host=host)
                 log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
-                #fetch latest value of num_result_dir
+                # fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
 
                 # If column/header names are not able to fetch then use include header as true
@@ -393,8 +403,7 @@ class HiveCommand(Command):
                     "Both query and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -479,8 +488,7 @@ class SqlCommand(Command):
                     "Both query and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -613,9 +621,8 @@ class SparkCommand(Command):
             else:
                 raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
                                  cls.optparser.format_help())
-                
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file so set the program as the text from the file
 
@@ -735,8 +742,7 @@ class PrestoCommand(Command):
                     "Both query and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
                 try:
@@ -898,8 +904,7 @@ class ShellCommand(Command):
                     "Both script and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -997,8 +1002,7 @@ class PigCommand(Command):
                     "Both script and script_location cannot be specified",
                     cls.optparser.format_help())
 
-            if ((options.script_location.find("s3://") != 0) and
-                (options.script_location.find("s3n://") != 0)):
+            if not _is_cloud_url(options.script_location):
 
                 # script location is local file
 
@@ -1319,8 +1323,7 @@ class DbTapQueryCommand(Command):
                         "Both query and script_location cannot be specified",
                         cls.optparser.format_help())
 
-                if ((options.script_location.find("s3://") != 0) and
-                        (options.script_location.find("s3n://") != 0)):
+                if not _is_cloud_url(options.script_location):
 
                     # script location is local file
 
@@ -1375,12 +1378,11 @@ def _read_iteratively(key_instance, fp, delim):
             else:
                 import io
                 if isinstance(fp, io.TextIOBase):
-                    fp.buffer.write(data.decode('utf-8').replace(chr(1), delim).encode('utf8'))
+                    fp.buffer.write(data.replace(bytes([1]), delim.encode('utf8')))
                 elif isinstance(fp, io.BufferedIOBase) or isinstance(fp, io.RawIOBase):
-                    fp.write(data.decode('utf8').replace(chr(1), delim).encode('utf8'))
+                    fp.write(data.replace(bytes([1]), delim.encode('utf8')))
                 else:
-                    # Can this happen? Don't know what's the right thing to do in this case.
-                    pass
+                    raise ValueError('Only subclasses of io.TextIOBase or io.BufferedIOBase supported')
         except StopIteration:
             # Stream closes itself when the exception is raised
             return
