@@ -121,3 +121,13 @@ class Qubole:
         elif cloud_name.lower() == "gcp":
             import qds_sdk.cloud.gcp_cloud
             return qds_sdk.cloud.gcp_cloud.GcpCloud()
+
+    def get_api_version(cls, api_version=None):
+        valid_api_versions = ["v1.2", "v1.3", "v2", "v2.0", "v2.1", "v2.2"]
+        if api_version and api_version not in valid_api_versions:
+            raise Exception("api_version should be %s" % valid_api_versions)
+
+        if api_version:
+            return float(api_version[1:])
+        else:
+            return float(cls.version[1:])
