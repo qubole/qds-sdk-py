@@ -205,27 +205,27 @@ class ClusterInfoV22(object):
 
         if args.master_ondemand_percentage:
           self.set_master_ondemand(args.master_ondemand_percentage)
-        if master_spot_block_percentage:
+        if args.master_spot_block_percentage:
           self.set_master_spot_block(args.master_spot_block_percentage, args.master_spot_block_duration, args.master_spot_block_fallback)
-        if master_spot_percentage:
+        if args.master_spot_percentage:
           self.set_master_spot(args.master_spot_percentage, args.master_maximum_bid_price_percentage, args.master_timeout_for_request, args.master_spot_fallback)
 
     def set_min_config(self, args):
         self.cluster_info["composition"]["min_nodes"] = {"nodes" : []}
         if args.min_ondemand_percentage:
           self.set_min_ondemand(args.min_ondemand_percentage)
-        if min_spot_block_percentage:
+        if args.min_spot_block_percentage:
           self.set_min_spot_block(args.min_spot_block_percentage, args.min_spot_block_duration, args.min_spot_block_fallback)
-        if min_spot_percentage:
+        if args.min_spot_percentage:
           self.set_min_spot(args.min_spot_percentage, args.min_maximum_bid_price_percentage, args.min_timeout_for_request, args.min_spot_fallback)
 
     def set_autoscaling_config(self, args):
         self.cluster_info["composition"]["autoscaling_nodes"] = {"nodes" : []}
         if args.autoscaling_ondemand_percentage:
           self.set_autoscaling_ondemand(args.autoscaling_ondemand_percentage)
-        if autoscaling_spot_block_percentage:
+        if args.autoscaling_spot_block_percentage:
           self.set_autoscaling_spot_block(args.autoscaling_spot_block_percentage, args.autoscaling_spot_block_duration, args.autoscaling_spot_block_fallback)
-        if autoscaling_spot_percentage:
+        if args.autoscaling_spot_percentage:
           self.set_autoscaling_spot(args.autoscaling_spot_percentage, args.autoscaling_maximum_bid_price_percentage, args.autoscaling_timeout_for_request, args.autoscaling_spot_fallback)
 
     def set_master_ondemand(self, master_ondemand_percentage = None):
