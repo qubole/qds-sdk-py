@@ -226,7 +226,7 @@ class ClusterInfoV2(object):
         self.cluster_info['force_tunnel'] = force_tunnel
         self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
         self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
-        self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
+        self.cluster_info['node_volatile_cooldown_period'] = node_spot_cooldown_period
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
         if custom_tags and custom_tags.strip():
             try:
@@ -614,13 +614,7 @@ class ClusterInfoV2(object):
 class ClusterV2(Resource):
 
     rest_entity_path = "clusters"
-
-    def version(cls):
-      if Qubole.version:
-        version = Qubole.version 
-      else:
-        version = "v2"
-      return version
+    api_version = "v2"
 
     @classmethod
     def create(cls, cluster_info):
@@ -628,7 +622,7 @@ class ClusterV2(Resource):
         Create a new cluster using information provided in `cluster_info`.
         """
         
-        conn = Qubole.agent(version=cls.version)
+        conn = Qubole.agent(version=cls.api_version)
         return conn.post(cls.rest_entity_path, data=cluster_info)
 
     @classmethod
@@ -637,7 +631,7 @@ class ClusterV2(Resource):
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
         """
-        conn = Qubole.agent(version=cls.version)
+        conn = Qubole.agent(version=cls.api_version)
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
@@ -646,7 +640,7 @@ class ClusterV2(Resource):
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
         """
-        conn = Qubole.agent(version=cls.version)
+        conn = Qubole.agent(version=cls.api_version)
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
@@ -672,7 +666,7 @@ class ClusterV2(Resource):
         if per_page:
             params['per_page'] = per_page
         params = None if not params else params
-        conn = Qubole.agent(version=cls.version)
+        conn = Qubole.agent(version=cls.api_version)
         cluster_list = conn.get(cls.rest_entity_path)
         if state is None:
             # return the complete list since state is None
@@ -690,5 +684,5 @@ class ClusterV2(Resource):
         """
         Show information about the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent(version=cls.version)
+        conn = Qubole.agent(version=cls.api_version)
         return conn.get(cls.element_path(cluster_id_label))

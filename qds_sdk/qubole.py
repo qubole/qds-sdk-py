@@ -122,6 +122,7 @@ class Qubole:
             import qds_sdk.cloud.gcp_cloud
             return qds_sdk.cloud.gcp_cloud.GcpCloud()
 
+    @classmethod
     def get_api_version(cls, api_version=None):
         valid_api_versions = ["v1.2", "v1.3", "v2", "v2.0", "v2.1", "v2.2"]
         if api_version and api_version not in valid_api_versions:
