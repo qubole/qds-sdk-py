@@ -133,7 +133,7 @@ class Connection:
         
         if 'X-Qubole-Trace-Id' in response.headers:
             format_list = [response.headers['Date'],response.headers['X-Qubole-Trace-Id']]
-            print("[Timestamp : {}] Qubole-Trace-id for request is {}".format(*format_list))
+            sys.stderr.write("[Timestamp : {}] Request Id for the request is {}".format(*format_list) + "\n")
             
         if code == 400:
             sys.stderr.write(response.text + "\n")
