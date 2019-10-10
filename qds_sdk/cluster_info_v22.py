@@ -238,6 +238,7 @@ class ClusterInfoV22(object):
                       min_spot_fallback="ondemand",
                       autoscaling_ondemand_percentage=None,
                       autoscaling_spot_block_percentage=None,
+                      autoscaling_spot_percentage=None,
                       autoscaling_spot_block_duration=None,
                       autoscaling_spot_block_fallback="ondemand",
                       autoscaling_maximum_bid_price_percentage=None,
@@ -268,6 +269,7 @@ class ClusterInfoV22(object):
                                 autoscaling_spot_block_percentage,
                                 autoscaling_spot_block_duration,
                                 autoscaling_spot_block_fallback,
+                                autoscaling_spot_percentage,
                                 autoscaling_maximum_bid_price_percentage,
                                 autoscaling_timeout_for_request,
                                 autoscaling_spot_fallback)
@@ -321,6 +323,7 @@ class ClusterInfoV22(object):
                              autoscaling_spot_block_percentage,
                              autoscaling_spot_block_duration,
                              autoscaling_spot_block_fallback,
+                             autoscaling_spot_percentage,
                              autoscaling_maximum_bid_price_percentage,
                              autoscaling_timeout_for_request,
                              autoscaling_spot_fallback):
@@ -635,7 +638,18 @@ class ClusterInfoV22(object):
                                   type=int,
                                   help="spot block duration" +
                                        " unit: minutes")
-    #composition_group =
+    
+    # composition_group = argparser.add_argument_group("cluster composition settings")
+    # composition_group.add_argument("--master-type",
+    #                               dest="master_type",
+    #                               choices=["ondemand", "spot", "spotblock"],
+    #                               help="type of master nodes. Valid values are: ('')")
+
+    # datadisk_group.add_argument("--disk-type",
+    #                             dest="disk_type",
+    #                             choices=["standard", "gp2"],
+    #                             help="Type of the  volume attached to the instances. Valid values are " +
+    #                                  "'standard' (magnetic) and 'gp2' (ssd).")
 
     # master_ondemand_percentage=None,
     #                 master_spot_block_percentage=None,
