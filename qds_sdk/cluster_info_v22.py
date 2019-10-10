@@ -55,11 +55,10 @@ class ClusterInfoV22(object):
                           disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
                           paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
 
-    self.set_composition(master_ondemand_percentage=arguments.master_ondemand_percentage,
-                         master_spot_block_percentage=arguments.master_spot_block_percentage,
+
+    self.set_composition(master_type=arguments.master_type,
                          master_spot_block_duration=arguments.master_spot_block_duration,
                          master_spot_block_fallback=arguments.master_spot_block_fallback,
-                         master_spot_percentage=arguments.master_spot_percentage,
                          master_maximum_bid_price_percentage=arguments.master_maximum_bid_price_percentage,
                          master_timeout_for_request=arguments.master_timeout_for_request,
                          master_spot_fallback=arguments.master_spot_fallback,
@@ -220,11 +219,9 @@ class ClusterInfoV22(object):
                                  disable_autoscale_node_pause, paused_autoscale_node_timeout_mins)
 
   def set_composition(self,
-                      master_ondemand_percentage=None,
-                      master_spot_block_percentage=None,
+                      master_type="ondemand",
                       master_spot_block_duration=None,
                       master_spot_block_fallback="ondemand",
-                      master_spot_percentage=None,
                       master_maximum_bid_price_percentage=None,
                       master_timeout_for_request=None,
                       master_spot_fallback="ondemand",
@@ -247,11 +244,9 @@ class ClusterInfoV22(object):
 
     self.cluster_info["composition"] = {}
 
-    self.set_master_config(master_ondemand_percentage,
-                           master_spot_block_percentage,
+    self.set_master_config(master_type,
                            master_spot_block_duration,
                            master_spot_block_fallback,
-                           master_spot_percentage,
                            master_maximum_bid_price_percentage,
                            master_timeout_for_request,
                            master_spot_fallback)
@@ -275,26 +270,19 @@ class ClusterInfoV22(object):
                                 autoscaling_spot_fallback)
 
   def set_master_config(self,
-                        master_ondemand_percentage,
-                        master_spot_block_percentage,
+                        master_type,
                         master_spot_block_duration,
                         master_spot_block_fallback,
-                        master_spot_percentage,
                         master_maximum_bid_price_percentage,
                         master_timeout_for_request,
                         master_spot_fallback):
     self.cluster_info["composition"]["master"] = {"nodes": []}
-    if (not master_ondemand_percentage and not master_spot_block_percentage and not master_spot_percentage):
+    if master_type=="ondemand":
       self.set_master_ondemand(100)
-    else:
-      if master_ondemand_percentage:
-        self.set_master_ondemand(master_ondemand_percentage)
-      if master_spot_block_percentage:
-        self.set_master_spot_block(
-            master_spot_block_percentage, master_spot_block_duration, master_spot_block_fallback)
-      if master_spot_percentage:
-        self.set_master_spot(master_spot_percentage, master_maximum_bid_price_percentage,
-                             master_timeout_for_request, master_spot_fallback)
+    elif master_type=="spot":
+      self.set_master_spot(100, master_maximum_bid_price_percentage, master_timeout_for_request, master_spot_fallback)
+    elif master_type=="spotblock":
+      self.set_master_spot_block(100, master_spot_block_duration, master_spot_block_fallback)
 
   def set_min_config(self,
                      min_ondemand_percentage,
@@ -643,19 +631,16 @@ class ClusterInfoV22(object):
     # composition_group.add_argument("--master-type",
     #                               dest="master_type",
     #                               choices=["ondemand", "spot", "spotblock"],
-    #                               help="type of master nodes. Valid values are: ('')")
+    #                               default="ondemand",
+    #                               help="type of master nodes. Valid values are: ('ondemand', 'spot', 'spotblock')")
 
-    # datadisk_group.add_argument("--disk-type",
-    #                             dest="disk_type",
-    #                             choices=["standard", "gp2"],
-    #                             help="Type of the  volume attached to the instances. Valid values are " +
-    #                                  "'standard' (magnetic) and 'gp2' (ssd).")
+    
+
+   
 
     # master_ondemand_percentage=None,
-    #                 master_spot_block_percentage=None,
     #                 master_spot_block_duration=None,
     #                 master_spot_block_fallback="ondemand",
-    #                 master_spot_percentage=None,
     #                 master_maximum_bid_price_percentage=None,
     #                 master_timeout_for_request=None,
     #                 master_spot_fallback="ondemand",
