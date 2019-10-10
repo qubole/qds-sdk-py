@@ -278,15 +278,15 @@ class ClusterInfoV22(object):
                           master_timeout_for_request,
                           master_spot_fallback):
         self.cluster_info["composition"]["master"] = {"nodes" : []}
-        if (not args.master_ondemand_percentage && not args.master_spot_block_percentage && not args.master_spot_percentage):
+        if (not master_ondemand_percentage && not master_spot_block_percentage && not master_spot_percentage):
           self.set_master_ondemand(100)
         else:
-          if args.master_ondemand_percentage:
-            self.set_master_ondemand(args.master_ondemand_percentage)
-          if args.master_spot_block_percentage:
-            self.set_master_spot_block(args.master_spot_block_percentage, args.master_spot_block_duration, args.master_spot_block_fallback)
-          if args.master_spot_percentage:
-            self.set_master_spot(args.master_spot_percentage, args.master_maximum_bid_price_percentage, args.master_timeout_for_request, args.master_spot_fallback)
+          if master_ondemand_percentage:
+            self.set_master_ondemand(master_ondemand_percentage)
+          if master_spot_block_percentage:
+            self.set_master_spot_block(master_spot_block_percentage, master_spot_block_duration, master_spot_block_fallback)
+          if master_spot_percentage:
+            self.set_master_spot(master_spot_percentage, master_maximum_bid_price_percentage, master_timeout_for_request, master_spot_fallback)
 
     def set_min_config(self,
                       min_ondemand_percentage, 
@@ -298,15 +298,15 @@ class ClusterInfoV22(object):
                       min_timeout_for_request,
                       min_spot_fallback):
         self.cluster_info["composition"]["min_nodes"] = {"nodes" : []}
-        if (not args.min_ondemand_percentage && not args.min_spot_block_percentage && not args.min_spot_percentage):
+        if (not min_ondemand_percentage && not min_spot_block_percentage && not min_spot_percentage):
           self.set_min_ondemand(100)
         else:
-          if args.min_ondemand_percentage:
-            self.set_min_ondemand(args.min_ondemand_percentage)
-          if args.min_spot_block_percentage:
-            self.set_min_spot_block(args.min_spot_block_percentage, args.min_spot_block_duration, args.min_spot_block_fallback)
-          if args.min_spot_percentage:
-            self.set_min_spot(args.min_spot_percentage, args.min_maximum_bid_price_percentage, args.min_timeout_for_request, args.min_spot_fallback)
+          if min_ondemand_percentage:
+            self.set_min_ondemand(min_ondemand_percentage)
+          if min_spot_block_percentage:
+            self.set_min_spot_block(min_spot_block_percentage, min_spot_block_duration, min_spot_block_fallback)
+          if min_spot_percentage:
+            self.set_min_spot(min_spot_percentage, min_maximum_bid_price_percentage, min_timeout_for_request, min_spot_fallback)
 
     def set_autoscaling_config(self, 
                                autoscaling_ondemand_percentage,
@@ -317,12 +317,12 @@ class ClusterInfoV22(object):
                                autoscaling_timeout_for_request,
                                autoscaling_spot_fallback):
         self.cluster_info["composition"]["autoscaling_nodes"] = {"nodes" : []}
-        if args.autoscaling_ondemand_percentage:
-          self.set_autoscaling_ondemand(args.autoscaling_ondemand_percentage)
-        if args.autoscaling_spot_block_percentage:
-          self.set_autoscaling_spot_block(args.autoscaling_spot_block_percentage, args.autoscaling_spot_block_duration, args.autoscaling_spot_block_fallback)
-        if args.autoscaling_spot_percentage:
-          self.set_autoscaling_spot(args.autoscaling_spot_percentage, args.autoscaling_maximum_bid_price_percentage, args.autoscaling_timeout_for_request, args.autoscaling_spot_fallback)
+        if autoscaling_ondemand_percentage:
+          self.set_autoscaling_ondemand(autoscaling_ondemand_percentage)
+        if autoscaling_spot_block_percentage:
+          self.set_autoscaling_spot_block(autoscaling_spot_block_percentage, autoscaling_spot_block_duration, autoscaling_spot_block_fallback)
+        if autoscaling_spot_percentage:
+          self.set_autoscaling_spot(autoscaling_spot_percentage, autoscaling_maximum_bid_price_percentage, autoscaling_timeout_for_request, autoscaling_spot_fallback)
 
     def set_master_ondemand(self, master_ondemand_percentage = None):
         ondemand = {"percentage": master_ondemand_percentage, "type": "ondemand"}
