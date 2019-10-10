@@ -254,7 +254,7 @@ class ClusterInfoV22(object):
         self.set_min_config(min_ondemand_percentage, 
                             min_spot_block_percentage,
                             min_spot_block_duration,
-                            min_spot_block_fallback
+                            min_spot_block_fallback,
                             min_spot_percentage,
                             min_maximum_bid_price_percentage,
                             min_timeout_for_request,
@@ -292,7 +292,7 @@ class ClusterInfoV22(object):
                       min_ondemand_percentage, 
                       min_spot_block_percentage,
                       min_spot_block_duration,
-                      min_spot_block_fallback
+                      min_spot_block_fallback,
                       min_spot_percentage,
                       min_maximum_bid_price_percentage,
                       min_timeout_for_request,
@@ -619,6 +619,8 @@ class ClusterInfoV22(object):
                                       type=int,
                                       help="spot block duration" +
                                            " unit: minutes")
+
+
 
         # monitoring settings
         monitoring_group = argparser.add_argument_group("monitoring settings")
