@@ -24,38 +24,59 @@ class ClusterInfoV22(object):
         self.internal = {} # right now not supported
 
     def set_cluster_info_from_arguments(self, arguments):
-      self.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
-                            enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
-                            datadog_api_token=arguments.datadog_api_token,
-                            datadog_app_token=arguments.datadog_app_token,
-                            node_bootstrap=arguments.node_bootstrap_file,
-                            master_instance_type=arguments.master_instance_type,
-                            slave_instance_type=arguments.slave_instance_type,
-                            min_nodes=arguments.initial_nodes,
-                            max_nodes=arguments.max_nodes,
-                            node_base_cooldown_period=arguments.node_base_cooldown_period,
-                            node_spot_cooldown_period=arguments.node_spot_cooldown_period,
-                            custom_tags=arguments.custom_tags,
-                            heterogeneous_config=arguments.heterogeneous_config,
-                            idle_cluster_timeout=arguments.idle_cluster_timeout,
-                            disk_count=arguments.count,
-                            disk_type=arguments.disk_type,
-                            disk_size=arguments.size,
-                            root_disk_size=arguments.root_disk_size,
-                            upscaling_config=arguments.upscaling_config,
-                            enable_encryption=arguments.encrypted_ephemerals,
-                            customer_ssh_key=customer_ssh_key,
-                            image_uri_overrides=arguments.image_uri_overrides,
-                            env_name=arguments.env_name,
-                            python_version=arguments.python_version,
-                            r_version=arguments.r_version,
-                            disable_cluster_pause=arguments.disable_cluster_pause,
-                            paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
-                            disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
-                            paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
+        self.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
+                              enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
+                              datadog_api_token=arguments.datadog_api_token,
+                              datadog_app_token=arguments.datadog_app_token,
+                              node_bootstrap=arguments.node_bootstrap_file,
+                              master_instance_type=arguments.master_instance_type,
+                              slave_instance_type=arguments.slave_instance_type,
+                              min_nodes=arguments.initial_nodes,
+                              max_nodes=arguments.max_nodes,
+                              node_base_cooldown_period=arguments.node_base_cooldown_period,
+                              node_spot_cooldown_period=arguments.node_spot_cooldown_period,
+                              custom_tags=arguments.custom_tags,
+                              heterogeneous_config=arguments.heterogeneous_config,
+                              idle_cluster_timeout=arguments.idle_cluster_timeout,
+                              disk_count=arguments.count,
+                              disk_type=arguments.disk_type,
+                              disk_size=arguments.size,
+                              root_disk_size=arguments.root_disk_size,
+                              upscaling_config=arguments.upscaling_config,
+                              enable_encryption=arguments.encrypted_ephemerals,
+                              customer_ssh_key=customer_ssh_key,
+                              image_uri_overrides=arguments.image_uri_overrides,
+                              env_name=arguments.env_name,
+                              python_version=arguments.python_version,
+                              r_version=arguments.r_version,
+                              disable_cluster_pause=arguments.disable_cluster_pause,
+                              paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
+                              disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
+                              paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
 
-      self.set_composition(arguments)
-
+        self.set_composition(master_ondemand_percentage = arguments.master_ondemand_percentage, 
+                              master_spot_block_percentage = arguments.master_spot_block_percentage, 
+                              master_spot_block_duration = arguments.master_spot_block_duration, 
+                              master_spot_block_fallback = arguments.master_spot_block_fallback, 
+                              master_spot_percentage = arguments.master_spot_percentage, 
+                              master_maximum_bid_price_percentage = arguments.master_maximum_bid_price_percentage, 
+                              master_timeout_for_request = arguments.master_timeout_for_request,
+                              master_spot_fallback = arguments.master_spot_fallback,
+                              min_ondemand_percentage = arguments.min_ondemand_percentage, 
+                              min_spot_block_percentage = arguments.min_spot_block_percentage,
+                              min_spot_block_duration = arguments.min_spot_block_duration,
+                              min_spot_block_fallback = arguments.min_spot_block_fallback
+                              min_spot_percentage = arguments.min_spot_percentage,
+                              min_maximum_bid_price_percentage = arguments.min_maximum_bid_price_percentage,
+                              min_timeout_for_request = arguments.min_timeout_for_request,
+                              min_spot_fallback = arguments.min_spot_fallback,
+                              autoscaling_ondemand_percentage = arguments.autoscaling_ondemand_percentage,
+                              autoscaling_spot_block_percentage = arguments.autoscaling_spot_block_percentage,
+                              autoscaling_spot_block_duration = arguments.autoscaling_spot_block_duration,
+                              autoscaling_spot_block_fallback = arguments.autoscaling_spot_block_fallback,
+                              autoscaling_maximum_bid_price_percentage = arguments.autoscaling_maximum_bid_price_percentage,
+                              autoscaling_timeout_for_request = arguments.autoscaling_timeout_for_request,
+                              autoscaling_spot_fallback = arguments.autoscaling_spot_fallback)
 
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
@@ -175,7 +196,7 @@ class ClusterInfoV22(object):
         self.cluster_info['disallow_cluster_termination'] = disallow_cluster_termination
         self.cluster_info['force_tunnel'] = force_tunnel
         self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
-        self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
+        self.cluster_info['node_volatile_cooldown_period'] = node_spot_cooldown_period
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
         if custom_tags and custom_tags.strip():
             try:
@@ -194,32 +215,110 @@ class ClusterInfoV22(object):
         self.set_start_stop_settings(disable_cluster_pause, paused_cluster_timeout_mins,
                                      disable_autoscale_node_pause, paused_autoscale_node_timeout_mins)
 
-    def set_composition(self, arguments):
+    def set_composition(self, 
+                        master_ondemand_percentage=None, 
+                        master_spot_block_percentage=None, 
+                        master_spot_block_duration=None, 
+                        master_spot_block_fallback="ondemand", 
+                        master_spot_percentage=None, 
+                        master_maximum_bid_price_percentage=None, 
+                        master_timeout_for_request=None,
+                        master_spot_fallback="ondemand",
+                        min_ondemand_percentage=None, 
+                        min_spot_block_percentage=None,
+                        min_spot_block_duration=None,
+                        min_spot_block_fallback="ondemand",
+                        min_spot_percentage=None,
+                        min_maximum_bid_price_percentage=None,
+                        min_timeout_for_request=None,
+                        min_spot_fallback="ondemand",
+                        autoscaling_ondemand_percentage=None,
+                        autoscaling_spot_block_percentage=None,
+                        autoscaling_spot_block_duration=None,
+                        autoscaling_spot_block_fallback="ondemand",
+                        autoscaling_maximum_bid_price_percentage=None,
+                        autoscaling_timeout_for_request=None,
+                        autoscaling_spot_fallback="ondemand"):
+        
         self.cluster_info["composition"] = {}
-        self.set_master_config(arguments)
-        self.set_min_config(arguments)
-        self.set_autoscaling_config(arguments)
+        
+        self.set_master_config(master_ondemand_percentage, 
+                               master_spot_block_percentage, 
+                               master_spot_block_duration, 
+                               master_spot_block_fallback, 
+                               master_spot_percentage, 
+                               master_maximum_bid_price_percentage, 
+                               master_timeout_for_request,
+                               master_spot_fallback)
+        
+        self.set_min_config(min_ondemand_percentage, 
+                            min_spot_block_percentage,
+                            min_spot_block_duration,
+                            min_spot_block_fallback
+                            min_spot_percentage,
+                            min_maximum_bid_price_percentage,
+                            min_timeout_for_request,
+                            min_spot_fallback)
+        
+        self.set_autoscaling_config(autoscaling_ondemand_percentage,
+                                    autoscaling_spot_block_percentage,
+                                    autoscaling_spot_block_duration,
+                                    autoscaling_spot_block_fallback,
+                                    autoscaling_maximum_bid_price_percentage,
+                                    autoscaling_timeout_for_request,
+                                    autoscaling_spot_fallback)
 
-    def set_master_config(self, args):
+    def set_master_config(self, 
+                          master_ondemand_percentage, 
+                          master_spot_block_percentage, 
+                          master_spot_block_duration, 
+                          master_spot_block_fallback, 
+                          master_spot_percentage, 
+                          master_maximum_bid_price_percentage, 
+                          master_timeout_for_request,
+                          master_spot_fallback
+                          ):
         self.cluster_info["composition"]["master"] = {"nodes" : []}
+        if (not args.master_ondemand_percentage && not args.master_spot_block_percentage && not args.master_spot_percentage):
+          self.set_master_ondemand(100)
+        else:
+          if args.master_ondemand_percentage:
+            self.set_master_ondemand(args.master_ondemand_percentage)
+          if args.master_spot_block_percentage:
+            self.set_master_spot_block(args.master_spot_block_percentage, args.master_spot_block_duration, args.master_spot_block_fallback)
+          if args.master_spot_percentage:
+            self.set_master_spot(args.master_spot_percentage, args.master_maximum_bid_price_percentage, args.master_timeout_for_request, args.master_spot_fallback)
 
-        if args.master_ondemand_percentage:
-          self.set_master_ondemand(args.master_ondemand_percentage)
-        if args.master_spot_block_percentage:
-          self.set_master_spot_block(args.master_spot_block_percentage, args.master_spot_block_duration, args.master_spot_block_fallback)
-        if args.master_spot_percentage:
-          self.set_master_spot(args.master_spot_percentage, args.master_maximum_bid_price_percentage, args.master_timeout_for_request, args.master_spot_fallback)
-
-    def set_min_config(self, args):
+    def set_min_config(self,
+                      min_ondemand_percentage, 
+                      min_spot_block_percentage,
+                      min_spot_block_duration,
+                      min_spot_block_fallback
+                      min_spot_percentage,
+                      min_maximum_bid_price_percentage,
+                      min_timeout_for_request,
+                      min_spot_fallback
+                      ):
         self.cluster_info["composition"]["min_nodes"] = {"nodes" : []}
-        if args.min_ondemand_percentage:
-          self.set_min_ondemand(args.min_ondemand_percentage)
-        if args.min_spot_block_percentage:
-          self.set_min_spot_block(args.min_spot_block_percentage, args.min_spot_block_duration, args.min_spot_block_fallback)
-        if args.min_spot_percentage:
-          self.set_min_spot(args.min_spot_percentage, args.min_maximum_bid_price_percentage, args.min_timeout_for_request, args.min_spot_fallback)
+        if (not args.min_ondemand_percentage && not args.min_spot_block_percentage && not args.min_spot_percentage):
+          self.set_min_ondemand(100)
+        else:
+          if args.min_ondemand_percentage:
+            self.set_min_ondemand(args.min_ondemand_percentage)
+          if args.min_spot_block_percentage:
+            self.set_min_spot_block(args.min_spot_block_percentage, args.min_spot_block_duration, args.min_spot_block_fallback)
+          if args.min_spot_percentage:
+            self.set_min_spot(args.min_spot_percentage, args.min_maximum_bid_price_percentage, args.min_timeout_for_request, args.min_spot_fallback)
 
-    def set_autoscaling_config(self, args):
+    def set_autoscaling_config(self, 
+                               autoscaling_ondemand_percentage,
+                               autoscaling_spot_block_percentage,
+                               autoscaling_spot_block_duration,
+                               autoscaling_spot_block_fallback,
+                               autoscaling_maximum_bid_price_percentage,
+                               autoscaling_timeout_for_request,
+                               autoscaling_spot_fallback
+                               ):
         self.cluster_info["composition"]["autoscaling_nodes"] = {"nodes" : []}
         if args.autoscaling_ondemand_percentage:
           self.set_autoscaling_ondemand(args.autoscaling_ondemand_percentage)
@@ -229,64 +328,64 @@ class ClusterInfoV22(object):
           self.set_autoscaling_spot(args.autoscaling_spot_percentage, args.autoscaling_maximum_bid_price_percentage, args.autoscaling_timeout_for_request, args.autoscaling_spot_fallback)
 
     def set_master_ondemand(self, master_ondemand_percentage = None):
-      ondemand = {"percentage": master_ondemand_percentage, "type": "ondemand"}
-      self.cluster_info["composition"]["master"]["nodes"].append(ondemand)
+        ondemand = {"percentage": master_ondemand_percentage, "type": "ondemand"}
+        self.cluster_info["composition"]["master"]["nodes"].append(ondemand)
 
     def set_master_spot_block(self, master_spot_block_percentage=None, master_spot_block_duration=None, master_spot_block_fallback=None):
-      spot_block = {"percentage": master_spot_block_percentage,
-                    "type": "spotblock",
-                    "timeout": master_spot_block_duration,
-                    "fallback": master_spot_block_fallback}
-      self.cluster_info["composition"]["master"]["nodes"].append(spot_block)
+        spot_block = {"percentage": master_spot_block_percentage,
+                      "type": "spotblock",
+                      "timeout": master_spot_block_duration,
+                      "fallback": master_spot_block_fallback}
+        self.cluster_info["composition"]["master"]["nodes"].append(spot_block)
 
     def set_master_spot(self, master_spot_percentage=None, master_maximum_bid_price_percentage=None, master_timeout_for_request=None, master_spot_fallback=None):
-      spot = { "percentage": master_spot_percentage,
-              "type": "spot",
-              "maximum_bid_price_percentage":  master_maximum_bid_price_percentage,
-              "timeout_for_request": master_timeout_for_request, 
-              "fallback" : master_spot_fallback
-      }
-      self.cluster_info["composition"]["master"]["nodes"].append(spot)
+        spot = { "percentage": master_spot_percentage,
+                "type": "spot",
+                "maximum_bid_price_percentage":  master_maximum_bid_price_percentage,
+                "timeout_for_request": master_timeout_for_request, 
+                "fallback" : master_spot_fallback
+        }
+        self.cluster_info["composition"]["master"]["nodes"].append(spot)
 
     def set_min_ondemand(self, min_ondemand_percentage = None):
-      ondemand = {"percentage": min_ondemand_percentage, "type": "ondemand"}
-      self.cluster_info["composition"]["min_nodes"]["nodes"].append(ondemand)
+        ondemand = {"percentage": min_ondemand_percentage, "type": "ondemand"}
+        self.cluster_info["composition"]["min_nodes"]["nodes"].append(ondemand)
 
     def set_min_spot_block(self, min_spot_block_percentage=None, min_spot_block_duration=None, min_spot_block_fallback=None):
-      spot_block = {"percentage": min_spot_block_percentage,
-                    "type": "spotblock",
-                    "timeout": min_spot_block_duration,
-                    "fallback": min_spot_block_fallback}
-      self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot_block)
+        spot_block = {"percentage": min_spot_block_percentage,
+                      "type": "spotblock",
+                      "timeout": min_spot_block_duration,
+                      "fallback": min_spot_block_fallback}
+        self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot_block)
 
     def set_min_spot(self, min_spot_percentage=None, min_maximum_bid_price_percentage=None, min_timeout_for_request=None, min_spot_fallback=None):
-      spot = { "percentage": min_spot_percentage,
-              "type": "spot",
-              "maximum_bid_price_percentage":  min_maximum_bid_price_percentage,
-              "timeout_for_request": min_timeout_for_request, 
-              "fallback" : min_spot_fallback
-      }
-      self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot) 
+        spot = { "percentage": min_spot_percentage,
+                "type": "spot",
+                "maximum_bid_price_percentage":  min_maximum_bid_price_percentage,
+                "timeout_for_request": min_timeout_for_request, 
+                "fallback" : min_spot_fallback
+        }
+        self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot) 
 
     def set_autoscaling_ondemand(self, autoscaling_ondemand_percentage = None):
-      ondemand = {"percentage": autoscaling_ondemand_percentage, "type": "ondemand"}
-      self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(ondemand)
+        ondemand = {"percentage": autoscaling_ondemand_percentage, "type": "ondemand"}
+        self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(ondemand)
 
     def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None, autoscaling_spot_block_duration=None, autoscaling_spot_block_fallback=None):
-      spot_block = {"percentage": autoscaling_spot_block_percentage,
-                    "type": "spotblock",
-                    "timeout": autoscaling_spot_block_duration,
-                    "fallback": autoscaling_spot_block_fallback}
-      self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
+        spot_block = {"percentage": autoscaling_spot_block_percentage,
+                      "type": "spotblock",
+                      "timeout": autoscaling_spot_block_duration,
+                      "fallback": autoscaling_spot_block_fallback}
+        self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
 
     def set_autoscaling_spot(self, autoscaling_spot_percentage=None, autoscaling_maximum_bid_price_percentage=None, autoscaling_timeout_for_request=None, autoscaling_spot_fallback=None):
-      spot = { "percentage": autoscaling_spot_percentage,
-              "type": "spot",
-              "maximum_bid_price_percentage":  autoscaling_maximum_bid_price_percentage,
-              "timeout_for_request": autoscaling_timeout_for_request, 
-              "fallback" : autoscaling_spot_fallback
-      }
-      self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot) 
+        spot = { "percentage": autoscaling_spot_percentage,
+                "type": "spot",
+                "maximum_bid_price_percentage":  autoscaling_maximum_bid_price_percentage,
+                "timeout_for_request": autoscaling_timeout_for_request, 
+                "fallback" : autoscaling_spot_fallback
+        }
+        self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot) 
 
     def set_datadog_setting(self,
                             datadog_api_token=None,
