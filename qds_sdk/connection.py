@@ -5,6 +5,7 @@ import ssl
 import json
 import pkg_resources
 from requests.adapters import HTTPAdapter
+from datetime import datetime
 try:
     from requests.packages.urllib3.poolmanager import PoolManager
 except ImportError:
@@ -132,7 +133,9 @@ class Connection:
             return
         
         if 'X-Qubole-Trace-Id' in response.headers:
-            format_list = [response.headers['Date'],response.headers['X-Qubole-Trace-Id']]
+            now = datetime.now()
+            time = now.strftime('%Y-%m-%d %H:%M:%S')
+            format_list = [time,response.headers['X-Qubole-Trace-Id']]
             sys.stderr.write("[Timestamp : {}] Request Id for the request is {}".format(*format_list) + "\n")
             
         if code == 400:
