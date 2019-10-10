@@ -633,8 +633,13 @@ class ClusterInfoV22(object):
     #                               choices=["ondemand", "spot", "spotblock"],
     #                               default="ondemand",
     #                               help="type of master nodes. Valid values are: ('ondemand', 'spot', 'spotblock')")
+    # composition_group.add_argument("--master-type",
+    #                               dest="master_type",
+    #                               choices=["ondemand", "spot", "spotblock"],
+    #                               default="ondemand",
+    #                               help="type of master nodes. Valid values are: ('ondemand', 'spot', 'spotblock')")
 
-    
+
 
    
 
