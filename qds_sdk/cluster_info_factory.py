@@ -1,5 +1,6 @@
 from qds_sdk.qubole import Qubole
 from qds_sdk.clusterv2 import ClusterInfoV2
+from qds_sdk.clusterv2 import ClusterV2
 from qds_sdk.cluster_info_v22 import ClusterInfoV22
 
 class ClusterInfoFactory:
