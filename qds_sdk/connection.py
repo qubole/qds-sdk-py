@@ -136,7 +136,8 @@ class Connection:
             now = datetime.now()
             time = now.strftime('%Y-%m-%d %H:%M:%S')
             format_list = [time,response.headers['X-Qubole-Trace-Id']]
-            sys.stderr.write("[Timestamp : {}] Request Id for the request is {}".format(*format_list) + "\n")
+            Request ID is: <request_id value from header>. Please share it with Qubole Support team for any assistance
+            sys.stderr.write("[{}] Request ID is: {}. Please share it with Qubole Support team for any assistance").format(*format_list) + "\n")
             
         if code == 400:
             sys.stderr.write(response.text + "\n")
