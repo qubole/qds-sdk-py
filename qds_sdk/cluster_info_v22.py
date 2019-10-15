@@ -31,6 +31,7 @@ class ClusterInfoV22(object):
                               datadog_app_token=arguments.datadog_app_token,
                               node_bootstrap=arguments.node_bootstrap_file,
                               master_instance_type=arguments.master_instance_type,
+                              slave_instance_type=arguments.slave_instance_type,
                               min_nodes=arguments.initial_nodes,
                               max_nodes=arguments.max_nodes,
                               node_base_cooldown_period=arguments.node_base_cooldown_period,
@@ -84,6 +85,7 @@ class ClusterInfoV22(object):
                          datadog_app_token=None,
                          node_bootstrap=None,
                          master_instance_type=None,
+                         slave_instance_type=None,
                          min_nodes=None,
                          max_nodes=None,
                          node_base_cooldown_period=None,
@@ -124,6 +126,9 @@ class ClusterInfoV22(object):
 
             `master_instance_type`: The instance type to use for the Hadoop master
                 node.
+
+            `slave_instance_type`: The instance type to use for the Hadoop slave
+                    nodes.
 
             `min_nodes`: Number of nodes to start the cluster with.
 
@@ -183,6 +188,7 @@ class ClusterInfoV22(object):
 
         """
         self.cluster_info['master_instance_type'] = master_instance_type
+        self.cluster_info['slave_instance_type'] = slave_instance_type
         self.cluster_info['min_nodes'] = min_nodes
         self.cluster_info['max_nodes'] = max_nodes
         self.cluster_info['cluster_name'] = cluster_name
@@ -483,6 +489,10 @@ class ClusterInfoV22(object):
                                   dest="master_instance_type",
                                   help="instance type to use for the hadoop" +
                                        " master node")
+        cluster_info.add_argument("--slave-instance-type",
+                                  dest="slave_instance_type",
+                                  help="instance type to use for the hadoop" +
+                                       " slave nodes")
         cluster_info.add_argument("--min-nodes",
                                   dest="initial_nodes",
                                   type=int,
