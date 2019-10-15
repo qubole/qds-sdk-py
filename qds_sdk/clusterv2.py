@@ -6,8 +6,10 @@ from qds_sdk import util
 import argparse
 import json
 
+
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
+
 
 class ClusterInfoV2(object):
     """
@@ -24,48 +26,48 @@ class ClusterInfoV2(object):
         self.cluster_info = {}
         self.cluster_info['label'] = label
         self.monitoring = {}
-        self.internal = {} # right now not supported
+        self.internal = {}  # right now not supported
 
     def set_cluster_info_from_arguments(self, arguments):
-      self.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
-                                      enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
-                                      datadog_api_token=arguments.datadog_api_token,
-                                      datadog_app_token=arguments.datadog_app_token,
-                                      node_bootstrap=arguments.node_bootstrap_file,
-                                      master_instance_type=arguments.master_instance_type,
-                                      slave_instance_type=arguments.slave_instance_type,
-                                      min_nodes=arguments.initial_nodes,
-                                      max_nodes=arguments.max_nodes,
-                                      slave_request_type=arguments.slave_request_type,
-                                      fallback_to_ondemand=arguments.fallback_to_ondemand,
-                                      node_base_cooldown_period=arguments.node_base_cooldown_period,
-                                      node_spot_cooldown_period=arguments.node_spot_cooldown_period,
-                                      custom_tags=arguments.custom_tags,
-                                      heterogeneous_config=arguments.heterogeneous_config,
-                                      maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
-                                      timeout_for_request=arguments.timeout_for_request,
-                                      maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
-                                      stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
-                                      stable_timeout_for_request=arguments.stable_timeout_for_request,
-                                      stable_spot_fallback=arguments.stable_spot_fallback,
-                                      spot_block_duration=arguments.spot_block_duration,
-                                      idle_cluster_timeout=arguments.idle_cluster_timeout,
-                                      disk_count=arguments.count,
-                                      disk_type=arguments.disk_type,
-                                      disk_size=arguments.size,
-                                      root_disk_size=arguments.root_disk_size,
-                                      upscaling_config=arguments.upscaling_config,
-                                      enable_encryption=arguments.encrypted_ephemerals,
-                                      customer_ssh_key=customer_ssh_key,
-                                      image_uri_overrides=arguments.image_uri_overrides,
-                                      env_name=arguments.env_name,
-                                      python_version=arguments.python_version,
-                                      r_version=arguments.r_version,
-                                      disable_cluster_pause=arguments.disable_cluster_pause,
-                                      paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
-                                      disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
-                                      paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
-
+        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
+        self.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
+                              enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
+                              datadog_api_token=arguments.datadog_api_token,
+                              datadog_app_token=arguments.datadog_app_token,
+                              node_bootstrap=arguments.node_bootstrap_file,
+                              master_instance_type=arguments.master_instance_type,
+                              slave_instance_type=arguments.slave_instance_type,
+                              min_nodes=arguments.initial_nodes,
+                              max_nodes=arguments.max_nodes,
+                              slave_request_type=arguments.slave_request_type,
+                              fallback_to_ondemand=arguments.fallback_to_ondemand,
+                              node_base_cooldown_period=arguments.node_base_cooldown_period,
+                              node_spot_cooldown_period=arguments.node_spot_cooldown_period,
+                              custom_tags=arguments.custom_tags,
+                              heterogeneous_config=arguments.heterogeneous_config,
+                              maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
+                              timeout_for_request=arguments.timeout_for_request,
+                              maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
+                              stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
+                              stable_timeout_for_request=arguments.stable_timeout_for_request,
+                              stable_spot_fallback=arguments.stable_spot_fallback,
+                              spot_block_duration=arguments.spot_block_duration,
+                              idle_cluster_timeout=arguments.idle_cluster_timeout,
+                              disk_count=arguments.count,
+                              disk_type=arguments.disk_type,
+                              disk_size=arguments.size,
+                              root_disk_size=arguments.root_disk_size,
+                              upscaling_config=arguments.upscaling_config,
+                              enable_encryption=arguments.encrypted_ephemerals,
+                              customer_ssh_key=customer_ssh_key,
+                              image_uri_overrides=arguments.image_uri_overrides,
+                              env_name=arguments.env_name,
+                              python_version=arguments.python_version,
+                              r_version=arguments.r_version,
+                              disable_cluster_pause=arguments.disable_cluster_pause,
+                              paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
+                              disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
+                              paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
 
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
@@ -242,8 +244,10 @@ class ClusterInfoV2(object):
         self.cluster_info['rootdisk'] = {}
         self.cluster_info['rootdisk']['size'] = root_disk_size
 
-        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
-        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
+        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
+                                        maximum_spot_instance_percentage)
+        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request,
+                                          stable_spot_fallback)
         self.set_spot_block_settings(spot_block_duration)
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
@@ -611,8 +615,8 @@ class ClusterInfoV2(object):
                                       type=int,
                                       help="paused autoscale node timeout in min")
 
-class ClusterV2(Resource):
 
+class ClusterV2(Resource):
     rest_entity_path = "clusters"
     api_version = "v2"
 
@@ -621,7 +625,7 @@ class ClusterV2(Resource):
         """
         Create a new cluster using information provided in `cluster_info`.
         """
-        
+
         conn = Qubole.agent(version=cls.api_version)
         return conn.post(cls.rest_entity_path, data=cluster_info)
 

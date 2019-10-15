@@ -1,3 +1,5 @@
+from qds_sdk.cluster_info_factory import ClusterInfoFactory
+from qds_sdk.clusterv2 import ClusterV2
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.cloud.cloud import Cloud
@@ -14,7 +16,8 @@ class ClusterCmdLine:
             prog="qds.py cluster",
             description="Cluster Operations for Qubole Data Service.")
         subparsers = argparser.add_subparsers(title="Cluster operations")
-
+        if Qubole.version is not None:
+            ClusterV2.api_version = Qubole.version
         if action == "create":
             create = subparsers.add_parser("create", help="Create a new cluster")
             ClusterCmdLine.create_update_clone_parser(create, action="create")
@@ -40,7 +43,7 @@ class ClusterCmdLine:
     def list_parser(subparser, action=None, ):
 
         # cluster info parser
-        cluster_info_cls = cluster_info_factory.get_cluster_info_cls()
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
         cluster_info_cls.list_info_parser(subparser, action)
 
     @staticmethod
@@ -50,8 +53,8 @@ class ClusterCmdLine:
         cloud.create_parser(subparser)
 
         # cluster info parser
-        cluster_info_cls = cluster_info_factory.get_cluster_info_cls()
-        cluster_info_obj.cluster_info_parser(subparser, action)
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
+        cluster_info_cls.cluster_info_parser(subparser, action)
 
         # engine config parser
         Engine.engine_parser(subparser)
@@ -68,9 +71,9 @@ class ClusterCmdLine:
 
     @staticmethod
     def get_cluster_create_clone_update(arguments, action):
-        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
+
         # This will set cluster info and monitoring settings
-        cluster_info_cls = cluster_info_factory.get_cluster_info_cls()
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
         cluster_info = cluster_info_cls(arguments.label)
         cluster_info.set_cluster_info_from_arguments(arguments)
 
@@ -81,7 +84,6 @@ class ClusterCmdLine:
         # This will set engine settings
         engine_config = Engine(flavour=arguments.flavour)
         engine_config.set_engine_config_settings(arguments)
-
         cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
 
         action = action
