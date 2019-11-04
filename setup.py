@@ -2,7 +2,7 @@ import os
 import sys
 from setuptools import setup
 
-INSTALL_REQUIRES = ['requests >=2.21.0', 'boto >=2.45.0', 'six >=1.12.0', 'urllib3 >= 1.24.3', 'inflection >= 0.3.1']
+INSTALL_REQUIRES = ['requests >=1.0.3', 'boto >=2.45.0', 'six >=1.2.0', 'urllib3 >= 1.0.2', 'inflection >= 0.3.1']
 if sys.version_info < (2, 7, 0):
     INSTALL_REQUIRES.append('argparse>=1.1')
 

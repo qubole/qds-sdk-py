@@ -1,8 +1,0 @@
-boto==2.45.0
-certifi==2019.6.16
-chardet==3.0.4
-idna==2.8
-inflection==0.3.1
-requests==2.21.0
-six==1.12.0
-urllib3==1.24.3
