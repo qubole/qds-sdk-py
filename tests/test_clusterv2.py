@@ -460,6 +460,23 @@ class TestClusterCreate(QdsCliTestCase):
                                                               'custom_spark_config': 'spark-overrides'}},
                                                      'cluster_info': {'label': ['test_label'],}})
 
+    def test_sparkstreaming_engine_config(self):
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write("config.properties:\na=1\nb=2".encode("utf8"))
+            temp.flush()
+            sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+                        '--flavour', 'sparkstreaming', '--custom-spark-config', 'spark-overrides']
+            Qubole.cloud = None
+            print_command()
+            Connection._api_call = Mock(return_value={})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'engine_config':
+                                                     {'flavour': 'sparkstreaming',
+                                                      'spark_settings': {
+                                                          'custom_spark_config': 'spark-overrides'}},
+                                                 'cluster_info': {'label': ['test_label'],}})
+
     def test_airflow_engine_config(self):
         with tempfile.NamedTemporaryFile() as temp:
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
@@ -787,7 +804,7 @@ class TestClusterUpdate(QdsCliTestCase):
             temp.write("a=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',
-                        '--use-qubole-placement-policy', '--enable-rubix', 
+                        '--use-qubole-placement-policy', '--enable-rubix',
                         '--custom-hadoop-config',temp.name]
             Qubole.cloud = None
             print_command()
