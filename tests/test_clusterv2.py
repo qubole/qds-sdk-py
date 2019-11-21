@@ -447,10 +447,8 @@ class TestClusterCreate(QdsCliTestCase):
         with tempfile.NamedTemporaryFile() as temp:
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
             temp.flush()
-            sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
-                        '--flavour', 'hs2', '--node-bootstrap-file', 'test_file_name.sh', 
-                        '--slave_instance_type', 'c1.xlarge', '--min_nodes', '3', 
-                        '--parent_cluster_id' '1']
+            sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label',
+                         'test_label', '--flavour', 'hs2', '--node-bootstrap-file', 'test_file_name', '--slave_instance_type', 'c1.xlarge', '--min_nodes', '3', '--parent_cluster_id' '1']
             Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
@@ -459,10 +457,10 @@ class TestClusterCreate(QdsCliTestCase):
                                                 {'engine_config':
                                                      {'flavour': 'hs2'}},
                                                       
-                                                 'cluster_info': {'label': ['test_label'], 
-                                                 'parent_cluster_id': 1, 'min_nodes': 3,
-                                                 'node-bootstrap-file': 'test_file_name.sh',
-                                                 'slave_instance_type': 'c1.xlarge'})
+                                                'cluster_info': {'label': ['test_label'], 
+                                                'parent_cluster_id': 1, 'min_nodes': 3,
+                                                'node-bootstrap-file': 'test_file_name.sh',
+                                                'slave_instance_type': 'c1.xlarge'})
 
     def test_spark_engine_config(self):
         with tempfile.NamedTemporaryFile() as temp:
