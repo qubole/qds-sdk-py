@@ -448,7 +448,7 @@ class TestClusterCreate(QdsCliTestCase):
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label',
-                         'test_label', '--flavour', 'hs2', '--node-bootstrap-file', 'test_file_name', '--slave_instance_type', 'c1.xlarge', '--min_nodes', '3', '--parent_cluster_id', '1']
+                         'test_label', '--flavour', 'hs2', '--node-bootstrap-file', 'test_file_name', '--slave-instance-type', 'c1.xlarge', '--min-nodes', '3', '--parent-cluster-id', '1']
             Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
