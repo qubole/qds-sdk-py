@@ -457,8 +457,9 @@ class TestClusterCreate(QdsCliTestCase):
                                                     {'engine_config':
                                                          {'flavour': 'hs2'},
                                                     'cluster_info': {'label': ['test_label'],
-                                                    'parent_cluster_id': 1, 'min_nodes': 3,
-                                                    'node-bootstrap-file': 'test_file_name',
+                                                    'parent_cluster_id': 1, 
+                                                    'min_nodes': 3,
+                                                    'node_bootstrap': 'test_file_name',
                                                     'slave_instance_type': 'c1.xlarge' }})
 
     def test_spark_engine_config(self):
