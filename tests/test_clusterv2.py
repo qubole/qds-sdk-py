@@ -457,7 +457,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                     {'engine_config':
                                                          {'flavour': 'hs2'},
                                                     'cluster_info': {'label': ['test_label'],
-                                                    'parent-cluster-id': 1, 
+                                                    'parent_cluster_id': 1, 
                                                     'min_nodes': 3,
                                                     'node_bootstrap': 'test_file_name',
                                                     'slave_instance_type': 'c1.xlarge' }})

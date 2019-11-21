@@ -359,7 +359,7 @@ class ClusterInfoV2(object):
 
         self.cluster_info['rootdisk'] = {}
         self.cluster_info['rootdisk']['size'] = root_disk_size
-        self.parent_cluster_id = parent_cluster_id
+        self.cluster_info['parent_cluster_id'] = parent_cluster_id
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
                                         maximum_spot_instance_percentage)
