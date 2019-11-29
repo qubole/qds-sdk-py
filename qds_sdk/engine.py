@@ -147,7 +147,7 @@ class Engine:
         engine_group = argparser.add_argument_group("engine settings")
         engine_group.add_argument("--flavour",
                                   dest="flavour",
-                                  choices=["hadoop", "hadoop2", "presto", "spark", "sparkstreaming", "hbase", "airflow", "deeplearning"],
+                                  choices=["hadoop", "hadoop2", "hs2", "presto", "spark", "sparkstreaming", "hbase", "airflow", "deeplearning"],
                                   default=None,
                                   help="Set engine flavour")
 
