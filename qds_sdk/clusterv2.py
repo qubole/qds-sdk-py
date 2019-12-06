@@ -2,6 +2,7 @@ from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.cloud.cloud import Cloud
 from qds_sdk.engine import Engine
+from qds_sdk.cluster_info_v22 import ClusterInfoV22
 from qds_sdk import util
 import argparse
 import json
@@ -10,6 +11,119 @@ import json
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
+class ClusterCmdLine:
+
+    @staticmethod
+    def parsers(action):
+        argparser = argparse.ArgumentParser(
+            prog="qds.py cluster",
+            description="Cluster Operations for Qubole Data Service.")
+        subparsers = argparser.add_subparsers(title="Cluster operations")
+        if Qubole.version is not None:
+            ClusterV2.api_version = Qubole.version
+        if action == "create":
+            create = subparsers.add_parser("create", help="Create a new cluster")
+            ClusterCmdLine.create_update_clone_parser(create, action="create")
+            create.set_defaults(func=ClusterV2.create)
+
+        if action == "update":
+            update = subparsers.add_parser("update", help="Update the settings of an existing cluster")
+            ClusterCmdLine.create_update_clone_parser(update, action="update")
+            update.set_defaults(func=ClusterV2.update)
+
+        if action == "clone":
+            clone = subparsers.add_parser("clone", help="Clone a cluster from an existing one")
+            ClusterCmdLine.create_update_clone_parser(clone, action="clone")
+            clone.set_defaults(func=ClusterV2.clone)
+
+        if action == "list":
+            li = subparsers.add_parser("list", help="list clusters from existing clusters depending upon state")
+            ClusterCmdLine.list_parser(li, action="list")
+            li.set_defaults(func=ClusterV2.list)
+        return argparser
+
+    @staticmethod
+    def list_parser(subparser, action=None, ):
+
+        # cluster info parser
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
+        cluster_info_cls.list_info_parser(subparser, action)
+
+    @staticmethod
+    def create_update_clone_parser(subparser, action=None):
+        # cloud config parser
+        cloud = Qubole.get_cloud()
+        cloud.create_parser(subparser)
+
+        # cluster info parser
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
+        cluster_info_cls.cluster_info_parser(subparser, action)
+
+        # engine config parser
+        Engine.engine_parser(subparser)
+
+    @staticmethod
+    def run(args):
+        parser = ClusterCmdLine.parsers(args[0])
+        arguments = parser.parse_args(args)
+        if args[0] in ["create", "clone", "update"]:
+            ClusterCmdLine.get_cluster_create_clone_update(arguments, args[0])
+        else:
+            return arguments.func(arguments.label, arguments.cluster_id, arguments.state,
+                                  arguments.page, arguments.per_page)
+
+    @staticmethod
+    def get_cluster_create_clone_update(arguments, action):
+
+        # This will set cluster info and monitoring settings
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
+        cluster_info = cluster_info_cls(arguments.label)
+        cluster_info.set_cluster_info_from_arguments(arguments)
+
+        #  This will set cloud config settings
+        cloud_config = Qubole.get_cloud()
+        cloud_config.set_cloud_config_from_arguments(arguments)
+
+        # This will set engine settings
+        engine_config = Engine(flavour=arguments.flavour)
+        engine_config.set_engine_config_settings(arguments)
+        cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
+
+        action = action
+        if action == "create":
+            return arguments.func(cluster_request)
+        else:
+            return arguments.func(arguments.cluster_id_label, cluster_request)
+
+    @staticmethod
+    def get_cluster_request_parameters(cluster_info, cloud_config, engine_config):
+        '''
+        Use this to return final minimal request from cluster_info, cloud_config or engine_config objects
+        Alternatively call util._make_minimal if only one object needs to be implemented
+        '''
+
+        cluster_request = {}
+        cloud_config = util._make_minimal(cloud_config.__dict__)
+        if bool(cloud_config): cluster_request['cloud_config'] = cloud_config
+
+        engine_config = util._make_minimal(engine_config.__dict__)
+        if bool(engine_config): cluster_request['engine_config'] = engine_config
+
+        cluster_request.update(util._make_minimal(cluster_info.__dict__))
+        return cluster_request
+
+class ClusterInfoFactory:
+
+    @staticmethod
+    def get_cluster_info_cls(api_version=None):
+        if api_version is None:
+            api_version = Qubole.version
+        if api_version == "v2":
+            return ClusterInfoV2
+        elif api_version == "v2.2":
+            return ClusterInfoV22
+        else:
+            return ClusterInfoV2
 
 class ClusterInfoV2(object):
     """
@@ -67,7 +181,8 @@ class ClusterInfoV2(object):
                               disable_cluster_pause=arguments.disable_cluster_pause,
                               paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
                               disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
-                              paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
+                              paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins,
+                              parent_cluster_id=arguments.parent_cluster_id)
 
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
@@ -109,7 +224,8 @@ class ClusterInfoV2(object):
                          disable_cluster_pause=None,
                          paused_cluster_timeout_mins=None,
                          disable_autoscale_node_pause=None,
-                         paused_autoscale_node_timeout_mins=None):
+                         paused_autoscale_node_timeout_mins=None,
+                         parent_cluster_id=None):
         """
         Args:
 
@@ -243,6 +359,7 @@ class ClusterInfoV2(object):
 
         self.cluster_info['rootdisk'] = {}
         self.cluster_info['rootdisk']['size'] = root_disk_size
+        self.cluster_info['parent_cluster_id'] = parent_cluster_id
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
                                         maximum_spot_instance_percentage)
@@ -401,6 +518,10 @@ class ClusterInfoV2(object):
                                   dest="root_disk_size",
                                   type=int,
                                   help="size of the root volume in GB")
+        cluster_info.add_argument("--parent-cluster-id",
+                                  dest="parent_cluster_id",
+                                  type=int,
+                                  help="Id of the parent cluster this hs2 cluster is attached to")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",

@@ -15,7 +15,7 @@ from qds_sdk.app import AppCmdLine
 from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
-from qds_sdk.cluster_cmd_line import ClusterCmdLine
+from qds_sdk.clusterv2 import ClusterCmdLine
 from qds_sdk.sensors import *
 import os
 import sys
