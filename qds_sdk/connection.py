@@ -50,11 +50,11 @@ class Connection:
             self.session_with_retries = requests.Session()
             self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
 
-    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout, ServerError), tries=6, delay=30, backoff=2)
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout, ServerError), tries=6, delay=30, backoff=2)
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
