@@ -195,3 +195,18 @@ class TestClusterCreate(QdsCliTestCase):
              'maximum_bid_price_percentage': 50}]}, 'autoscaling_nodes': {'nodes': [
             {'timeout_for_request': 3, 'percentage': 100, 'type': 'spot', 'fallback': None,
              'maximum_bid_price_percentage': 50}]}}, 'label': ['test_label']}})
+
+    def test_image_version_v22(self):
+        sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label',
+                     'test_label', '--flavour', 'hive', '--slave-instance-type', 'c1.xlarge', '--min-nodes', '3', '--image_version', '1.latest']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'engine_config':
+                                                     {'flavour': 'hadoop2'},
+                                                'cluster_info': {'label': ['test_label'],
+                                                'min_nodes': 3,
+                                                'slave_instance_type': 'c1.xlarge',
+                                                'cluster_image_version': '1.latest'}})

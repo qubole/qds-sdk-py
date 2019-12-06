@@ -572,6 +572,24 @@ class TestClusterCreate(QdsCliTestCase):
                                                 'internal':{'image_uri_overrides': 'test/image1'}
                                                 })
 
+    def test_image_version_v2(self):
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label',
+                     'test_label', '--flavour', 'hadoop2', '--slave-instance-type', 'c1.xlarge', '--min-nodes', '3', '--image_version', '1.latest']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'engine_config':
+                                                     {'flavour': 'hadoop2'},
+                                                'cluster_info': {'label': ['test_label'],
+                                                'min_nodes': 3,
+                                                'slave_instance_type': 'c1.xlarge',
+                                                'cluster_image_version': '1.latest'}})
+
+
+
+
     def test_spot_block_duration_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                     '--spot-block-duration', '120']
