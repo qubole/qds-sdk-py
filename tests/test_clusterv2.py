@@ -574,7 +574,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_image_version_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label',
-                     'test_label', '--flavour', 'hadoop2', '--slave-instance-type', 'c1.xlarge', '--min-nodes', '3', '--image_version', '1.latest']
+                     'test_label', '--flavour', 'hadoop2', '--slave-instance-type', 'c1.xlarge', '--min-nodes', '3', '--image-version', '1.latest']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})

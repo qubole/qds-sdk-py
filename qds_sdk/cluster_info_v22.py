@@ -514,7 +514,6 @@ class ClusterInfoV22(object):
                                   help="Id of the parent cluster this hs2 cluster is attached to")
         cluster_info.add_argument("--image-version",
                                   dest="image_version",
-                                  type=int,
                                   help="cluster image version")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
