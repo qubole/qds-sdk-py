@@ -69,7 +69,7 @@ class QuestCmdLine:
                            help='List pipeline with given status [active, archive, draft]')
         index.set_defaults(func=QuestCmdLine.index)
         # Utility for start/pause/clone/edit/delete/archive
-        start = subparsers.add_parser("util", help="List all pipelines")
+        start = subparsers.add_parser("ops", help="List all pipelines")
         start.add_argument("--start", dest="start", action="store_true",
                            help='Start pipeline')
         start.add_argument("--pause", dest="pause", action="store_true",
@@ -80,6 +80,7 @@ class QuestCmdLine:
                            help='Pause pipeline')
         start.add_argument("--edit", dest="edit", action="store_true", help="edit pipeline")
         start.add_argument("--archive", dest="archive", action="store_true", help="Archive Pipeline")
+        start.add_argument("--status", dest="status", action="store_true", help="Status of Pipeline")
         start.add_argument("--pipeline-id", dest="pipeline_id", required=True,
                            help='Id of pipeline which need to be started')
         start.set_defaults(func=QuestCmdLine.start_pause)
@@ -93,9 +94,9 @@ class QuestCmdLine:
 
     @staticmethod
     def start_pause(args):
-        if args.pause and args.start or not args.pause and not args.start:
-            raise ParseError("Please select only one param out of --start and --pause")
-        elif args.start:
+        # if args.pause and args.start or not args.pause and not args.start:
+        #     raise ParseError("Please select only one param out of --start and --pause")
+        if args.start:
             response = Quest.start(args.pipeline_id)
         elif args.pause:
             response = Quest.pause(args.pipeline_id)
@@ -107,6 +108,8 @@ class QuestCmdLine:
             response = Quest.clone(args.pipeline_id)
         elif args.archive:
             response = Quest.archive(args.pipeline_id)
+        elif args.status:
+            response = Quest.status(args.pipeline_id)
         else:
             raise ParseError("Please select only one param out of --start, --pause, --delete, --archive, --clone and --edit.")
         return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
@@ -119,7 +122,7 @@ class QuestCmdLine:
     @staticmethod
     def create(args):
         pipeline = None
-        print "create_type = ", type(args.create_type)
+        print "create type = ", type(args.create_type)
         if args.create_type == "1":
             pipeline = Assisted.create(args.name, args.create_type, args)
         elif args.create_type == "2":
@@ -146,7 +149,7 @@ class Quest(Resource):
         else:
             params = {"filter": status}
         conn = Qubole.agent()
-        url_path = self.rest_entity_path
+        url_path = Quest.rest_entity_path
         questjson = conn.get(url_path, params)
         return questjson
 
@@ -193,7 +196,6 @@ class Quest(Resource):
         data = {"data": {"attributes": {"fields": {"name": name, "path": path, "format": format, "schema": schema,
                                                    "other_settings": other_settings}, "data_store": data_store},
                          "type": type}}
-        print("data ======", data)
         return conn.post(url, data)
 
     def add_property(self):
@@ -220,9 +222,20 @@ class Quest(Resource):
         return response
 
     @staticmethod
-    def delete(id):
+    def status(pipeline_id):
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + pipeline_id + "/status"
+        response = conn.put(url)
+        log.info(response)
+        return response
 
-
+    @staticmethod
+    def delete(pipeline_id):
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + pipeline_id + "/delete"
+        response = conn.put(url)
+        log.info(response)
+        return response
 
     def get_pipline_id(self, response):
         return response.get('data').get('id')
@@ -240,12 +253,6 @@ class Quest(Resource):
         pass
 
     def save_code(self):
-        pass
-
-    # def delete(self):
-    #     pass
-
-    def status(self):
         pass
 
     def edit(self):
