@@ -42,7 +42,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                                              {'timeout_for_request': 1,
                                                                               'percentage': 50, 'type': 'spot',
                                                                               'fallback': 'ondemand',
-                                                                              'maximum_bid_price_percentage': 100}]}},
+                                                                              'maximum_bid_price_percentage': 100, 'allocation_strategy': None}]}},
                              'datadisk': {'encryption': True}}})
 
     def test_od_od_od(self):
@@ -210,4 +210,4 @@ class TestClusterCreate(QdsCliTestCase):
                                                 'min_nodes': 3,
                                                 'slave_instance_type': 'c1.xlarge',
                                                 'cluster_image_version': '1.latest',
-                                                'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {'nodes': [{'percentage': 50, 'type': 'ondemand'}, {'timeout_for_request': 1, 'percentage': 50, 'type': 'spot', 'fallback': 'ondemand', 'maximum_bid_price_percentage': 100}]}}, 'label': ['test_label']}})
+                                                'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {'nodes': [{'percentage': 50, 'type': 'ondemand'}, {'timeout_for_request': 1, 'percentage': 50, 'type': 'spot', 'fallback': 'ondemand', 'maximum_bid_price_percentage': 100, 'allocation_strategy': None}]}}, 'label': ['test_label']}})
