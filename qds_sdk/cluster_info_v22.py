@@ -1,131 +1,13 @@
-from qds_sdk.qubole import Qubole
-from qds_sdk.resource import Resource
-from qds_sdk.cloud.cloud import Cloud
-from qds_sdk.engine import Engine
-from qds_sdk.cluster_info_v22 import ClusterInfoV22
-from qds_sdk import util
-import argparse
 import json
+
+from qds_sdk import util
 
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
 
-class ClusterCmdLine:
 
-    @staticmethod
-    def parsers(action):
-        argparser = argparse.ArgumentParser(
-            prog="qds.py cluster",
-            description="Cluster Operations for Qubole Data Service.")
-        subparsers = argparser.add_subparsers(title="Cluster operations")
-        if Qubole.version is not None:
-            ClusterV2.api_version = Qubole.version
-        if action == "create":
-            create = subparsers.add_parser("create", help="Create a new cluster")
-            ClusterCmdLine.create_update_clone_parser(create, action="create")
-            create.set_defaults(func=ClusterV2.create)
-
-        if action == "update":
-            update = subparsers.add_parser("update", help="Update the settings of an existing cluster")
-            ClusterCmdLine.create_update_clone_parser(update, action="update")
-            update.set_defaults(func=ClusterV2.update)
-
-        if action == "clone":
-            clone = subparsers.add_parser("clone", help="Clone a cluster from an existing one")
-            ClusterCmdLine.create_update_clone_parser(clone, action="clone")
-            clone.set_defaults(func=ClusterV2.clone)
-
-        if action == "list":
-            li = subparsers.add_parser("list", help="list clusters from existing clusters depending upon state")
-            ClusterCmdLine.list_parser(li, action="list")
-            li.set_defaults(func=ClusterV2.list)
-        return argparser
-
-    @staticmethod
-    def list_parser(subparser, action=None, ):
-
-        # cluster info parser
-        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
-        cluster_info_cls.list_info_parser(subparser, action)
-
-    @staticmethod
-    def create_update_clone_parser(subparser, action=None):
-        # cloud config parser
-        cloud = Qubole.get_cloud()
-        cloud.create_parser(subparser)
-
-        # cluster info parser
-        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
-        cluster_info_cls.cluster_info_parser(subparser, action)
-
-        # engine config parser
-        Engine.engine_parser(subparser)
-
-    @staticmethod
-    def run(args):
-        parser = ClusterCmdLine.parsers(args[0])
-        arguments = parser.parse_args(args)
-        if args[0] in ["create", "clone", "update"]:
-            ClusterCmdLine.get_cluster_create_clone_update(arguments, args[0])
-        else:
-            return arguments.func(arguments.label, arguments.cluster_id, arguments.state,
-                                  arguments.page, arguments.per_page)
-
-    @staticmethod
-    def get_cluster_create_clone_update(arguments, action):
-
-        # This will set cluster info and monitoring settings
-        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
-        cluster_info = cluster_info_cls(arguments.label)
-        cluster_info.set_cluster_info_from_arguments(arguments)
-
-        #  This will set cloud config settings
-        cloud_config = Qubole.get_cloud()
-        cloud_config.set_cloud_config_from_arguments(arguments)
-
-        # This will set engine settings
-        engine_config = Engine(flavour=arguments.flavour)
-        engine_config.set_engine_config_settings(arguments)
-        cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
-
-        action = action
-        if action == "create":
-            return arguments.func(cluster_request)
-        else:
-            return arguments.func(arguments.cluster_id_label, cluster_request)
-
-    @staticmethod
-    def get_cluster_request_parameters(cluster_info, cloud_config, engine_config):
-        '''
-        Use this to return final minimal request from cluster_info, cloud_config or engine_config objects
-        Alternatively call util._make_minimal if only one object needs to be implemented
-        '''
-
-        cluster_request = {}
-        cloud_config = util._make_minimal(cloud_config.__dict__)
-        if bool(cloud_config): cluster_request['cloud_config'] = cloud_config
-
-        engine_config = util._make_minimal(engine_config.__dict__)
-        if bool(engine_config): cluster_request['engine_config'] = engine_config
-
-        cluster_request.update(util._make_minimal(cluster_info.__dict__))
-        return cluster_request
-
-class ClusterInfoFactory:
-
-    @staticmethod
-    def get_cluster_info_cls(api_version=None):
-        if api_version is None:
-            api_version = Qubole.version
-        if api_version == "v2":
-            return ClusterInfoV2
-        elif api_version == "v2.2":
-            return ClusterInfoV22
-        else:
-            return ClusterInfoV2
-
-class ClusterInfoV2(object):
+class ClusterInfoV22(object):
     """
     qds_sdk.ClusterInfoV2 is the class which stores information about a cluster_info.
     You can use objects of this class to create/update/clone a cluster.
@@ -137,8 +19,7 @@ class ClusterInfoV2(object):
         `label`: A list of labels that identify the cluster. At least one label
             must be provided when creating a cluster.
         """
-        self.cluster_info = {}
-        self.cluster_info['label'] = label
+        self.cluster_info = {'label': label}
         self.monitoring = {}
         self.internal = {}  # right now not supported
 
@@ -153,19 +34,10 @@ class ClusterInfoV2(object):
                               slave_instance_type=arguments.slave_instance_type,
                               min_nodes=arguments.initial_nodes,
                               max_nodes=arguments.max_nodes,
-                              slave_request_type=arguments.slave_request_type,
-                              fallback_to_ondemand=arguments.fallback_to_ondemand,
                               node_base_cooldown_period=arguments.node_base_cooldown_period,
                               node_spot_cooldown_period=arguments.node_spot_cooldown_period,
                               custom_tags=arguments.custom_tags,
                               heterogeneous_config=arguments.heterogeneous_config,
-                              maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
-                              timeout_for_request=arguments.timeout_for_request,
-                              maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
-                              stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
-                              stable_timeout_for_request=arguments.stable_timeout_for_request,
-                              stable_spot_fallback=arguments.stable_spot_fallback,
-                              spot_block_duration=arguments.spot_block_duration,
                               idle_cluster_timeout=arguments.idle_cluster_timeout,
                               disk_count=arguments.count,
                               disk_type=arguments.disk_type,
@@ -185,6 +57,26 @@ class ClusterInfoV2(object):
                               parent_cluster_id=arguments.parent_cluster_id,
                               image_version=arguments.image_version)
 
+        self.set_composition(master_type=arguments.master_type,
+                             master_spot_block_duration=arguments.master_spot_block_duration,
+                             master_maximum_bid_price_percentage=arguments.master_maximum_bid_price_percentage,
+                             master_timeout_for_request=arguments.master_timeout_for_request,
+                             master_spot_fallback=arguments.master_spot_fallback,
+                             min_ondemand_percentage=arguments.min_ondemand_percentage,
+                             min_spot_block_percentage=arguments.min_spot_block_percentage,
+                             min_spot_block_duration=arguments.min_spot_block_duration,
+                             min_spot_percentage=arguments.min_spot_percentage,
+                             min_maximum_bid_price_percentage=arguments.min_maximum_bid_price_percentage,
+                             min_timeout_for_request=arguments.min_timeout_for_request,
+                             min_spot_fallback=arguments.min_spot_fallback,
+                             autoscaling_ondemand_percentage=arguments.autoscaling_ondemand_percentage,
+                             autoscaling_spot_block_percentage=arguments.autoscaling_spot_block_percentage,
+                             autoscaling_spot_percentage=arguments.autoscaling_spot_percentage,
+                             autoscaling_spot_block_duration=arguments.autoscaling_spot_block_duration,
+                             autoscaling_maximum_bid_price_percentage=arguments.autoscaling_maximum_bid_price_percentage,
+                             autoscaling_timeout_for_request=arguments.autoscaling_timeout_for_request,
+                             autoscaling_spot_fallback=arguments.autoscaling_spot_fallback)
+
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
                          enable_ganglia_monitoring=None,
@@ -195,19 +87,10 @@ class ClusterInfoV2(object):
                          slave_instance_type=None,
                          min_nodes=None,
                          max_nodes=None,
-                         slave_request_type=None,
-                         fallback_to_ondemand=None,
                          node_base_cooldown_period=None,
                          node_spot_cooldown_period=None,
                          custom_tags=None,
                          heterogeneous_config=None,
-                         maximum_bid_price_percentage=None,
-                         timeout_for_request=None,
-                         maximum_spot_instance_percentage=None,
-                         stable_maximum_bid_price_percentage=None,
-                         stable_timeout_for_request=None,
-                         stable_spot_fallback=None,
-                         spot_block_duration=None,
                          idle_cluster_timeout=None,
                          disk_count=None,
                          disk_type=None,
@@ -231,110 +114,79 @@ class ClusterInfoV2(object):
         """
         Args:
 
-                `disallow_cluster_termination`: Set this to True if you don't want
-                    qubole to auto-terminate idle clusters. Use this option with
-                    extreme caution.
+            `disallow_cluster_termination`: Set this to True if you don't want
+                qubole to auto-terminate idle clusters. Use this option with
+                extreme caution.
 
-                `enable_ganglia_monitoring`: Set this to True if you want to enable
-                    ganglia monitoring for the cluster.
+            `enable_ganglia_monitoring`: Set this to True if you want to enable
+                ganglia monitoring for the cluster.
 
-                `node_bootstrap`: name of the node bootstrap file for this
-                    cluster. It should be in stored in S3 at
-                    <your-default-location>/scripts/hadoop/
+            `node_bootstrap`: name of the node bootstrap file for this
+                cluster. It should be in stored in S3 at
+                <your-default-location>/scripts/hadoop/
 
-                `master_instance_type`: The instance type to use for the Hadoop master
-                    node.
+            `master_instance_type`: The instance type to use for the Hadoop master
+                node.
 
-                `slave_instance_type`: The instance type to use for the Hadoop slave
+            `slave_instance_type`: The instance type to use for the Hadoop slave
                     nodes.
 
-                `min_nodes`: Number of nodes to start the cluster with.
+            `min_nodes`: Number of nodes to start the cluster with.
 
-                `max_nodes`: Maximum number of nodes the cluster may be auto-scaled up
-                    to.
+            `max_nodes`: Maximum number of nodes the cluster may be auto-scaled up
+                to.
 
-                `slave_request_type`: Purchasing option for slave instances.
-                    Valid values: "ondemand", "hybrid", "spot".
+            `node_base_cooldown_period`: Time for which an on-demand node waits before termination (Unit: minutes)
 
-                `fallback_to_ondemand`: Fallback to on-demand nodes if spot nodes could not be
-                    obtained. Valid only if slave_request_type is 'spot'.
+            `node_spot_cooldown_period`: Time for which a spot node waits before termination (Unit: minutes)
 
-                `node_base_cooldown_period`: Time for which an on-demand node waits before termination (Unit: minutes)
+            `disk_count`: Number of EBS volumes to attach
+                to each instance of the cluster.
 
-                `node_spot_cooldown_period`: Time for which a spot node waits before termination (Unit: minutes)
+            `disk_type`: Type of the EBS volume. Valid
+                values are 'standard' (magnetic) and 'ssd'.
 
-                `maximum_bid_price_percentage`: ( Valid only when `slave_request_type`
-                    is hybrid or spot.) Maximum value to bid for spot
-                    instances, expressed as a percentage of the base price
-                    for the slave node instance type.
+            `disk_size`: Size of each EBS volume, in GB.
 
-                `timeout_for_request`: Timeout for a spot instance request (Unit:
-                    minutes)
+            `root_disk_size`: Size of root volume, in GB.
 
-                `maximum_spot_instance_percentage`: Maximum percentage of instances
-                    that may be purchased from the AWS Spot market. Valid only when
-                    slave_request_type is "hybrid".
+            `enable_encryption`: Encrypt the ephemeral drives on the instance.
 
-                `stable_maximum_bid_price_percentage`: Maximum value to bid for stable node spot
-                    instances, expressed as a percentage of the base price
-                    (applies to both master and slave nodes).
+            `customer_ssh_key`: SSH key to use to login to the instances.
 
-                `stable_timeout_for_request`: Timeout for a stable node spot instance request (Unit:
-                    minutes)
+            `idle_cluster_timeout`: The buffer time (range in 0-6 hrs) after a cluster goes idle
+                and gets terminated,  given cluster auto termination is on and no cluster specific
+                timeout has been set (default is 2 hrs)
 
-                `stable_spot_fallback`: Whether to fallback to on-demand instances for
-                    stable nodes if spot instances are not available
+            `heterogeneous_config` : Configuring heterogeneous nodes in Hadoop 2 and Spark clusters.
+                It implies that slave nodes can be of different instance types
 
-                `spot_block_duration`: Time for which the spot block instance is provisioned (Unit:
-                    minutes)
+            `custom_tags` : Custom tags to be set on all instances
+                of the cluster. Specified as JSON object (key-value pairs)
 
-                `disk_count`: Number of EBS volumes to attach
-                    to each instance of the cluster.
+            `datadog_api_token` : Specify the Datadog API token to use the Datadog monitoring service
 
-                `disk_type`: Type of the EBS volume. Valid
-                    values are 'standard' (magnetic) and 'ssd'.
+            `datadog_app_token` : Specify the Datadog APP token to use the Datadog monitoring service
 
-                `disk_size`: Size of each EBS volume, in GB.
+            `image_uri_overrides` : Override the image name provided
 
-                `root_disk_size`: Size of root volume, in GB.
+            `env_name`: Name of python and R environment. (For Spark clusters)
 
-                `enable_encryption`: Encrypt the ephemeral drives on the instance.
+            `python_version`: Version of Python for environment. (For Spark clusters)
 
-                `customer_ssh_key`: SSH key to use to login to the instances.
+            `r_version`: Version of R for environment. (For Spark clusters)
 
-                `idle_cluster_timeout`: The buffer time (range in 0-6 hrs) after a cluster goes idle
-                    and gets terminated,  given cluster auto termination is on and no cluster specific
-                    timeout has been set (default is 2 hrs)
+            `disable_cluster_pause`: Disable cluster pause
 
-                `heterogeneous_config` : Configuring heterogeneous nodes in Hadoop 2 and Spark clusters.
-                    It implies that slave nodes can be of different instance types
+            `paused_cluster_timeout_mins`: Paused cluster timeout in mins
 
-                `custom_tags` : Custom tags to be set on all instances
-                    of the cluster. Specified as JSON object (key-value pairs)
+            `disable_autoscale_node_pause`: Disable autoscale node pause
 
-                `datadog_api_token` : Specify the Datadog API token to use the Datadog monitoring service
+            `paused_autoscale_node_timeout_mins`: Paused autoscale node timeout in mins
 
-                `datadog_app_token` : Specify the Datadog APP token to use the Datadog monitoring service
+            `parent_cluster_id`: parent cluster id for HS2 cluster
 
-                `image_uri_overrides` : Override the image name provided
-
-                `env_name`: Name of python and R environment. (For Spark clusters)
-
-                `python_version`: Version of Python for environment. (For Spark clusters)
-
-                `r_version`: Version of R for environment. (For Spark clusters)
-
-                `disable_cluster_pause`: Disable cluster pause
-
-                `paused_cluster_timeout_mins`: Paused cluster timeout in mins
-
-                `disable_autoscale_node_pause`: Disable autoscale node pause
-
-                `paused_autoscale_node_timeout_mins`: Paused autoscale node timeout in mins
-
-                `parent_cluster_id`: parent cluster id for HS2 cluster
-
-                `image_version`: cluster image version
+            `image_version`: cluster image version
 
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
@@ -348,7 +200,6 @@ class ClusterInfoV2(object):
         self.cluster_info['node_bootstrap'] = node_bootstrap
         self.cluster_info['disallow_cluster_termination'] = disallow_cluster_termination
         self.cluster_info['force_tunnel'] = force_tunnel
-        self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
         self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
         self.cluster_info['node_volatile_cooldown_period'] = node_spot_cooldown_period
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
@@ -356,29 +207,188 @@ class ClusterInfoV2(object):
             try:
                 self.cluster_info['custom_tags'] = json.loads(custom_tags.strip())
             except Exception as e:
-                raise Exception("Invalid JSON string for custom ec2 tags: %s" % e.message)
+                raise Exception(
+                    "Invalid JSON string for custom ec2 tags: %s" % e.message)
 
         self.cluster_info['heterogeneous_config'] = heterogeneous_config
-        self.cluster_info['slave_request_type'] = slave_request_type
         self.cluster_info['idle_cluster_timeout'] = idle_cluster_timeout
-        self.cluster_info['spot_settings'] = {}
-
         self.cluster_info['rootdisk'] = {}
         self.cluster_info['rootdisk']['size'] = root_disk_size
         self.cluster_info['parent_cluster_id'] = parent_cluster_id
         self.cluster_info['cluster_image_version'] = image_version
-
-        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
-                                        maximum_spot_instance_percentage)
-        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request,
-                                          stable_spot_fallback)
-        self.set_spot_block_settings(spot_block_duration)
-        self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
-        self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
+        self.set_data_disk(disk_size, disk_count, disk_type,
+                           upscaling_config, enable_encryption)
+        self.set_monitoring(enable_ganglia_monitoring,
+                            datadog_api_token, datadog_app_token)
         self.set_internal(image_uri_overrides)
         self.set_env_settings(env_name, python_version, r_version)
         self.set_start_stop_settings(disable_cluster_pause, paused_cluster_timeout_mins,
                                      disable_autoscale_node_pause, paused_autoscale_node_timeout_mins)
+
+    def set_composition(self,
+                        master_type="ondemand",
+                        master_spot_block_duration=None,
+                        master_maximum_bid_price_percentage=None,
+                        master_timeout_for_request=None,
+                        master_spot_fallback=None,
+                        min_ondemand_percentage=None,
+                        min_spot_block_percentage=None,
+                        min_spot_block_duration=None,
+                        min_spot_percentage=None,
+                        min_maximum_bid_price_percentage=None,
+                        min_timeout_for_request=None,
+                        min_spot_fallback=None,
+                        autoscaling_ondemand_percentage=None,
+                        autoscaling_spot_block_percentage=None,
+                        autoscaling_spot_percentage=None,
+                        autoscaling_spot_block_duration=None,
+                        autoscaling_maximum_bid_price_percentage=None,
+                        autoscaling_timeout_for_request=None,
+                        autoscaling_spot_fallback=None):
+
+        self.cluster_info["composition"] = {}
+
+        self.set_master_config(master_type,
+                               master_spot_block_duration,
+                               master_maximum_bid_price_percentage,
+                               master_timeout_for_request,
+                               master_spot_fallback)
+
+        self.set_min_config(min_ondemand_percentage,
+                            min_spot_block_percentage,
+                            min_spot_block_duration,
+                            min_spot_percentage,
+                            min_maximum_bid_price_percentage,
+                            min_timeout_for_request,
+                            min_spot_fallback)
+
+        self.set_autoscaling_config(autoscaling_ondemand_percentage,
+                                    autoscaling_spot_block_percentage,
+                                    autoscaling_spot_block_duration,
+                                    autoscaling_spot_percentage,
+                                    autoscaling_maximum_bid_price_percentage,
+                                    autoscaling_timeout_for_request,
+                                    autoscaling_spot_fallback)
+
+    def set_master_config(self,
+                          master_type,
+                          master_spot_block_duration,
+                          master_maximum_bid_price_percentage,
+                          master_timeout_for_request,
+                          master_spot_fallback):
+        self.cluster_info["composition"]["master"] = {"nodes": []}
+        if master_type == "ondemand":
+            self.set_master_ondemand(100)
+        elif master_type == "spot":
+            self.set_master_spot(100, master_maximum_bid_price_percentage,
+                                 master_timeout_for_request, master_spot_fallback)
+        elif master_type == "spotblock":
+            self.set_master_spot_block(
+                100, master_spot_block_duration)
+
+    def set_min_config(self,
+                       min_ondemand_percentage,
+                       min_spot_block_percentage,
+                       min_spot_block_duration,
+                       min_spot_percentage,
+                       min_maximum_bid_price_percentage,
+                       min_timeout_for_request,
+                       min_spot_fallback):
+        self.cluster_info["composition"]["min_nodes"] = {"nodes": []}
+        if not min_ondemand_percentage and not min_spot_block_percentage and not min_spot_percentage:
+            self.set_min_ondemand(100)
+        else:
+            if min_ondemand_percentage:
+                self.set_min_ondemand(min_ondemand_percentage)
+            if min_spot_block_percentage:
+                self.set_min_spot_block(
+                    min_spot_block_percentage, min_spot_block_duration)
+            if min_spot_percentage:
+                self.set_min_spot(min_spot_percentage, min_maximum_bid_price_percentage,
+                                  min_timeout_for_request, min_spot_fallback)
+
+    def set_autoscaling_config(self,
+                               autoscaling_ondemand_percentage,
+                               autoscaling_spot_block_percentage,
+                               autoscaling_spot_block_duration,
+                               autoscaling_spot_percentage,
+                               autoscaling_maximum_bid_price_percentage,
+                               autoscaling_timeout_for_request,
+                               autoscaling_spot_fallback):
+        self.cluster_info["composition"]["autoscaling_nodes"] = {"nodes": []}
+        if not autoscaling_ondemand_percentage and not autoscaling_spot_block_percentage and not autoscaling_spot_percentage:
+            self.set_autoscaling_ondemand(50)
+            self.set_autoscaling_spot(50, 100, 1, 'ondemand')
+        else:
+            if autoscaling_ondemand_percentage:
+                self.set_autoscaling_ondemand(autoscaling_ondemand_percentage)
+            if autoscaling_spot_block_percentage:
+                self.set_autoscaling_spot_block(autoscaling_spot_block_percentage,
+                                                autoscaling_spot_block_duration)
+            if autoscaling_spot_percentage:
+                self.set_autoscaling_spot(autoscaling_spot_percentage, autoscaling_maximum_bid_price_percentage,
+                                          autoscaling_timeout_for_request, autoscaling_spot_fallback)
+
+    def set_master_ondemand(self, master_ondemand_percentage=None):
+        ondemand = {"percentage": master_ondemand_percentage, "type": "ondemand"}
+        self.cluster_info["composition"]["master"]["nodes"].append(ondemand)
+
+    def set_master_spot_block(self, master_spot_block_percentage=None, master_spot_block_duration=120):
+        spot_block = {"percentage": master_spot_block_percentage,
+                      "type": "spotblock",
+                      "timeout": master_spot_block_duration}
+        self.cluster_info["composition"]["master"]["nodes"].append(spot_block)
+
+    def set_master_spot(self, master_spot_percentage=None, master_maximum_bid_price_percentage=100,
+                        master_timeout_for_request=1, master_spot_fallback=None):
+        spot = {"percentage": master_spot_percentage,
+                "type": "spot",
+                "maximum_bid_price_percentage": master_maximum_bid_price_percentage,
+                "timeout_for_request": master_timeout_for_request,
+                "fallback": master_spot_fallback
+                }
+        self.cluster_info["composition"]["master"]["nodes"].append(spot)
+
+    def set_min_ondemand(self, min_ondemand_percentage=None):
+        ondemand = {"percentage": min_ondemand_percentage, "type": "ondemand"}
+        self.cluster_info["composition"]["min_nodes"]["nodes"].append(ondemand)
+
+    def set_min_spot_block(self, min_spot_block_percentage=None, min_spot_block_duration=120):
+        spot_block = {"percentage": min_spot_block_percentage,
+                      "type": "spotblock",
+                      "timeout": min_spot_block_duration}
+        self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot_block)
+
+    def set_min_spot(self, min_spot_percentage=None, min_maximum_bid_price_percentage=100,
+                     min_timeout_for_request=1, min_spot_fallback=None):
+        spot = {"percentage": min_spot_percentage,
+                "type": "spot",
+                "maximum_bid_price_percentage": min_maximum_bid_price_percentage,
+                "timeout_for_request": min_timeout_for_request,
+                "fallback": min_spot_fallback
+                }
+        self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot)
+
+    def set_autoscaling_ondemand(self, autoscaling_ondemand_percentage=None):
+        ondemand = {
+            "percentage": autoscaling_ondemand_percentage, "type": "ondemand"}
+        self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(ondemand)
+
+    def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None, autoscaling_spot_block_duration=120):
+        spot_block = {"percentage": autoscaling_spot_block_percentage,
+                      "type": "spotblock",
+                      "timeout": autoscaling_spot_block_duration}
+        self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
+
+    def set_autoscaling_spot(self, autoscaling_spot_percentage=None, autoscaling_maximum_bid_price_percentage=100,
+                             autoscaling_timeout_for_request=1, autoscaling_spot_fallback=None):
+        spot = {"percentage": autoscaling_spot_percentage,
+                "type": "spot",
+                "maximum_bid_price_percentage": autoscaling_maximum_bid_price_percentage,
+                "timeout_for_request": autoscaling_timeout_for_request,
+                "fallback": autoscaling_spot_fallback
+                }
+        self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot)
 
     def set_datadog_setting(self,
                             datadog_api_token=None,
@@ -393,34 +403,6 @@ class ClusterInfoV2(object):
                        datadog_app_token=None):
         self.monitoring['ganglia'] = enable_ganglia_monitoring
         self.set_datadog_setting(datadog_api_token, datadog_app_token)
-
-    def set_spot_instance_settings(self,
-                                   maximum_bid_price_percentage=None,
-                                   timeout_for_request=None,
-                                   maximum_spot_instance_percentage=None):
-        self.cluster_info['spot_settings']['spot_instance_settings'] = {}
-        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_bid_price_percentage'] = \
-            maximum_bid_price_percentage
-        self.cluster_info['spot_settings']['spot_instance_settings']['timeout_for_request'] = timeout_for_request
-        self.cluster_info['spot_settings']['spot_instance_settings']['maximum_spot_instance_percentage'] = \
-            maximum_spot_instance_percentage
-
-    def set_stable_spot_bid_settings(self,
-                                     stable_maximum_bid_price_percentage=None,
-                                     stable_timeout_for_request=None,
-                                     stable_spot_fallback=None):
-        self.cluster_info['spot_settings']['stable_spot_bid_settings'] = {}
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['maximum_bid_price_percentage'] = \
-            stable_maximum_bid_price_percentage
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['timeout_for_request'] = \
-            stable_timeout_for_request
-        self.cluster_info['spot_settings']['stable_spot_bid_settings']['stable_spot_fallback'] = \
-            stable_spot_fallback
-
-    def set_spot_block_settings(self,
-                                spot_block_duration=None):
-        self.cluster_info['spot_settings']['spot_block_settings'] = {}
-        self.cluster_info['spot_settings']['spot_block_settings']['duration'] = spot_block_duration
 
     def set_data_disk(self,
                       disk_size=None,
@@ -466,7 +448,8 @@ class ClusterInfoV2(object):
         argparser.add_argument("--label", dest="label",
                                help="show cluster with this label")
         argparser.add_argument("--state", dest="state",
-                               choices=['invalid', 'up', 'down', 'pending', 'terminating'],
+                               choices=['invalid', 'up', 'down',
+                                        'pending', 'terminating'],
                                help="State of the cluster")
         argparser.add_argument("--page", dest="page",
                                type=int,
@@ -544,20 +527,9 @@ class ClusterInfoV2(object):
                                  action="store_false",
                                  default=None,
                                  help="auto-terminate idle clusters,")
-        fallback_to_ondemand_group = cluster_info.add_mutually_exclusive_group()
-        fallback_to_ondemand_group.add_argument("--fallback-to-ondemand",
-                                                dest="fallback_to_ondemand",
-                                                action="store_true",
-                                                default=None,
-                                                help="Fallback to on-demand nodes if spot nodes" +
-                                                     " could not be obtained. Valid only if slave_request_type is spot", )
-        fallback_to_ondemand_group.add_argument("--no-fallback-to-ondemand",
-                                                dest="fallback_to_ondemand",
-                                                action="store_false",
-                                                default=None,
-                                                help="Dont Fallback to on-demand nodes if spot nodes" +
-                                                     " could not be obtained. Valid only if slave_request_type is spot", )
-        node_cooldown_period_group = argparser.add_argument_group("node cooldown period settings")
+
+        node_cooldown_period_group = argparser.add_argument_group(
+            "node cooldown period settings")
         node_cooldown_period_group.add_argument("--node-base-cooldown-period",
                                                 dest="node_base_cooldown_period",
                                                 type=int,
@@ -616,57 +588,107 @@ class ClusterInfoV2(object):
                                   dest="heterogeneous_config",
                                   help="heterogeneous config for the cluster")
 
-        cluster_info.add_argument("--slave-request-type",
-                                  dest="slave_request_type",
-                                  choices=["ondemand", "spot", "hybrid", "spotblock"],
-                                  help="purchasing option for slave instaces", )
-
-        # spot settings
-        spot_instance_group = argparser.add_argument_group("spot instance settings" +
-                                                           " (valid only when slave-request-type is hybrid or spot)")
-        spot_instance_group.add_argument("--maximum-bid-price-percentage",
-                                         dest="maximum_bid_price_percentage",
-                                         type=float,
-                                         help="maximum value to bid for spot instances" +
-                                              " expressed as a percentage of the base" +
-                                              " price for the slave node instance type", )
-        spot_instance_group.add_argument("--timeout-for-spot-request",
-                                         dest="timeout_for_request",
-                                         type=int,
-                                         help="timeout for a spot instance request" +
-                                              " unit: minutes")
-        spot_instance_group.add_argument("--maximum-spot-instance-percentage",
-                                         dest="maximum_spot_instance_percentage",
-                                         type=int,
-                                         help="maximum percentage of instances that may" +
-                                              " be purchased from the aws spot market," +
-                                              " valid only when slave-request-type" +
-                                              " is 'hybrid'", )
-
-        stable_spot_group = argparser.add_argument_group("stable spot instance settings")
-        stable_spot_group.add_argument("--stable-maximum-bid-price-percentage",
-                                       dest="stable_maximum_bid_price_percentage",
-                                       type=float,
-                                       help="maximum value to bid for stable node spot instances" +
-                                            " expressed as a percentage of the base" +
-                                            " price for the master and slave node instance types", )
-        stable_spot_group.add_argument("--stable-timeout-for-spot-request",
-                                       dest="stable_timeout_for_request",
+        composition_group = argparser.add_argument_group("cluster composition settings")
+        composition_group.add_argument("--master-type",
+                                      dest="master_type",
+                                      choices=["ondemand", "spot", "spotblock"],
+                                      default="ondemand",
+                                      help="type of master nodes. Valid values are: ('ondemand', 'spot', 'spotblock')" +
+                                       "default: ondemand")
+        composition_group.add_argument("--master-spot-block-duration",
+                                       dest="master_spot_block_duration",
                                        type=int,
-                                       help="timeout for a stable node spot instance request" +
-                                            " unit: minutes")
-        stable_spot_group.add_argument("--stable-allow-fallback",
-                                       dest="stable_spot_fallback", default=None,
-                                       type=str2bool,
-                                       help="whether to fallback to on-demand instances for stable nodes" +
+                                       default=120,
+                                       help="spot block duration unit: minutes")
+        composition_group.add_argument("--master-maximum-bid-price-percentage",
+                                       dest="master_maximum_bid_price_percentage",
+                                       type=int,
+                                       default=100,
+                                       help="maximum value to bid for master spot instances" +
+                                            " expressed as a percentage of the base" +
+                                            " price for the master instance types")
+        composition_group.add_argument("--master-timeout-for-request",
+                                       dest="master_timeout_for_request",
+                                       type=int,
+                                       default=1,
+                                       help="timeout for a master spot instance request, unit: minutes")
+        composition_group.add_argument("--master-spot-fallback",
+                                       dest="master_spot_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for master nodes" +
+                                            " if spot instances aren't available")
+        composition_group.add_argument("--min-ondemand-percentage",
+                                       dest="min_ondemand_percentage",
+                                       type=int,
+                                       help="percentage of ondemand nodes in min config")
+        composition_group.add_argument("--min-spot-block-percentage",
+                                       dest="min_spot_block_percentage",
+                                       type=int,
+                                       help="percentage of spot block nodes in min config")
+        composition_group.add_argument("--min-spot-percentage",
+                                       dest="min_spot_percentage",
+                                       type=int,
+                                       help="percentage of spot nodes in min config")
+        composition_group.add_argument("--min-spot-block-duration",
+                                       dest="min_spot_block_duration",
+                                       type=int,
+                                       default=120,
+                                       help="spot block duration unit: minutes")
+        composition_group.add_argument("--min-maximum-bid-price-percentage",
+                                       dest="min_maximum_bid_price_percentage",
+                                       type=int,
+                                       default=100,
+                                       help="maximum value to bid for min spot instances" +
+                                            " expressed as a percentage of the base" +
+                                            " price for the master instance types")
+        composition_group.add_argument("--min-timeout-for-request",
+                                       dest="min_timeout_for_request",
+                                       type=int,
+                                       default=1,
+                                       help="timeout for a min spot instance request, unit: minutes")
+        composition_group.add_argument("--min-spot-fallback",
+                                       dest="min_spot_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for min nodes" +
                                             " if spot instances aren't available")
 
-        spot_block_group = argparser.add_argument_group("spot block settings")
-        spot_block_group.add_argument("--spot-block-duration",
-                                      dest="spot_block_duration",
-                                      type=int,
-                                      help="spot block duration" +
-                                           " unit: minutes")
+        composition_group.add_argument("--autoscaling-ondemand-percentage",
+                                       dest="autoscaling_ondemand_percentage",
+                                       type=int,
+                                       help="percentage of ondemand nodes in autoscaling config")
+        composition_group.add_argument("--autoscaling-spot-block-percentage",
+                                       dest="autoscaling_spot_block_percentage",
+                                       type=int,
+                                       help="percentage of spot block nodes in autoscaling config")
+        composition_group.add_argument("--autoscaling-spot-percentage",
+                                       dest="autoscaling_spot_percentage",
+                                       type=int,
+                                       help="percentage of spot nodes in autoscaling config")
+        composition_group.add_argument("--autoscaling-spot-block-duration",
+                                       dest="autoscaling_spot_block_duration",
+                                       type=int,
+                                       default=120,
+                                       help="spot block duration unit:  minutes")
+        composition_group.add_argument("--autoscaling-maximum-bid-price-percentage",
+                                       dest="autoscaling_maximum_bid_price_percentage",
+                                       type=int,
+                                       default=100,
+                                       help="maximum value to bid for autoscaling spot instances" +
+                                            " expressed as a percentage of the base" +
+                                            " price for the master instance types")
+        composition_group.add_argument("--autoscaling-timeout-for-request",
+                                       dest="autoscaling_timeout_for_request",
+                                       type=int,
+                                       default=1,
+                                       help="timeout for a autoscaling spot instance request, unit: minutes")
+        composition_group.add_argument("--autoscaling-spot-fallback",
+                                       dest="autoscaling_spot_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for autoscaling nodes" +
+                                            " if spot instances aren't available")
 
         # monitoring settings
         monitoring_group = argparser.add_argument_group("monitoring settings")
@@ -745,79 +767,3 @@ class ClusterInfoV2(object):
                                       default=None,
                                       type=int,
                                       help="paused autoscale node timeout in min")
-
-
-class ClusterV2(Resource):
-    rest_entity_path = "clusters"
-    api_version = "v2"
-
-    @classmethod
-    def create(cls, cluster_info):
-        """
-        Create a new cluster using information provided in `cluster_info`.
-        """
-
-        conn = Qubole.agent(version=cls.api_version)
-        return conn.post(cls.rest_entity_path, data=cluster_info)
-
-    @classmethod
-    def update(cls, cluster_id_label, cluster_info):
-        """
-        Update the cluster with id/label `cluster_id_label` using information provided in
-        `cluster_info`.
-        """
-        conn = Qubole.agent(version=cls.api_version)
-        return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
-
-    @classmethod
-    def clone(cls, cluster_id_label, cluster_info):
-        """
-        Update the cluster with id/label `cluster_id_label` using information provided in
-        `cluster_info`.
-        """
-        conn = Qubole.agent(version=cls.api_version)
-        return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
-
-    @classmethod
-    def list(cls, label=None, cluster_id=None, state=None, page=None, per_page=None):
-        """
-        List existing clusters present in your account.
-
-        Kwargs:
-            `state`: list only those clusters which are in this state
-            `page`: page number
-            `per_page`: number of clusters to be retrieved per page
-
-        Returns:
-            List of clusters satisfying the given criteria
-        """
-        if cluster_id is not None:
-            return cls.show(cluster_id)
-        if label is not None:
-            return cls.show(label)
-        params = {}
-        if page:
-            params['page'] = page
-        if per_page:
-            params['per_page'] = per_page
-        params = None if not params else params
-        conn = Qubole.agent(version=cls.api_version)
-        cluster_list = conn.get(cls.rest_entity_path)
-        if state is None:
-            # return the complete list since state is None
-            return conn.get(cls.rest_entity_path, params=params)
-        # filter clusters based on state
-        result = []
-        if 'clusters' in cluster_list:
-            for cluster in cluster_list['clusters']:
-                if state.lower() == cluster['state'].lower():
-                    result.append(cluster)
-        return result
-
-    @classmethod
-    def show(cls, cluster_id_label):
-        """
-        Show information about the cluster with id/label `cluster_id_label`.
-        """
-        conn = Qubole.agent(version=cls.api_version)
-        return conn.get(cls.element_path(cluster_id_label))

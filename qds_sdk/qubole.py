@@ -121,3 +121,4 @@ class Qubole:
         elif cloud_name.lower() == "gcp":
             import qds_sdk.cloud.gcp_cloud
             return qds_sdk.cloud.gcp_cloud.GcpCloud()
+
