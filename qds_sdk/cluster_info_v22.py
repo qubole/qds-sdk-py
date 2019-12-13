@@ -368,7 +368,7 @@ class ClusterInfoV22(object):
         self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot_block)
 
     def set_min_spot(self, min_spot_percentage=None, min_maximum_bid_price_percentage=100,
-                     min_timeout_for_request=1, min_spot_fallback=None):
+                     min_timeout_for_request=1, min_spot_allocation_strategy=None, min_spot_fallback=None):
         spot = {"percentage": min_spot_percentage,
                 "type": "spot",
                 "maximum_bid_price_percentage": min_maximum_bid_price_percentage,
@@ -390,7 +390,7 @@ class ClusterInfoV22(object):
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
 
     def set_autoscaling_spot(self, autoscaling_spot_percentage=None, autoscaling_maximum_bid_price_percentage=100,
-                             autoscaling_timeout_for_request=1, autoscaling_spot_fallback=None):
+                             autoscaling_timeout_for_request=1, autoscaling_spot_allocation_strategy=None, autoscaling_spot_fallback=None):
         spot = {"percentage": autoscaling_spot_percentage,
                 "type": "spot",
                 "maximum_bid_price_percentage": autoscaling_maximum_bid_price_percentage,
