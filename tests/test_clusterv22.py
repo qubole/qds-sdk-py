@@ -64,7 +64,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--master-type', 'ondemand', '--min-ondemand-percentage', '100',
                     '--autoscaling-ondemand-percentage',
                     '50', '--autoscaling-spot-percentage', '50', '--autoscaling-maximum-bid-price-percentage', '50',
-                    '--autoscaling-timeout-for-request', '3', '--autoscaling-spot-fallback', 'ondemand', '--autoscaling-spot-allocation-strategy', 'cost_optimized']
+                    '--autoscaling-timeout-for-request', '3', '--autoscaling-spot-fallback', 'ondemand', '--autoscaling-spot-allocation-strategy', 'lowestPrice']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -74,14 +74,14 @@ class TestClusterCreate(QdsCliTestCase):
                             'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {
                     'nodes': [{'percentage': 50, 'type': 'ondemand'},
                               {'timeout_for_request': 3, 'percentage': 50, 'type': 'spot', 'fallback': 'ondemand',
-                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'cost_optimized'}]}}, 'label': ['test_label']}})
+                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'lowestPrice'}]}}, 'label': ['test_label']}})
 
     def test_od_od_odspot_nofallback(self):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
                     '--master-type', 'ondemand', '--min-ondemand-percentage', '100',
                     '--autoscaling-ondemand-percentage',
                     '50', '--autoscaling-spot-percentage', '50', '--autoscaling-maximum-bid-price-percentage', '50',
-                    '--autoscaling-timeout-for-request', '3', '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'capacity_optimized']
+                    '--autoscaling-timeout-for-request', '3', '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'capacityOptimized']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -91,7 +91,7 @@ class TestClusterCreate(QdsCliTestCase):
                             'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {
                     'nodes': [{'percentage': 50, 'type': 'ondemand'},
                               {'timeout_for_request': 3, 'percentage': 50, 'type': 'spot', 'fallback': None,
-                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacity_optimized'}]}}, 'label': ['test_label']}})
+                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacityOptimized'}]}}, 'label': ['test_label']}})
 
     def test_od_od_spotblock(self):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
@@ -114,7 +114,7 @@ class TestClusterCreate(QdsCliTestCase):
                     '--autoscaling-spot-block-percentage',
                     '50', '--autoscaling-spot-block-duration', '60', '--autoscaling-spot-percentage', '50',
                     '--autoscaling-maximum-bid-price-percentage', '50',
-                    '--autoscaling-timeout-for-request', '3', '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'capacity_optimized']
+                    '--autoscaling-timeout-for-request', '3', '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'capacityOptimized']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -124,14 +124,14 @@ class TestClusterCreate(QdsCliTestCase):
                             'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {
                     'nodes': [{'percentage': 50, 'type': 'spotblock', 'timeout': 60},
                               {'timeout_for_request': 3, 'percentage': 50, 'type': 'spot', 'fallback': None,
-                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacity_optimized'}]}}, 'label': ['test_label']}})
+                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacityOptimized'}]}}, 'label': ['test_label']}})
 
     def test_od_od_spot(self):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
                     '--master-type', 'ondemand', '--min-ondemand-percentage', '100', '--autoscaling-spot-percentage',
                     '100',
                     '--autoscaling-maximum-bid-price-percentage', '50', '--autoscaling-timeout-for-request', '3',
-                    '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'cost_optimized']
+                    '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'lowestPrice']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -140,7 +140,7 @@ class TestClusterCreate(QdsCliTestCase):
             'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]},
                             'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {
                     'nodes': [{'timeout_for_request': 3, 'percentage': 100, 'type': 'spot', 'fallback': None,
-                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'cost_optimized'}]}}, 'label': ['test_label']}})
+                               'maximum_bid_price_percentage': 50, 'allocation_strategy': 'lowestPrice'}]}}, 'label': ['test_label']}})
 
     def test_od_spot_spot(self):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
@@ -148,17 +148,17 @@ class TestClusterCreate(QdsCliTestCase):
                     '--min-maximum-bid-price-percentage', '50', '--min-timeout-for-request', '3',
                     '--min-spot-fallback', None, '--autoscaling-spot-percentage', '100',
                     '--autoscaling-maximum-bid-price-percentage', '50', '--autoscaling-timeout-for-request', '3',
-                    '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'capacity_optimized', '--min-spot-allocation-strategy', 'cost_optimized']
+                    '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'capacityOptimized', '--min-spot-allocation-strategy', 'lowestPrice']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters', {'cluster_info': {'composition': {'min_nodes': {
             'nodes': [{'timeout_for_request': 3, 'percentage': 100, 'type': 'spot', 'fallback': None,
-                       'maximum_bid_price_percentage': 50, 'allocation_strategy': 'cost_optimized'}]}, 'master': {
+                       'maximum_bid_price_percentage': 50, 'allocation_strategy': 'lowestPrice'}]}, 'master': {
             'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {'nodes': [
             {'timeout_for_request': 3, 'percentage': 100, 'type': 'spot', 'fallback': None,
-             'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacity_optimized'}]}}, 'label': ['test_label']}})
+             'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacityOptimized'}]}}, 'label': ['test_label']}})
 
     def test_spotblock_spotblock_spotblock(self):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
@@ -183,18 +183,18 @@ class TestClusterCreate(QdsCliTestCase):
                     '--min-maximum-bid-price-percentage', '50', '--min-timeout-for-request', '3',
                     '--min-spot-fallback', None, '--autoscaling-spot-percentage', '100',
                     '--autoscaling-maximum-bid-price-percentage', '50', '--autoscaling-timeout-for-request', '3',
-                    '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'cost_optimized', '--min-spot-allocation-strategy', 'capacity_optimized']
+                    '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'lowestPrice', '--min-spot-allocation-strategy', 'capacityOptimized']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters', {'cluster_info': {'composition': {'min_nodes': {
             'nodes': [{'timeout_for_request': 3, 'percentage': 100, 'type': 'spot', 'fallback': None,
-                       'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacity_optimized'}]}, 'master': {'nodes': [
+                       'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacityOptimized'}]}, 'master': {'nodes': [
             {'timeout_for_request': 3, 'percentage': 100, 'type': 'spot', 'fallback': None,
              'maximum_bid_price_percentage': 50}]}, 'autoscaling_nodes': {'nodes': [
             {'timeout_for_request': 3, 'percentage': 100, 'type': 'spot', 'fallback': None,
-             'maximum_bid_price_percentage': 50, 'allocation_strategy': 'cost_optimized'}]}}, 'label': ['test_label']}})
+             'maximum_bid_price_percentage': 50, 'allocation_strategy': 'lowestPrice'}]}}, 'label': ['test_label']}})
 
     def test_image_version_v22(self):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label',

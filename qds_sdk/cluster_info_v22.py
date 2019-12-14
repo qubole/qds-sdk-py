@@ -665,7 +665,7 @@ class ClusterInfoV22(object):
                                             " if spot instances aren't available")
         composition_group.add_argument("--min-spot-allocation-strategy",
                                        dest="min_spot_allocation_strategy",
-                                       choices=["cost_optimized", "capacity_optimized", None],
+                                       choices=["lowestPrice", "capacityOptimized", None],
                                        default=None,
                                        help="allocation strategy for min spot nodes")
 
@@ -708,7 +708,7 @@ class ClusterInfoV22(object):
                                             " if spot instances aren't available")
         composition_group.add_argument("--autoscaling-spot-allocation-strategy",
                                        dest="autoscaling_spot_allocation_strategy",
-                                       choices=["cost_optimized", "capacity_optimized", None],
+                                       choices=["lowestPrice", "capacityOptimized", None],
                                        default=None,
                                        help="allocation strategy for autoscaling spot nodes")
 
