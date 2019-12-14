@@ -443,6 +443,25 @@ class TestClusterCreate(QdsCliTestCase):
                                                           }},
                                                      'cluster_info': {'label': ['test_label']}})
 
+    def test_hs2_engine_config(self):
+        with tempfile.NamedTemporaryFile() as temp:
+            temp.write("config.properties:\na=1\nb=2".encode("utf8"))
+            temp.flush()
+            sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label',
+                         'test_label', '--flavour', 'hs2', '--node-bootstrap-file', 'test_file_name', '--slave-instance-type', 'c1.xlarge', '--min-nodes', '3', '--parent-cluster-id', '1']
+            Qubole.cloud = None
+            print_command()
+            Connection._api_call = Mock(return_value={})
+            qds.main()
+            Connection._api_call.assert_called_with('POST', 'clusters',
+                                                    {'engine_config':
+                                                         {'flavour': 'hs2'},
+                                                    'cluster_info': {'label': ['test_label'],
+                                                    'parent_cluster_id': 1, 
+                                                    'min_nodes': 3,
+                                                    'node_bootstrap': 'test_file_name',
+                                                    'slave_instance_type': 'c1.xlarge' }})
+
     def test_spark_engine_config(self):
         with tempfile.NamedTemporaryFile() as temp:
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
@@ -600,7 +619,7 @@ class TestClusterCreate(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with('POST', 'clusters',
                                                 {'cluster_info': {'label': ['test_label'],
-                                                                  'node_spot_cooldown_period': 15}})
+                                                                  'node_volatile_cooldown_period': 15}})
 
     def test_node_spot_cooldown_period_invalid_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
@@ -872,7 +891,7 @@ class TestClusterUpdate(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with('PUT', 'clusters/123',
-                                                {'cluster_info': {'node_spot_cooldown_period': 15}})
+                                                {'cluster_info': {'node_volatile_cooldown_period': 15}})
 
     def test_node_spot_cooldown_period_invalid_v2(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'update', '123',

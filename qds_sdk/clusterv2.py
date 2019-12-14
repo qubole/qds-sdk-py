@@ -2,9 +2,11 @@ from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from qds_sdk.cloud.cloud import Cloud
 from qds_sdk.engine import Engine
+from qds_sdk.cluster_info_v22 import ClusterInfoV22
 from qds_sdk import util
 import argparse
 import json
+
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -17,7 +19,8 @@ class ClusterCmdLine:
             prog="qds.py cluster",
             description="Cluster Operations for Qubole Data Service.")
         subparsers = argparser.add_subparsers(title="Cluster operations")
-
+        if Qubole.version is not None:
+            ClusterV2.api_version = Qubole.version
         if action == "create":
             create = subparsers.add_parser("create", help="Create a new cluster")
             ClusterCmdLine.create_update_clone_parser(create, action="create")
@@ -40,10 +43,11 @@ class ClusterCmdLine:
         return argparser
 
     @staticmethod
-    def list_parser(subparser, action=None):
+    def list_parser(subparser, action=None, ):
 
         # cluster info parser
-        ClusterInfoV2.list_info_parser(subparser, action)
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
+        cluster_info_cls.list_info_parser(subparser, action)
 
     @staticmethod
     def create_update_clone_parser(subparser, action=None):
@@ -52,7 +56,8 @@ class ClusterCmdLine:
         cloud.create_parser(subparser)
 
         # cluster info parser
-        ClusterInfoV2.cluster_info_parser(subparser, action)
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
+        cluster_info_cls.cluster_info_parser(subparser, action)
 
         # engine config parser
         Engine.engine_parser(subparser)
@@ -69,47 +74,11 @@ class ClusterCmdLine:
 
     @staticmethod
     def get_cluster_create_clone_update(arguments, action):
-        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
+
         # This will set cluster info and monitoring settings
-        cluster_info = ClusterInfoV2(arguments.label)
-        cluster_info.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
-                                      enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
-                                      datadog_api_token=arguments.datadog_api_token,
-                                      datadog_app_token=arguments.datadog_app_token,
-                                      node_bootstrap=arguments.node_bootstrap_file,
-                                      master_instance_type=arguments.master_instance_type,
-                                      slave_instance_type=arguments.slave_instance_type,
-                                      min_nodes=arguments.initial_nodes,
-                                      max_nodes=arguments.max_nodes,
-                                      slave_request_type=arguments.slave_request_type,
-                                      fallback_to_ondemand=arguments.fallback_to_ondemand,
-                                      node_base_cooldown_period=arguments.node_base_cooldown_period,
-                                      node_spot_cooldown_period=arguments.node_spot_cooldown_period,
-                                      custom_tags=arguments.custom_tags,
-                                      heterogeneous_config=arguments.heterogeneous_config,
-                                      maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
-                                      timeout_for_request=arguments.timeout_for_request,
-                                      maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
-                                      stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
-                                      stable_timeout_for_request=arguments.stable_timeout_for_request,
-                                      stable_spot_fallback=arguments.stable_spot_fallback,
-                                      spot_block_duration=arguments.spot_block_duration,
-                                      idle_cluster_timeout=arguments.idle_cluster_timeout,
-                                      disk_count=arguments.count,
-                                      disk_type=arguments.disk_type,
-                                      disk_size=arguments.size,
-                                      root_disk_size=arguments.root_disk_size,
-                                      upscaling_config=arguments.upscaling_config,
-                                      enable_encryption=arguments.encrypted_ephemerals,
-                                      customer_ssh_key=customer_ssh_key,
-                                      image_uri_overrides=arguments.image_uri_overrides,
-                                      env_name=arguments.env_name,
-                                      python_version=arguments.python_version,
-                                      r_version=arguments.r_version,
-                                      disable_cluster_pause=arguments.disable_cluster_pause,
-                                      paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
-                                      disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
-                                      paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
+        cluster_info_cls = ClusterInfoFactory.get_cluster_info_cls()
+        cluster_info = cluster_info_cls(arguments.label)
+        cluster_info.set_cluster_info_from_arguments(arguments)
 
         #  This will set cloud config settings
         cloud_config = Qubole.get_cloud()
@@ -118,7 +87,6 @@ class ClusterCmdLine:
         # This will set engine settings
         engine_config = Engine(flavour=arguments.flavour)
         engine_config.set_engine_config_settings(arguments)
-
         cluster_request = ClusterCmdLine.get_cluster_request_parameters(cluster_info, cloud_config, engine_config)
 
         action = action
@@ -144,6 +112,19 @@ class ClusterCmdLine:
         cluster_request.update(util._make_minimal(cluster_info.__dict__))
         return cluster_request
 
+class ClusterInfoFactory:
+
+    @staticmethod
+    def get_cluster_info_cls(api_version=None):
+        if api_version is None:
+            api_version = Qubole.version
+        if api_version == "v2":
+            return ClusterInfoV2
+        elif api_version == "v2.2":
+            return ClusterInfoV22
+        else:
+            return ClusterInfoV2
+
 class ClusterInfoV2(object):
     """
     qds_sdk.ClusterInfoV2 is the class which stores information about a cluster_info.
@@ -159,7 +140,49 @@ class ClusterInfoV2(object):
         self.cluster_info = {}
         self.cluster_info['label'] = label
         self.monitoring = {}
-        self.internal = {} # right now not supported
+        self.internal = {}  # right now not supported
+
+    def set_cluster_info_from_arguments(self, arguments):
+        customer_ssh_key = util._read_file(arguments.customer_ssh_key_file)
+        self.set_cluster_info(disallow_cluster_termination=arguments.disallow_cluster_termination,
+                              enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
+                              datadog_api_token=arguments.datadog_api_token,
+                              datadog_app_token=arguments.datadog_app_token,
+                              node_bootstrap=arguments.node_bootstrap_file,
+                              master_instance_type=arguments.master_instance_type,
+                              slave_instance_type=arguments.slave_instance_type,
+                              min_nodes=arguments.initial_nodes,
+                              max_nodes=arguments.max_nodes,
+                              slave_request_type=arguments.slave_request_type,
+                              fallback_to_ondemand=arguments.fallback_to_ondemand,
+                              node_base_cooldown_period=arguments.node_base_cooldown_period,
+                              node_spot_cooldown_period=arguments.node_spot_cooldown_period,
+                              custom_tags=arguments.custom_tags,
+                              heterogeneous_config=arguments.heterogeneous_config,
+                              maximum_bid_price_percentage=arguments.maximum_bid_price_percentage,
+                              timeout_for_request=arguments.timeout_for_request,
+                              maximum_spot_instance_percentage=arguments.maximum_spot_instance_percentage,
+                              stable_maximum_bid_price_percentage=arguments.stable_maximum_bid_price_percentage,
+                              stable_timeout_for_request=arguments.stable_timeout_for_request,
+                              stable_spot_fallback=arguments.stable_spot_fallback,
+                              spot_block_duration=arguments.spot_block_duration,
+                              idle_cluster_timeout=arguments.idle_cluster_timeout,
+                              disk_count=arguments.count,
+                              disk_type=arguments.disk_type,
+                              disk_size=arguments.size,
+                              root_disk_size=arguments.root_disk_size,
+                              upscaling_config=arguments.upscaling_config,
+                              enable_encryption=arguments.encrypted_ephemerals,
+                              customer_ssh_key=customer_ssh_key,
+                              image_uri_overrides=arguments.image_uri_overrides,
+                              env_name=arguments.env_name,
+                              python_version=arguments.python_version,
+                              r_version=arguments.r_version,
+                              disable_cluster_pause=arguments.disable_cluster_pause,
+                              paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
+                              disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
+                              paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins,
+                              parent_cluster_id=arguments.parent_cluster_id)
 
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
@@ -201,7 +224,8 @@ class ClusterInfoV2(object):
                          disable_cluster_pause=None,
                          paused_cluster_timeout_mins=None,
                          disable_autoscale_node_pause=None,
-                         paused_autoscale_node_timeout_mins=None):
+                         paused_autoscale_node_timeout_mins=None,
+                         parent_cluster_id=None):
         """
         Args:
 
@@ -320,7 +344,7 @@ class ClusterInfoV2(object):
         self.cluster_info['force_tunnel'] = force_tunnel
         self.cluster_info['fallback_to_ondemand'] = fallback_to_ondemand
         self.cluster_info['node_base_cooldown_period'] = node_base_cooldown_period
-        self.cluster_info['node_spot_cooldown_period'] = node_spot_cooldown_period
+        self.cluster_info['node_volatile_cooldown_period'] = node_spot_cooldown_period
         self.cluster_info['customer_ssh_key'] = customer_ssh_key
         if custom_tags and custom_tags.strip():
             try:
@@ -335,9 +359,12 @@ class ClusterInfoV2(object):
 
         self.cluster_info['rootdisk'] = {}
         self.cluster_info['rootdisk']['size'] = root_disk_size
+        self.cluster_info['parent_cluster_id'] = parent_cluster_id
 
-        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
-        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request, stable_spot_fallback)
+        self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
+                                        maximum_spot_instance_percentage)
+        self.set_stable_spot_bid_settings(stable_maximum_bid_price_percentage, stable_timeout_for_request,
+                                          stable_spot_fallback)
         self.set_spot_block_settings(spot_block_duration)
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token)
@@ -491,6 +518,10 @@ class ClusterInfoV2(object):
                                   dest="root_disk_size",
                                   type=int,
                                   help="size of the root volume in GB")
+        cluster_info.add_argument("--parent-cluster-id",
+                                  dest="parent_cluster_id",
+                                  type=int,
+                                  help="Id of the parent cluster this hs2 cluster is attached to")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",
@@ -705,16 +736,18 @@ class ClusterInfoV2(object):
                                       type=int,
                                       help="paused autoscale node timeout in min")
 
-class ClusterV2(Resource):
 
+class ClusterV2(Resource):
     rest_entity_path = "clusters"
+    api_version = "v2"
 
     @classmethod
     def create(cls, cluster_info):
         """
         Create a new cluster using information provided in `cluster_info`.
         """
-        conn = Qubole.agent(version="v2")
+
+        conn = Qubole.agent(version=cls.api_version)
         return conn.post(cls.rest_entity_path, data=cluster_info)
 
     @classmethod
@@ -723,7 +756,7 @@ class ClusterV2(Resource):
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
         """
-        conn = Qubole.agent(version="v2")
+        conn = Qubole.agent(version=cls.api_version)
         return conn.put(cls.element_path(cluster_id_label), data=cluster_info)
 
     @classmethod
@@ -732,7 +765,7 @@ class ClusterV2(Resource):
         Update the cluster with id/label `cluster_id_label` using information provided in
         `cluster_info`.
         """
-        conn = Qubole.agent(version="v2")
+        conn = Qubole.agent(version=cls.api_version)
         return conn.post(cls.element_path(cluster_id_label) + '/clone', data=cluster_info)
 
     @classmethod
@@ -758,7 +791,7 @@ class ClusterV2(Resource):
         if per_page:
             params['per_page'] = per_page
         params = None if not params else params
-        conn = Qubole.agent(version="v2")
+        conn = Qubole.agent(version=cls.api_version)
         cluster_list = conn.get(cls.rest_entity_path)
         if state is None:
             # return the complete list since state is None
@@ -776,5 +809,5 @@ class ClusterV2(Resource):
         """
         Show information about the cluster with id/label `cluster_id_label`.
         """
-        conn = Qubole.agent(version="v2")
+        conn = Qubole.agent(version=cls.api_version)
         return conn.get(cls.element_path(cluster_id_label))
