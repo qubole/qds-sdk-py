@@ -145,7 +145,7 @@ class Quest(Resource):
 
     @staticmethod
     def get_pipline_id(response):
-        return response.get('data').get('id')
+        return str(response.get('data').get('id'))
 
     @staticmethod
     def list(status=None):
@@ -165,10 +165,12 @@ class Quest(Resource):
         Note - this creates pipeline in draft mode
 
         Args:
+            pipeline_name: Name to be given.
+            create_type: 1->Assisted, 2->Code, 3->Jar
             **kwargs: keyword arguments specific to create type
 
         Returns:
-            Command object
+            response
         """
         conn = Qubole.agent()
         if create_type is None:
@@ -184,6 +186,11 @@ class Quest(Resource):
 
     @staticmethod
     def start(pipeline_id):
+        """
+        Method to start Pipeline
+        :param pipeline_id: id of pipeline to be deleted
+        :return: reponse
+        """
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + pipeline_id + "/start"
         response = conn.put(url)
@@ -197,43 +204,34 @@ class Quest(Resource):
         return response
 
     @staticmethod
-    def add_property(pipeline_id, cluster_label, checkpoint_location, trigger_interval=None, output_mode=None,
-                     can_retry=True):
+    def add_property(pipeline_id, cluster_label, checkpoint_location, output_mode, trigger_interval=None,
+                     can_retry=True, **kwargs):
+        """
+        Method to add properties in pipeline
+        :param can_retry:
+        :param pipeline_id:
+        :param cluster_label:
+        :param checkpoint_location:
+        :param trigger_interval:
+        :param output_mode:
+        :param **kwargs: command_line_options
+        :return:
+        """
         conn = Qubole.agent()
+        default_cmdline = "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"
         data = {"data": {"attributes": {
             "cluster_label": cluster_label,
             "can_retry": can_retry,
             "checkpoint_location": checkpoint_location,
             "trigger_interval": trigger_interval,
             "output_mode": output_mode,
-            "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"
+            "command_line_options": kwargs.get("command_line_options", default_cmdline)
         },
             "type": "pipeline/properties"
         }
         }
-        url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/properties/"
-        response = conn.put(url, data)
-        return response
-
-    @staticmethod
-    def save_code(pipeline_id, create_type, code_or_fileLoc=None, jar_file_loc=None, language='scala'):
-        try:
-            code = None
-            if code_or_fileLoc:
-                if os.path.isdir(code_or_fileLoc):
-                    q = open(code_or_fileLoc).read()
-                    code = q
-                else:
-                    code = code_or_fileLoc
-            elif jar_file_loc:
-                code = jar_file_loc
-
-        except IOError as e:
-            raise ParseError("Unable to open script location or script location and code both are empty")
-
-        data = {"data": {"attributes": {"create_type": create_type, "code": str(code), "language": str(language)}}}
-        conn = Qubole.agent()
-        url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
+        log.info("Data {}".format(data))
+        url = Quest.rest_entity_path + "/" + pipeline_id + "/properties/"
         response = conn.put(url, data)
         return response
 
@@ -242,6 +240,11 @@ class Quest(Resource):
 
     @staticmethod
     def clone(pipeline_id):
+        """
+        Method to clone pipeline
+        :param pipeline_id:
+        :return:
+        """
         url = Quest.rest_entity_path + "/" + pipeline_id + "/duplicate"
         log.info("Cloning pipeline with id {}".format(pipeline_id))
         conn = Qubole.agent()
@@ -249,6 +252,11 @@ class Quest(Resource):
 
     @staticmethod
     def pause(pipeline_id):
+        """
+        Method to pause pipeline
+        :param pipeline_id:
+        :return:
+        """
         url = Quest.rest_entity_path + "/" + pipeline_id + "/pause"
         log.info("Pausing pipeline with id {}".format(pipeline_id))
         conn = Qubole.agent()
@@ -260,6 +268,11 @@ class Quest(Resource):
 
     @staticmethod
     def archive(pipeline_id):
+        """
+        Method to Archive pipeline
+        :param pipeline_id:
+        :return:
+        """
         url = Quest.rest_entity_path + "/" + pipeline_id + "/archive"
         log.info("Archiving pipeline with id {}".format(pipeline_id))
         conn = Qubole.agent()
@@ -275,6 +288,11 @@ class Quest(Resource):
 
     @staticmethod
     def delete(pipeline_id):
+        """
+        Method to delete pipeline
+        :param pipeline_id:
+        :return:
+        """
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + pipeline_id + "/delete"
         log.info("Deleting Pipeline with id: {}".format(pipeline_id))
@@ -284,33 +302,60 @@ class Quest(Resource):
 
     @staticmethod
     def edit_pipeline_name(pipeline_id, pipeline_name):
+        """
+        Method to edit pipeline name (Required in case of cloning)
+        :param pipeline_id:
+        :param pipeline_name:
+        :return:
+        """
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + pipeline_id
         data = {"data": {"attributes": {"name": pipeline_name}, "type": "pipelines"}}
         return conn.put(url, data)
 
+    @staticmethod
+    def set_alert(pipeline_id, channel_id):
+        """
+
+        :param pipeline_id:
+        :param channel_id: List of channel's id
+        :return:
+        """
+        data = {
+            "data": {"attributes": {"event_type": "error", "notification_channels": [channel_id], "can_notify": True},
+                     "type": "pipeline/alerts"}}
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + pipeline_id + "/alerts"
+        return conn.put(url, data)
+
 
 class QuestCode(Quest):
+    create_type = 3
+
     @staticmethod
-    def create_pipeline(pipeline_name, create_type, code_or_fileLoc, cluster_label, checkpoint_location,
+    def create_pipeline(pipeline_name, code_or_fileLoc, cluster_label, checkpoint_location,
                         language='scala', **kwargs):
         """
         Method to create pipeline in BYOC mode in one go.
+        :param checkpoint_location:
+        :param cluster_label:
         :param pipeline_name: Name by which pipeline will be created.
-        :param create_type: 1->Assisted Mode, 2->BYOJ mode, 3->BYOC mode
         :param code_or_fileLoc: code/location of file
         :param language: scala/python
         :param kwargs: other params are checkpoint_location, trigger_interval, outputmode, can_retry(true by default)
         :return: pipeline id
         """
-        response = Quest.create(pipeline_name, create_type)
+        response = Quest.create(pipeline_name, QuestCode.create_type)
         log.info(response)
         pipeline_id = Quest.get_pipline_id(response)
         property = Quest.add_property(pipeline_id, cluster_label, checkpoint_location,
                                       trigger_interval=kwargs.get("trigger_interval"),
                                       output_mode=kwargs.get("output_mode"), can_retry=kwargs.get("can_retry"))
         log.info(property)
-        save_response = Quest.save_code(pipeline_id, create_type=3, code_or_fileLoc=code_or_fileLoc, language=language)
+        save_response = QuestCode.save_code(pipeline_id, code_or_fileLoc=code_or_fileLoc, language=language)
+        if kwargs.get("channel_id"):
+            response = Quest.set_alert(pipeline_id, kwargs.get("channel_id"))
+            log.info(response)
         pipeline_id = Quest.get_pipline_id(save_response)
         return pipeline_id
 
@@ -331,30 +376,65 @@ class QuestCode(Quest):
         property = Quest.add_property(pipeline_id, cluster_label, checkpoint_location,
                                       trigger_interval=trigger_interval, output_mode=output_mode, can_retry=can_retry)
         log.info(property)
-        save_response = Quest.save_code(pipeline_id, create_type=3, code_or_fileLoc=code, language=language)
+        save_response = QuestCode.save_code(pipeline_id, code, language=language)
         return save_response
+
+    @staticmethod
+    def save_code(pipeline_id, code_or_fileLoc, language='scala'):
+        """
+        Method to save code
+        :param pipeline_id:
+        :param code_or_fileLoc:
+        :param language:
+        :return:
+        """
+        try:
+            code = None
+            if code_or_fileLoc:
+                if os.path.isdir(code_or_fileLoc):
+                    q = open(code_or_fileLoc).read()
+                    code = q
+                else:
+                    code = code_or_fileLoc
+
+        except IOError as e:
+            raise ParseError("Unable to open script location or script location and code both are empty")
+
+        data = {"data": {
+            "attributes": {"create_type": QuestCode.create_type, "code": str(code), "language": str(language)}}}
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
+        response = conn.put(url, data)
+        return response
 
 
 class QuestJar(Quest):
+    create_type = 2
+
     @staticmethod
-    def create_pipeline(pipeline_name, create_type, jar_file, cluster_label, checkpoint_location, language='scala',
+    def create_pipeline(pipeline_name, jar_path, cluster_label, checkpoint_location, main_class_name,
                         **kwargs):
         """
         Method to create pipeline in BYOC mode in one go.
+        :param main_class_name:
+        :param checkpoint_location:
+        :param cluster_label:
+        :param jar_path:
         :param pipeline_name: Name by which pipeline will be created.
-        :param create_type: 1->Assisted Mode, 2->BYOJ mode, 3->BYOC mode
-        :param code_or_fileLoc: code/location of file
-        :param language: scala/python
-        :param kwargs: other params are checkpoint_location, trigger_interval, outputmode, can_retry(true by default)
+        :param create_type:
+        :param kwargs:
         :return: pipeline id
         """
-        response = Quest.create(pipeline_name, create_type)
+        response = Quest.create(pipeline_name, QuestJar.create_type)
         log.info(response)
         pipeline_id = Quest.get_pipline_id(response)
         property = Quest.add_property(pipeline_id, cluster_label, checkpoint_location, **kwargs)
         log.info(property)
-        save_response = Quest.save_code(pipeline_id, create_type, jar_file_loc=jar_file, language=language)
+        save_response = QuestJar.save_code(pipeline_id, jar_path, main_class_name, **kwargs)
         pipeline_id = Quest.get_pipline_id(save_response)
+        if kwargs.get("channel_id"):
+            response = Quest.set_alert(pipeline_id, kwargs.get("channel_id"))
+            log.info(response)
         return pipeline_id
 
     @staticmethod
@@ -362,6 +442,7 @@ class QuestJar(Quest):
         """
         Method to Edit pipeline
         :param pipeline_id: pipeline id
+        :param kwargs: checkpoint_location, cluster_label, code_or_fileLoc
         :return:
         """
         checkpoint_location = kwargs.get("checkpoint_location")
@@ -374,13 +455,35 @@ class QuestJar(Quest):
         property = Quest.add_property(pipeline_id, cluster_label, checkpoint_location,
                                       trigger_interval=trigger_interval, output_mode=output_mode, can_retry=can_retry)
         log.info(property)
-        save_response = Quest.save_code(pipeline_id, create_type=3, code_or_fileLoc=code, language=language)
+        save_response = QuestJar.save_code(pipeline_id, create_type=3, code_or_fileLoc=code, language=language)
         return save_response
+
+    @staticmethod
+    def save_code(pipeline_id, jar_path, main_class_name, **kwargs):
+        """
+        :param pipeline_id:
+        :param jar_path:
+        :param main_class_name:
+        :param kwargs: user_arguments
+        :return:
+        """
+        if jar_path is None:
+            raise ParseError("Unable to open script location or script location and code both are empty")
+
+        data = {"data": {
+            "attributes": {"create_type": 2, "user_arguments": kwargs.get("user_arguments"), "jar_path": jar_path,
+                           "language": main_class_name}}}
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
+        response = conn.put(url, data)
+        return response
 
 
 class QuestAssisted(Quest):
+    create_type = 1
+
     @staticmethod
-    def add_source(pipeline_id, source_path, schema, format, data_store, **kwargs):
+    def add_source(pipeline_id, schema, format, data_store, **kwargs):
         """
         Method to add source in assisted mode pipeline.
         :param pipeline_id: id of pipeline for which source need to be added/updated.
@@ -391,18 +494,33 @@ class QuestAssisted(Quest):
         :return: response in dict format
         """
         url = Quest.rest_entity_path + "/" + pipeline_id + "/node"
-        sources = {"kafka": QuestAssisted._source_kafka, "kinesis": QuestAssisted._source_kinesis,
-                   "s3": QuestAssisted._source_s3, "google_storage": QuestAssisted._source_google_storage}
-        if data_store in sources.keys():
-            return sources[data_store](url, pipeline_id, source_path, schema, format, data_store, **kwargs)
+        if data_store == "kinesis":
+            return QuestAssisted._source_kinesis(url, schema, format, kwargs.get("endpoint_url"),
+                                                 kwargs.get("stream_name"),
+                                                 starting_position=kwargs.get("starting_position"),
+                                                 other_kinesis_settings=kwargs.get("other_kinesis_settings"))
+        if data_store == "kafka":
+            return QuestAssisted._source_kafka(url, schema, format, kwargs.get("broker"), kwargs.get("topics"),
+                                               topic_type=kwargs.get("topic_type"),
+                                               use_registry=kwargs.get("use_registry"),
+                                               registry_subject=kwargs.get("registry_subject"),
+                                               registry_id=kwargs.get("registry_id"),
+                                               starting_offsets=kwargs.get("starting_offsets"),
+                                               other_kafka_consumer_settings=kwargs.get(
+                                                   "other_kafka_consumer_settings"))
+        if data_store == "s3":
+            return QuestAssisted._source_s3(url, schema, format, kwargs.get("source_path"),
+                                            other_settings=kwargs.get("other_settings"))
+        if data_store == "google_storage":
+            return QuestAssisted._source_google_storage(url, schema, format, kwargs.get("source_path"))
         raise ParseError("Please add only one valid source out of [kafka, s3, kinesis]")
 
     @staticmethod
-    def add_sink(pipeline_id, source_path, schema, format, data_store, **kwargs):
+    def add_sink(pipeline_id, format, data_store, **kwargs):
         """
         Method to add sink for given pipeline.
         :param pipeline_id:
-        :param source_path:
+        :param sink_path:
         :param schema:
         :param format:
         :param data_store:
@@ -410,17 +528,74 @@ class QuestAssisted(Quest):
         :return:
         """
         url = Quest.rest_entity_path + "/" + pipeline_id + "/node"
-        sources = {"kafka": QuestAssisted._sink_kafka, "snowflake": QuestAssisted._sink_snowflake,
-                   "hive": QuestAssisted._sink_hive,
-                   "s3": QuestAssisted._sink_s3, "google_storage": QuestAssisted._sink_google_storage}
-        if data_store in sources.keys():
-            return sources[data_store](url, pipeline_id, source_path, schema, format, **kwargs)
+        if data_store == "kafka":
+            return QuestAssisted._sink_kafka(url, format, kwargs.get("kafka_bootstrap_server"), kwargs.get("topic"),
+                                             other_kafka_settings=kwargs.get("other_kafka_settings"))
+        if data_store == "s3":
+            return QuestAssisted._sink_s3(url, format, kwargs.get("sink_path"), kwargs.get("partition_by"),
+                                          other_configurations=kwargs.get("other_configurations"))
+        if data_store == "snowflake":
+            return QuestAssisted._sink_snowflake(url, format, **kwargs)
+        if data_store == "google_storage":
+            QuestAssisted._sink_google_storage(url, format, kwargs.get("sink_path"), kwargs.get("partition_by"),
+                                               other_configurations=kwargs.get("other_configurations"))
+        if data_store == "hive":
+            QuestAssisted._sink_hive(url, kwargs.get("table_name"), **kwargs)
         raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage]")
 
     @staticmethod
+    def create_pipeline(pipeline_name, schema, format, source_data_store, sink_data_store, checkpoint_location,
+                        cluster_label, output_mode, **kwargs):
+        """
+
+        :param pipeline_name:
+        :param schema:
+        :param format:
+        :param source_data_store:
+        :param sink_data_store:
+        :param checkpoint_location:
+        :param cluster_label:
+        :param kwargs: source_path, sink_path, output_mode, can_retry, operator, column_name
+        :return:
+        """
+        response = Quest.create(pipeline_name, QuestAssisted.create_type)
+        log.info(response)
+        pipeline_id = Quest.get_pipline_id(response)
+        pipeline_id = str(pipeline_id)
+        src_response = QuestAssisted.add_source(pipeline_id, schema, format, source_data_store, **kwargs)
+        log.info(src_response)
+        sink_reponse = QuestAssisted.add_sink(pipeline_id, format, sink_data_store, **kwargs)
+        log.info(sink_reponse)
+        property_response = QuestAssisted.add_property(pipeline_id, cluster_label, checkpoint_location,
+                                                       output_mode,
+                                                       trigger_interval=kwargs.get("trigger_interval", None),
+                                                       can_retry=kwargs.get("can_retry", True),
+                                                       command_line_options=kwargs.get("command_line_options"))
+        log.info(property_response)
+        if kwargs.get("operator"):
+            operator_response = QuestAssisted.add_operator(kwargs.get("operator"), pipeline_id,
+                                                           kwargs.get("column_name"),
+                                                           **kwargs)
+            log.info(operator_response)
+        if kwargs.get("channel_id"):
+            response = QuestAssisted.set_alert(pipeline_id, kwargs.get("channel_id"))
+            log.info(response)
+        return response
+
+    @staticmethod
     def add_operator(operator, pipeline_id, column_name, **kwargs):
+        """
+
+        :param operator:
+        :param pipeline_id:
+        :param column_name:
+        :param kwargs: condition, value, frequency, sliding_window_value_frequency, window_interval_frequency, other_columns
+        :return:
+        """
         url = Quest.rest_entity_path + "/" + pipeline_id + "/operator"
-        if operator == 'filter':
+        if operator is None:
+            return
+        if operator == "filter":
             return QuestAssisted._filter_operator(url, column_name, kwargs.get("condition"), kwargs.get("value"))
         if operator == "select":
             return QuestAssisted._select_operator(url, column_name)
@@ -434,12 +609,24 @@ class QuestAssisted(Quest):
 
     @staticmethod
     def _select_operator(url, column_names):
+        """
+        :param url: API url with pipeline id
+        :param column_names:
+        :return:
+        """
         conn = Qubole.agent()
         data = {"data": {"attributes": {"operator": "select", "column_names": column_names}}}
         return conn.put(url, data)
 
     @staticmethod
     def _filter_operator(url, column_name, condition, value):
+        """
+        :param url: API url with pipeline id
+        :param column_name:
+        :param condition:
+        :param value:
+        :return:
+        """
         conn = Qubole.agent()
         data = {"data": {"attributes": {"operator": "filter", "column_name": column_name,
                                         "condition": condition, "value": value}}}
@@ -447,6 +634,12 @@ class QuestAssisted(Quest):
 
     @staticmethod
     def _watermark_operator(url, column_name, frequency):
+        """
+        :param url: API url with pipeline id
+        :param column_name:
+        :param frequency:
+        :return:
+        """
         conn = Qubole.agent()
         data = {"data": {"attributes": {"operator": "watermark", "column_name": column_name,
                                         "frequency": frequency, "unit": "minute"}}}
@@ -455,6 +648,14 @@ class QuestAssisted(Quest):
     @staticmethod
     def _window_group_operator(url, column_name, sliding_window_value_frequency, window_interval_frequency,
                                other_columns):
+        """
+        :param url: API url with pipeline id
+        :param column_name:
+        :param sliding_window_value_frequency:
+        :param window_interval_frequency:
+        :param other_columns:
+        :return:
+        """
         conn = Qubole.agent()
         data = {"data": {"attributes": {"operator": "windowed_group",
                                         "window_expression": {"column_name": column_name, "sliding_window_value": {
@@ -467,7 +668,14 @@ class QuestAssisted(Quest):
         return conn.put(url, data)
 
     @staticmethod
-    def _source_kafka(url, schema, format, **kwargs):
+    def _source_kafka(url, schema, format, broker, topics, **kwargs):
+        """
+        :param url: API url with pipeline id
+        :param schema:
+        :param format: JSON/AVRO/ORC/Parquet
+        :param kwargs: topic_type, use_registry, registry_subject, registry_id, starting_offsets, other_kafka_consumer_settings
+        :return:
+        """
         conn = Qubole.agent()
         default_kafka = {"kafkaConsumer.pollTimeoutMs": 512, "fetchOffset.numRetries": 3,
                          "fetchOffset.retryIntervalMs": 10}
@@ -475,9 +683,8 @@ class QuestAssisted(Quest):
             "data": {
                 "attributes": {
                     "fields": {
-                        "name": kwargs.get("name", "source_kafka"),
-                        "brokers": kwargs.get("broker"),
-                        "topics": kwargs.get("topics"),
+                        "brokers": broker,
+                        "topics": topics,
                         "topic_type": kwargs.get("topic_type", "multiple"),
                         "schema": schema,
                         "use_registry": kwargs.get("use_registry", "write"),
@@ -495,7 +702,14 @@ class QuestAssisted(Quest):
         return conn.put(url, data)
 
     @staticmethod
-    def _source_kinesis(url, schema, format, **kwargs):
+    def _source_kinesis(url, schema, format, endpoint_url, stream_name, **kwargs):
+        """
+        :param url: API url with pipeline id
+        :param schema:
+        :param format:
+        :param kwargs: other_kinesis_settings, starting_position,
+        :return:
+        """
         conn = Qubole.agent()
         other_kinesis_settings = {"kinesis.executor.maxFetchTimeInMs": 1000,
                                   "kinesis.executor.maxFetchRecordsPerShard": 100000,
@@ -504,9 +718,8 @@ class QuestAssisted(Quest):
             "data": {
                 "attributes": {
                     "fields": {
-                        "name": kwargs.get("name", "source_kinesis"),
-                        "endpoint_url": kwargs.get("endpoint_url"),
-                        "stream_name": kwargs.get("stream_name"),
+                        "endpoint_url": endpoint_url,
+                        "stream_name": stream_name,
                         "schema": schema,
                         "starting_position": kwargs.get("starting_position", "latest"),
                         "format": format,
@@ -520,15 +733,21 @@ class QuestAssisted(Quest):
         return conn.put(url, data)
 
     @staticmethod
-    def _source_s3(url, schema, format, **kwargs):
+    def _source_s3(url, schema, format, path, **kwargs):
+        """
+        :param url: API url with pipeline id
+        :param schema:
+        :param format:
+        :param kwargs: other_settings
+        :return:
+        """
         conn = Qubole.agent()
         other_settings = {"fileNameOnly": "false", "latestFirst": "false"}
         data = {
             "data": {
                 "attributes": {
                     "fields": {
-                        "name": kwargs.get("name", "source_s3"),
-                        "path": kwargs.get("path"),
+                        "path": path,
                         "schema": schema,
                         "format": format,
                         "other_settings": kwargs.get("other_settings", other_settings)
@@ -541,16 +760,23 @@ class QuestAssisted(Quest):
         return conn.put(url, data)
 
     @staticmethod
-    def _source_google_storage(url, schema, format, **kwargs):
+    def _source_google_storage(url, schema, format, source_path, **kwargs):
+        """
+        :param url: API url with pipeline id
+        :param schema:
+        :param format:
+        :param kwargs:
+        :return:
+        """
         conn = Qubole.agent()
         other_settings = {"fileNameOnly": "false", "latestFirst": "false"}
         data = {"data":
                     {"attributes":
                          {"fields":
-                              {"path": kwargs.get("path"),
+                              {"path": source_path,
                                "format": format,
                                "schema": schema,
-                               "other_settings": other_settings
+                               "other_settings": kwargs.get("other_settings", other_settings)
                                },
                           "data_store": "googleStorage"},
                      "type": "source"
@@ -559,32 +785,52 @@ class QuestAssisted(Quest):
         return conn.put(url, data)
 
     @staticmethod
-    def _sink_kafka(url, format, **kwargs):
+    def _sink_kafka(url, format, kafka_bootstrap_server, topic, **kwargs):
+        """
+        :param url: API url with pipeline id
+        :param format:
+        :param kwargs: other_kafka_settings
+        :return:
+        """
         conn = Qubole.agent()
         default = {"kafka.max.block.ms": 60000}
         data = {"data": {"attributes": {
-            "fields": {"kafka_bootstrap_server": kwargs.get("kafka_bootstrap_server"), "topic": kwargs.get("topic"),
+            "fields": {"kafka_bootstrap_server": kafka_bootstrap_server, "topic": topic,
                        "format": format, "other_kafka_settings": kwargs.get("other_kafka_settings", default)},
             "data_store": "kafka"},
             "type": "sink"}}
         return conn.put(url, data)
 
     @staticmethod
-    def _sink_s3(url, format, **kwargs):
+    def _sink_s3(url, format, path, partition, **kwargs):
+        """
+
+        :param url: API url with pipeline id
+        :param format:
+        :param kwargs: other_configurations
+        :return:
+        """
         conn = Qubole.agent()
         data = {"data": {"attributes": {
-            "fields": {"path": kwargs.get("path"), "partition_by": kwargs.get("partition_by"),
+            "fields": {"path": path, "partition_by": partition,
                        "other_configurations": kwargs.get("other_configurations"), "format": format},
             "data_store": "s3"}, "type": "sink"}}
         return conn.put(url, data)
 
     @staticmethod
-    def _sink_hive(url, format, **kwargs):
+    def _sink_hive(url, table_name, **kwargs):
+        """
+
+        :param url: API url with pipeline id
+        :param format:
+        :param kwargs: other_configuration
+        :return:
+        """
         conn = Qubole.agent()
         default_other_configurations = {"table.metastore.stopOnFailure": "false",
                                         "table.metastore.updateIntervalSeconds": 10}
         data = {"data": {"attributes": {
-            "fields": {"database": kwargs.get("databases", "default"), "table_name": kwargs.get("table_name"),
+            "fields": {"database": kwargs.get("databases", "default"), "table_name": table_name,
                        "other_configurations": kwargs.get("other_configuration", default_other_configurations)},
             "data_store": "hive"},
             "type": "sink"}}
@@ -592,13 +838,50 @@ class QuestAssisted(Quest):
 
     @staticmethod
     def _sink_snowflake(url, format, **kwargs):
+        """
+
+        :param url: API url with pipeline id
+        :param format:
+        :param kwargs:
+        :return:
+        """
         pass
 
     @staticmethod
-    def _sink_google_storage(url, format, **kwargs):
+    def _sink_google_storage(url, format, sink_path, partition_by, **kwargs):
+        """
+        :param url: API url with pipeline id
+        :param format:
+        :param kwargs: other_configurations
+        :return:
+        """
         conn = Qubole.agent()
         data = {"data": {"attributes": {
-            "fields": {"path": kwargs.get("path"), "partition_by": kwargs.get("partition_by"),
+            "fields": {"path": sink_path, "partition_by": partition_by,
                        "other_configurations": kwargs.get("other_configurations"), "format": format},
             "data_store": "googleStorage"}, "type": "sink"}}
         return conn.put(url, data)
+
+    @staticmethod
+    def add_registry(registry_name, host, port=8081, registry_type='schema', use_gateway=False, gateway_ip=None, gateway_port=None,
+                     gateway_username=None, gateway_private_key=None, **kwargs):
+        """
+        :param registry_name: Name of Registry
+        :param registry_type:
+        :param host:
+        :param port:
+        :param use_gateway:
+        :param gateway_ip:
+        :param gateway_port:
+        :param gateway_username:
+        :param gateway_private_key:
+        :return:
+        """
+        conn = Qubole.agent()
+        url = QuestAssisted.rest_entity_path + '/' + 'quest_data_registries'
+        data = {"data": {
+            "attributes": {"name": registry_name, "description": kwargs.get("description"), "registry_type": registry_type, "host": host,
+                           "port": port, "use_gateway": use_gateway, "gateway_ip": gateway_ip,
+                           "gateway_port": gateway_port, "gateway_username": gateway_username,
+                           "gateway_private_key": gateway_private_key}, "type": "schemas"}}
+        conn.post(url, data)
