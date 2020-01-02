@@ -1018,14 +1018,9 @@ class QuestAssisted(Quest):
             other_configurations = {}
         if partition_by is None:
             partition_by = ""
-        data = {"data":
-            {"attributes": {
+        data = {"data": {"attributes": {
             "fields": {"path": path, "partition_by": partition_by,
-                       "other_configurations": other_configurations},
-                       "format": data_format,
-                       "data_store": "s3"},
-                       "type": "sink"}
-                }
+                       "other_configurations": other_configurations, "format": data_format,}, "data_store": "s3"}, "type": "sink"}}
         return conn.put(url, data)
 
     @staticmethod
