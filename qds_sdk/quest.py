@@ -141,6 +141,7 @@ class Quest(Resource):
     """ all commands use the /pipelines endpoint"""
 
     rest_entity_path = "pipelines"
+    pipeline_id = None
 
     @staticmethod
     def get_pipline_id(response):
@@ -181,6 +182,7 @@ class Quest(Resource):
             "type": "pipelines"}}
         url = Quest.rest_entity_path + "?mode=wizard"
         response = conn.post(url, data)
+        Quest.pipeline_id = Quest.get_pipline_id(response)
         return response
 
     @staticmethod
@@ -704,6 +706,7 @@ class QuestAssisted(Quest):
         """
         response = Quest.create(pipeline_name, QuestAssisted.create_type)
         log.info(response)
+        final_reponse = None
         pipeline_id = Quest.get_pipline_id(response)
         pipeline_id = str(pipeline_id)
         src_response = QuestAssisted.add_source(pipeline_id, schema, source_data_format, source_data_store,
@@ -739,6 +742,7 @@ class QuestAssisted(Quest):
                                                        can_retry=can_retry,
                                                        command_line_options=command_line_options)
         log.info(property_response)
+        final_reponse =  property_response
         if operator:
             operator_response = QuestAssisted.add_operator(pipeline_id, operator,
                                                            condition=condition,
@@ -749,10 +753,12 @@ class QuestAssisted(Quest):
                                                            window_interval_frequency=window_interval_frequency,
                                                            other_columns=other_columns)
             log.info(operator_response)
+            final_reponse = operator_response
         if channel_id:
             response = QuestAssisted.set_alert(pipeline_id, channel_id)
             log.info(response)
-        return response
+            final_reponse = response
+        return final_reponse
 
     @staticmethod
     def add_operator(pipeline_id, operator,
