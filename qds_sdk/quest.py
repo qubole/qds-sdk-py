@@ -2,12 +2,11 @@
 The quest module contains the base definition for
 a generic quest commands.
 """
-
+from qds_sdk.actions import *
 import json
 from qds_sdk.qubole import Qubole
 from qds_sdk.resource import Resource
 from argparse import ArgumentParser
-from qds_sdk.actions import *
 
 log = logging.getLogger("qds_quest")
 
