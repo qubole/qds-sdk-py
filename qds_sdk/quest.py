@@ -328,6 +328,14 @@ class Quest(Resource):
         url = Quest.rest_entity_path + "/" + pipeline_id + "/alerts"
         return conn.put(url, data)
 
+    @staticmethod
+    def get_code(pipeline_id):
+        url = Quest.rest_entity_path + "/" + pipeline_id
+        conn = Qubole.agent()
+        reponse = conn.get(url)
+        code = reponse.get("meta")["command_details"]["code"]
+        return code
+
 
 class QuestCode(Quest):
     create_type = 3
