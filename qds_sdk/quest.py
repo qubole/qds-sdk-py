@@ -141,7 +141,9 @@ class Quest(Resource):
 
     rest_entity_path = "pipelines"
     pipeline_id = None
-
+    pipeline_name = None
+    pipeline_code = None
+    jar_path = None
     @staticmethod
     def get_pipline_id(response):
         return str(response.get('data').get('id'))
@@ -184,6 +186,7 @@ class Quest(Resource):
         url = Quest.rest_entity_path + "?mode=wizard"
         response = conn.post(url, data)
         Quest.pipeline_id = Quest.get_pipline_id(response)
+        Quest.pipeline_name = pipeline_name
         return response
 
     @staticmethod
@@ -196,7 +199,7 @@ class Quest(Resource):
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + pipeline_id + "/start"
         response = conn.put(url)
-        pipeline_status = response.get('data').get('pipeline_instance_status')
+        pipeline_status = Quest.get_status(pipeline_id)
         while pipeline_status == 'waiting':
             log.info("Pipeline is in waiting state....")
             time.sleep(10)
@@ -238,8 +241,18 @@ class Quest(Resource):
         response = conn.put(url, data)
         return response
 
-    def health(self):
-        pass
+    @staticmethod
+    def get_health(pipeline_id):
+        """
+        Get Pipeline Health
+        :param pipeline_id:
+        :return:
+        """
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + pipeline_id
+        response = conn.get(url)
+        log.info(response)
+        return response.get("data").get("attributes").get("health")
 
     @staticmethod
     def clone(pipeline_id):
@@ -265,9 +278,6 @@ class Quest(Resource):
         conn = Qubole.agent()
         return conn.put(url)
 
-    @staticmethod
-    def edit(pipeline_id, **kwargs):
-        pass
 
     @staticmethod
     def archive(pipeline_id):
@@ -281,13 +291,18 @@ class Quest(Resource):
         conn = Qubole.agent()
         return conn.put(url)
 
-    # @staticmethod
-    # def status(pipeline_id):
-    #     conn = Qubole.agent()
-    #     url = Quest.rest_entity_path + "/" + pipeline_id + "/status"
-    #     response = conn.put(url)
-    #     log.info(response)
-    #     return response
+    @staticmethod
+    def get_status(pipeline_id):
+        """
+        Get pipeline status
+        :param pipeline_id:
+        :return:
+        """
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + pipeline_id
+        response = conn.get(url)
+        log.info(response)
+        return response.get("data").get("attributes").get("pipeline_instance_status")
 
     @staticmethod
     def delete(pipeline_id):
@@ -333,6 +348,11 @@ class Quest(Resource):
 
     @staticmethod
     def get_code(pipeline_id):
+        """
+        Get pipeline code
+        :param pipeline_id:
+        :return:
+        """
         url = Quest.rest_entity_path + "/" + pipeline_id
         conn = Qubole.agent()
         reponse = conn.get(url)
@@ -366,16 +386,16 @@ class QuestCode(Quest):
         response = Quest.create(pipeline_name, QuestCode.create_type)
         log.info(response)
         pipeline_id = Quest.get_pipline_id(response)
-        property = Quest.add_property(pipeline_id, cluster_label, checkpoint_location,
+        response = Quest.add_property(pipeline_id, cluster_label, checkpoint_location,
                                       trigger_interval=trigger_interval,
                                       output_mode=output_mode,
                                       can_retry=can_retry)
-        log.info(property)
-        save_response = QuestCode.save_code(pipeline_id, code_or_fileLoc=code_or_fileLoc, language=language)
+        log.info(response)
+        response = QuestCode.save_code(pipeline_id, code_or_fileLoc=code_or_fileLoc, language=language)
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
             log.info(response)
-        pipeline_id = Quest.get_pipline_id(save_response)
+        QuestCode.pipeline_id = QuestCode.get_pipline_id(response)
         return pipeline_id
 
     @staticmethod
@@ -398,7 +418,7 @@ class QuestCode(Quest):
 
         except IOError as e:
             raise ParseError("Unable to open script location or script location and code both are empty")
-
+        QuestCode.pipeline_code = code
         data = {"data": {
             "attributes": {"create_type": QuestCode.create_type, "code": str(code), "language": str(language)}}}
         conn = Qubole.agent()
@@ -436,19 +456,19 @@ class QuestJar(Quest):
         response = Quest.create(pipeline_name, QuestJar.create_type)
         log.info(response)
         pipeline_id = Quest.get_pipline_id(response)
-        property = Quest.add_property(pipeline_id, cluster_label, checkpoint_location,
+        response = Quest.add_property(pipeline_id, cluster_label, checkpoint_location,
                                       output_mode=output_mode,
                                       trigger_interval=trigger_interval,
                                       can_retry=can_retry,
                                       command_line_options=command_line_options)
-        log.info(property)
-        save_response = QuestJar.save_code(pipeline_id, jar_path, main_class_name, user_arguments=user_arguments)
-        pipeline_id = Quest.get_pipline_id(save_response)
+        log.info(response)
+        response = QuestJar.save_code(pipeline_id, jar_path, main_class_name, user_arguments=user_arguments)
+        QuestCode.pipeline_id = QuestJar.get_pipline_id(response)
+        QuestJar.jar_path = jar_path
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
             log.info(response)
-        return pipeline_id
-
+        return response
 
     @staticmethod
     def save_code(pipeline_id, jar_path, main_class_name, user_arguments=None):
@@ -467,6 +487,7 @@ class QuestJar(Quest):
                            "language": main_class_name}}}
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
+        QuestJar.jar_path = jar_path
         response = conn.put(url, data)
         return response
 
@@ -731,6 +752,7 @@ class QuestAssisted(Quest):
             response = QuestAssisted.set_alert(pipeline_id, channel_id)
             log.info(response)
             final_response = response
+        QuestAssisted.pipeline_code = QuestAssisted.get_code(pipeline_id)
         return final_response
 
     @staticmethod
@@ -1111,7 +1133,7 @@ class QuestAssisted(Quest):
         create_type = response.get("data").get("attributes").get("create_type")
         if create_type == 1:
             url = QuestAssisted.rest_entity_path + '/' + pipeline_id + '/switch'
-            data = {"data": {"attributes": {"create_type": 3}}}
+            data = {"data": {"attributes": {"create_type": QuestAssisted.create_type}}}
             response = conn.get(url, data)
             return response
         else:
