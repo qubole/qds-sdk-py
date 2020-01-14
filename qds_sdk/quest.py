@@ -902,7 +902,7 @@ class QuestAssisted(Quest):
             other_kafka_consumer_settings = {"kafkaConsumer.pollTimeoutMs": 512, "fetchOffset.numRetries": 3,
                                              "fetchOffset.retryIntervalMs": 10}
 
-        if use_registry is not "write" and registry_subject is None or registry_id is None:
+        if (use_registry is "schemaRegistry") and (registry_subject is None or registry_id is None):
             raise ParseError("registry_id and registry_subject cannot be empty if use_registry is auto fetch")
 
         data = {
