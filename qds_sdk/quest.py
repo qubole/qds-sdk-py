@@ -188,7 +188,7 @@ class Quest(Resource):
         response = conn.post(url, data)
         Quest.pipeline_id = Quest.get_pipline_id(response)
         Quest.pipeline_name = pipeline_name
-        return response
+        return Quest
 
     @staticmethod
     def start(pipeline_id):
@@ -691,9 +691,8 @@ class QuestAssisted(Quest):
         :return:
         """
         response = Quest.create(pipeline_name, QuestAssisted.create_type)
-        log.info(response)
         final_response = None
-        pipeline_id = Quest.get_pipline_id(response)
+        pipeline_id = response.pipeline_id
         pipeline_id = str(pipeline_id)
         src_response = QuestAssisted.add_source(pipeline_id, schema, source_data_format, source_data_store,
                                                 topics=source_topics,
@@ -732,21 +731,21 @@ class QuestAssisted(Quest):
         final_response = property_response
         if operators:
             for operator in operators:
-                if operator.item()[0][0] is "filter":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator,
+                if operator.items()[0][0] is "filter":
+                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="filter",
                                                                    condition=operator["filter"]["condition"],
                                                                    value=operator["filter"]["value"],
                                                                    filter_column_name=operator["filter"]["column_name"])
-                elif operator.item()[0][0] is "select":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator,
+                elif operator.items()[0][0] is "select":
+                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="select",
                                                                    select_column_names=operator["select"]["column_names"])
-                elif operator.item()[0][0] is "watermark":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator,
+                elif operator.items()[0][0] is "watermark":
+                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="watermark",
                                                                    watermark_column_name=operator["watermark"]["column_names"],
                                                                    watermark_frequency=operator["watermark"]["frequency"])
 
-                elif operator.item()[0][0] is "windowed_group":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator,
+                elif operator.items()[0][0] is "windowed_group":
+                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="windowed_group",
                                                                    groupby_column_name=operator["windowed_group"]["column_name"],
                                                                    sliding_window_value=operator["windowed_group"]["sliding_window_value"],
                                                                    window_interval_frequency=operator["windowed_group"]["window_interval_frequency"],
@@ -804,7 +803,7 @@ class QuestAssisted(Quest):
         if operator == "window_group":
             return QuestAssisted._window_group_operator(url, groupby_column_name, sliding_window_value,
                                                         window_interval_frequency, other_columns)
-        raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage]")
+        raise ParseError("Please add only one valid sink out of [filter, select, watermark, windowed_group]. Given value is {}".format(operator))
 
     @staticmethod
     def _select_operator(url, column_names):
