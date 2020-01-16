@@ -21,7 +21,7 @@ class Qubole:
     """
 
     MIN_POLL_INTERVAL = 1
-    MAX_RETRIES = 6
+    MAX_RETRIES = 10
     MAX_DELAY = 30
 
     _auth = None
@@ -69,14 +69,14 @@ class Qubole:
         cls.skip_ssl_cert_check = skip_ssl_cert_check
         cls.cloud_name = cloud_name.lower()
         cls.cached_agent = None
-        if delay > Qubole.MAX_DELAY:
+        if retry_delay > Qubole.MAX_DELAY:
             log.warn("Sleep between successive retries cannot be greater than %s seconds. Setting it to %s seconds.\n" % (Qubole.MAX_DELAY, Qubole.MAX_DELAY))
             cls.retry_delay = Qubole.MAX_DELAY
         else:
             cls.retry_delay = retry_delay
-        if retries > Qubole.MAX_RETRIES:
-            log.warn("Maximum retries cannot be greater than %s . Setting it to %s .\n" % (Qubole.MAX_RETRIES, Qubole.MAX_RETRIES))
-            cls.max_retries = Qubole.MAX_RETRIES
+        if max_retries > Qubole.MAX_RETRIES:
+            log.warn("Maximum retries cannot be greater than %s . Setting it to %s .\n" % (Qubole.MAX_RETRIES, 6))
+            cls.max_retries = 6
         else:
             cls.max_retries = max_retries
 
