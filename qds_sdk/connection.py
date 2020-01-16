@@ -12,6 +12,7 @@ except ImportError:
     from urllib3.poolmanager import PoolManager
 from qds_sdk.retry import retry
 from qds_sdk.exception import *
+from qds_sdk.qubole import Qubole
 
 
 log = logging.getLogger("qds_connection")
@@ -50,20 +51,23 @@ class Connection:
             self.session_with_retries = requests.Session()
             self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
 
-    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout), tries=Qubole.max_retries, delay=Qubole.retry_delay, backoff=2)
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout), tries=6, delay=30, backoff=2)
+    @retry((RetryWithDelay, requests.Timeout), tries=Qubole.max_retries, delay=Qubole.retry_delay, backoff=2)
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
+    @retry((RetryWithDelay, requests.Timeout), tries=Qubole.max_retries, delay=Qubole.retry_delay, backoff=2)
     def put(self, path, data=None):
         return self._api_call("PUT", path, data)
 
+    @retry((RetryWithDelay, requests.Timeout), tries=Qubole.max_retries, delay=Qubole.retry_delay, backoff=2)
     def post(self, path, data=None):
         return self._api_call("POST", path, data)
 
+    @retry((RetryWithDelay, requests.Timeout), tries=Qubole.max_retries, delay=Qubole.retry_delay, backoff=2)
     def delete(self, path, data=None):
         return self._api_call("DELETE", path, data)
 
@@ -165,6 +169,9 @@ class Connection:
         elif code == 449:
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response, "Data requested is unavailable. Retrying ...")
+        elif code == 429:
+            sys.stderr.write(response.text + "\n")
+            raise RetryWithDelay(response)
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
