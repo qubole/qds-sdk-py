@@ -557,7 +557,8 @@ class QuestAssisted(Quest):
         raise ParseError("Please add only one valid source out of [kafka, s3, kinesis]")
 
     @staticmethod
-    def add_sink(pipeline_id, data_format, data_store,
+    def add_sink(pipeline_id, data_store,
+                 data_format=None,
                  kafka_bootstrap_server=None,
                  topic=None,
                  other_kafka_settings=None,
@@ -603,10 +604,11 @@ class QuestAssisted(Quest):
         raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage]")
 
     @staticmethod
-    def create_pipeline(pipeline_name, schema, source_data_format, sink_data_format, source_data_store, sink_data_store,
+    def create_pipeline(pipeline_name, schema, source_data_format, source_data_store, sink_data_store,
                         checkpoint_location,
                         cluster_label,
                         output_mode,
+                        sink_data_format=None,
                         source_topics=None,
                         sink_topics=None,
                         trigger_interval=None,
@@ -634,7 +636,7 @@ class QuestAssisted(Quest):
                         other_s3_configurations=None,
                         other_gs_configurations=None,
                         table_name=None,
-                        hive_database="default",
+                        hive_database=None,
                         other_hive_configurations=None):
         """
 
@@ -711,7 +713,8 @@ class QuestAssisted(Quest):
                                                 s3_other_settings=s3_other_settings,
                                                 gs_other_settings=gs_other_settings)
         log.info(src_response)
-        sink_reponse = QuestAssisted.add_sink(pipeline_id, sink_data_format, sink_data_store,
+        sink_reponse = QuestAssisted.add_sink(pipeline_id, sink_data_store,
+                                              data_format=sink_data_format,
                                               kafka_bootstrap_server=kafka_bootstrap_server,
                                               topic=sink_topics,
                                               other_kafka_settings=other_kafka_settings,
