@@ -588,7 +588,7 @@ def main():
                         )
     optparser.add_option("--max_retries", dest="max_retries",
                          default=os.getenv('QDS_MAX_RETRIES'),
-                         help="Number of attempts in case of retryable exceptions. defaults to 6."
+                         help="Number of re-attempts for an api-call in case of retryable exceptions. defaults to 6."
                         )
 
     optparser.add_option("-v", dest="verbose", action="store_true",

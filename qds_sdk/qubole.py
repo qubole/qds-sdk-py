@@ -21,7 +21,7 @@ class Qubole:
     """
 
     MIN_POLL_INTERVAL = 1
-    MAX_RETRIES = 10
+    RETRIES_CAP = 10
     MAX_DELAY = 30
 
     _auth = None
@@ -39,7 +39,7 @@ class Qubole:
     @classmethod
     def configure(cls, api_token,
                   api_url="https://api.qubole.com/api/", version="v1.2",
-                  poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS", retry_delay=30, max_retries=5):
+                  poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS", retry_delay=30, max_retries=6):
         """
         Set parameters governing interaction with QDS
 
@@ -54,7 +54,7 @@ class Qubole:
 
             `delay` : interval in secs to sleep in between successive retries
 
-            `retries` : maximum number of time to retry  
+            `retries` : maximum number of time to retry an api call in case of retryable exception.
         """
 
         cls._auth = QuboleAuth(api_token)
@@ -74,8 +74,8 @@ class Qubole:
             cls.retry_delay = Qubole.MAX_DELAY
         else:
             cls.retry_delay = retry_delay
-        if max_retries > Qubole.MAX_RETRIES:
-            log.warn("Maximum retries cannot be greater than %s . Setting it to %s .\n" % (Qubole.MAX_RETRIES, 6))
+        if max_retries > Qubole.RETRIES_CAP:
+            log.warn("Maximum retries cannot be greater than %s . Setting it to %s .\n" % (Qubole.RETRIES_CAP, 6))
             cls.max_retries = 6
         else:
             cls.max_retries = max_retries
