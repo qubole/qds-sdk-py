@@ -603,7 +603,7 @@ class QuestAssisted(Quest):
         raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage]")
 
     @staticmethod
-    def create_pipeline(pipeline_name, schema, source_data_format, source_data_store, sink_data_store, topic_type,
+    def create_pipeline(pipeline_name, schema, source_data_format, source_data_store, sink_data_store,
                         checkpoint_location,
                         cluster_label,
                         output_mode,
@@ -612,6 +612,7 @@ class QuestAssisted(Quest):
                         sink_topics=None,
                         trigger_interval=None,
                         can_retry=True,
+                        topic_type="multiple",
                         command_line_options=None,
                         operators=None,
                         channel_id=None,
