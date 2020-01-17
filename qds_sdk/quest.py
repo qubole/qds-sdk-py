@@ -750,7 +750,7 @@ class QuestAssisted(Quest):
                     operator_response = QuestAssisted.add_operator(pipeline_id, operator="windowed_group",
                                                                    groupby_column_name=operator["windowed_group"]["column_name"],
                                                                    sliding_window_value=operator["windowed_group"]["sliding_window_value"],
-                                                                   window_interval_frequency=operator["windowed_group"].get("window_interval_frequency", None),
+                                                                   window_interval_frequency=operator["windowed_group"].get("window_interval_frequency"),
                                                                    other_columns=operator["windowed_group"]["other_columns"])
                 else:
                     raise ParseError("Please enter valid operator value. Valid values are [filter, select, watermark, windowed_group]")
