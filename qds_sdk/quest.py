@@ -750,8 +750,8 @@ class QuestAssisted(Quest):
                 elif operator.items()[0][0] is "windowed_group":
                     operator_response = QuestAssisted.add_operator(pipeline_id, operator="windowed_group",
                                                                    groupby_column_name=operator["windowed_group"]["column_name"],
-                                                                   sliding_window_value=operator["windowed_group"]["sliding_window_value"],
-                                                                   window_interval_frequency=operator["windowed_group"].get("window_interval_frequency"),
+                                                                   sliding_window_value=operator["windowed_group"].get("sliding_window_value"),
+                                                                   window_interval_frequency=operator["windowed_group"]["window_interval_frequency"],
                                                                    other_columns=operator["windowed_group"]["other_columns"])
                 else:
                     raise ParseError("Please enter valid operator value. Valid values are [filter, select, watermark, windowed_group]")
@@ -863,10 +863,10 @@ class QuestAssisted(Quest):
                                             {"column_name": column_name,
                                              "sliding_window_value": {
                                                  "frequency": sliding_window_value,
-                                                 "unit": "minute"},
+                                                 "unit": "minutes"},
                                              "window_interval": {
                                                  "frequency": window_interval_frequency,
-                                                 "unit": "minute"}},
+                                                 "unit": "minutes"}},
                                         "other_columns": other_columns,
                                         "action": "count"}}}
         return conn.put(url, data)
