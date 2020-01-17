@@ -582,6 +582,17 @@ def main():
                          default=os.getenv('CLOUD_PROVIDER'),
                          help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC", "GCP"])
 
+    optparser.add_option("--retry_delay", dest="retry_delay",
+                         type=int,
+                         default=os.getenv('QDS_RETRY_DELAY'),
+                         help="sleep interval between successive retries in case of retryable exceptions. defaults to 30s."
+                        )
+    optparser.add_option("--max_retries", dest="max_retries",
+                         type=int,
+                         default=os.getenv('QDS_MAX_RETRIES'),
+                         help="Number of re-attempts for an api-call in case of retryable exceptions. defaults to 6."
+                        )
+
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
                          help="verbose mode - info level logging")
@@ -613,6 +624,12 @@ def main():
     if options.poll_interval is None:
         options.poll_interval = 5
 
+    if options.max_retries is None:
+        options.max_retries = 6
+
+    if options.retry_delay is None:
+        options.retry_delay = 30
+
     if options.cloud_name is None:
         options.cloud_name = "AWS"
 
@@ -626,7 +643,10 @@ def main():
                      version=options.api_version,
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
-                     cloud_name=options.cloud_name)
+                     cloud_name=options.cloud_name,
+                     retry_delay=options.retry_delay, 
+                     max_retries=options.max_retries
+                     )
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")
