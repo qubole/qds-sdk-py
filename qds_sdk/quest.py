@@ -496,13 +496,12 @@ class QuestAssisted(Quest):
     create_type = 1
 
     @staticmethod
-    def add_source(pipeline_id, schema, format, data_store, topics=None,
+    def add_source(pipeline_id, schema, format, data_store, topic_type, topics=None,
                    endpoint_url=None,
                    stream_name=None,
                    starting_position=None,
                    other_kinesis_settings=None,
                    broker=None,
-                   topic_type=None,
                    use_registry=None,
                    registry_subject=None,
                    registry_id=None,
