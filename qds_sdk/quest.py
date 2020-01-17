@@ -744,7 +744,7 @@ class QuestAssisted(Quest):
                                                                    select_column_names=operator["select"]["column_names"])
                 elif operator.items()[0][0] is "watermark":
                     operator_response = QuestAssisted.add_operator(pipeline_id, operator="watermark",
-                                                                   watermark_column_name=operator["watermark"]["column_names"],
+                                                                   watermark_column_name=operator["watermark"]["column_name"],
                                                                    watermark_frequency=operator["watermark"]["frequency"])
 
                 elif operator.items()[0][0] is "windowed_group":
