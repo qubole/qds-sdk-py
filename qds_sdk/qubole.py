@@ -80,7 +80,6 @@ class Qubole:
         else:
             cls.max_retries = max_retries
 
-
     @classmethod
     def agent(cls, version=None):
         """
@@ -103,10 +102,10 @@ class Qubole:
             raise ConfigError("No API Token specified - please supply one via Qubole.configure()")
 
         if not reuse_cached_agent:
-          uncached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check)
+          uncached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check, True, cls.max_retries, cls.retry_delay)
           return uncached_agent
         if cls.cached_agent is None:
-          cls.cached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check)
+          cls.cached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check, True, cls.max_retries, cls.retry_delay)
 
         return cls.cached_agent
 
