@@ -750,7 +750,7 @@ class QuestAssisted(Quest):
                     operator_response = QuestAssisted.add_operator(pipeline_id, operator="windowed_group",
                                                                    groupby_column_name=operator["windowed_group"]["column_name"],
                                                                    sliding_window_value=operator["windowed_group"]["sliding_window_value"],
-                                                                   window_interval_frequency=operator["windowed_group"]["window_interval_frequency"],
+                                                                   window_interval_frequency=operator["windowed_group"].get("window_interval_frequency", None),
                                                                    other_columns=operator["windowed_group"]["other_columns"])
                 else:
                     raise ParseError("Please enter valid operator value. Valid values are [filter, select, watermark, windowed_group]")
@@ -802,7 +802,7 @@ class QuestAssisted(Quest):
             return QuestAssisted._select_operator(url, select_column_names)
         if operator == "watermark":
             return QuestAssisted._watermark_operator(url, watermark_column_name, watermark_frequency)
-        if operator == "window_group":
+        if operator == "windowed_group":
             return QuestAssisted._window_group_operator(url, groupby_column_name, sliding_window_value,
                                                         window_interval_frequency, other_columns)
         raise ParseError("Please add only one valid sink out of [filter, select, watermark, windowed_group]. Given value is {}".format(operator))
@@ -1053,7 +1053,7 @@ class QuestAssisted(Quest):
             partition_by = ""
         data = {"data": {"attributes": {
             "fields": {"path": path, "partition_by": partition_by,
-                       "other_configurations": other_configurations, "format": data_format, }, "data_store": "s3"},
+                       "other_configurations": other_configurations, "format": data_format}, "data_store": "s3"},
             "type": "sink"}}
         return conn.put(url, data)
 
