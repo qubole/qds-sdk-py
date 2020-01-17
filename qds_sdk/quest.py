@@ -843,7 +843,7 @@ class QuestAssisted(Quest):
         """
         conn = Qubole.agent()
         data = {"data": {"attributes": {"operator": "watermark", "column_name": column_name,
-                                        "frequency": frequency, "unit": "minute"}}}
+                                        "frequency": frequency, "unit": "minutes"}}}
         return conn.put(url, data)
 
     @staticmethod
