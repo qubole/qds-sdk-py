@@ -76,7 +76,7 @@ class Connection:
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout))
+    @retry((RetryWithDelay, requests.Timeout, ServerError))
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
