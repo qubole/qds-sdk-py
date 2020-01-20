@@ -35,7 +35,7 @@ class MyAdapter(HTTPAdapter):
 
 class Connection:
 
-    def __init__(self, auth, rest_url, skip_ssl_cert_check, reuse=True, max_retries=5, retry_delay=30):
+    def __init__(self, auth, rest_url, skip_ssl_cert_check, reuse=True, max_retries=6, retry_delay=15):
         self.auth = auth
         self.rest_url = rest_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
@@ -53,17 +53,17 @@ class Connection:
             self.session_with_retries = requests.Session()
             self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
 
-    def retry(ExceptionToCheck, tries=4, delay=3, backoff=2):
+    def retry(ExceptionToCheck, tries=6, delay=15, backoff=2):
         def deco_retry(f):
             @wraps(f)
-            def f_retry(self,*args, **kwargs):
+            def f_retry(self, *args, **kwargs):
                 if hasattr(self, 'max_retries'):
                   mtries, mdelay = self.max_retries, self.retry_delay
                 else:
                   mtries, mdelay = tries, delay
                 while mtries > 1:
                     try:
-                        return f(self,*args, **kwargs)
+                        return f(self, *args, **kwargs)
                     except ExceptionToCheck as e:
                         logger = logging.getLogger("retry")
                         msg = "%s, Retrying in %d seconds..." % (e.__class__.__name__, mdelay)
@@ -71,7 +71,7 @@ class Connection:
                         time.sleep(mdelay)
                         mtries -= 1
                         mdelay *= backoff
-                return f(self,*args, **kwargs)
+                return f(self, *args, **kwargs)
             return f_retry  # true decorator
         return deco_retry
 

@@ -21,8 +21,8 @@ class Qubole:
     """
 
     MIN_POLL_INTERVAL = 1
-    RETRIES_CAP = 10
-    MAX_DELAY = 30
+    RETRIES_CAP = 6
+    MAX_DELAY = 15
 
     _auth = None
     api_token = None
@@ -39,7 +39,7 @@ class Qubole:
     @classmethod
     def configure(cls, api_token,
                   api_url="https://api.qubole.com/api/", version="v1.2",
-                  poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS", retry_delay=30, max_retries=6):
+                  poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS", retry_delay=15, max_retries=6):
         """
         Set parameters governing interaction with QDS
         Args:
@@ -64,13 +64,15 @@ class Qubole:
         cls.cloud_name = cloud_name.lower()
         cls.cached_agent = None
         if retry_delay > Qubole.MAX_DELAY:
-            log.warn("Sleep between successive retries cannot be greater than %s seconds. Setting it to %s seconds.\n" % (Qubole.MAX_DELAY, Qubole.MAX_DELAY))
+            log.warn("Sleep between successive retries cannot be greater than %s seconds."
+                            " Setting it to %s seconds.\n" % (Qubole.MAX_DELAY, Qubole.MAX_DELAY))
             cls.retry_delay = Qubole.MAX_DELAY
         else:
             cls.retry_delay = retry_delay
         if max_retries > Qubole.RETRIES_CAP:
-            log.warn("Maximum retries cannot be greater than %s . Setting it to %s .\n" % (Qubole.RETRIES_CAP, 6))
-            cls.max_retries = 6
+            log.warn("Maximum retries cannot be greater than %s."
+                             " Setting it to %s .\n" % (Qubole.RETRIES_CAP, Qubole.RETRIES_CAP))
+            cls.max_retries = Qubole.RETRIES_CAP
         else:
             cls.max_retries = max_retries
 
@@ -95,10 +97,12 @@ class Qubole:
             raise ConfigError("No API Token specified - please supply one via Qubole.configure()")
 
         if not reuse_cached_agent:
-          uncached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check, True, cls.max_retries, cls.retry_delay)
+          uncached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check, 
+                                                True, cls.max_retries, cls.retry_delay)
           return uncached_agent
         if cls.cached_agent is None:
-          cls.cached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check, True, cls.max_retries, cls.retry_delay)
+          cls.cached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check,
+                                                True, cls.max_retries, cls.retry_delay)
 
         return cls.cached_agent
 
