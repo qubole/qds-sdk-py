@@ -57,7 +57,10 @@ class Connection:
         def deco_retry(f):
             @wraps(f)
             def f_retry(self,*args, **kwargs):
-                mtries, mdelay = self.max_retries, self.retry_delay
+                if hasattr(self, 'max_retries'):
+                  mtries, mdelay = self.max_retries, self.retry_delay
+                else:
+                  mtries, mdelay = tries, delay
                 while mtries > 1:
                     try:
                         return f(self,*args, **kwargs)
