@@ -35,7 +35,7 @@ class MyAdapter(HTTPAdapter):
 
 class Connection:
 
-    def __init__(self, auth, rest_url, skip_ssl_cert_check, reuse=True, max_retries=6, retry_delay=15):
+    def __init__(self, auth, rest_url, skip_ssl_cert_check, reuse=True, max_retries=6, base_retry_delay=10):
         self.auth = auth
         self.rest_url = rest_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
@@ -44,7 +44,7 @@ class Connection:
 
         self.reuse = reuse
         self.max_retries = max_retries
-        self.retry_delay = retry_delay
+        self.base_retry_delay = base_retry_delay
         if reuse:
             self.session = requests.Session()
             self.session.mount('https://', MyAdapter())
@@ -53,12 +53,12 @@ class Connection:
             self.session_with_retries = requests.Session()
             self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
 
-    def retry(ExceptionToCheck, tries=6, delay=15, backoff=2):
+    def retry(ExceptionToCheck, tries=6, delay=10, backoff=2):
         def deco_retry(f):
             @wraps(f)
             def f_retry(self, *args, **kwargs):
                 if hasattr(self, 'max_retries'):
-                  mtries, mdelay = self.max_retries, self.retry_delay
+                  mtries, mdelay = self.max_retries, self.base_retry_delay
                 else:
                   mtries, mdelay = tries, delay
                 while mtries > 1:
