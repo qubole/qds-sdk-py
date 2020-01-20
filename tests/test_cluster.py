@@ -109,7 +109,7 @@ class TestClusterList(QdsCliTestCase):
         Connection.__init__ = Mock(return_value=None)
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY)
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY, ANY, ANY, ANY)
 
     def test_connection_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'list']
@@ -117,7 +117,7 @@ class TestClusterList(QdsCliTestCase):
         Connection.__init__ = Mock(return_value=None)
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY)
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY, ANY, ANY, ANY)
 
 
 class TestClusterShow(QdsCliTestCase):
@@ -128,7 +128,7 @@ class TestClusterShow(QdsCliTestCase):
         Connection.__init__ = Mock(return_value=None)
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY)
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.2', ANY, ANY, ANY, ANY)
 
     def test_connection_v13(self):
         sys.argv = ['qds.py', '--version', 'v1.3', 'cluster', 'list', '--label', 'test_label']
@@ -136,7 +136,7 @@ class TestClusterShow(QdsCliTestCase):
         Connection.__init__ = Mock(return_value=None)
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY)
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v1.3', ANY, ANY, ANY, ANY)
 
 class TestClusterDelete(QdsCliTestCase):
     def test_success(self):

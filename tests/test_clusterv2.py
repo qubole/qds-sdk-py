@@ -1050,7 +1050,7 @@ class TestClusterShow(QdsCliTestCase):
         Connection.__init__ = Mock(return_value=None)
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v2', ANY)
+        Connection.__init__.assert_called_with(ANY, 'https://qds.api.url/api/v2', ANY, ANY, ANY, ANY)
 
 class TestClusterStatus(QdsCliTestCase):
 
