@@ -556,8 +556,14 @@ class QuestAssisted(Quest):
         raise ParseError("Please add only one valid source out of [kafka, s3, kinesis]")
 
     @staticmethod
-    def add_sink(pipeline_id, data_store, warehouse=None, catalog_name=None, streaming_stage=None,
-                 snowflake_database=None, snowflake_table_name=None,
+    def add_sink(pipeline_id, data_store,
+                 bigQuery_table=None,
+                 temporary_gcs_bucket=None,
+                 warehouse=None,
+                 catalog_name=None,
+                 streaming_stage=None,
+                 snowflake_database=None,
+                 snowflake_table_name=None,
                  data_format=None,
                  kafka_bootstrap_server=None,
                  topic=None,
@@ -569,9 +575,12 @@ class QuestAssisted(Quest):
                  table_name=None,
                  hive_database=None,
                  other_hive_configurations=None,
-                 snowflake_name=None, snowflake_other_configurations=None):
+                 snowflake_name=None,
+                 snowflake_other_configurations=None):
         """
 
+        :param temporary_gcs_bucket:
+        :param bigQuery_table:
         :param pipeline_id:
         :param data_store:
         :param warehouse:
@@ -611,7 +620,9 @@ class QuestAssisted(Quest):
         if data_store == "hive":
             return QuestAssisted._sink_hive(url, table_name, databases=hive_database,
                                             default_other_configurations=other_hive_configurations)
-        raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage]")
+        if data_store == "bigQuery":
+            return QuestAssisted._sink_BigQuery(url, table=bigQuery_table, temporary_gcs_bucket=temporary_gcs_bucket)
+        raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage, bigQuery]")
 
     @staticmethod
     def create_pipeline(pipeline_name, schema, source_data_format, source_data_store, sink_data_store,
@@ -655,7 +666,9 @@ class QuestAssisted(Quest):
                         snowflake_database=None,
                         snowflake_table_name=None,
                         snowflake_name=None,
-                        snowflake_other_configurations=None):
+                        snowflake_other_configurations=None,
+                        bigQuery_table=None,
+                        temporary_gcs_bucket=None,):
         """
 
         :param pipeline_name:
@@ -704,6 +717,8 @@ class QuestAssisted(Quest):
         :param snowflake_table_name:
         :param snowflake_name:
         :param snowflake_other_configurations:
+        :param temporary_gcs_bucket:
+        :param bigQuery_table:
         :return:
         """
         response = Quest.create(pipeline_name, QuestAssisted.create_type)
@@ -744,7 +759,9 @@ class QuestAssisted(Quest):
                                               snowflake_database=snowflake_database,
                                               snowflake_table_name=snowflake_table_name,
                                               snowflake_name=snowflake_name,
-                                              snowflake_other_configurations=snowflake_other_configurations)
+                                              snowflake_other_configurations=snowflake_other_configurations,
+                                              temporary_gcs_bucket=temporary_gcs_bucket,
+                                              bigQuery_table=bigQuery_table)
         log.info(sink_reponse)
         property_response = QuestAssisted.add_property(pipeline_id, cluster_label, checkpoint_location, output_mode,
                                                        trigger_interval=trigger_interval,
@@ -1073,7 +1090,7 @@ class QuestAssisted(Quest):
         :param url:
         :param data_format:
         :param path:
-        :param partition:
+        :param partition_by:
         :param other_configurations:
         :return:
         """
@@ -1163,6 +1180,13 @@ class QuestAssisted(Quest):
             "fields": {"path": sink_path, "partition_by": partition_by,
                        "other_configurations": other_configurations, "format": format},
             "data_store": "googleStorage"}, "type": "sink"}}
+        return conn.put(url, data)
+
+    @staticmethod
+    def _sink_BigQuery(url, table, temporary_gcs_bucket):
+        conn = Qubole.agent()
+        data = {"data": {"attributes": {"fields": {"table": table, "temporary_gcs_bucket": temporary_gcs_bucket},
+                                        "data_store": "bigquery"}, "type": "sink"}}
         return conn.put(url, data)
 
     @staticmethod
