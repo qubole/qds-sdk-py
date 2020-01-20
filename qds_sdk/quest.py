@@ -1156,6 +1156,8 @@ class QuestAssisted(Quest):
         :param other_configurations:
         :return:
         """
+        if other_configurations is None:
+            other_configurations = dict()
         conn = Qubole.agent()
         data = {"data": {"attributes": {
             "fields": {"path": sink_path, "partition_by": partition_by,
