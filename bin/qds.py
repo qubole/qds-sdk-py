@@ -585,7 +585,7 @@ def main():
     optparser.add_option("--retry_delay", dest="retry_delay",
                          type=int,
                          default=os.getenv('QDS_RETRY_DELAY'),
-                         help="sleep interval between successive retries in case of retryable exceptions. defaults to 30s."
+                         help="sleep interval between successive retries in case of retryable exceptions. defaults to 15s."
                         )
     optparser.add_option("--max_retries", dest="max_retries",
                          type=int,
