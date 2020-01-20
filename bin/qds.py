@@ -628,7 +628,7 @@ def main():
         options.max_retries = 6
 
     if options.base_retry_delay is None:
-        options.base_retry_delay = 30
+        options.base_retry_delay = 10
 
     if options.cloud_name is None:
         options.cloud_name = "AWS"
