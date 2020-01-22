@@ -21,7 +21,7 @@ class Qubole:
     """
 
     MIN_POLL_INTERVAL = 1
-    RETRIES_CAP = 6
+    RETRIES_CAP = 5
     MAX_RETRY_DELAY = 10
 
     _auth = None

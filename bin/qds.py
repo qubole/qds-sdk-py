@@ -590,7 +590,7 @@ def main():
     optparser.add_option("--max_retries", dest="max_retries",
                          type=int,
                          default=os.getenv('QDS_MAX_RETRIES'),
-                         help="Number of re-attempts for an api-call in case of retryable exceptions. defaults to 6."
+                         help="Number of re-attempts for an api-call in case of retryable exceptions. defaults to 5."
                         )
 
     optparser.add_option("-v", dest="verbose", action="store_true",
@@ -625,7 +625,7 @@ def main():
         options.poll_interval = 5
 
     if options.max_retries is None:
-        options.max_retries = 6
+        options.max_retries = 5
 
     if options.base_retry_delay is None:
         options.base_retry_delay = 10
