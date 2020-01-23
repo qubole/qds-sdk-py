@@ -204,7 +204,6 @@ class Quest(Resource):
         while pipeline_status == 'waiting':
             log.info("Pipeline is in waiting state....")
             time.sleep(10)
-            response = conn.put(url)
             pipeline_status = response.get('data').get('pipeline_instance_status')
         log.info("State of pipeline is %s " % pipeline_status)
         return response
