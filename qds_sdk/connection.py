@@ -68,7 +68,8 @@ class Connection:
                         return f(self, *args, **kwargs)
                     except ExceptionToCheck as e:
                         logger = logging.getLogger("retry")
-                        msg = "%s, Retrying in %d seconds..." % (e.__class__.__name__, mdelay)
+                        msg = "%s, Retrying in %d seconds..." % (e.__class__.__name__,
+                                                                 mdelay)
                         logger.info(msg)
                         time.sleep(mdelay)
                         mtries -= 1
@@ -192,10 +193,10 @@ class Connection:
             raise RetryWithDelay(response)
         elif code == 449:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response, "Data requested is unavailable. Retrying ...")
+            raise RetryWithDelay(response, "Data requested is unavailable. Retrying...")
         elif code == 429:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response, "Too many requests. Retrying ...")
+            raise RetryWithDelay(response, "Too many requests. Retrying...")
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
