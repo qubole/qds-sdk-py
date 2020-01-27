@@ -193,7 +193,7 @@ class Connection:
             raise RetryWithDelay(response, "Data requested is unavailable. Retrying ...")
         elif code == 429:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response)
+            raise RetryWithDelay(response, "Too many requests. Retrying ...")
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
