@@ -69,7 +69,7 @@ class Qubole:
             log.warn("Sleep between successive retries cannot be greater than"
                      " %s seconds."
                      " Setting it to"
-                     " %s seconds.\n" 
+                     " %s seconds.\n"
                      % (Qubole.MAX_RETRY_DELAY, Qubole.MAX_RETRY_DELAY))
             cls.base_retry_delay = Qubole.MAX_RETRY_DELAY
         else:
