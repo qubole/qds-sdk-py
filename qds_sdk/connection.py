@@ -36,7 +36,7 @@ class MyAdapter(HTTPAdapter):
 class Connection:
 
     def __init__(self, auth, rest_url, skip_ssl_cert_check,
-                 reuse=True, max_retries=5, 
+                 reuse=True, max_retries=5,
                  base_retry_delay=10):
         self.auth = auth
         self.rest_url = rest_url

@@ -49,7 +49,7 @@ class Qubole:
             `version`: QDS REST api version. Will be used throughout unless overridden in Qubole.agent(..)
             `poll_interval`: interval in secs when polling QDS for events
             `delay` : interval in secs to sleep in between successive retries
-            `retries` : maximum number of time to retry an api call in case 
+            `retries` : maximum number of time to retry an api call in case
                         of retryable exception.
         """
 
@@ -90,11 +90,11 @@ class Qubole:
         """
         reuse_cached_agent = True
         if version:
-          log.debug("api version changed to %s" % version)
-          cls.rest_url = '/'.join([cls.baseurl.rstrip('/'), version])
-          reuse_cached_agent = False
+            log.debug("api version changed to %s" % version)
+            cls.rest_url = '/'.join([cls.baseurl.rstrip('/'), version])
+            reuse_cached_agent = False
         else:
-          cls.rest_url = '/'.join([cls.baseurl.rstrip('/'), cls.version])
+            cls.rest_url = '/'.join([cls.baseurl.rstrip('/'), cls.version])
         if cls.api_token is None:
             raise ConfigError("No API Token specified - please supply one via Qubole.configure()")
 
