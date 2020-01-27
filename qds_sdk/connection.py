@@ -35,7 +35,9 @@ class MyAdapter(HTTPAdapter):
 
 class Connection:
 
-    def __init__(self, auth, rest_url, skip_ssl_cert_check, reuse=True, max_retries=5, base_retry_delay=10):
+    def __init__(self, auth, rest_url, skip_ssl_cert_check,
+                 reuse=True, max_retries=5, 
+                 base_retry_delay=10):
         self.auth = auth
         self.rest_url = rest_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
@@ -161,7 +163,7 @@ class Connection:
         if 'X-Qubole-Trace-Id' in response.headers:
             now = datetime.now()
             time_now = now.strftime('%Y-%m-%d %H:%M:%S')
-            format_list = [time_now,response.headers['X-Qubole-Trace-Id']]
+            format_list = [time_now, response.headers['X-Qubole-Trace-Id']]
             sys.stderr.write("[{}] Request ID is: {}. Please share it with Qubole Support team for any assistance".format(*format_list) + "\n")
             
         if code == 400:

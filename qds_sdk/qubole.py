@@ -39,7 +39,8 @@ class Qubole:
     @classmethod
     def configure(cls, api_token,
                   api_url="https://api.qubole.com/api/", version="v1.2",
-                  poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS", base_retry_delay=10, max_retries=5):
+                  poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS",
+                  base_retry_delay=10, max_retries=5):
         """
         Set parameters governing interaction with QDS
         Args:
@@ -48,7 +49,8 @@ class Qubole:
             `version`: QDS REST api version. Will be used throughout unless overridden in Qubole.agent(..)
             `poll_interval`: interval in secs when polling QDS for events
             `delay` : interval in secs to sleep in between successive retries
-            `retries` : maximum number of time to retry an api call in case of retryable exception.
+            `retries` : maximum number of time to retry an api call in case 
+                        of retryable exception.
         """
 
         cls._auth = QuboleAuth(api_token)
@@ -102,7 +104,7 @@ class Qubole:
             return uncached_agent
         if cls.cached_agent is None:
             cls.cached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check,
-                                                True, cls.max_retries, cls.base_retry_delay)
+                                          True, cls.max_retries, cls.base_retry_delay)
 
         return cls.cached_agent
 
