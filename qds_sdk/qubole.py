@@ -69,7 +69,8 @@ class Qubole:
             log.warn("Sleep between successive retries cannot be greater than"
                      " %s seconds."
                      " Setting it to"
-                     " %s seconds.\n" % (Qubole.MAX_RETRY_DELAY, Qubole.MAX_RETRY_DELAY))
+                     " %s seconds.\n" 
+                     % (Qubole.MAX_RETRY_DELAY, Qubole.MAX_RETRY_DELAY))
             cls.base_retry_delay = Qubole.MAX_RETRY_DELAY
         else:
             cls.base_retry_delay = base_retry_delay
@@ -102,7 +103,8 @@ class Qubole:
             raise ConfigError("No API Token specified - please supply one via Qubole.configure()")
 
         if not reuse_cached_agent:
-            uncached_agent = Connection(cls._auth, cls.rest_url, cls.skip_ssl_cert_check,
+            uncached_agent = Connection(cls._auth, cls.rest_url,
+                                        cls.skip_ssl_cert_check,
                                         True, cls.max_retries, cls.base_retry_delay)
             return uncached_agent
         if cls.cached_agent is None:
