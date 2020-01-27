@@ -58,9 +58,9 @@ class Connection:
             @wraps(f)
             def f_retry(self, *args, **kwargs):
                 if hasattr(self, 'max_retries'):
-                  mtries, mdelay = self.max_retries, self.base_retry_delay
+                    mtries, mdelay = self.max_retries, self.base_retry_delay
                 else:
-                  mtries, mdelay = tries, delay
+                    mtries, mdelay = tries, delay
                 while mtries >= 1:
                     try:
                         return f(self, *args, **kwargs)
@@ -160,8 +160,8 @@ class Connection:
         
         if 'X-Qubole-Trace-Id' in response.headers:
             now = datetime.now()
-            time = now.strftime('%Y-%m-%d %H:%M:%S')
-            format_list = [time,response.headers['X-Qubole-Trace-Id']]
+            time_now = now.strftime('%Y-%m-%d %H:%M:%S')
+            format_list = [time_now,response.headers['X-Qubole-Trace-Id']]
             sys.stderr.write("[{}] Request ID is: {}. Please share it with Qubole Support team for any assistance".format(*format_list) + "\n")
             
         if code == 400:

@@ -585,13 +585,14 @@ def main():
     optparser.add_option("--base_retry_delay", dest="base_retry_delay",
                          type=int,
                          default=os.getenv('QDS_BASE_RETRY_DELAY'),
-                         help="base sleep interval for exponential backoff in case of retryable exceptions. defaults to 10s."
-                        )
+                         help="base sleep interval for exponential backoff in case of "
+                              "retryable exceptions.Defaults to 10s.")
+
     optparser.add_option("--max_retries", dest="max_retries",
                          type=int,
                          default=os.getenv('QDS_MAX_RETRIES'),
-                         help="Number of re-attempts for an api-call in case of retryable exceptions. defaults to 5."
-                        )
+                         help="Number of re-attempts for an api-call in case of "
+                              " retryable exceptions. Defaults to 5.")
 
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
@@ -644,7 +645,7 @@ def main():
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
                      cloud_name=options.cloud_name,
-                     base_retry_delay=options.base_retry_delay, 
+                     base_retry_delay=options.base_retry_delay,
                      max_retries=options.max_retries
                      )
 
