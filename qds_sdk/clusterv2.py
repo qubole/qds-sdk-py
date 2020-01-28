@@ -109,6 +109,7 @@ class ClusterCmdLine:
                                       disable_cluster_pause=arguments.disable_cluster_pause,
                                       paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
                                       disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
+                                      parent_cluster_label= arguments.parent_cluster_label,
                                       paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
 
         #  This will set cloud config settings
@@ -201,6 +202,7 @@ class ClusterInfoV2(object):
                          disable_cluster_pause=None,
                          paused_cluster_timeout_mins=None,
                          disable_autoscale_node_pause=None,
+                         parent_cluster_label=None,
                          paused_autoscale_node_timeout_mins=None):
         """
         Args:
@@ -334,6 +336,7 @@ class ClusterInfoV2(object):
         self.cluster_info['spot_settings'] = {}
 
         self.cluster_info['rootdisk'] = {}
+        self.cluster_info['parent_cluster_label'] = parent_cluster_label
         self.cluster_info['rootdisk']['size'] = root_disk_size
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request, maximum_spot_instance_percentage)
@@ -491,6 +494,9 @@ class ClusterInfoV2(object):
                                   dest="root_disk_size",
                                   type=int,
                                   help="size of the root volume in GB")
+        cluster_info.add_argument("--parent-cluster-label",
+                                  dest="parent_cluster_label",
+                                  help="Label of the parent cluster this hs2 cluster is attached to")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",
