@@ -461,6 +461,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                     'min_nodes': 3,
                                                     'node_bootstrap': 'test_file_name',
                                                     'slave_instance_type': 'c1.xlarge' }})
+            
     def test_hs2_parent_cluster_label(self):
         with tempfile.NamedTemporaryFile() as temp:
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
