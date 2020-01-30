@@ -1,68 +1,89 @@
-
 """
 This is the sample code used for submitting a Presto query (PrestoCommand) and getting the result back to local file.
 Similar way can be followed for HiveCommand etc.
 """
 
-import sys
-import string
-from ConfigParser import SafeConfigParser
+import logging, sys, time
+#from tempfile import NamedTemporaryFile
+#from configparser import SafeConfigParser
 from qds_sdk.qubole import Qubole
-from qds_sdk.commands import *
-import boto
-import time
+from qds_sdk.commands import PrestoCommand
+#import boto
+import pandas as pd
+
+# Setting up the logger
+logging.basicConfig(stream=sys.stdout,
+                    format='[%(asctime)s] [%(filename)s] [%(levelname)s] %(message)s',
+                    level=logging.WARN)
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 
-# Used for generating file name to download the result
-def get_random_filename(size=10):
-    return "/tmp/result_" + str(int(time.time())) + ".tsv"
+#######################
+# PRIVATE FUNCTIONS
+#######################
+def _wait_for_cmd(cmd, update=True, timeout = 3600):
+    start_time = time.time()
+    while not PrestoCommand.is_done(cmd.status):
+        if (time.time() - start_time) > timeout:
+            log.error(f"Timeout ({timeout} sec) has been reached! Aborting...")
+            break
+        if update: cmd = PrestoCommand.find(cmd.id) # Updating the Python object through HTTP
+        time.sleep(3)
+    if PrestoCommand.is_success(cmd.status):
+        log.info("Command completed successfully")
+    else:
+        log.error(f"Command failed! The status returned is: {cmd.status}")
+    return cmd
 
-# Returning content from the file 
-def get_content(filename):
-    with open(filename, 'r') as content_file:
+def _get_results_locally(cmd):
+    filename = f"/tmp/result_{int(time.time())}.tsv"
+    log.debug(f"Fetching results locally into {filename} ...")
+    with open(filename, 'w') as f:
+        cmd.get_results(f, delim="\t", inline=True, arguments=['true'])
+        _wait_for_cmd(cmd, update=False)
+    return filename
+
+
+#######################
+# PUBLIC FUNCTIONS
+#######################
+def execute_presto_query(query, cluster_label='presto'):
+    assert query is not None
+    cmd = PrestoCommand.create(query=query, label=cluster_label)
+    log.debug(f"Starting Presto Command with id: {cmd.id}"),
+    cmd = _wait_for_cmd(cmd)
+    log.debug(f"Command {cmd.id} done. Logs are :"),
+    print(cmd.get_log())
+    return cmd
+
+def get_raw_results(cmd, column_names = None):
+    assert cmd is not None
+    assert type(cmd) is PrestoCommand
+    with open(_get_results_locally(cmd), 'r') as content_file:
         content = content_file.read()
     return content
 
-# Executing given query
-def execute_query(query):
-    if query is None or query == "":
-        return None
-    cmd = PrestoCommand.create(query=query)
-    query_id = str(cmd.id)
-    print "Starting Command with id: " + query_id + "\nProgress: =>",
-    while not PrestoCommand.is_done(cmd.status):
-        print "\b=>",
-        cmd = PrestoCommand.find(cmd.id)
-        time.sleep(5)
-    print cmd.get_log()
-    if PrestoCommand.is_success(cmd.status):
-        print "\nCommand Executed: Completed successfully"
-    else:
-        print "\nCommand Executed: Failed!!!. The status returned is: " + str(cmd.status)
-    return cmd
+def get_dataframe(command, column_names = None, **kwargs):
+    assert command is not None
+    assert type(command) is PrestoCommand
 
-# Downloading the result
-def get_results(command):
-    if command is None:
-        return None
-    filename = get_random_filename(10)
-    print filename
-    fp = open(filename, 'w')
-    command.get_results(fp, delim="\n")
-    print "Starting Result fetch with Command id: " + str(command.id) + "\nProgress: =>",
-    while not PrestoCommand.is_done(command.status):
-        print "\b=>",
-        time.sleep(5)
-    if PrestoCommand.is_success(command.status):
-        print "\nCommand Executed: Results fetch completed successfully"
-    else:
-        print "\nCommand Executed: Result fetch for original command " + str(command.id) + "Failed!!!. The status returned is: " + str(command.status)
-    fp.close()
-    content = get_content(filename)
-    return content
+    if column_names is None and 'dtype' in kwargs.keys():
+        assert type(kwargs['dtype']) is dict
+        column_names = kwargs['dtype'].keys()
 
+    _NA_VALUES = list(pd.io.common._NA_VALUES) + ['\\N'] # The NA Values that should be considered for Presto
+    filename = _get_results_locally(command)
 
-if __name__ == '__main__':
-    # Stting API token
-    Qubole.configure(api_token='YOUR-QUBOLE-API-TOKEN')
-    get_results(execute_query("select * from  default.cities limit 100;"))
+    with open(filename) as f:
+        firstline = f.readline()
+    joint_column_names = '\t'.join(column_names)
+    if firstline.strip() == joint_column_names :
+        log.debug('It seems that the file already got the right column names...')
+        return pd.read_csv(filename, delimiter='\t', na_values=_NA_VALUES, **kwargs)
+    else :
+        log.debug('It seems that the column names are not present in the file. Adding them :')
+        log.debug(f"firstline='{firstline.strip()}', joint_column_names={joint_column_names}")
+        kwargs['header'] = None
+        kwargs['names'] = column_names
+        return pd.read_csv(filename, delimiter='\t', na_values=_NA_VALUES, **kwargs)
