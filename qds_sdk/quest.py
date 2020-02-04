@@ -121,14 +121,12 @@ class QuestCmdLine:
     @staticmethod
     def create(args):
         pipeline = None
-        # print "create type = ", type(args.create_type)
         if args.create_type == "1":
             pipeline = QuestAssisted.create(args.name, args.create_type, args)
         elif args.create_type == "2":
             pipeline = QuestJar.create(args.name, args.create_type, args)
         elif args.create_type == "3":
-            c = QuestCode()
-            c.create(args.name, args)
+            pipeline = QuestCode.create(args.name, args)
         return json.dumps(pipeline, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
 
@@ -238,6 +236,51 @@ class Quest(Resource):
         }
         log.info("Data {}".format(data))
         url = Quest.rest_entity_path + "/" + pipeline_id + "/properties/"
+        response = conn.put(url, data)
+        return response
+
+    @classmethod
+    def save_code(cls, pipeline_id, code_or_fileLoc=None, language=None, jar_path=None, main_class_name=None,
+                  user_arguments=None):
+        """
+        :param code_or_fileLoc:
+        :param language:
+        :param user_arguments:
+        :param pipeline_id:
+        :param jar_path:
+        :param main_class_name:
+        :return:
+        """
+        if cls is QuestJar:
+            if jar_path is None or main_class_name is None:
+                raise ParseError("Provide Jar path for BYOJ mode.")
+            else:
+                QuestJar.jar_path = jar_path
+                data = {"data": {
+                    "attributes": {"create_type": cls.create_type, "user_arguments": user_arguments, "jar_path": jar_path,
+                                   "language": main_class_name}}}
+
+        if cls is QuestCode:
+            if code_or_fileLoc:
+                try:
+                    code = None
+                    if code_or_fileLoc:
+                        if os.path.isdir(code_or_fileLoc):
+                            q = open(code_or_fileLoc).read()
+                            code = q
+                    else:
+                        code = code_or_fileLoc
+                except IOError as e:
+                    raise ParseError("Unable to open script location or script location and code both are empty")
+                QuestCode.pipeline_code = code
+                data = {"data": {
+                    "attributes": {"create_type": cls.create_type, "code": str(code), "language": str(language)}}}
+
+            else:
+                raise ParseError("Provide code or file location for BYOC mode.")
+
+        conn = Qubole.agent()
+        url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
         response = conn.put(url, data)
         return response
 
@@ -397,34 +440,6 @@ class QuestCode(Quest):
         QuestCode.pipeline_id = QuestCode.get_pipline_id(response)
         return pipeline_id
 
-    @staticmethod
-    def save_code(pipeline_id, code_or_fileLoc, language=None):
-        """
-        Method to save code
-        :param pipeline_id:
-        :param code_or_fileLoc:
-        :param language:scala or python
-        :return:
-        """
-        try:
-            code = None
-            if code_or_fileLoc:
-                if os.path.isdir(code_or_fileLoc):
-                    q = open(code_or_fileLoc).read()
-                    code = q
-                else:
-                    code = code_or_fileLoc
-
-        except IOError as e:
-            raise ParseError("Unable to open script location or script location and code both are empty")
-        QuestCode.pipeline_code = code
-        data = {"data": {
-            "attributes": {"create_type": QuestCode.create_type, "code": str(code), "language": str(language)}}}
-        conn = Qubole.agent()
-        url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
-        response = conn.put(url, data)
-        return response
-
 
 class QuestJar(Quest):
     create_type = 2
@@ -467,27 +482,6 @@ class QuestJar(Quest):
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
             log.info(response)
-        return response
-
-    @staticmethod
-    def save_code(pipeline_id, jar_path, main_class_name, user_arguments=None):
-        """
-        :param user_arguments:
-        :param pipeline_id:
-        :param jar_path:
-        :param main_class_name:
-        :return:
-        """
-        if jar_path is None:
-            raise ParseError("Unable to open script location or script location and code both are empty")
-
-        data = {"data": {
-            "attributes": {"create_type": 2, "user_arguments": user_arguments, "jar_path": jar_path,
-                           "language": main_class_name}}}
-        conn = Qubole.agent()
-        url = Quest.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
-        QuestJar.jar_path = jar_path
-        response = conn.put(url, data)
         return response
 
 
@@ -619,9 +613,9 @@ class QuestAssisted(Quest):
         if data_store == "hive":
             return QuestAssisted._sink_hive(url, table_name, databases=hive_database,
                                             default_other_configurations=other_hive_configurations)
-        if data_store == "bigQuery":
+        if data_store == "bigquery":
             return QuestAssisted._sink_BigQuery(url, table=bigQuery_table, temporary_gcs_bucket=temporary_gcs_bucket)
-        raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage, bigQuery]")
+        raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage, bigquery]")
 
     @staticmethod
     def create_pipeline(pipeline_name, schema, source_data_format, source_data_store, sink_data_store,
@@ -667,7 +661,7 @@ class QuestAssisted(Quest):
                         snowflake_name=None,
                         snowflake_other_configurations=None,
                         bigQuery_table=None,
-                        temporary_gcs_bucket=None,):
+                        temporary_gcs_bucket=None, ):
         """
 
         :param pipeline_name:
