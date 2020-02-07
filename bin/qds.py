@@ -591,9 +591,8 @@ def templatemain(args):
 
 
 def questmain(args):
-    print(args)
-    print("result =-- ",args)
     result = QuestCmdLine.run(args)
+    print(result)
 
 
 
