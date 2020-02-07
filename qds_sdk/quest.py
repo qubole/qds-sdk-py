@@ -268,14 +268,19 @@ class Quest(Resource):
 
     @staticmethod
     def list(status=None):
+        """
+        Method to list pipeline on the basis of status.
+        :param status: Valid values - all, draft, archive, active.
+        :return: List of pipeline in json format.
+        """
         if status is None or status.lower() == 'all':
             params = {"filter": "draft,archive,active"}
         else:
             params = {"filter": status.lower()}
         conn = Qubole.agent()
         url_path = Quest.rest_entity_path
-        questjson = conn.get(url_path, params)
-        return questjson
+        pipeline_list = conn.get(url_path, params)
+        return pipeline_list
 
     @classmethod
     def create(cls, pipeline_name, create_type, **kwargs):
@@ -384,12 +389,12 @@ class Quest(Resource):
             if code or file_path:
                 try:
                     if file_path:
-                        q = open(file_path).read()
-                        code = q
+                        with open(file_path,'r') as f:
+                            code = f.read()
                     else:
                         code = code
                 except IOError as e:
-                    raise ParseError("Unable to open script location or script location and code both are empty")
+                    raise ParseError("Unable to open script location or script location and code both are empty. ", e.message)
                 cls.pipeline_code = code
                 data = {"data": {
                     "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
@@ -548,7 +553,8 @@ class QuestCode(Quest):
         QuestCode.create(pipeline_name, QuestCode.create_type)
         pipeline_id = QuestCode.pipeline_id
         response = QuestCode.add_property(pipeline_id, cluster_label,
-                                          can_retry=can_retry, command_line_options=command_line_options)
+                                          can_retry=can_retry,
+                                          command_line_options=command_line_options)
         log.debug(response)
         response = QuestCode.save_code(pipeline_id, code=code, file_path=file_path, language=language,
                                        user_arguments=user_arguments)
@@ -1290,6 +1296,13 @@ class QuestAssisted(Quest):
 
     @staticmethod
     def _sink_BigQuery(url, table, temporary_gcs_bucket):
+        """
+        Method to add BigQuery as sink.
+        :param url:
+        :param table:
+        :param temporary_gcs_bucket:
+        :return:
+        """
         conn = Qubole.agent()
         data = {"data": {"attributes": {"fields": {"table": table, "temporary_gcs_bucket": temporary_gcs_bucket},
                                         "data_store": "bigquery"}, "type": "sink"}}
