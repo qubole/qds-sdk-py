@@ -30,7 +30,7 @@ CommandClasses = {
     "hivecmd": HiveCommand,
     "sparkcmd": SparkCommand,
     "dbtapquerycmd": DbTapQueryCommand,
-    "pigcmd": PigCommand,
+    "pigcmd":  PigCommand,
     "hadoopcmd": HadoopCommand,
     "shellcmd": ShellCommand,
     "dbexportcmd": DbExportCommand,
@@ -120,8 +120,8 @@ def checkargs_id(args):
 def submitaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
-        args.pop("print_logs")  # This is only useful while using the 'run' action.
-        args.pop("print_logs_live")  # This is only useful while using the 'run' action.
+        args.pop("print_logs") # This is only useful while using the 'run' action.
+        args.pop("print_logs_live") # This is only useful while using the 'run' action.
         cmd = cmdclass.create(**args)
         print("Submitted %s, Id: %s" % (cmdclass.__name__, cmd.id))
         return 0
@@ -140,7 +140,7 @@ def _getresult(cmdclass, cmd, args=[]):
 def runaction(cmdclass, args):
     args = cmdclass.parse(args)
     if args is not None:
-        print_logs = args.pop("print_logs")  # We don't want to send this to the API.
+        print_logs = args.pop("print_logs") # We don't want to send this to the API.
         cmd = cmdclass.run(**args)
         if print_logs:
             sys.stderr.write(cmd.get_log())
@@ -154,9 +154,9 @@ def checkaction(cmdclass, args):
 
     conn = Qubole.agent()
     id = args.pop(0)
-    include_query_properties = "false"
+    include_query_properties="false"
     if len(args) == 1:
-        include_query_properties = args.pop(0)
+        include_query_properties=args.pop(0)
         if include_query_properties not in ('true', 'false'):
             raise ParseError("include-query-properties can be either true or false")
 
@@ -179,11 +179,10 @@ def cancelaction(cmdclass, args):
         sys.stderr.write("Cancel failed with reason '%s'\n" % r.get('result'))
         return 12
 
-
 def listaction(cmdclass, args):
     args = cmdclass.listparse(args)
     if args is not None:
-        return json.dumps(list(**args), indent=4)
+        return json.dumps(cmdclass.list(**args), indent=4)
 
 
 def getresultaction(cmdclass, args):
@@ -248,7 +247,6 @@ def cluster_create_action(clusterclass, args, api_version=1.2):
     print(json.dumps(result, indent=4))
     return 0
 
-
 def cluster_update_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "update", api_version)
     cluster_info = _create_cluster_info(arguments, api_version)
@@ -256,14 +254,12 @@ def cluster_update_action(clusterclass, args, api_version=1.2):
     print(json.dumps(result, indent=4))
     return 0
 
-
 def cluster_clone_action(clusterclass, args, api_version=1.2):
     arguments = clusterclass._parse_create_update(args, "clone", api_version)
     cluster_info = _create_cluster_info(arguments, api_version)
     result = clusterclass.clone(arguments.cluster_id_label, cluster_info.minimal_payload())
     print(json.dumps(result, indent=4))
     return 0
-
 
 def _create_cluster_info(arguments, api_version):
     custom_config = _read_file(arguments.custom_config_file, "custom config file")
@@ -329,7 +325,7 @@ def _create_cluster_info(arguments, api_version):
                                    arguments.aws_secret_access_key,
                                    arguments.disallow_cluster_termination,
                                    arguments.enable_ganglia_monitoring,
-                                   arguments.node_bootstrap_file, )
+                                   arguments.node_bootstrap_file,)
 
         cluster_info.set_ec2_settings(arguments.aws_region,
                                       arguments.aws_availability_zone,
@@ -352,17 +348,17 @@ def _create_cluster_info(arguments, api_version):
                                          arguments.is_ha)
 
         cluster_info.set_spot_instance_settings(
-            arguments.maximum_bid_price_percentage,
-            arguments.timeout_for_request,
-            arguments.maximum_spot_instance_percentage)
+              arguments.maximum_bid_price_percentage,
+              arguments.timeout_for_request,
+              arguments.maximum_spot_instance_percentage)
 
         cluster_info.set_stable_spot_instance_settings(
-            arguments.stable_maximum_bid_price_percentage,
-            arguments.stable_timeout_for_request,
-            arguments.stable_allow_fallback)
+              arguments.stable_maximum_bid_price_percentage,
+              arguments.stable_timeout_for_request,
+              arguments.stable_allow_fallback)
 
         cluster_info.set_fairscheduler_settings(fairscheduler_config_xml,
-                                                arguments.default_pool)
+                                            arguments.default_pool)
 
         cluster_info.set_security_settings(arguments.encrypted_ephemerals,
                                            customer_ssh_key,
@@ -373,7 +369,6 @@ def _create_cluster_info(arguments, api_version):
 
     return cluster_info
 
-
 def _read_file(file_path, file_name):
     file_content = None
     if file_path is not None:
@@ -383,7 +378,6 @@ def _read_file(file_path, file_name):
             sys.stderr.write("Unable to read %s: %s\n" % (file_name, str(e)))
             usage()
     return file_content
-
 
 def cluster_delete_action(clusterclass, args):
     checkargs_cluster_id_label(args)
@@ -399,7 +393,7 @@ def cluster_list_action(clusterclass, args):
     elif arguments['label'] is not None:
         result = clusterclass.show(arguments['label'])
     else:
-        result = list(state=arguments['state'],
+        result = clusterclass.list(state=arguments['state'],
                                    page=arguments['page'],
                                    per_page=arguments['per_page'])
     print(json.dumps(result, indent=4))
@@ -441,23 +435,17 @@ def cluster_reassign_label_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-
 def cluster_snapshot_action(clusterclass, args):
     arguments = clusterclass._parse_snapshot_restore_command(args, "snapshot")
-    result = clusterclass.snapshot(arguments.cluster_id or arguments.label, arguments.s3_location,
-                                   arguments.backup_type)
+    result = clusterclass.snapshot(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_type)
     print(json.dumps(result, indent=4))
     return 0
-
 
 def cluster_restore_point_action(clusterclass, args):
     arguments = clusterclass._parse_snapshot_restore_command(args, "restore_point")
-    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.s3_location,
-                                        arguments.backup_id, arguments.table_names, arguments.no_overwrite,
-                                        arguments.no_automatic)
+    result = clusterclass.restore_point(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.backup_id, arguments.table_names, arguments.no_overwrite, arguments.no_automatic)
     print(json.dumps(result, indent=4))
     return 0
-
 
 def cluster_get_snapshot_schedule_action(clusterclass, args):
     arguments = clusterclass._parse_get_snapshot_schedule(args)
@@ -465,42 +453,33 @@ def cluster_get_snapshot_schedule_action(clusterclass, args):
     print(json.dumps(result, indent=4))
     return 0
 
-
 def cluster_update_snapshot_schedule_action(clusterclass, args):
     arguments = clusterclass._parse_update_snapshot_schedule(args)
-    result = clusterclass.update_snapshot_schedule(arguments.cluster_id or arguments.label, arguments.s3_location,
-                                                   arguments.frequency_unit, arguments.frequency_num, arguments.status)
+    result = clusterclass.update_snapshot_schedule(arguments.cluster_id or arguments.label, arguments.s3_location, arguments.frequency_unit, arguments.frequency_num, arguments.status)
     print(json.dumps(result, indent=4))
     return 0
 
-
 def cluster_add_node_action(clusterclass, args):
-    arguments = clusterclass._parse_cluster_manage_command(args, action="add")
+    arguments = clusterclass._parse_cluster_manage_command(args, action = "add")
     result = clusterclass.add_node(arguments.cluster_id or arguments.label)
     print(json.dumps(result, indent=4))
     return 0
 
-
 def cluster_remove_node_action(clusterclass, args):
-    arguments = clusterclass._parse_cluster_manage_command(args, action="remove")
+    arguments = clusterclass._parse_cluster_manage_command(args, action = "remove")
     result = clusterclass.remove_node(arguments.cluster_id or arguments.label, arguments.private_dns)
     print(json.dumps(result, indent=4))
     return 0
 
-
 def cluster_update_node_action(clusterclass, args):
-    arguments = clusterclass._parse_cluster_manage_command(args, action="update")
+    arguments = clusterclass._parse_cluster_manage_command(args, action = "update")
     result = clusterclass.update_node(arguments.cluster_id or arguments.label, arguments.command, arguments.private_dns)
     print(json.dumps(result, indent=4))
     return 0
 
-
 def clustermain(args, api_version):
     clusterclass = Cluster
-    actionset = set(
-        ["create", "delete", "update", "clone", "list", "start", "terminate", "status", "master", "reassign_label",
-         "add_node", "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule",
-         "update_snapshot_schedule"])
+    actionset = set(["create", "delete", "update", "clone", "list", "start", "terminate", "status", "master", "reassign_label", "add_node", "remove_node", "update_node", "snapshot", "restore_point", "get_snapshot_schedule", "update_snapshot_schedule"])
 
     if len(args) < 1:
         sys.stderr.write("missing argument containing action\n")
@@ -515,7 +494,6 @@ def clustermain(args, api_version):
     else:
         return globals()["cluster_" + action + "_action"](clusterclass, args)
 
-
 def clustermainv2(args):
     action = args[0]
     actionset = set(
@@ -528,22 +506,19 @@ def clustermainv2(args):
         sys.stderr.write("action must be one of <%s>\n" % "|".join(actionset))
         usage()
     elif action in set(["create", "update", "clone", "list"]):
-        result = ClusterCmdLine.run(args)
+        result =  ClusterCmdLine.run(args)
     else:
         action = args.pop(0)
         result = globals()["cluster_" + action + "_action"](Cluster, args)
     print(result)
 
-
 def accountmain(args):
     result = AccountCmdLine.run(args)
     print(result)
 
-
 def usermain(args):
     result = UserCmdLine.run(args)
     print(result)
-
 
 def reportmain(args):
     result = ReportCmdLine.run(args)
@@ -554,47 +529,37 @@ def actionmain(args):
     result = ActionCmdLine.run(args)
     print(result)
 
-
 def schedulermain(args):
     result = SchedulerCmdLine.run(args)
     print(result)
-
 
 def dbtapmain(args):
     result = DbTapCmdLine.run(args)
     print(result)
 
-
 def rolemain(args):
     result = RoleCmdLine.run(args)
     print(result)
-
 
 def groupmain(args):
     result = GroupCmdLine.run(args)
     print(result)
 
-
 def appmain(args):
     result = AppCmdLine.run(args)
     print(result)
-
 
 def nezhamain(args):
     result = NezhaCmdLine.run(args)
     print(result)
 
-
 def templatemain(args):
     result = TemplateCmdLine.run(args)
     print(result)
 
-
 def questmain(args):
     result = QuestCmdLine.run(args)
     print(result)
-
-
 
 def main():
     optparser = OptionParser(usage=usage_str)
@@ -633,7 +598,7 @@ def main():
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
-
+    
     if options.chatty:
         logging.basicConfig(level=logging.DEBUG)
     elif options.verbose:
@@ -696,9 +661,6 @@ def main():
     if a0 == "scheduler":
         return schedulermain(args)
 
-    if a0 == "quest":
-        return questmain(args)
-
     if a0 == "report":
         return reportmain(args)
 
@@ -721,12 +683,13 @@ def main():
         return usermain(args)
     if a0 == "template":
         return templatemain(args)
+    if a0 == "quest":
+        return questmain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                                            "dbtap", "role", "group", "app", "account", "nezha", "user", "template",
-                                            "quest"])))
+                       "dbtap", "role", "group", "app", "account", "nezha", "user", "template", "quest"])))
     usage(optparser)
 
 
