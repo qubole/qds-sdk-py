@@ -78,23 +78,23 @@ class Connection:
             return f_retry  # true decorator
         return deco_retry
 
-    @retry((RetryWithDelay, requests.Timeout))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry))
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry))
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout))
+    @retry(ApiThrottledRetry)
     def put(self, path, data=None):
         return self._api_call("PUT", path, data)
 
-    @retry((RetryWithDelay, requests.Timeout))
+    @retry(ApiThrottledRetry)
     def post(self, path, data=None):
         return self._api_call("POST", path, data)
 
-    @retry((RetryWithDelay, requests.Timeout))
+    @retry(ApiThrottledRetry)
     def delete(self, path, data=None):
         return self._api_call("DELETE", path, data)
 
@@ -196,7 +196,7 @@ class Connection:
             raise RetryWithDelay(response, "Data requested is unavailable. Retrying...")
         elif code == 429:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response, "Too many requests. Retrying...")
+            raise ApiThrottledRetry(response, "Too many requests. Retrying...")
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
