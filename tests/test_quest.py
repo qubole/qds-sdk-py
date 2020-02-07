@@ -19,7 +19,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 
 class TestQuestList(QdsCliTestCase):
     def test_list_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'list', '--pipeline-status', 'all']
+        sys.argv = ['qds.py', 'quest', 'list', '--pipeline-status', 'draft']
         print_command()
         Connection._api_call = Mock(return_value={})
         params = {'filter': "draft"}
