@@ -832,10 +832,9 @@ class QuestAssisted(Quest):
         :param bigQuery_table:
         :return:
         """
-        response = Quest.create(pipeline_name, QuestAssisted.create_type)
+        Quest.create(pipeline_name, QuestAssisted.create_type)
         final_response = None
-        pipeline_id = response.pipeline_id
-        pipeline_id = str(pipeline_id)
+        pipeline_id = str(QuestAssisted.pipeline_id)
         src_response = QuestAssisted.add_source(pipeline_id, schema, source_data_format, source_data_store,
                                                 topics=source_topics,
                                                 endpoint_url=endpoint_url,
@@ -852,7 +851,7 @@ class QuestAssisted(Quest):
                                                 source_path=source_path,
                                                 s3_other_settings=s3_other_settings,
                                                 gs_other_settings=gs_other_settings)
-        log.info(src_response)
+        log.debug(src_response)
         sink_reponse = QuestAssisted.add_sink(pipeline_id, sink_data_store,
                                               data_format=sink_data_format,
                                               kafka_bootstrap_server=kafka_bootstrap_server,
@@ -919,6 +918,7 @@ class QuestAssisted(Quest):
             response = QuestAssisted.set_alert(pipeline_id, channel_id)
             log.info(response)
             final_response = response
+        log.debug(final_response)
         QuestAssisted.pipeline_code = QuestAssisted.get_code(pipeline_id)
         return QuestAssisted
 
