@@ -24,5 +24,5 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         params = {'filter': "draft"}
         qds.main()
-        Connection._api_call.assert_called_with("GET", "quest/pipelines", params=params)
+        Connection._api_call.assert_called_with("GET", "pipelines", params=params)
 
