@@ -22,7 +22,7 @@ class TestQuestList(QdsCliTestCase):
         sys.argv = ['qds.py', 'quest', 'list', '--pipeline-status', 'all']
         print_command()
         Connection._api_call = Mock(return_value={})
-        params = {'status': "all"}
+        params = {'filter': "draft"}
         qds.main()
         Connection._api_call.assert_called_with("GET", "quest/pipelines", params=params)
 
