@@ -305,7 +305,6 @@ class Quest(Resource):
         response = conn.post(url, data)
         cls.pipeline_id = Quest.get_pipline_id(response)
         cls.pipeline_name = pipeline_name
-        return Quest
 
     @staticmethod
     def start(pipeline_id):
@@ -546,19 +545,18 @@ class QuestCode(Quest):
         :param channel_id:
         :return:
         """
-        response = QuestCode.create(pipeline_name, QuestCode.create_type)
-        log.info(response)
+        QuestCode.create(pipeline_name, QuestCode.create_type)
         pipeline_id = QuestCode.pipeline_id
         response = QuestCode.add_property(pipeline_id, cluster_label,
                                           can_retry=can_retry, command_line_options=command_line_options)
-        log.info(response)
+        log.debug(response)
         response = QuestCode.save_code(pipeline_id, code=code, file_path=file_path, language=language,
                                        user_arguments=user_arguments)
+        log.debug(response)
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
             log.info(response)
-        QuestCode.pipeline_id = QuestCode.get_pipline_id(response)
-        return pipeline_id
+        return QuestCode
 
 
 class QuestJar(Quest):
@@ -582,16 +580,15 @@ class QuestJar(Quest):
         :param user_arguments:
         :return:
         """
-        response = Quest.create(pipeline_name, QuestJar.create_type)
-        log.info(response)
+        QuestJar.create(pipeline_name, QuestJar.create_type)
         pipeline_id = QuestJar.pipeline_id
         response = QuestJar.add_property(pipeline_id, cluster_label,
                                          can_retry=can_retry,
                                          command_line_options=command_line_options)
-        log.info(response)
+        log.debug(response)
         response = QuestJar.save_code(pipeline_id, jar_path=jar_path, main_class_name=main_class_name,
                                       user_arguments=user_arguments)
-        QuestCode.pipeline_id = QuestJar.get_pipline_id(response)
+        log.debug(response)
         QuestJar.jar_path = jar_path
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
