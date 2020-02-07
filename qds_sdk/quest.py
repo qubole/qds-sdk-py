@@ -233,7 +233,7 @@ class QuestCmdLine:
         :return:
         """
         params = args.__dict__
-        print params
+        log.debug(params)
         response = Quest.add_property(pipeline_id=args.pipeline_id, cluster_label=args.cluster_label, can_retry=args.can_retry, command_line_options=args.command_line_options)
         return json.dumps(response, sort_keys=True, indent=4)
 
