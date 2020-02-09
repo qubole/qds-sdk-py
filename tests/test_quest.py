@@ -46,3 +46,10 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("PUT", "pipelines/153/archive", None)
+
+    def test_delete_pipeline(self):
+        sys.argv = ['qds.py', 'quest', 'delete', '--pipeline-id', '153']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "pipelines/153/delete", None)
