@@ -32,4 +32,4 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         params = {'id': "153"}
         qds.main()
-        Connection._api_call.assert_called_with("GET", "pipelines", params=params)
+        Connection._api_call.assert_called_with("GET", "pipelines/153/pause", params=params)
