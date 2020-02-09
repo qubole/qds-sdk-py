@@ -18,17 +18,24 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 
 
 class TestQuestList(QdsCliTestCase):
-    def test_list_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'list', '--pipeline-status', 'draft']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        params = {'filter': "draft"}
-        qds.main()
-        Connection._api_call.assert_called_with("GET", "pipelines", params=params)
+    # def test_list_pipeline(self):
+    #     sys.argv = ['qds.py', 'quest', 'list', '--pipeline-status', 'draft']
+    #     print_command()
+    #     Connection._api_call = Mock(return_value={})
+    #     params = {'filter': "draft"}
+    #     qds.main()
+    #     Connection._api_call.assert_called_with("GET", "pipelines", params=params)
+    #
+    # def test_pause_pipeline(self):
+    #     sys.argv = ['qds.py', 'quest', 'pause', '--pipeline-id', '153']
+    #     print_command()
+    #     Connection._api_call = Mock(return_value={})
+    #     qds.main()
+    #     Connection._api_call.assert_called_with("PUT", "pipelines/153/pause", None)
 
-    def test_pause_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'pause', '--pipeline-id', '153']
+    def test_clone_pipeline(self):
+        sys.argv = ['qds.py', 'quest', 'clone', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("PUT", "pipelines/153/pause", None)
+        Connection._api_call.assert_called_with("PUT", "pipelines/153/duplicate", None)
