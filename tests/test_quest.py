@@ -26,3 +26,10 @@ class TestQuestList(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET", "pipelines", params=params)
 
+    def test_pause_pipeline(self):
+        sys.argv = ['qds.py', 'quest', 'pause', '--pipeline-id', '153']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        params = {'id': "153"}
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "pipelines", params=params)
