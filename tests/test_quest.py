@@ -81,7 +81,7 @@ class TestQuestList(QdsCliTestCase):
                 "cluster_id": None
             },
             "data": {
-                "id": 585,
+                "id": 1,
                 "type": "pipeline",
                 "attributes": {
                     "name": "test_pipeline_name",
