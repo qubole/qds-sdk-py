@@ -58,7 +58,6 @@ class TestQuestList(QdsCliTestCase):
         sys.argv = ['qds.py', 'quest', 'create', '--create-type', '3', '--pipeline-name', 'test_pipeline_name',
                     '--cluster-label', 'spark', '-c', 'print("hello")', '--language', 'python']
         print_command()
-        qds.main()
         d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": "3"},
                        "type": "pipelines"}}
         r1 = {
