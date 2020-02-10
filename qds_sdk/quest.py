@@ -308,6 +308,7 @@ class Quest(Resource):
         }
         url = Quest.rest_entity_path + "?mode=wizard"
         response = conn.post(url, data)
+        print("response = ",response)
         cls.pipeline_id = Quest.get_pipline_id(response)
         cls.pipeline_name = pipeline_name
 
