@@ -606,755 +606,147 @@ class QuestAssisted(Quest):
     create_type = 1
 
     @staticmethod
-    def add_source(pipeline_id, schema, format, data_store, topic_type, topics=None,
-                   endpoint_url=None,
-                   stream_name=None,
-                   starting_position=None,
-                   other_kinesis_settings=None,
-                   broker=None,
-                   use_registry=None,
-                   registry_subject=None,
-                   registry_id=None,
-                   starting_offsets=None,
-                   other_kafka_consumer_settings=None,
-                   source_path=None,
-                   s3_other_settings=None,
-                   gs_other_settings=None):
+    def add_source():
         """
-
-        :param topics:
-        :param pipeline_id:
-        :param schema:
-        :param format:
-        :param data_store:
-        :param endpoint_url:
-        :param stream_name:
-        :param starting_position:
-        :param other_kinesis_settings:
-        :param broker:
-        :param topic_type:
-        :param use_registry:
-        :param registry_subject:
-        :param registry_id:
-        :param starting_offsets:
-        :param other_kafka_consumer_settings:
-        :param source_path:
-        :param s3_other_settings:
-        :param gs_other_settings:
+        Method to add source.
         :return:
         """
-        url = Quest.rest_entity_path + "/" + pipeline_id + "/node"
-        if data_store == "kinesis":
-            return QuestAssisted._source_kinesis(url, schema, format, endpoint_url, stream_name,
-                                                 starting_position=starting_position,
-                                                 other_kinesis_settings=other_kinesis_settings)
-        if data_store == "kafka":
-            return QuestAssisted._source_kafka(url, schema, format, broker,
-                                               topics=topics,
-                                               topic_type=topic_type,
-                                               use_registry=use_registry,
-                                               registry_subject=registry_subject,
-                                               registry_id=registry_id,
-                                               starting_offsets=starting_offsets,
-                                               other_kafka_consumer_settings=other_kafka_consumer_settings)
-        if data_store == "s3":
-            return QuestAssisted._source_s3(url, schema, format, source_path,
-                                            other_settings=s3_other_settings)
-        if data_store == "google_storage":
-            return QuestAssisted._source_google_storage(url, schema, format, source_path,
-                                                        other_settings=gs_other_settings)
-        raise ParseError("Please add only one valid source out of [kafka, s3, kinesis]")
+        pass
 
     @staticmethod
-    def add_sink(pipeline_id, data_store,
-                 bigQuery_table=None,
-                 temporary_gcs_bucket=None,
-                 warehouse=None,
-                 catalog_name=None,
-                 streaming_stage=None,
-                 snowflake_database=None,
-                 snowflake_table_name=None,
-                 data_format=None,
-                 kafka_bootstrap_server=None,
-                 topic=None,
-                 other_kafka_settings=None,
-                 sink_path=None,
-                 partition_by=None,
-                 other_s3_configurations=None,
-                 other_gs_configurations=None,
-                 table_name=None,
-                 hive_database=None,
-                 other_hive_configurations=None,
-                 snowflake_name=None,
-                 snowflake_other_configurations=None):
+    def add_sink():
         """
-
-        :param temporary_gcs_bucket:
-        :param bigQuery_table:
-        :param pipeline_id:
-        :param data_store:
-        :param warehouse:
-        :param catalog_name:
-        :param streaming_stage:
-        :param snowflake_database:
-        :param snowflake_table_name:
-        :param data_format:
-        :param kafka_bootstrap_server:
-        :param topic:
-        :param other_kafka_settings:
-        :param sink_path:
-        :param partition_by:
-        :param other_s3_configurations:
-        :param other_gs_configurations:
-        :param table_name:
-        :param hive_database:
-        :param other_hive_configurations:
-        :param snowflake_name:
-        :param snowflake_other_configurations:
+        Method to add sink.
         :return:
         """
-        url = Quest.rest_entity_path + "/" + pipeline_id + "/node"
-        data_store = data_store.lower()
-        if data_store == "kafka":
-            return QuestAssisted._sink_kafka(url, data_format, kafka_bootstrap_server, topic,
-                                             other_kafka_settings=other_kafka_settings)
-        if data_store == "s3":
-            return QuestAssisted._sink_s3(url, data_format, sink_path, partition_by,
-                                          other_configurations=other_s3_configurations)
-        if data_store == "snowflake":
-            return QuestAssisted._sink_snowflake(url, warehouse, catalog_name, streaming_stage, snowflake_database,
-                                                 snowflake_table_name, name=snowflake_name,
-                                                 other_configurations=snowflake_other_configurations)
-        if data_store == "google_storage":
-            return QuestAssisted._sink_google_storage(url, data_format, sink_path, partition_by,
-                                                      other_configurations=other_gs_configurations)
-        if data_store == "hive":
-            return QuestAssisted._sink_hive(url, table_name, databases=hive_database,
-                                            default_other_configurations=other_hive_configurations)
-        if data_store == "bigquery":
-            return QuestAssisted._sink_BigQuery(url, table=bigQuery_table, temporary_gcs_bucket=temporary_gcs_bucket)
-        raise ParseError("Please add only one valid sink out of [kafka, s3, snowflake, hive, google_storage, bigquery]")
+        pass
 
     @staticmethod
-    def create_pipeline(pipeline_name, schema, source_data_format, source_data_store, sink_data_store,
-                        checkpoint_location,
-                        cluster_label,
-                        output_mode,
-                        sink_data_format=None,
-                        source_topics=None,
-                        sink_topics=None,
-                        trigger_interval=None,
-                        can_retry=True,
-                        topic_type="multiple",
-                        command_line_options=None,
-                        operators=None,
-                        channel_id=None,
-                        endpoint_url=None,
-                        stream_name=None,
-                        starting_position=None,
-                        other_kinesis_settings=None,
-                        broker=None,
-                        use_registry=None,
-                        registry_subject=None,
-                        registry_id=None,
-                        starting_offsets=None,
-                        other_kafka_consumer_settings=None,
-                        source_path=None,
-                        s3_other_settings=None,
-                        gs_other_settings=None,
-                        kafka_bootstrap_server=None,
-                        other_kafka_settings=None,
-                        sink_path=None,
-                        partition_by=None,
-                        other_s3_configurations=None,
-                        other_gs_configurations=None,
-                        table_name=None,
-                        hive_database=None,
-                        other_hive_configurations=None,
-                        warehouse=None,
-                        catalog_name=None,
-                        streaming_stage=None,
-                        snowflake_database=None,
-                        snowflake_table_name=None,
-                        snowflake_name=None,
-                        snowflake_other_configurations=None,
-                        bigQuery_table=None,
-                        temporary_gcs_bucket=None, ):
+    def create_pipeline():
         """
-
-        :param pipeline_name:
-        :param schema:
-        :param source_data_format:
-        :param source_data_store:
-        :param sink_data_store:
-        :param checkpoint_location:
-        :param cluster_label:
-        :param output_mode:
-        :param sink_data_format:
-        :param source_topics:
-        :param sink_topics:
-        :param trigger_interval:
-        :param can_retry:
-        :param topic_type:
-        :param command_line_options:
-        :param operators:
-        :param channel_id:
-        :param endpoint_url:
-        :param stream_name:
-        :param starting_position:
-        :param other_kinesis_settings:
-        :param broker:
-        :param use_registry:
-        :param registry_subject:
-        :param registry_id:
-        :param starting_offsets:
-        :param other_kafka_consumer_settings:
-        :param source_path:
-        :param s3_other_settings:
-        :param gs_other_settings:
-        :param kafka_bootstrap_server:
-        :param other_kafka_settings:
-        :param sink_path:
-        :param partition_by:
-        :param other_s3_configurations:
-        :param other_gs_configurations:
-        :param table_name:
-        :param hive_database:
-        :param other_hive_configurations:
-        :param warehouse:
-        :param catalog_name:
-        :param streaming_stage:
-        :param snowflake_database:
-        :param snowflake_table_name:
-        :param snowflake_name:
-        :param snowflake_other_configurations:
-        :param temporary_gcs_bucket:
-        :param bigQuery_table:
+        Parent Method to create end to end pipeline.
         :return:
         """
-        Quest.create(pipeline_name, QuestAssisted.create_type)
-        final_response = None
-        pipeline_id = str(QuestAssisted.pipeline_id)
-        src_response = QuestAssisted.add_source(pipeline_id, schema, source_data_format, source_data_store,
-                                                topics=source_topics,
-                                                endpoint_url=endpoint_url,
-                                                stream_name=stream_name,
-                                                starting_position=starting_position,
-                                                other_kinesis_settings=other_kinesis_settings,
-                                                broker=broker,
-                                                topic_type=topic_type,
-                                                use_registry=use_registry,
-                                                registry_subject=registry_subject,
-                                                registry_id=registry_id,
-                                                starting_offsets=starting_offsets,
-                                                other_kafka_consumer_settings=other_kafka_consumer_settings,
-                                                source_path=source_path,
-                                                s3_other_settings=s3_other_settings,
-                                                gs_other_settings=gs_other_settings)
-        log.debug(src_response)
-        sink_reponse = QuestAssisted.add_sink(pipeline_id, sink_data_store,
-                                              data_format=sink_data_format,
-                                              kafka_bootstrap_server=kafka_bootstrap_server,
-                                              topic=sink_topics,
-                                              other_kafka_settings=other_kafka_settings,
-                                              sink_path=sink_path,
-                                              partition_by=partition_by,
-                                              other_s3_configurations=other_s3_configurations,
-                                              other_gs_configurations=other_gs_configurations,
-                                              table_name=table_name,
-                                              hive_database=hive_database,
-                                              other_hive_configurations=other_hive_configurations,
-                                              warehouse=warehouse, catalog_name=catalog_name,
-                                              streaming_stage=streaming_stage,
-                                              snowflake_database=snowflake_database,
-                                              snowflake_table_name=snowflake_table_name,
-                                              snowflake_name=snowflake_name,
-                                              snowflake_other_configurations=snowflake_other_configurations,
-                                              temporary_gcs_bucket=temporary_gcs_bucket,
-                                              bigQuery_table=bigQuery_table)
-        log.info(sink_reponse)
-        property_response = QuestAssisted.add_property(pipeline_id, cluster_label, checkpoint_location, output_mode,
-                                                       trigger_interval=trigger_interval,
-                                                       can_retry=can_retry,
-                                                       command_line_options=command_line_options)
-        log.info(property_response)
-        final_response = property_response
-        if operators:
-            for operator in operators:
-                if operator.items()[0][0] is "filter":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="filter",
-                                                                   condition=operator["filter"]["condition"],
-                                                                   value=operator["filter"]["value"],
-                                                                   filter_column_name=operator["filter"]["column_name"])
-                elif operator.items()[0][0] is "select":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="select",
-                                                                   select_column_names=operator["select"][
-                                                                       "column_names"])
-                elif operator.items()[0][0] is "watermark":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="watermark",
-                                                                   watermark_column_name=operator["watermark"][
-                                                                       "column_name"],
-                                                                   watermark_frequency=operator["watermark"][
-                                                                       "frequency"])
-
-                elif operator.items()[0][0] is "windowed_group":
-                    operator_response = QuestAssisted.add_operator(pipeline_id, operator="windowed_group",
-                                                                   groupby_column_name=operator["windowed_group"][
-                                                                       "column_name"],
-                                                                   sliding_window_value=operator["windowed_group"].get(
-                                                                       "sliding_window_value"),
-                                                                   window_interval_frequency=operator["windowed_group"][
-                                                                       "window_interval_frequency"],
-                                                                   other_columns=operator["windowed_group"][
-                                                                       "other_columns"])
-                else:
-                    raise ParseError(
-                        "Please enter valid operator value. Valid values are [filter, select, watermark, windowed_group]")
-
-            log.info(operator_response)
-
-            final_response = operator_response
-        if channel_id:
-            response = QuestAssisted.set_alert(pipeline_id, channel_id)
-            log.info(response)
-            final_response = response
-        log.debug(final_response)
-        QuestAssisted.pipeline_code = QuestAssisted.get_code(pipeline_id)
-        return QuestAssisted
+        pass
 
     @staticmethod
-    def add_operator(pipeline_id, operator,
-                     condition=None,
-                     value=None,
-                     filter_column_name=None,
-                     select_column_names=None,
-                     sliding_window_value=None,
-                     window_interval_frequency=None,
-                     other_columns=None,
-                     watermark_frequency=None,
-                     groupby_column_name=None,
-                     watermark_column_name=None):
+    def add_operator():
         """
+        Parent method to add operator
+        """
+        pass
 
-        :param watermark_column_name:
-        :param groupby_column_name:
-        :param watermark_frequency:
-        :param select_column_names:
-        :param filter_column_name:
-        :param pipeline_id:
-        :param operator:
-        :param condition:
-        :param value:
-        :param sliding_window_value:
-        :param window_interval_frequency:
-        :param other_columns:
-        :return:
-        """
-        url = Quest.rest_entity_path + "/" + pipeline_id + "/operator"
-        operator = operator.lower()
-        if operator is None:
-            return
-        if operator == "filter":
-            return QuestAssisted._filter_operator(url, filter_column_name, condition, value)
-        if operator == "select":
-            return QuestAssisted._select_operator(url, select_column_names)
-        if operator == "watermark":
-            return QuestAssisted._watermark_operator(url, watermark_column_name, watermark_frequency)
-        if operator == "windowed_group":
-            return QuestAssisted._window_group_operator(url, groupby_column_name, sliding_window_value,
-                                                        window_interval_frequency, other_columns)
-        raise ParseError(
-            "Please add only one valid sink out of [filter, select, watermark, windowed_group]. Given value is {}".format(
-                operator))
 
     @staticmethod
-    def _select_operator(url, column_names):
+    def _select_operator():
         """
-        :param url: API url with pipeline id
-        :param column_names:
-        :return:
+        Method to add select operator.
         """
-        conn = Qubole.agent()
-        data = {"data": {"attributes": {"operator": "select", "column_names": column_names}}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _filter_operator(url, column_name, condition, value):
+    def _filter_operator():
         """
-        :param url: API url with pipeline id
-        :param column_name:
-        :param condition:
-        :param value:
-        :return:
+        Method to add filter operator.
         """
-        conn = Qubole.agent()
-        data = {"data": {"attributes": {"operator": "filter", "column_name": column_name,
-                                        "condition": condition, "value": value}}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _watermark_operator(url, column_name, frequency):
+    def _watermark_operator():
         """
-        :param url: API url with pipeline id
-        :param column_name:
-        :param frequency:
-        :return:
+        Method to add watermark operator
         """
-        conn = Qubole.agent()
-        data = {"data": {"attributes": {"operator": "watermark", "column_name": column_name,
-                                        "frequency": frequency, "unit": "minutes"}}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _window_group_operator(url, column_name, sliding_window_value, window_interval_frequency,
-                               other_columns):
+    def _window_group_operator():
         """
-        :param url: API url with pipeline id
-        :param column_name:
-        :param sliding_window_value_frequency:
-        :param window_interval_frequency:
-        :param other_columns:
-        :return:
+        Method to add window group operator
         """
-        conn = Qubole.agent()
-        data = {"data": {"attributes": {"operator": "windowed_group",
-                                        "window_expression":
-                                            {"column_name": column_name,
-                                             "sliding_window_value": {
-                                                 "frequency": sliding_window_value,
-                                                 "unit": "minutes"},
-                                             "window_interval": {
-                                                 "frequency": window_interval_frequency,
-                                                 "unit": "minutes"}},
-                                        "other_columns": other_columns,
-                                        "action": "count"}}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _source_kafka(url, schema, data_format, broker, topics, topic_type, starting_offsets, use_registry,
-                      registry_subject=None,
-                      registry_id=None,
-                      other_kafka_consumer_settings=None):
+    def _source_kafka():
         """
-
-        :param url:
-        :param schema:
-        :param data_format:
-        :param broker:
-        :param topics:
-        :param topic_type:
-        :param use_registry:
-        :param registry_subject:
-        :param registry_id:
-        :param starting_offsets:
-        :param other_kafka_consumer_settings:
-        :return:
+        Method to as kafka as source.
         """
-        conn = Qubole.agent()
-        if other_kafka_consumer_settings is None:
-            other_kafka_consumer_settings = {"kafkaConsumer.pollTimeoutMs": 512, "fetchOffset.numRetries": 3,
-                                             "fetchOffset.retryIntervalMs": 10}
-
-        if (use_registry is "schemaRegistry") and (registry_subject is None or registry_id is None):
-            raise ParseError("registry_id and registry_subject cannot be empty if use_registry is auto fetch")
-
-        data = {
-            "data": {
-                "attributes": {
-                    "fields": {
-                        "brokers": broker,
-                        "topics": topics,
-                        "topic_type": topic_type,
-                        "schema": schema,
-                        "use_registry": use_registry,
-                        "registry_subject": registry_subject,
-                        "registry_id": registry_id,
-                        "starting_offsets": starting_offsets,
-                        "format": data_format,
-                        "other_kafka_consumer_settings": other_kafka_consumer_settings
-                    },
-                    "data_store": "kafka"
-                },
-                "type": "source"
-            }
-        }
-        log.info("data = {}".format(data))
-        response = conn.put(url, data)
-        log.info(response)
-        return response
+        pass
 
     @staticmethod
-    def _source_kinesis(url, schema, data_format, endpoint_url, stream_name, starting_position=None,
-                        other_kinesis_settings=None):
+    def _source_kinesis():
         """
-        :param url:
-        :param schema:
-        :param data_format:
-        :param endpoint_url:
-        :param stream_name:
-        :param starting_position:
-        :param other_kinesis_settings:
-        :return:
+        Method to add kinesis as source.
         """
-        conn = Qubole.agent()
-        if other_kinesis_settings is None:
-            other_kinesis_settings = {"kinesis.executor.maxFetchTimeInMs": 1000,
-                                      "kinesis.executor.maxFetchRecordsPerShard": 100000,
-                                      "kinesis.executor.maxRecordPerRead": 10000}
-
-        data = {
-            "data": {
-                "attributes": {
-                    "fields": {
-                        "endpoint_url": endpoint_url,
-                        "stream_name": stream_name,
-                        "schema": schema,
-                        "starting_position": starting_position,
-                        "format": data_format,
-                        "other_kinesis_settings": other_kinesis_settings
-                    },
-                    "data_store": "kinesis"
-                },
-                "type": "source"
-            }
-        }
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _source_s3(url, schema, data_format, path, other_settings=None):
+    def _source_s3():
         """
-        :param url: API url with pipeline id
-        :param schema:
-        :param data_format:
-        :param other_settings: {"fileNameOnly": "false", "latestFirst": "false"}
-        :return:
+        Method to add s3 as source.
         """
-        conn = Qubole.agent()
-        if other_settings is None:
-            other_settings = {"fileNameOnly": "false", "latestFirst": "false"}
-        data = {
-            "data": {
-                "attributes": {
-                    "fields": {
-                        "path": path,
-                        "schema": schema,
-                        "format": data_format,
-                        "other_settings": other_settings
-                    },
-                    "data_store": "s3"
-                },
-                "type": "source"
-            }
-        }
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _source_google_storage(url, schema, data_format, source_path, other_settings=None):
+    def _source_google_storage():
         """
-        :param url: API url with pipeline id
-        :param schema:
-        :param data_format:
-        :param other_settings:
-        :return:
+        Method to add google storage as source.
         """
-        if other_settings is None:
-            other_settings = {"fileNameOnly": "false", "latestFirst": "false"}
-        conn = Qubole.agent()
-        data = {"data":
-                    {"attributes":
-                         {"fields":
-                              {"path": source_path,
-                               "format": data_format,
-                               "schema": schema,
-                               "other_settings": other_settings
-                               },
-                          "data_store": "googleStorage"},
-                     "type": "source"
-                     }
-                }
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _sink_kafka(url, data_format, kafka_bootstrap_server, topic, other_kafka_settings=None):
+    def _sink_kafka():
         """
-
-        :param url:
-        :param data_format:
-        :param kafka_bootstrap_server:
-        :param topic:
-        :param other_kafka_settings:
-        :return:
+        Method to add kafka as sink.
         """
-        conn = Qubole.agent()
-        if other_kafka_settings is None:
-            other_kafka_settings = {"kafka.max.block.ms": 60000}
-        data = {"data": {"attributes": {
-            "fields": {"kafka_bootstrap_server": kafka_bootstrap_server, "topic": topic,
-                       "format": data_format, "other_kafka_settings": other_kafka_settings},
-            "data_store": "kafka"},
-            "type": "sink"}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _sink_s3(url, data_format, path, partition_by, other_configurations=None):
+    def _sink_s3():
         """
-
-        :param url:
-        :param data_format:
-        :param path:
-        :param partition_by:
-        :param other_configurations:
-        :return:
+        Method to add s3 as sink.
         """
-        conn = Qubole.agent()
-        if other_configurations is None:
-            other_configurations = {}
-        if partition_by is None:
-            partition_by = ""
-        data = {"data": {"attributes": {
-            "fields": {"path": path, "partition_by": partition_by,
-                       "other_configurations": other_configurations, "format": data_format}, "data_store": "s3"},
-            "type": "sink"}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _sink_hive(url, table_name, databases="default", default_other_configurations=None):
+    def _sink_hive():
         """
-
-        :param url:
-        :param table_name:
-        :param databases:
-        :param default_other_configurations:
-        :return:
+        method to add hive as sink.
         """
-        conn = Qubole.agent()
-        if default_other_configurations is None:
-            default_other_configurations = {"table.metastore.stopOnFailure": "false",
-                                            "table.metastore.updateIntervalSeconds": 10}
-
-        data = {"data": {"attributes": {
-            "fields": {"database": databases, "table_name": table_name,
-                       "other_configurations": default_other_configurations},
-            "data_store": "hive"},
-            "type": "sink"}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _sink_snowflake(url, warehouse, catalog_name, streaming_stage, database, table_name, name=None,
-                        other_configurations=None):
+    def _sink_snowflake():
         """
-
-        :param url:
-        :param name:
-        :param warehouse:
-        :param catalog_name:
-        :param streaming_stage:
-        :param database:
-        :param table_name:
-        :param other_configurations:
-        :return:
+        Method to add Snowflake as sink
         """
-        conn = Qubole.agent()
-        if other_configurations is None:
-            other_configurations = {"sfSchema": "PUBLIC"}
-        data = {"data": {
-            "attributes": {
-                "fields": {
-                    "name": name,
-                    "catalog_name": catalog_name,
-                    "warehouse": warehouse,
-                    "streaming_stage": streaming_stage,
-                    "database": database,
-                    "table_name": table_name,
-                    "other_configurations": other_configurations
-                },
-                "data_store": "snowflake"
-            },
-            "type": "sink"
-        }}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _sink_google_storage(url, format, sink_path, partition_by, other_configurations):
+    def _sink_google_storage():
         """
-
-        :param url:
-        :param format:
-        :param sink_path:
-        :param partition_by:
-        :param other_configurations:
-        :return:
+        Method to add google storage as sink
         """
-        if other_configurations is None:
-            other_configurations = dict()
-        conn = Qubole.agent()
-        data = {"data": {"attributes": {
-            "fields": {"path": sink_path, "partition_by": partition_by,
-                       "other_configurations": other_configurations, "format": format},
-            "data_store": "googleStorage"}, "type": "sink"}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def _sink_BigQuery(url, table, temporary_gcs_bucket):
+    def _sink_BigQuery():
         """
         Method to add BigQuery as sink.
-        :param url:
-        :param table:
-        :param temporary_gcs_bucket:
-        :return:
         """
-        conn = Qubole.agent()
-        data = {"data": {"attributes": {"fields": {"table": table, "temporary_gcs_bucket": temporary_gcs_bucket},
-                                        "data_store": "bigquery"}, "type": "sink"}}
-        return conn.put(url, data)
+        pass
 
     @staticmethod
-    def add_registry(registry_name, host,
-                     port=8081,
-                     registry_type='schema',
-                     use_gateway=False,
-                     gateway_ip=None,
-                     gateway_port=None,
-                     gateway_username=None,
-                     gateway_private_key=None,
-                     **kwargs):
+    def add_registry():
         """
-        :param registry_name: Name of Registry
-        :param registry_type:
-        :param host:
-        :param port:
-        :param use_gateway:
-        :param gateway_ip:
-        :param gateway_port:
-        :param gateway_username:
-        :param gateway_private_key:
+        Method to add registry.
         :return:
         """
-        conn = Qubole.agent()
-        url = QuestAssisted.rest_entity_path + '/' + 'quest_data_registries'
-        data = {"data": {
-            "attributes": {"name": registry_name, "description": kwargs.get("description"),
-                           "registry_type": registry_type, "host": host,
-                           "port": port, "use_gateway": use_gateway, "gateway_ip": gateway_ip,
-                           "gateway_port": gateway_port, "gateway_username": gateway_username,
-                           "gateway_private_key": gateway_private_key}, "type": "schemas"}}
-        conn.post(url, data)
+        pass
 
     @staticmethod
-    def switch_from_assisted(pipeline_id):
+    def switch_from_assisted():
         """
-        Switch pipeline from assisted to BYOC or BYOJ
-        :param pipeline_id:
+        Method to switch to Assisted from BYOC or BYOJ mode.
         :return:
         """
-        conn = Qubole.agent()
-        url = QuestAssisted.rest_entity_path + '/' + pipeline_id
-        response = conn.get(url)
-        create_type = response.get("data").get("attributes").get("create_type")
-        if create_type == 1:
-            url = QuestAssisted.rest_entity_path + '/' + pipeline_id + '/switch'
-            data = {"data": {"attributes": {"create_type": QuestAssisted.create_type}}}
-            response = conn.get(url, data)
-            return response
-        else:
-            log.info("Pipeline is already in non-Assisted mode, create_type = {}".format(create_type))
+        pass
