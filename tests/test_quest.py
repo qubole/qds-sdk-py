@@ -53,10 +53,3 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("PUT", "pipelines/153/delete", None)
-
-    def test_pipeline_status(self):
-        sys.argv = ['qds.py', 'quest', 'status', '--pipeline-id', '1']
-        print_command()
-        Connection._api_call = Mock(return_value={})
-        qds.main()
-        Connection._api_call.assert_called_with("GET", "pipelines/1", None)
