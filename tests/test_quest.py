@@ -60,7 +60,7 @@ class TestQuestList(QdsCliTestCase):
         print_command()
         d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": "3"},
                        "type": "pipelines"}}
-        r1 = {
+        response = {
             "relationships": {
                 "nodes": [],
                 "alerts": []
@@ -96,7 +96,6 @@ class TestQuestList(QdsCliTestCase):
                 }
             }
         }
-        Connection._api_call = Mock(return_value=r1)
         d2 = {"data": {"attributes": {"cluster_label": "spark", "can_retry": "can_retry",
                                       "checkpoint_location": "checkpoint_location",
                                       "trigger_interval": "trigger_interval", "output_mode": "output_mode",
@@ -108,5 +107,6 @@ class TestQuestList(QdsCliTestCase):
         c2 = {"req_type": "PUT", "path": "pipelines/1/properties", "data": d2}
         c3 = {"req_type": "PUT", "path": "pipelines/1/save_code", "data": d3}
         calls = [c1, c2, c3]
+        Connection._api_call = Mock(return_value=response)
         qds.main()
         Connection._api_call.assert_has_calls(calls)
