@@ -113,4 +113,4 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value=response, any_order=False)
         #calls = [Connection._api_call(**c1), Connection._api_call(**c2), Connection._api_call(**c3)]
         qds.main()
-        Connection._api_call.assert_has_calls([Connection._api_call(**c1), Connection._api_call(**c2), Connection._api_call(**c3)])
+        Connection._api_call.assert_has_calls([call(**c1), call(**c2), call(**c3)])
