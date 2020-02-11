@@ -362,7 +362,7 @@ class Quest(Resource):
         }
         }
         log.info("Data {}".format(data))
-        url = Quest.rest_entity_path + "/" + pipeline_id + "/properties/"
+        url = Quest.rest_entity_path + "/" + pipeline_id + "/properties"
         response = conn.put(url, data)
         log.debug(response)
 
