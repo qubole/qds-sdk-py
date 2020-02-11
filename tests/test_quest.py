@@ -55,10 +55,10 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call.assert_called_with("PUT", "pipelines/153/delete", None)
 
     def test_create_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'create', '--create-type', '3', '--pipeline-name', 'test_pipeline_name',
+        sys.argv = ['qds.py', 'quest', 'create', '--create-type', 3, '--pipeline-name', 'test_pipeline_name',
                     '--cluster-label', 'spark', '-c', 'print("hello")', '--language', 'python', '--user-arguments', 'users_argument']
         print_command()
-        d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": '3'},
+        d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": 3},
                        "type": "pipelines"}}
         response = {"relationships": {"nodes": [], "alerts": []}, "included": [],
                     "meta": {"command_details": {"code": "print(\"hello\")", "language": "python"},
@@ -72,7 +72,7 @@ class TestQuestList(QdsCliTestCase):
                                             "created_at": "2020-02-10T14:02:20Z", "updated_at": "2020-02-11T11:05:40Z",
                                             "cluster_label": "spark",
                                             "owner_name": "eam-airflow", "pipeline_instance_status": "draft",
-                                            "create_type": '3', "health": "UNKNOWN"}}}
+                                            "create_type": 3, "health": "UNKNOWN"}}}
 
         QuestCode.pipeline_id = '1'
         QuestCode.pipeline_code = """print("helloworld")"""
@@ -83,7 +83,7 @@ class TestQuestList(QdsCliTestCase):
                                       "command_line_options": """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"""},
                        "type": "pipeline/properties"}}
         d3 = {"data": {
-            "attributes": {"create_type": '3', "user_arguments": "users_argument", "code": """print("hello")""",
+            "attributes": {"create_type": 3, "user_arguments": "users_argument", "code": """print("hello")""",
                            "language": "python"}}}
         Connection._api_call = Mock(return_value=response, any_order=False)
         qds.main()
