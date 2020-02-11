@@ -206,12 +206,12 @@ class QuestCmdLine:
         :return:
         """
         pipeline = None
-        if args.create_type == "2":
+        if args.create_type == 2:
             pipeline = QuestJar.create_pipeline(pipeline_name=args.name, jar_path=args.jar_path,
                                                 main_class_name=args.main_class_name, cluster_label=args.cluster_label,
                                                 user_arguments=args.user_arguments,
                                                 command_line_options=args.command_line_options)
-        elif args.create_type == "3":
+        elif args.create_type == 3:
             if args.code:
                 pipeline = QuestCode.create_pipeline(pipeline_name=args.name, cluster_label=args.cluster_label,
                                                      code=args.code, file_path=args.script_location,
@@ -236,9 +236,8 @@ class QuestCmdLine:
         """
         params = args.__dict__
         log.debug(params)
-        response = Quest.add_property(pipeline_id=args.pipeline_id, cluster_label=args.cluster_label,
-                                      can_retry=args.can_retry, command_line_options=args.command_line_options)
-        return json.dumps(response, sort_keys=True, indent=4)
+        Quest.add_property(pipeline_id=args.pipeline_id, cluster_label=args.cluster_label,
+                           can_retry=args.can_retry, command_line_options=args.command_line_options)
 
     @staticmethod
     def update_code(args):
