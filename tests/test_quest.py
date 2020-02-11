@@ -64,13 +64,13 @@ class TestQuestList(QdsCliTestCase):
                     "meta": {"command_details": {"code": "print(\"hello\")", "language": "python"},
                              "properties": {"checkpoint_location": None, "trigger_interval": None,
                                             "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true",
-                                            "cluster_label": "quest_bugbash_spark_cluster_243", "jar_path": None,
+                                            "cluster_label": "spark", "jar_path": None,
                                             "user_arguments": None, "main_class_name": None, "can_retry": True,
                                             "is_monitoring_enabled": True}, "query_hist": None, "cluster_id": None},
-                    "data": {"id": 585, "type": "pipeline",
+                    "data": {"id": 1, "type": "pipeline",
                              "attributes": {"name": "test_pipeline_name", "description": None, "status": "draft",
                                             "created_at": "2020-02-10T14:02:20Z", "updated_at": "2020-02-11T11:05:40Z",
-                                            "cluster_label": "quest_bugbash_spark_cluster_243",
+                                            "cluster_label": "spark",
                                             "owner_name": "eam-airflow", "pipeline_instance_status": "draft",
                                             "create_type": 3, "health": "UNKNOWN"}}}
 
