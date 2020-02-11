@@ -56,7 +56,7 @@ class TestQuestList(QdsCliTestCase):
 
     def test_create_pipeline(self):
         sys.argv = ['qds.py', 'quest', 'create', '--create-type', '3', '--pipeline-name', 'test_pipeline_name',
-                    '--cluster-label', 'spark', '-c', 'print("hello")', '--language', 'python']
+                    '--cluster-label', 'spark', '-c', 'print("hello")', '--language', 'python', '--user-arguments', 'users_argument']
         print_command()
         d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": "3"},
                        "type": "pipelines"}}
@@ -65,7 +65,7 @@ class TestQuestList(QdsCliTestCase):
                              "properties": {"checkpoint_location": None, "trigger_interval": None,
                                             "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true",
                                             "cluster_label": "spark", "jar_path": None,
-                                            "user_arguments": None, "main_class_name": None, "can_retry": True,
+                                            "user_arguments": "users_argument", "main_class_name": None, "can_retry": True,
                                             "is_monitoring_enabled": True}, "query_hist": None, "cluster_id": None},
                     "data": {"id": 1, "type": "pipeline",
                              "attributes": {"name": "test_pipeline_name", "description": None, "status": "draft",
@@ -83,7 +83,7 @@ class TestQuestList(QdsCliTestCase):
                                       "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"},
                        "type": "pipeline/properties"}}
         d3 = {"data": {
-            "attributes": {"create_type": "3", "user_arguments": None, "code": """"print("hello")""",
+            "attributes": {"create_type": "3", "user_arguments": "users_argument", "code": """"print("hello")""",
                            "language": "python"}}}
         Connection._api_call = Mock(return_value=response, any_order=False)
         qds.main()
