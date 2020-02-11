@@ -223,7 +223,9 @@ class QuestCmdLine:
                                                      language=args.language, user_arguments=args.user_arguments,
                                                      command_line_options=args.command_line_options)
 
-        return json.dumps(pipeline)
+        print("Trype = ",type(pipeline))
+        print("Pipeline = ",pipeline)
+        return pipeline
 
     @staticmethod
     def update_properties(args):
