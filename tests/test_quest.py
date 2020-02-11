@@ -55,7 +55,7 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call.assert_called_with("PUT", "pipelines/153/delete", None)
 
     def test_create_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'create', '--create-type', '3', '--pipeline-name', 'test_pipeline_name',
+        sys.argv = ['qds.py', 'quest', 'create', '--create-type', 3, '--pipeline-name', 'test_pipeline_name',
                     '--cluster-label', 'spark', '-c', 'print("hello")', '--language', 'python', '--user-arguments', 'users_argument']
         print_command()
         d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": "3"},
