@@ -72,7 +72,7 @@ class TestQuestList(QdsCliTestCase):
                     "language": "python"
                 },
                 "properties": {
-                    "checkpoint_location": "checkpoint_location",
+                    "checkpoint_location": None,
                     "cluster_label": "spark",
                     "is_monitoring_enabled": None
                 },
@@ -101,7 +101,7 @@ class TestQuestList(QdsCliTestCase):
         QuestCode.pipeline_code = """print("helloworld")"""
         QuestCode.pipeline_name = "test_pipeline_name"
         d2 = {"data": {"attributes": {"cluster_label": "spark", "can_retry": True,
-                                      "checkpoint_location": "checkpoint_location",
+                                      "checkpoint_location": None,
                                       "trigger_interval": None, "output_mode": None,
                                       "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"}, "type": "pipeline/properties"}}
         d3 = {"data": {
