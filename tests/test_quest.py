@@ -106,7 +106,7 @@ class TestQuestList(QdsCliTestCase):
         c1 = {"req_type": "POST", "path": "pipelines?mode=wizard", "data": d1}
         c2 = {"req_type": "PUT", "path": "pipelines/1/properties", "data": d2}
         c3 = {"req_type": "PUT", "path": "pipelines/1/save_code", "data": d3}
-        calls = [c1, c2, c3]
+        calls = [call(c1), call(c2), call(c3)]
         Connection._api_call = Mock(return_value=response)
         qds.main()
         Connection._api_call.assert_has_calls(calls)
