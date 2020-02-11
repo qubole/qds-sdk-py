@@ -88,5 +88,5 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value=response, any_order=False)
         qds.main()
         Connection._api_call.assert_has_calls(
-            [call("POST", "pipelines?mode=wizard", d1), call("PUT", "pipelines/1/properties/", d2),
+            [call("POST", "pipelines?mode=wizard", d1), call("PUT", "pipelines/1/properties", d2),
              call("PUT", "pipelines/1/save_code", d3)])
