@@ -99,7 +99,7 @@ class TestQuestList(QdsCliTestCase):
 
         QuestCode.pipeline_id = '1'
         QuestCode.pipeline_code = """print("helloworld")"""
-        QuestCode.pipeline_name = 
+        QuestCode.pipeline_name = "test_pipeline_name"
         d2 = {"data": {"attributes": {"cluster_label": "spark", "can_retry": "can_retry",
                                       "checkpoint_location": "checkpoint_location",
                                       "trigger_interval": "trigger_interval", "output_mode": "output_mode",
