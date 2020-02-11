@@ -114,6 +114,7 @@ class QuestCmdLine:
         :param args:
         :return:
         """
+        print(args)
         parser = QuestCmdLine.parsers()
         parsed = parser.parse_args(args)
         return parsed.func(parsed)
@@ -206,12 +207,12 @@ class QuestCmdLine:
         :return:
         """
         pipeline = None
-        if args.create_type == 2:
+        if int(args.create_type) == 2:
             pipeline = QuestJar.create_pipeline(pipeline_name=args.name, jar_path=args.jar_path,
                                                 main_class_name=args.main_class_name, cluster_label=args.cluster_label,
                                                 user_arguments=args.user_arguments,
                                                 command_line_options=args.command_line_options)
-        elif args.create_type == 3:
+        elif int(args.create_type) == 3:
             if args.code:
                 pipeline = QuestCode.create_pipeline(pipeline_name=args.name, cluster_label=args.cluster_label,
                                                      code=args.code, file_path=args.script_location,
