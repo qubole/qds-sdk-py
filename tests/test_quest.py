@@ -83,7 +83,7 @@ class TestQuestList(QdsCliTestCase):
                                       "command_line_options": """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"""},
                        "type": "pipeline/properties"}}
         d3 = {"data": {
-            "attributes": {"create_type": "3", "user_arguments": "users_argument", "code": """print("hello")""",
+            "attributes": {"create_type": 3, "user_arguments": "users_argument", "code": """print("hello")""",
                            "language": "python"}}}
         Connection._api_call = Mock(return_value=response, any_order=False)
         qds.main()
