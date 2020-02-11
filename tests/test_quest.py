@@ -96,6 +96,9 @@ class TestQuestList(QdsCliTestCase):
                 }
             }
         }
+        quest_code = QuestCode()
+        quest_code.pipeline_id = '1'
+        quest_code.pipeline_code = """print("helloworld")"""
         d2 = {"data": {"attributes": {"cluster_label": "spark", "can_retry": "can_retry",
                                       "checkpoint_location": "checkpoint_location",
                                       "trigger_interval": "trigger_interval", "output_mode": "output_mode",
@@ -107,6 +110,6 @@ class TestQuestList(QdsCliTestCase):
         c2 = {"req_type": "PUT", "path": "pipelines/1/properties", "data": d2}
         c3 = {"req_type": "PUT", "path": "pipelines/1/save_code", "data": d3}
         calls = [call(c1), call(c2), call(c3)]
-        Connection._api_call = Mock(return_value={})
+        Connection._api_call = Mock(spec=quest_code, return_value=response)
         qds.main()
         Connection._api_call.assert_has_calls(calls)
