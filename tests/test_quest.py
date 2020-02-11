@@ -60,42 +60,19 @@ class TestQuestList(QdsCliTestCase):
         print_command()
         d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": "3"},
                        "type": "pipelines"}}
-        response = {
-            "relationships": {
-                "nodes": [],
-                "alerts": []
-            },
-            "included": [],
-            "meta": {
-                "command_details": {
-                    "code": """print("hello")""",
-                    "language": "python"
-                },
-                "properties": {
-                    "checkpoint_location": None,
-                    "cluster_label": "spark",
-                    "is_monitoring_enabled": None
-                },
-                "query_hist": None,
-                "cluster_id": None
-            },
-            "data": {
-                "id": 1,
-                "type": "pipeline",
-                "attributes": {
-                    "name": "test_pipeline_name",
-                    "description": None,
-                    "status": "draft",
-                    "created_at": "2020-02-10T14:02:20Z",
-                    "updated_at": "2020-02-10T14:02:20Z",
-                    "cluster_label": None,
-                    "owner_name": "eam-airflow",
-                    "pipeline_instance_status": "draft",
-                    "create_type": 3,
-                    "health": "UNKNOWN"
-                }
-            }
-        }
+        response = {"relationships": {"nodes": [], "alerts": []}, "included": [],
+                    "meta": {"command_details": {"code": "print(\"hello\")", "language": "python"},
+                             "properties": {"checkpoint_location": None, "trigger_interval": None,
+                                            "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true",
+                                            "cluster_label": "quest_bugbash_spark_cluster_243", "jar_path": None,
+                                            "user_arguments": None, "main_class_name": None, "can_retry": True,
+                                            "is_monitoring_enabled": True}, "query_hist": None, "cluster_id": None},
+                    "data": {"id": 585, "type": "pipeline",
+                             "attributes": {"name": "test_pipeline_name", "description": None, "status": "draft",
+                                            "created_at": "2020-02-10T14:02:20Z", "updated_at": "2020-02-11T11:05:40Z",
+                                            "cluster_label": "quest_bugbash_spark_cluster_243",
+                                            "owner_name": "eam-airflow", "pipeline_instance_status": "draft",
+                                            "create_type": 3, "health": "UNKNOWN"}}}
 
         QuestCode.pipeline_id = '1'
         QuestCode.pipeline_code = """print("helloworld")"""
@@ -103,10 +80,13 @@ class TestQuestList(QdsCliTestCase):
         d2 = {"data": {"attributes": {"cluster_label": "spark", "can_retry": True,
                                       "checkpoint_location": None,
                                       "trigger_interval": None, "output_mode": None,
-                                      "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"}, "type": "pipeline/properties"}}
+                                      "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"},
+                       "type": "pipeline/properties"}}
         d3 = {"data": {
             "attributes": {"create_type": "3", "user_arguments": "--user arguments", "code": """"print("hello")""",
                            "language": "python"}}}
         Connection._api_call = Mock(return_value=response, any_order=False)
         qds.main()
-        Connection._api_call.assert_has_calls([call("POST", "pipelines?mode=wizard", d1), call("PUT", "pipelines/1/properties", d2), call("PUT", "pipelines/1/save_code", d3)])
+        Connection._api_call.assert_has_calls(
+            [call("POST", "pipelines?mode=wizard", d1), call("PUT", "pipelines/1/properties", d2),
+             call("PUT", "pipelines/1/save_code", d3)])
