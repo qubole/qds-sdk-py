@@ -109,4 +109,4 @@ class TestQuestList(QdsCliTestCase):
                            "language": "python"}}}
         Connection._api_call = Mock(return_value=response, any_order=False)
         qds.main()
-        Connection._api_call.assert_has_calls([call("POST", "pipelines?mode=wizard", data=d1), call("PUT", "pipelines/1/properties", data=d2), call("PUT", "pipelines/1/save_code", d3)])
+        Connection._api_call.assert_has_calls([call("POST", "pipelines?mode=wizard", d1), call("PUT", "pipelines/1/properties", d2), call("PUT", "pipelines/1/save_code", d3)])
