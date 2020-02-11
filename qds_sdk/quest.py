@@ -69,7 +69,7 @@ class QuestCmdLine:
         update_code.add_argument("--main-class-name", dest="main_class_name",
                                  help="class name of your jar file. Required for create_type=2(BYOJ)")
         update_code.add_argument("--pipeline-id", dest="pipeline_id", required=True,
-                                       help='Id of pipeline which need to be updated')
+                                 help='Id of pipeline which need to be updated')
 
         # Pipeline Util (Utility for start, pause, clone, edit, delete, archive)
         delete = subparsers.add_parser("delete", help="Delete Pipeline")
@@ -234,7 +234,8 @@ class QuestCmdLine:
         """
         params = args.__dict__
         log.debug(params)
-        response = Quest.add_property(pipeline_id=args.pipeline_id, cluster_label=args.cluster_label, can_retry=args.can_retry, command_line_options=args.command_line_options)
+        response = Quest.add_property(pipeline_id=args.pipeline_id, cluster_label=args.cluster_label,
+                                      can_retry=args.can_retry, command_line_options=args.command_line_options)
         return json.dumps(response, sort_keys=True, indent=4)
 
     @staticmethod
@@ -308,7 +309,7 @@ class Quest(Resource):
         }
         url = Quest.rest_entity_path + "?mode=wizard"
         response = conn.post(url, data)
-        print("response = ",response)
+        print("response = ", response)
         cls.pipeline_id = Quest.get_pipline_id(response)
         cls.pipeline_name = pipeline_name
 
@@ -317,7 +318,7 @@ class Quest(Resource):
         """
         Method to start Pipeline
         :param pipeline_id: id of pipeline to be deleted
-        :return: reponse
+        :return: response
         """
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + pipeline_id + "/start"
@@ -361,7 +362,7 @@ class Quest(Resource):
         log.info("Data {}".format(data))
         url = Quest.rest_entity_path + "/" + pipeline_id + "/properties/"
         response = conn.put(url, data)
-        return response
+        log.debug(response)
 
     @classmethod
     def save_code(cls, pipeline_id, code=None, file_path=None, language=None, jar_path=None, main_class_name=None,
@@ -390,12 +391,13 @@ class Quest(Resource):
             if code or file_path:
                 try:
                     if file_path:
-                        with open(file_path,'r') as f:
+                        with open(file_path, 'r') as f:
                             code = f.read()
                     else:
                         code = code
                 except IOError as e:
-                    raise ParseError("Unable to open script location or script location and code both are empty. ", e.message)
+                    raise ParseError("Unable to open script location or script location and code both are empty. ",
+                                     e.message)
                 cls.pipeline_code = code
                 data = {"data": {
                     "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
@@ -407,7 +409,7 @@ class Quest(Resource):
         conn = Qubole.agent()
         url = cls.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
         response = conn.put(url, data)
-        return response
+        log.debug(response)
 
     @staticmethod
     def get_health(pipeline_id):
@@ -553,13 +555,11 @@ class QuestCode(Quest):
         """
         QuestCode.create(pipeline_name, QuestCode.create_type)
         pipeline_id = QuestCode.pipeline_id
-        response = QuestCode.add_property(pipeline_id, cluster_label,
-                                          can_retry=can_retry,
-                                          command_line_options=command_line_options)
-        log.debug(response)
-        response = QuestCode.save_code(pipeline_id, code=code, file_path=file_path, language=language,
-                                       user_arguments=user_arguments)
-        log.debug(response)
+        QuestCode.add_property(pipeline_id, cluster_label,
+                               can_retry=can_retry,
+                               command_line_options=command_line_options)
+        QuestCode.save_code(pipeline_id, code=code, file_path=file_path, language=language,
+                            user_arguments=user_arguments)
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
             log.info(response)
@@ -589,18 +589,16 @@ class QuestJar(Quest):
         """
         QuestJar.create(pipeline_name, QuestJar.create_type)
         pipeline_id = QuestJar.pipeline_id
-        response = QuestJar.add_property(pipeline_id, cluster_label,
-                                         can_retry=can_retry,
-                                         command_line_options=command_line_options)
-        log.debug(response)
-        response = QuestJar.save_code(pipeline_id, jar_path=jar_path, main_class_name=main_class_name,
-                                      user_arguments=user_arguments)
-        log.debug(response)
+        QuestJar.add_property(pipeline_id, cluster_label,
+                              can_retry=can_retry,
+                              command_line_options=command_line_options)
+        QuestJar.save_code(pipeline_id, jar_path=jar_path, main_class_name=main_class_name,
+                           user_arguments=user_arguments)
         QuestJar.jar_path = jar_path
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
             log.info(response)
-        return response
+        return QuestJar
 
 
 class QuestAssisted(Quest):
@@ -636,7 +634,6 @@ class QuestAssisted(Quest):
         Parent method to add operator
         """
         pass
-
 
     @staticmethod
     def _select_operator():
