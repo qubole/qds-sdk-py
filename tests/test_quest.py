@@ -63,7 +63,7 @@ class TestQuestList(QdsCliTestCase):
         response = {"relationships": {"nodes": [], "alerts": []}, "included": [],
                     "meta": {"command_details": {"code": "print(\"hello\")", "language": "python"},
                              "properties": {"checkpoint_location": None, "trigger_interval": None,
-                                            "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true",
+                                            "command_line_options": """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true""",
                                             "cluster_label": "spark", "jar_path": None,
                                             "user_arguments": "users_argument", "main_class_name": None, "can_retry": True,
                                             "is_monitoring_enabled": True}, "query_hist": None, "cluster_id": None},
@@ -80,7 +80,7 @@ class TestQuestList(QdsCliTestCase):
         d2 = {"data": {"attributes": {"cluster_label": "spark", "can_retry": True,
                                       "checkpoint_location": None,
                                       "trigger_interval": None, "output_mode": None,
-                                      "command_line_options": "--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"},
+                                      "command_line_options": """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"""},
                        "type": "pipeline/properties"}}
         d3 = {"data": {
             "attributes": {"create_type": "3", "user_arguments": "users_argument", "code": """print("hello")""",
@@ -88,5 +88,5 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value=response, any_order=False)
         qds.main()
         Connection._api_call.assert_has_calls(
-            [call("POST", "pipelines?mode=wizard", d1), call("PUT", "pipelines/1/properties", d2),
+            [call("POST", "pipelines?mode=wizard", d1), call("PUT", "pipelines/1/properties/", d2),
              call("PUT", "pipelines/1/save_code", d3)])
