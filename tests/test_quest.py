@@ -10,7 +10,7 @@ from mock import *
 
 import qds
 from qds_sdk.connection import Connection
-from qds_sdk.quest import QuestCode, QuestJar
+from qds_sdk.quest import QuestCode
 from test_base import print_command
 from test_base import QdsCliTestCase
 
