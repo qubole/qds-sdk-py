@@ -208,20 +208,28 @@ class QuestCmdLine:
         """
         pipeline = None
         if int(args.create_type) == 2:
-            pipeline = QuestJar.create_pipeline(pipeline_name=args.name, jar_path=args.jar_path,
-                                                main_class_name=args.main_class_name, cluster_label=args.cluster_label,
+            pipeline = QuestJar.create_pipeline(pipeline_name=args.name,
+                                                jar_path=args.jar_path,
+                                                main_class_name=args.main_class_name,
+                                                cluster_label=args.cluster_label,
                                                 user_arguments=args.user_arguments,
                                                 command_line_options=args.command_line_options)
         elif int(args.create_type) == 3:
             if args.code:
-                pipeline = QuestCode.create_pipeline(pipeline_name=args.name, cluster_label=args.cluster_label,
-                                                     code=args.code, file_path=args.script_location,
-                                                     language=args.language, user_arguments=args.user_arguments,
+                pipeline = QuestCode.create_pipeline(pipeline_name=args.name,
+                                                     cluster_label=args.cluster_label,
+                                                     code=args.code,
+                                                     file_path=args.script_location,
+                                                     language=args.language,
+                                                     user_arguments=args.user_arguments,
                                                      command_line_options=args.command_line_options)
             elif args.script_location:
-                pipeline = QuestCode.create_pipeline(pipeline_name=args.name, cluster_label=args.cluster_label,
-                                                     code=args.code, file_path=args.script_location,
-                                                     language=args.language, user_arguments=args.user_arguments,
+                pipeline = QuestCode.create_pipeline(pipeline_name=args.name,
+                                                     cluster_label=args.cluster_label,
+                                                     code=args.code,
+                                                     file_path=args.script_location,
+                                                     language=args.language,
+                                                     user_arguments=args.user_arguments,
                                                      command_line_options=args.command_line_options)
 
         return pipeline
@@ -235,8 +243,10 @@ class QuestCmdLine:
         """
         params = args.__dict__
         log.debug(params)
-        Quest.add_property(pipeline_id=args.pipeline_id, cluster_label=args.cluster_label,
-                           can_retry=args.can_retry, command_line_options=args.command_line_options)
+        Quest.add_property(pipeline_id=args.pipeline_id,
+                           cluster_label=args.cluster_label,
+                           can_retry=args.can_retry,
+                           command_line_options=args.command_line_options)
 
     @staticmethod
     def update_code(args):
@@ -246,9 +256,21 @@ class QuestCmdLine:
         :return:
         """
         if args.jar_path or args.main_class_name:
-            response = QuestJar.save_code(pipeline_id=args.pipeline_id, code=args.code, file_path=args.script_location, language=args.language, jar_path=args.jar_path, user_arguments=args.user_arguments, main_class_name=args.main_class_name)
+            response = QuestJar.save_code(pipeline_id=args.pipeline_id,
+                                          code=args.code,
+                                          file_path=args.script_location,
+                                          language=args.language,
+                                          jar_path=args.jar_path,
+                                          user_arguments=args.user_arguments,
+                                          main_class_name=args.main_class_name)
         elif args.code or args.script_location:
-            response = QuestCode.save_code(pipeline_id=args.pipeline_id, code=args.code, file_path=args.script_location, language=args.language, jar_path=args.jar_path, user_arguments=args.user_arguments, main_class_name=args.main_class_name)
+            response = QuestCode.save_code(pipeline_id=args.pipeline_id,
+                                           code=args.code,
+                                           file_path=args.script_location,
+                                           language=args.language,
+                                           jar_path=args.jar_path,
+                                           user_arguments=args.user_arguments,
+                                           main_class_name=args.main_class_name)
         return json.dumps(response, sort_keys=True, indent=4)
 
 
@@ -334,8 +356,13 @@ class Quest(Resource):
         return response
 
     @staticmethod
-    def add_property(pipeline_id, cluster_label, checkpoint_location=None, output_mode=None, trigger_interval=None,
-                     can_retry=True, command_line_options=None):
+    def add_property(pipeline_id,
+                     cluster_label,
+                     checkpoint_location=None,
+                     output_mode=None,
+                     trigger_interval=None,
+                     can_retry=True,
+                     command_line_options=None):
         """
         Method to add properties in pipeline
         :param can_retry:
@@ -367,10 +394,16 @@ class Quest(Resource):
         log.debug(response)
 
     @classmethod
-    def save_code(cls, pipeline_id, code=None, file_path=None, language=None, jar_path=None, main_class_name=None,
+    def save_code(cls, pipeline_id,
+                  code=None,
+                  file_path=None,
+                  language=None,
+                  jar_path=None,
+                  main_class_name=None,
                   user_arguments=None):
         """
-        :param code_or_fileLoc:
+        :param file_path:
+        :param code:
         :param language:
         :param user_arguments:
         :param pipeline_id:
@@ -535,7 +568,8 @@ class QuestCode(Quest):
     create_type = 3
 
     @staticmethod
-    def create_pipeline(pipeline_name, cluster_label,
+    def create_pipeline(pipeline_name,
+                        cluster_label,
                         code=None,
                         file_path=None,
                         language=None,
@@ -545,10 +579,11 @@ class QuestCode(Quest):
                         user_arguments=None):
         """
         Method to create pipeline in BYOC mode in one go.
+        :param file_path:
+        :param code:
         :param command_line_options:
         :param user_arguments:
         :param pipeline_name:
-        :param code_or_fileLoc:
         :param cluster_label:
         :param language:
         :param can_retry:
@@ -560,7 +595,10 @@ class QuestCode(Quest):
         QuestCode.add_property(pipeline_id, cluster_label,
                                can_retry=can_retry,
                                command_line_options=command_line_options)
-        QuestCode.save_code(pipeline_id, code=code, file_path=file_path, language=language,
+        QuestCode.save_code(pipeline_id,
+                            code=code,
+                            file_path=file_path,
+                            language=language,
                             user_arguments=user_arguments)
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
@@ -572,7 +610,10 @@ class QuestJar(Quest):
     create_type = 2
 
     @staticmethod
-    def create_pipeline(pipeline_name, jar_path, cluster_label, main_class_name,
+    def create_pipeline(pipeline_name,
+                        jar_path,
+                        cluster_label,
+                        main_class_name,
                         channel_id=None,
                         can_retry=True,
                         command_line_options=None,
@@ -591,10 +632,13 @@ class QuestJar(Quest):
         """
         QuestJar.create(pipeline_name, QuestJar.create_type)
         pipeline_id = QuestJar.pipeline_id
-        QuestJar.add_property(pipeline_id, cluster_label,
+        QuestJar.add_property(pipeline_id,
+                              cluster_label,
                               can_retry=can_retry,
                               command_line_options=command_line_options)
-        QuestJar.save_code(pipeline_id, jar_path=jar_path, main_class_name=main_class_name,
+        QuestJar.save_code(pipeline_id,
+                           jar_path=jar_path,
+                           main_class_name=main_class_name,
                            user_arguments=user_arguments)
         QuestJar.jar_path = jar_path
         if channel_id:
