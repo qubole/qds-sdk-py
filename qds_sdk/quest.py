@@ -301,9 +301,10 @@ class Quest(Resource):
         """
         conn = Qubole.agent()
         if create_type is None:
-            raise ParseError("Please enter create_type. 1:Assisted Mode, 2:BYOJ, 3:BYOC")
+            raise ParseError("Please enter create_type. "
+                             "1:Assisted Mode, 2:BYOJ, 3:BYOC", create_type)
         if pipeline_name is None:
-            raise ParseError("Enter pipeline name")
+            raise ParseError("Enter pipeline name. ", pipeline_name)
         data = {"data": {
             "attributes":
                 {"name": pipeline_name, "status": "DRAFT", "create_type": create_type},
@@ -607,145 +608,100 @@ class QuestAssisted(Quest):
 
     @staticmethod
     def add_source():
-        """
-        Method to add source.
-        :return:
-        """
+        """Method to add source."""
         pass
 
     @staticmethod
     def add_sink():
-        """
-        Method to add sink.
-        :return:
-        """
+        """Method to add sink."""
         pass
 
     @staticmethod
     def create_pipeline():
-        """
-        Parent Method to create end to end pipeline.
-        :return:
-        """
+        """Parent Method to create end to end pipeline."""
         pass
 
     @staticmethod
     def add_operator():
-        """
-        Parent method to add operator
-        """
+        """Parent method to add operator"""
         pass
 
     @staticmethod
     def _select_operator():
-        """
-        Method to add select operator.
-        """
+        """Method to add select operator."""
         pass
 
     @staticmethod
     def _filter_operator():
-        """
-        Method to add filter operator.
-        """
+        """Method to add filter operator."""
         pass
 
     @staticmethod
     def _watermark_operator():
-        """
-        Method to add watermark operator
-        """
+        """Method to add watermark operator"""
         pass
 
     @staticmethod
     def _window_group_operator():
-        """
-        Method to add window group operator
-        """
+        """Method to add window group operator"""
         pass
 
     @staticmethod
     def _source_kafka():
-        """
-        Method to as kafka as source.
-        """
+        """Method to as kafka as source."""
         pass
 
     @staticmethod
     def _source_kinesis():
-        """
-        Method to add kinesis as source.
-        """
+        """Method to add kinesis as source."""
         pass
 
     @staticmethod
     def _source_s3():
-        """
-        Method to add s3 as source.
-        """
+        """Method to add s3 as source."""
         pass
 
     @staticmethod
     def _source_google_storage():
-        """
-        Method to add google storage as source.
-        """
+        """Method to add google storage as source."""
         pass
 
     @staticmethod
     def _sink_kafka():
-        """
-        Method to add kafka as sink.
-        """
+        """Method to add kafka as sink."""
         pass
 
     @staticmethod
     def _sink_s3():
-        """
-        Method to add s3 as sink.
-        """
+        """Method to add s3 as sink."""
         pass
 
     @staticmethod
     def _sink_hive():
-        """
-        method to add hive as sink.
-        """
+        """method to add hive as sink."""
         pass
 
     @staticmethod
     def _sink_snowflake():
-        """
-        Method to add Snowflake as sink
-        """
+        """Method to add Snowflake as sink"""
         pass
 
     @staticmethod
     def _sink_google_storage():
-        """
-        Method to add google storage as sink
-        """
+        """Method to add google storage as sink"""
         pass
 
     @staticmethod
     def _sink_BigQuery():
-        """
-        Method to add BigQuery as sink.
-        """
+        """Method to add BigQuery as sink."""
         pass
 
     @staticmethod
     def add_registry():
-        """
-        Method to add registry.
-        :return:
-        """
+        """Method to add registry."""
         pass
 
     @staticmethod
     def switch_from_assisted():
-        """
-        Method to switch to Assisted from BYOC or BYOJ mode.
-        :return:
-        """
+        """Method to switch to Assisted from BYOC or BYOJ mode."""
         pass

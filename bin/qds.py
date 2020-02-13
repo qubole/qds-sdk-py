@@ -561,6 +561,7 @@ def questmain(args):
     result = QuestCmdLine.run(args)
     print(result)
 
+
 def main():
     optparser = OptionParser(usage=usage_str)
     optparser.add_option("--token", dest="api_token",
@@ -598,7 +599,7 @@ def main():
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
-    
+
     if options.chatty:
         logging.basicConfig(level=logging.DEBUG)
     elif options.verbose:
