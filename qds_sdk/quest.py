@@ -115,7 +115,6 @@ class QuestCmdLine:
         :param args:
         :return:
         """
-        print(args)
         parser = QuestCmdLine.parsers()
         parsed = parser.parse_args(args)
         return parsed.func(parsed)
@@ -312,7 +311,6 @@ class Quest(Resource):
         }
         url = Quest.rest_entity_path + "?mode=wizard"
         response = conn.post(url, data)
-        print("response = ", response)
         cls.pipeline_id = Quest.get_pipline_id(response)
         cls.pipeline_name = pipeline_name
 
@@ -402,7 +400,6 @@ class Quest(Resource):
                     raise ParseError("Unable to open script location or script location and code both are empty. ",
                                      e.message)
                 cls.pipeline_code = code
-                print("create_typ=", cls.create_type)
                 data = {"data": {
                     "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
                                    "code": str(code), "language": str(language)}}}
