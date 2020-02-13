@@ -36,7 +36,8 @@ class QuestCmdLine:
                             default="default", help="Cluster label")
         create.add_argument("-c", "--code", dest="code", help="query string")
         create.add_argument("-f", "--script-location", dest="script_location",
-                            help="Path where code to run is stored. local file path")
+                            help="Path where code to run is stored. "
+                                 "local file path")
         create.add_argument("-l", "--language", dest="language",
                             help="Language for bring your own code, "
                                  "valid values are python and scala")
@@ -47,7 +48,8 @@ class QuestCmdLine:
         create.add_argument("--main-class-name", dest="main_class_name",
                             help="class name of your jar file. "
                                  "Required for create_type=2(BYOJ)")
-        create.add_argument("--command-line-options", dest="command_line_options",
+        create.add_argument("--command-line-options",
+                            dest="command_line_options",
                             help="command line options on property page.")
         create.set_defaults(func=QuestCmdLine.create)
 
@@ -55,7 +57,9 @@ class QuestCmdLine:
         update_properties = subparsers.add_parser("update-property",
                                                   help="Update properties of "
                                                        "a existing pipeline")
-        update_properties.add_argument("--pipeline-id", dest="pipeline_id", required=True,
+        update_properties.add_argument("--pipeline-id",
+                                       dest="pipeline_id",
+                                       required=True,
                                        help='Id of pipeline which need to be updated')
         update_properties.add_argument("--cluster-label", dest="cluster_label",
                                        help="Update cluster label.")
@@ -346,7 +350,7 @@ class Quest(Resource):
         data = {"data": {
             "attributes":
                 {"name": pipeline_name, "status": "DRAFT",
-                    "create_type": create_type},
+                 "create_type": create_type},
             "type": "pipelines"}
         }
         url = Quest.rest_entity_path + "?mode=wizard"
@@ -451,7 +455,8 @@ class Quest(Resource):
                     else:
                         code = code
                 except IOError as e:
-                    raise ParseError("Unable to open script location or script location and code both are empty. ",
+                    raise ParseError("Unable to open script location or script "
+                                     "location and code both are empty. ",
                                      e.message)
                 cls.pipeline_code = code
                 data = {"data": {
@@ -570,8 +575,14 @@ class Quest(Resource):
         :return:
         """
         data = {
-            "data": {"attributes": {"event_type": "error", "notification_channels": [channel_id], "can_notify": True},
-                     "type": "pipeline/alerts"}}
+            "data": {"attributes":
+                {
+                    "event_type": "error",
+                    "notification_channels": [channel_id],
+                    "can_notify": True},
+                "type": "pipeline/alerts"
+            }
+        }
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + pipeline_id + "/alerts"
         return conn.put(url, data)
