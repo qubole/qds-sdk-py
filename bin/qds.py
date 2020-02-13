@@ -17,7 +17,7 @@ from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import ClusterCmdLine
 from qds_sdk.sensors import *
-from qds_sdk.quest import *
+from qds_sdk.quest import QuestCmdLine
 import os
 import sys
 import traceback
