@@ -30,7 +30,7 @@ class QuestCmdLine:
                                  "create_type=2 for jar, create_type=3 for code")
         create.add_argument("--pipeline-name", dest="name", required=True,
                             help="Name of pipeline")
-        create.add_argument("--description", dest="description", default="",
+        create.add_argument("--description", dest="description", default=None,
                             help="Pipeline description"),
         create.add_argument("--cluster-label", dest="cluster_label",
                             default="default", help="Cluster label")
@@ -179,8 +179,7 @@ class QuestCmdLine:
         :return:
         """
         response = Quest.clone(args.pipeline_id)
-        return json.dumps(
-            response, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def status(args):
@@ -258,7 +257,7 @@ class QuestCmdLine:
                                                      user_arguments=args.user_arguments,
                                                      command_line_options=args.command_line_options)
 
-        return pipeline
+        return json.dumps(pipeline)
 
     @staticmethod
     def update_properties(args):
@@ -414,6 +413,7 @@ class Quest(Resource):
         url = Quest.rest_entity_path + "/" + pipeline_id + "/properties"
         response = conn.put(url, data)
         log.debug(response)
+        return response
 
     @classmethod
     def save_code(cls, pipeline_id,
@@ -471,6 +471,7 @@ class Quest(Resource):
         url = cls.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
         response = conn.put(url, data)
         log.debug(response)
+        return response
 
     @staticmethod
     def get_health(pipeline_id):
@@ -576,9 +577,9 @@ class Quest(Resource):
         """
         data = {
             "data": {"attributes": {
-                    "event_type": "error",
-                    "notification_channels": [channel_id],
-                    "can_notify": True},
+                "event_type": "error",
+                "notification_channels": [channel_id],
+                "can_notify": True},
                 "type": "pipeline/alerts"
             }
         }
@@ -628,18 +629,19 @@ class QuestCode(Quest):
         """
         QuestCode.create(pipeline_name, QuestCode.create_type)
         pipeline_id = QuestCode.pipeline_id
-        QuestCode.add_property(pipeline_id, cluster_label,
-                               can_retry=can_retry,
-                               command_line_options=command_line_options)
-        QuestCode.save_code(pipeline_id,
-                            code=code,
-                            file_path=file_path,
-                            language=language,
-                            user_arguments=user_arguments)
+        response = QuestCode.add_property(pipeline_id, cluster_label,
+                                          can_retry=can_retry,
+                                          command_line_options=command_line_options)
+        log.debug(response)
+        response = QuestCode.save_code(pipeline_id,
+                                       code=code,
+                                       file_path=file_path,
+                                       language=language,
+                                       user_arguments=user_arguments)
         if channel_id:
             response = Quest.set_alert(pipeline_id, channel_id)
             log.info(response)
-        return QuestCode
+        return response
 
 
 class QuestJar(Quest):
