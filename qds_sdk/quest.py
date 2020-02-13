@@ -68,6 +68,7 @@ class QuestCmdLine:
                                  help="Additional user arguments")
         update_code.add_argument("--main-class-name", dest="main_class_name",
                                  help="class name of your jar file. Required for create_type=2(BYOJ)")
+        update_code.add_argument("--language", dest="language", help="language of code scala or python")
         update_code.add_argument("--pipeline-id", dest="pipeline_id", required=True,
                                  help='Id of pipeline which need to be updated')
 
@@ -224,8 +225,6 @@ class QuestCmdLine:
                                                      language=args.language, user_arguments=args.user_arguments,
                                                      command_line_options=args.command_line_options)
 
-        print("Trype = ",type(pipeline))
-        print("Pipeline = ",pipeline)
         return pipeline
 
     @staticmethod
@@ -247,8 +246,10 @@ class QuestCmdLine:
         :param args:
         :return:
         """
-        params = args.__dict__
-        response = Quest.save_code(**params)
+        if args.jar_path or args.main_class_name:
+            response = QuestJar.save_code(pipeline_id=args.pipeline_id, code=args.code, file_path=args.script_location, language=args.language, jar_path=args.jar_path, user_arguments=args.user_arguments, main_class_name=args.main_class_name)
+        elif args.code or args.script_location:
+            response = QuestCode.save_code(pipeline_id=args.pipeline_id, code=args.code, file_path=args.script_location, language=args.language, jar_path=args.jar_path, user_arguments=args.user_arguments, main_class_name=args.main_class_name)
         return json.dumps(response, sort_keys=True, indent=4)
 
 
@@ -330,7 +331,7 @@ class Quest(Resource):
             log.info("Pipeline is in waiting state....")
             time.sleep(10)
             pipeline_status = response.get('data').get('pipeline_instance_status')
-        log.info("State of pipeline is %s " % pipeline_status)
+        log.debug("State of pipeline is %s " % pipeline_status)
         return response
 
     @staticmethod
@@ -401,6 +402,7 @@ class Quest(Resource):
                     raise ParseError("Unable to open script location or script location and code both are empty. ",
                                      e.message)
                 cls.pipeline_code = code
+                print("create_typ=", cls.create_type)
                 data = {"data": {
                     "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
                                    "code": str(code), "language": str(language)}}}
