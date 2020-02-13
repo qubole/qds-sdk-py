@@ -394,11 +394,7 @@ class Quest(Resource):
         """
         conn = Qubole.agent()
         if command_line_options is None:
-            command_line_options = """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n
-            --conf spark.eventLog.compress=true\n
-            --conf spark.eventLog.enabled=true\n
-            --conf spark.sql.streaming.qubole.enableStreamingEvents=true\n
-            --conf spark.qubole.event.enabled=true"""
+            command_line_options = """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"""
         data = {"data": {"attributes": {
             "cluster_label": cluster_label,
             "can_retry": can_retry,
