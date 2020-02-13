@@ -595,7 +595,7 @@ class Quest(Resource):
 
 
 class QuestCode(Quest):
-    create_type = None
+    create_type = 3
 
     @staticmethod
     def create_pipeline(pipeline_name,
