@@ -330,7 +330,8 @@ class Quest(Resource):
     @classmethod
     def create(cls, pipeline_name, create_type, **kwargs):
         """
-        Create a pipeline object by issuing a POST request to the /pipelin?mode=wizard endpoint
+        Create a pipeline object by issuing a POST
+        request to the /pipeline?mode=wizard endpoint
         Note - this creates pipeline in draft mode
 
         Args:
