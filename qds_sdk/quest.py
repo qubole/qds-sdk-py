@@ -433,11 +433,11 @@ class Quest(Resource):
         :param main_class_name:
         :return:
         """
+        data = None
         if cls.create_type == 2:
             if jar_path is None or main_class_name is None:
                 raise ParseError(
-                    "Provide Jar path for BYOJ mode.",
-                    usage='--jar-path --main-class-name')
+                    "Provide Jar path for BYOJ mode.")
             else:
                 cls.jar_path = jar_path
                 data = {"data": {
@@ -446,7 +446,7 @@ class Quest(Resource):
                                    "jar_path": str(jar_path),
                                    "main_class_name": str(main_class_name)}}}
 
-        if cls.create_type == 3:
+        elif cls.create_type == 3:
             if code or file_path:
                 try:
                     if file_path:
@@ -464,7 +464,7 @@ class Quest(Resource):
 
             else:
                 raise ParseError(
-                    "Provide code or file location for BYOC mode.", )
+                    "Provide code or file location for BYOC mode.")
 
         conn = Qubole.agent()
         url = cls.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
