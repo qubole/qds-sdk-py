@@ -575,8 +575,7 @@ class Quest(Resource):
         :return:
         """
         data = {
-            "data": {"attributes":
-                {
+            "data": {"attributes": {
                     "event_type": "error",
                     "notification_channels": [channel_id],
                     "can_notify": True},
