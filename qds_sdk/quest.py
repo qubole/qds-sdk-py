@@ -370,7 +370,7 @@ class Quest(Resource):
             time.sleep(10)
             pipeline_status = response.get(
                 'data').get('pipeline_instance_status')
-        log.debug("State of pipeline is %s " % pipeline_status)
+        log.debug("State of pipeline is ", pipeline_status)
         return response
 
     @staticmethod
