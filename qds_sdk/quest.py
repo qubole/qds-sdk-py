@@ -28,37 +28,48 @@ class QuestCmdLine:
         # Create
         create = subparsers.add_parser("create", help="Create a new pipeline")
         create.add_argument("--create-type", dest="create_type", required=True,
-                            help="create_type=1 for assisted, create_type=2 for jar, create_type=3 for code")
+                            help="create_type=1 for assisted, create_type=2 "
+                                 "for jar, create_type=3 for code")
         create.add_argument("--pipeline-name", dest="name", required=True,
                             help="Name of pipeline")
-        create.add_argument("--description", dest="description", default=None,
+        create.add_argument("--description", dest="description",
+                            default=None,
                             help="Pipeline description"),
-        create.add_argument("--cluster-label", dest="cluster_label", default="default", help="Cluster label")
+        create.add_argument("--cluster-label", dest="cluster_label",
+                            default="default", help="Cluster label")
         create.add_argument("-c", "--code", dest="code", help="query string")
         create.add_argument("-f", "--script-location", dest="script_location",
                             help="Path where code to run is stored. local file path")
         create.add_argument("-l", "--language", dest="language",
-                            help="Language for bring your own code, valid values are python and scala")
+                            help="Language for bring your own code, "
+                                 "valid values are python and scala")
         create.add_argument("--jar-path", dest="jar_path",
                             help="Location of Jar")
         create.add_argument("--user-arguments", dest="user_arguments",
                             help="Additional user arguments")
         create.add_argument("--main-class-name", dest="main_class_name",
-                            help="class name of your jar file. Required for create_type=2(BYOJ)")
+                            help="class name of your jar file. "
+                                 "Required for create_type=2(BYOJ)")
         create.add_argument("--command-line-options", dest="command_line_options",
                             help="command line options on property page.")
         create.set_defaults(func=QuestCmdLine.create)
 
         # Update/Edit
-        update_properties = subparsers.add_parser("update-property", help="Update properties of a existing pipeline")
+        update_properties = subparsers.add_parser("update-property",
+                                                  help="Update properties "
+                                                       "of a existing pipeline")
         update_properties.add_argument("--pipeline-id", dest="pipeline_id", required=True,
                                        help='Id of pipeline which need to be updated')
-        update_properties.add_argument("--cluster-label", dest="cluster_label", help="Update cluster label.")
-        update_properties.add_argument("--command-line-options", dest="command_line_options",
+        update_properties.add_argument("--cluster-label", dest="cluster_label",
+                                       help="Update cluster label.")
+        update_properties.add_argument("--command-line-options",
+                                       dest="command_line_options",
                                        help="command line options on property page.")
-        update_properties.add_argument("--can-retry", dest="can_retry", help="can retry true or false")
+        update_properties.add_argument("--can-retry", dest="can_retry",
+                                       help="can retry true or false")
         update_properties.set_defaults(func=QuestCmdLine.update_properties)
-        update_code = subparsers.add_parser("update-code", help="Update code of a existing pipeline")
+        update_code = subparsers.add_parser("update-code",
+                                            help="Update code of a existing pipeline")
         update_code.add_argument("-c", "--code", dest="code", help="query string")
         update_code.add_argument("-f", "--script-location", dest="script_location",
                                  help="Path where code to run is stored. local file path")
@@ -67,8 +78,10 @@ class QuestCmdLine:
         update_code.add_argument("--user-arguments", dest="user_arguments",
                                  help="Additional user arguments")
         update_code.add_argument("--main-class-name", dest="main_class_name",
-                                 help="class name of your jar file. Required for create_type=2(BYOJ)")
-        update_code.add_argument("--language", dest="language", help="language of code scala or python")
+                                 help="class name of your jar file. "
+                                      "Required for create_type=2(BYOJ)")
+        update_code.add_argument("--language", dest="language",
+                                 help="language of code scala or python")
         update_code.add_argument("--pipeline-id", dest="pipeline_id", required=True,
                                  help='Id of pipeline which need to be updated')
 
@@ -104,7 +117,8 @@ class QuestCmdLine:
         # list
         index = subparsers.add_parser("list", help="list of Pipeline.")
         index.add_argument("--pipeline-status", dest="status", required=True,
-                           help='Id of pipeline which need to be started. Valid values = [active, archive, all, draft] ')
+                           help='Id of pipeline which need to be started. '
+                                'Valid values = [active, archive, all, draft] ')
         index.set_defaults(func=QuestCmdLine.index)
         return argparser
 
@@ -322,11 +336,9 @@ class Quest(Resource):
             response
         """
         conn = Qubole.agent()
-        if create_type is None:
-            raise ParseError("Please enter create_type. "
-                             "1:Assisted Mode, 2:BYOJ, 3:BYOC", create_type)
-        if pipeline_name is None:
-            raise ParseError("Enter pipeline name. ", pipeline_name)
+        assert create_type is not None, "Please enter create_type. " \
+                                        "1:Assisted Mode, 2:BYOJ, 3:BYOC"
+        assert pipeline_name is not None, "Pipeline name cannot be None"
         data = {"data": {
             "attributes":
                 {"name": pipeline_name, "status": "DRAFT", "create_type": create_type},
@@ -412,34 +424,29 @@ class Quest(Resource):
         :return:
         """
         if cls.create_type == 2:
-            if jar_path is None or main_class_name is None:
-                raise ParseError("Provide Jar path for BYOJ mode.")
-            else:
-                cls.jar_path = jar_path
-                data = {"data": {
-                    "attributes": {"create_type": cls.create_type,
-                                   "user_arguments": str(user_arguments),
-                                   "jar_path": str(jar_path),
-                                   "main_class_name": str(main_class_name)}}}
+            assert jar_path is not None and main_class_name is not None, "JAR Path and main class name cannot be none in BYOJ mode"
+            cls.jar_path = jar_path
+            data = {"data": {
+                "attributes": {"create_type": cls.create_type,
+                               "user_arguments": str(user_arguments),
+                               "jar_path": str(jar_path),
+                               "main_class_name": str(main_class_name)}}}
 
-        if cls.create_type == 3:
-            if code or file_path:
-                try:
-                    if file_path:
-                        with open(file_path, 'r') as f:
-                            code = f.read()
-                    else:
-                        code = code
-                except IOError as e:
-                    raise ParseError("Unable to open script location or script location and code both are empty. ",
-                                     e.message)
-                cls.pipeline_code = code
-                data = {"data": {
-                    "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
-                                   "code": str(code), "language": str(language)}}}
-
-            else:
-                raise ParseError("Provide code or file location for BYOC mode.")
+        elif cls.create_type == 3:
+            assert code is not None or file_path is not None, "Provide either code or file path\n"
+            try:
+                if file_path:
+                    with open(file_path, 'r') as f:
+                        code = f.read()
+                else:
+                    code = code
+            except IOError as e:
+                raise ParseError("Unable to open script location or script location and code both are empty. ",
+                                 e.message)
+            cls.pipeline_code = code
+            data = {"data": {
+                "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
+                               "code": str(code), "language": str(language)}}}
 
         conn = Qubole.agent()
         url = cls.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
@@ -565,7 +572,7 @@ class Quest(Resource):
 
 
 class QuestCode(Quest):
-    create_type = 3
+    create_type = None
 
     @staticmethod
     def create_pipeline(pipeline_name,
