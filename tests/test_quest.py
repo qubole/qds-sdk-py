@@ -1,4 +1,10 @@
 from __future__ import print_function
+from test_base import QdsCliTestCase
+from test_base import print_command
+from qds_sdk.quest import QuestCode
+from qds_sdk.connection import Connection
+import qds
+from mock import *
 import sys
 import os
 
@@ -6,13 +12,7 @@ if sys.version_info > (2, 7, 0):
     import unittest
 else:
     import unittest2 as unittest
-from mock import *
 
-import qds
-from qds_sdk.connection import Connection
-from qds_sdk.quest import QuestCode
-from test_base import print_command
-from test_base import QdsCliTestCase
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 
@@ -24,35 +24,40 @@ class TestQuestList(QdsCliTestCase):
         Connection._api_call = Mock(return_value={})
         params = {'filter': "draft"}
         qds.main()
-        Connection._api_call.assert_called_with("GET", "pipelines", params=params)
+        Connection._api_call.assert_called_with(
+            "GET", "pipelines", params=params)
 
     def test_pause_pipeline(self):
         sys.argv = ['qds.py', 'quest', 'pause', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("PUT", "pipelines/153/pause", None)
+        Connection._api_call.assert_called_with(
+            "PUT", "pipelines/153/pause", None)
 
     def test_clone_pipeline(self):
         sys.argv = ['qds.py', 'quest', 'clone', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("POST", "pipelines/153/duplicate", None)
+        Connection._api_call.assert_called_with(
+            "POST", "pipelines/153/duplicate", None)
 
     def test_archive_pipeline(self):
         sys.argv = ['qds.py', 'quest', 'archive', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("PUT", "pipelines/153/archive", None)
+        Connection._api_call.assert_called_with(
+            "PUT", "pipelines/153/archive", None)
 
     def test_delete_pipeline(self):
         sys.argv = ['qds.py', 'quest', 'delete', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection._api_call.assert_called_with("PUT", "pipelines/153/delete", None)
+        Connection._api_call.assert_called_with(
+            "PUT", "pipelines/153/delete", None)
 
     def test_create_pipeline(self):
         sys.argv = ['qds.py', 'quest', 'create', '--create-type', '3', '--pipeline-name', 'test_pipeline_name',

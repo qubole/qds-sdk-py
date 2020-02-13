@@ -15,9 +15,7 @@ _URI_RE = re.compile(r's3://([^/]+)/?(.*)')
 
 
 class QuestCmdLine:
-    """
-    qds_sdk.QuestCmdLine is the interface used by qds.py.
-    """
+    """qds_sdk.QuestCmdLine is the interface used by qds.py."""
 
     @staticmethod
     def parsers():
@@ -28,12 +26,11 @@ class QuestCmdLine:
         # Create
         create = subparsers.add_parser("create", help="Create a new pipeline")
         create.add_argument("--create-type", dest="create_type", required=True,
-                            help="create_type=1 for assisted, create_type=2 "
-                                 "for jar, create_type=3 for code")
+                            help="create_type=1 for assisted, "
+                                 "create_type=2 for jar, create_type=3 for code")
         create.add_argument("--pipeline-name", dest="name", required=True,
                             help="Name of pipeline")
-        create.add_argument("--description", dest="description",
-                            default=None,
+        create.add_argument("--description", dest="description", default=None,
                             help="Pipeline description"),
         create.add_argument("--cluster-label", dest="cluster_label",
                             default="default", help="Cluster label")
@@ -56,25 +53,28 @@ class QuestCmdLine:
 
         # Update/Edit
         update_properties = subparsers.add_parser("update-property",
-                                                  help="Update properties "
-                                                       "of a existing pipeline")
+                                                  help="Update properties of "
+                                                       "a existing pipeline")
         update_properties.add_argument("--pipeline-id", dest="pipeline_id", required=True,
                                        help='Id of pipeline which need to be updated')
         update_properties.add_argument("--cluster-label", dest="cluster_label",
                                        help="Update cluster label.")
-        update_properties.add_argument("--command-line-options",
-                                       dest="command_line_options",
+        update_properties.add_argument("--command-line-options", dest="command_line_options",
                                        help="command line options on property page.")
         update_properties.add_argument("--can-retry", dest="can_retry",
                                        help="can retry true or false")
         update_properties.set_defaults(func=QuestCmdLine.update_properties)
         update_code = subparsers.add_parser("update-code",
                                             help="Update code of a existing pipeline")
-        update_code.add_argument("-c", "--code", dest="code", help="query string")
+        update_code.add_argument(
+            "-c", "--code", dest="code", help="query string")
         update_code.add_argument("-f", "--script-location", dest="script_location",
                                  help="Path where code to run is stored. local file path")
         update_code.set_defaults(func=QuestCmdLine.update_code)
-        update_code.add_argument("--jar-path", dest="jar_path", help="Location of Jar")
+        update_code.add_argument(
+            "--jar-path",
+            dest="jar_path",
+            help="Location of Jar")
         update_code.add_argument("--user-arguments", dest="user_arguments",
                                  help="Additional user arguments")
         update_code.add_argument("--main-class-name", dest="main_class_name",
@@ -85,7 +85,8 @@ class QuestCmdLine:
         update_code.add_argument("--pipeline-id", dest="pipeline_id", required=True,
                                  help='Id of pipeline which need to be updated')
 
-        # Pipeline Util (Utility for start, pause, clone, edit, delete, archive)
+        # Pipeline Util (Utility for start, pause, clone, edit, delete,
+        # archive)
         delete = subparsers.add_parser("delete", help="Delete Pipeline")
         delete.add_argument("--pipeline-id", dest="pipeline_id", required=True,
                             help='Id of pipeline which need to be started')
@@ -141,7 +142,8 @@ class QuestCmdLine:
         :return:
         """
         response = Quest.delete(args.pipeline_id)
-        return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(
+            response, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def pause(args):
@@ -151,7 +153,8 @@ class QuestCmdLine:
         :return:
         """
         response = Quest.pause(args.pipeline_id)
-        return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(
+            response, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def archive(args):
@@ -161,7 +164,8 @@ class QuestCmdLine:
         :return:
         """
         response = Quest.archive(args.pipeline_id)
-        return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(
+            response, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def clone(args):
@@ -171,7 +175,8 @@ class QuestCmdLine:
         :return:
         """
         response = Quest.clone(args.pipeline_id)
-        return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(
+            response, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def status(args):
@@ -181,7 +186,8 @@ class QuestCmdLine:
         :return:
         """
         response = Quest.get_status(args.pipeline_id)
-        return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(
+            response, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def health(args):
@@ -191,7 +197,8 @@ class QuestCmdLine:
         :return:
         """
         response = Quest.get_health(args.pipeline_id)
-        return json.dumps(response, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(
+            response, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def start(args):
@@ -211,7 +218,8 @@ class QuestCmdLine:
         :return:
         """
         pipelinelist = Quest.list(args.status)
-        return json.dumps(pipelinelist, default=lambda o: o.attributes, sort_keys=True, indent=4)
+        return json.dumps(
+            pipelinelist, default=lambda o: o.attributes, sort_keys=True, indent=4)
 
     @staticmethod
     def create(args):
@@ -289,9 +297,7 @@ class QuestCmdLine:
 
 
 class Quest(Resource):
-    """
-    qds_sdk.Quest is the base Qubole Quest class.
-    """
+    """qds_sdk.Quest is the base Qubole Quest class."""
 
     """ all commands use the /pipelines endpoint"""
 
@@ -336,12 +342,10 @@ class Quest(Resource):
             response
         """
         conn = Qubole.agent()
-        assert create_type is not None, "Please enter create_type. " \
-                                        "1:Assisted Mode, 2:BYOJ, 3:BYOC"
-        assert pipeline_name is not None, "Pipeline name cannot be None"
         data = {"data": {
             "attributes":
-                {"name": pipeline_name, "status": "DRAFT", "create_type": create_type},
+                {"name": pipeline_name, "status": "DRAFT",
+                    "create_type": create_type},
             "type": "pipelines"}
         }
         url = Quest.rest_entity_path + "?mode=wizard"
@@ -363,7 +367,8 @@ class Quest(Resource):
         while pipeline_status == 'waiting':
             log.info("Pipeline is in waiting state....")
             time.sleep(10)
-            pipeline_status = response.get('data').get('pipeline_instance_status')
+            pipeline_status = response.get(
+                'data').get('pipeline_instance_status')
         log.debug("State of pipeline is %s " % pipeline_status)
         return response
 
@@ -388,7 +393,11 @@ class Quest(Resource):
         """
         conn = Qubole.agent()
         if command_line_options is None:
-            command_line_options = """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n--conf spark.eventLog.compress=true\n--conf spark.eventLog.enabled=true\n--conf spark.sql.streaming.qubole.enableStreamingEvents=true\n--conf spark.qubole.event.enabled=true"""
+            command_line_options = """--conf spark.driver.extraLibraryPath=/usr/lib/hadoop2/lib/native\n
+            --conf spark.eventLog.compress=true\n
+            --conf spark.eventLog.enabled=true\n
+            --conf spark.sql.streaming.qubole.enableStreamingEvents=true\n
+            --conf spark.qubole.event.enabled=true"""
         data = {"data": {"attributes": {
             "cluster_label": cluster_label,
             "can_retry": can_retry,
@@ -424,29 +433,37 @@ class Quest(Resource):
         :return:
         """
         if cls.create_type == 2:
-            assert jar_path is not None and main_class_name is not None, "JAR Path and main class name cannot be none in BYOJ mode"
-            cls.jar_path = jar_path
-            data = {"data": {
-                "attributes": {"create_type": cls.create_type,
-                               "user_arguments": str(user_arguments),
-                               "jar_path": str(jar_path),
-                               "main_class_name": str(main_class_name)}}}
+            if jar_path is None or main_class_name is None:
+                raise ParseError(
+                    "Provide Jar path for BYOJ mode.",
+                    usage='--jar-path --main-class-name')
+            else:
+                cls.jar_path = jar_path
+                data = {"data": {
+                    "attributes": {"create_type": cls.create_type,
+                                   "user_arguments": str(user_arguments),
+                                   "jar_path": str(jar_path),
+                                   "main_class_name": str(main_class_name)}}}
 
-        elif cls.create_type == 3:
-            assert code is not None or file_path is not None, "Provide either code or file path\n"
-            try:
-                if file_path:
-                    with open(file_path, 'r') as f:
-                        code = f.read()
-                else:
-                    code = code
-            except IOError as e:
-                raise ParseError("Unable to open script location or script location and code both are empty. ",
-                                 e.message)
-            cls.pipeline_code = code
-            data = {"data": {
-                "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
-                               "code": str(code), "language": str(language)}}}
+        if cls.create_type == 3:
+            if code or file_path:
+                try:
+                    if file_path:
+                        with open(file_path, 'r') as f:
+                            code = f.read()
+                    else:
+                        code = code
+                except IOError as e:
+                    raise ParseError("Unable to open script location or script location and code both are empty. ",
+                                     e.message)
+                cls.pipeline_code = code
+                data = {"data": {
+                    "attributes": {"create_type": cls.create_type, "user_arguments": str(user_arguments),
+                                   "code": str(code), "language": str(language)}}}
+
+            else:
+                raise ParseError(
+                    "Provide code or file location for BYOC mode.", )
 
         conn = Qubole.agent()
         url = cls.rest_entity_path + "/" + str(pipeline_id) + "/save_code"
@@ -513,7 +530,8 @@ class Quest(Resource):
         url = Quest.rest_entity_path + "/" + pipeline_id
         response = conn.get(url)
         log.debug(response)
-        return response.get("data").get("attributes").get("pipeline_instance_status")
+        return response.get("data").get(
+            "attributes").get("pipeline_instance_status")
 
     @staticmethod
     def delete(pipeline_id):
@@ -539,7 +557,11 @@ class Quest(Resource):
         """
         conn = Qubole.agent()
         url = Quest.rest_entity_path + "/" + pipeline_id
-        data = {"data": {"attributes": {"name": pipeline_name}, "type": "pipelines"}}
+        data = {
+            "data": {
+                "attributes": {
+                    "name": pipeline_name},
+                "type": "pipelines"}}
         return conn.put(url, data)
 
     @staticmethod
