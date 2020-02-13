@@ -30,7 +30,7 @@ class QuestCmdLine:
                                  "create_type=2 for jar, create_type=3 for code")
         create.add_argument("--pipeline-name", dest="name", required=True,
                             help="Name of pipeline")
-        create.add_argument("--description", dest="description", default=None,
+        create.add_argument("--description", dest="description", default="",
                             help="Pipeline description"),
         create.add_argument("--cluster-label", dest="cluster_label",
                             default="default", help="Cluster label")
