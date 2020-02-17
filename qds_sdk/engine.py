@@ -75,7 +75,8 @@ class Engine:
 
         '''
 
-        self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, fairscheduler_config_xml, default_pool, enable_rubix)
+        self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, 
+                                 fairscheduler_config_xml, default_pool, enable_rubix)
         self.set_hive_settings(hive_version)
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
@@ -157,7 +158,8 @@ class Engine:
         engine_group = argparser.add_argument_group("engine settings")
         engine_group.add_argument("--flavour",
                                   dest="flavour",
-                                  choices=["hadoop", "hadoop2", "presto", "spark", "sparkstreaming", "hbase", "airflow", "deeplearning"],
+                                  choices=["hadoop", "hadoop2", "presto", 
+                                           "spark", "sparkstreaming", "hbase", "airflow", "deeplearning"],
                                   default=None,
                                   help="Set engine flavour")
 
