@@ -17,6 +17,7 @@ from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import ClusterCmdLine
 from qds_sdk.sensors import *
+from qds_sdk.quest import QuestCmdLine
 import os
 import sys
 import traceback
@@ -88,6 +89,8 @@ usage_str = (
     "  action --help\n"
     "\nScheduler subcommand:\n"
     "  scheduler --help\n"
+    "\nQuest subcommand:\n"
+    "  quest --help\n"
     "\nTemplate subcommand:\n"
     "  template --help\n"
     "\nAccount subcommand:\n"
@@ -554,6 +557,10 @@ def templatemain(args):
     result = TemplateCmdLine.run(args)
     print(result)
 
+def questmain(args):
+    result = QuestCmdLine.run(args)
+    print(result)
+
 
 def main():
     optparser = OptionParser(usage=usage_str)
@@ -582,6 +589,18 @@ def main():
                          default=os.getenv('CLOUD_PROVIDER'),
                          help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC", "GCP"])
 
+    optparser.add_option("--base_retry_delay", dest="base_retry_delay",
+                         type=int,
+                         default=os.getenv('QDS_BASE_RETRY_DELAY'),
+                         help="base sleep interval for exponential backoff in case of "
+                              "retryable exceptions.Defaults to 10s.")
+
+    optparser.add_option("--max_retries", dest="max_retries",
+                         type=int,
+                         default=os.getenv('QDS_MAX_RETRIES'),
+                         help="Number of re-attempts for an api-call in case of "
+                              " retryable exceptions. Defaults to 5.")
+
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
                          help="verbose mode - info level logging")
@@ -592,7 +611,7 @@ def main():
 
     optparser.disable_interspersed_args()
     (options, args) = optparser.parse_args()
-    
+
     if options.chatty:
         logging.basicConfig(level=logging.DEBUG)
     elif options.verbose:
@@ -613,6 +632,12 @@ def main():
     if options.poll_interval is None:
         options.poll_interval = 5
 
+    if options.max_retries is None:
+        options.max_retries = 5
+
+    if options.base_retry_delay is None:
+        options.base_retry_delay = 10
+
     if options.cloud_name is None:
         options.cloud_name = "AWS"
 
@@ -626,7 +651,10 @@ def main():
                      version=options.api_version,
                      poll_interval=options.poll_interval,
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
-                     cloud_name=options.cloud_name)
+                     cloud_name=options.cloud_name,
+                     base_retry_delay=options.base_retry_delay,
+                     max_retries=options.max_retries
+                     )
 
     if len(args) < 1:
         sys.stderr.write("Missing first argument containing subcommand\n")
@@ -677,11 +705,13 @@ def main():
         return usermain(args)
     if a0 == "template":
         return templatemain(args)
+    if a0 == "quest":
+        return questmain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                       "dbtap", "role", "group", "app", "account", "nezha", "user", "template"])))
+                       "dbtap", "role", "group", "app", "account", "nezha", "user", "template", "quest"])))
     usage(optparser)
 
 
