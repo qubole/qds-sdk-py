@@ -25,6 +25,7 @@ class Engine:
                           custom_presto_config=None,
                           spark_version=None,
                           custom_spark_config=None,
+                          hive_version=None,
                           dbtap_id=None,
                           fernet_key=None,
                           overrides=None,
@@ -53,6 +54,8 @@ class Engine:
 
             custom_spark_config: Specify the custom Spark configuration overrides
 
+            hive_version: Version of hive to be used in cluster
+
             dbtap_id: ID of the data store inside QDS
 
             fernet_key: Encryption key for sensitive information inside airflow database.
@@ -72,6 +75,7 @@ class Engine:
         '''
 
         self.set_hadoop_settings(custom_hadoop_config, use_qubole_placement_policy, is_ha, fairscheduler_config_xml, default_pool, enable_rubix)
+        self.set_hive_settings(hive_version)
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
         self.set_airflow_settings(dbtap_id, fernet_key, overrides, airflow_version, airflow_python_version)
@@ -96,6 +100,10 @@ class Engine:
         self.hadoop_settings['is_ha'] = is_ha
         self.set_fairscheduler_settings(fairscheduler_config_xml, default_pool)
         self.hadoop_settings['enable_rubix'] = enable_rubix
+
+    def set_hive_settings(self,
+                          hive_version=None):
+        self.hive_version['hive_version'] = hive_version
 
     def set_presto_settings(self,
                             presto_version=None,
@@ -135,6 +143,7 @@ class Engine:
                                custom_presto_config=custom_presto_config,
                                spark_version=arguments.spark_version,
                                custom_spark_config=arguments.custom_spark_config,
+                               hive_version=arguments.hive_version,
                                dbtap_id=arguments.dbtap_id,
                                fernet_key=arguments.fernet_key,
                                overrides=arguments.overrides,
@@ -203,6 +212,11 @@ class Engine:
                                            dest="presto_custom_config_file",
                                            help="location of file containg custom" +
                                                 " presto configuration overrides")
+        hive_settings_group = argparser.add_argument_group("hive version settings")
+        hive_settings_group.add_argument("--hive_version",
+                                          dest="hive_version",
+                                          default=None,
+                                          help="Version of hive for the cluster",)
 
         spark_settings_group = argparser.add_argument_group("spark settings")
         spark_settings_group.add_argument("--spark-version",
