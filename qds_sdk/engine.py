@@ -214,9 +214,9 @@ class Engine:
                                                 " presto configuration overrides")
         hive_settings_group = argparser.add_argument_group("hive version settings")
         hive_settings_group.add_argument("--hive_version",
-                                          dest="hive_version",
-                                          default=None,
-                                          help="Version of hive for the cluster",)
+                                         dest="hive_version",
+                                         default=None,
+                                         help="Version of hive for the cluster",)
 
         spark_settings_group = argparser.add_argument_group("spark settings")
         spark_settings_group.add_argument("--spark-version",
