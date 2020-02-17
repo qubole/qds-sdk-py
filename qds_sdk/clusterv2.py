@@ -181,7 +181,10 @@ class ClusterInfoV2(object):
                               disable_cluster_pause=arguments.disable_cluster_pause,
                               paused_cluster_timeout_mins=arguments.paused_cluster_timeout_mins,
                               disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
-                              paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins)
+                              paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins,
+                              parent_cluster_id=arguments.parent_cluster_id,
+                              parent_cluster_label=arguments.parent_cluster_label,
+                              image_version=arguments.image_version)
 
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
@@ -223,7 +226,10 @@ class ClusterInfoV2(object):
                          disable_cluster_pause=None,
                          paused_cluster_timeout_mins=None,
                          disable_autoscale_node_pause=None,
-                         paused_autoscale_node_timeout_mins=None):
+                         paused_autoscale_node_timeout_mins=None,
+                         parent_cluster_id=None,
+                         parent_cluster_label=None,
+                         image_version=None):
         """
         Args:
 
@@ -328,6 +334,10 @@ class ClusterInfoV2(object):
 
                 `paused_autoscale_node_timeout_mins`: Paused autoscale node timeout in mins
 
+                `parent_cluster_id`: parent cluster id for HS2 cluster
+
+                `image_version`: cluster image version
+
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
@@ -357,6 +367,9 @@ class ClusterInfoV2(object):
 
         self.cluster_info['rootdisk'] = {}
         self.cluster_info['rootdisk']['size'] = root_disk_size
+        self.cluster_info['parent_cluster_id'] = parent_cluster_id
+        self.cluster_info['parent_cluster_label'] = parent_cluster_label
+        self.cluster_info['cluster_image_version'] = image_version
 
         self.set_spot_instance_settings(maximum_bid_price_percentage, timeout_for_request,
                                         maximum_spot_instance_percentage)
@@ -515,6 +528,16 @@ class ClusterInfoV2(object):
                                   dest="root_disk_size",
                                   type=int,
                                   help="size of the root volume in GB")
+        cluster_info.add_argument("--parent-cluster-id",
+                                  dest="parent_cluster_id",
+                                  type=int,
+                                  help="Id of the parent cluster this hs2 cluster is attached to")
+        cluster_info.add_argument("--parent-cluster-label",
+                                  dest="parent_cluster_label",
+                                  help="Label of the parent cluster this hs2 cluster is attached to")
+        cluster_info.add_argument("--image-version",
+                                  dest="image_version",
+                                  help="cluster image version")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",
