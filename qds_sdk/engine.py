@@ -11,6 +11,7 @@ class Engine:
     def __init__(self, flavour=None):
         self.flavour = flavour
         self.hadoop_settings = {}
+        self.hive_settings = {}
         self.presto_settings = {}
         self.spark_settings = {}
         self.airflow_settings ={}
@@ -103,7 +104,7 @@ class Engine:
 
     def set_hive_settings(self,
                           hive_version=None):
-        self.hive_version['hive_version'] = hive_version
+        self.hive_settings['hive_version'] = hive_version
 
     def set_presto_settings(self,
                             presto_version=None,
