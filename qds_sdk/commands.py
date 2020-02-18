@@ -1347,6 +1347,42 @@ class DbTapQueryCommand(Command):
         v["command_type"] = "DbTapQueryCommand"
         return v
 
+class JupyterNotebookCommand(Command):
+    usage = "jupyternotebookcmd <submit|run> [options]"
+
+    optparser = GentleOptionParser(usage=usage)
+    optparser.add_option("--path", dest="path", help="Path including name of the Jupyter notebook to be run with extension.")
+    optparser.add_option("--cluster-label", dest="label", help="Label of the cluster on which the this command should be run. If this parameter is not specified then label = “default” is used.")
+    optparser.add_option("--arguments", dest="arguments", help="Valid JSON to be sent to the notebook. Specify the parameters in notebooks and pass the parameter value using the JSON format. key is the parameter’s name and value is the parameter’s value. Supported types in parameters are string, integer, float and boolean.")
+
+    @classmethod
+    def parse(cls, args):
+        """
+        Parse command line arguments to construct a dictionary of command
+        parameters that can be used to create a command
+
+        Args:
+            `args`: sequence of arguments
+
+        Returns:
+            Dictionary that can be used in create method
+
+        Raises:
+            ParseError: when the arguments are not correct
+        """
+        try:
+            (options, args) = cls.optparser.parse_args(args)
+            if options.path is None:
+                raise ParseError("Notebook Path must be specified", cls.optparser.format_help())
+        except OptionParsingError as e:
+            raise ParseError(e.msg, cls.optparser.format_help())
+        except OptionParsingExit as e:
+            return None
+
+        v = vars(options)
+        v["command_type"] = "JupyterNotebookCommand"
+        return v
+
 class SignalHandler:
     """
     Catch terminate signals to allow graceful termination of run()
