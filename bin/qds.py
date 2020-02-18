@@ -35,7 +35,8 @@ CommandClasses = {
     "shellcmd": ShellCommand,
     "dbexportcmd": DbExportCommand,
     "dbimportcmd": DbImportCommand,
-    "prestocmd": PrestoCommand
+    "prestocmd": PrestoCommand,
+    "jupyternotebookcmd": JupyterNotebookCommand
 }
 
 SensorClasses = {
