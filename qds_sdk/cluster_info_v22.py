@@ -335,8 +335,10 @@ class ClusterInfoV22(object):
                 self.set_autoscaling_spot_block(autoscaling_spot_block_percentage,
                                                 autoscaling_spot_block_duration)
             if autoscaling_spot_percentage:
-                self.set_autoscaling_spot(autoscaling_spot_percentage, autoscaling_maximum_bid_price_percentage,
-                                          autoscaling_timeout_for_request, autoscaling_spot_allocation_strategy,
+                self.set_autoscaling_spot(autoscaling_spot_percentage, 
+                                          autoscaling_maximum_bid_price_percentage,
+                                          autoscaling_timeout_for_request, 
+                                          autoscaling_spot_allocation_strategy,
                                           autoscaling_spot_fallback)
 
     def set_master_ondemand(self, master_ondemand_percentage=None):
@@ -392,8 +394,10 @@ class ClusterInfoV22(object):
                       "timeout": autoscaling_spot_block_duration}
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
 
-    def set_autoscaling_spot(self, autoscaling_spot_percentage=None, autoscaling_maximum_bid_price_percentage=100,
-                             autoscaling_timeout_for_request=1, autoscaling_spot_allocation_strategy=None,
+    def set_autoscaling_spot(self, autoscaling_spot_percentage=None, 
+                             autoscaling_maximum_bid_price_percentage=100,
+                             autoscaling_timeout_for_request=1, 
+                             autoscaling_spot_allocation_strategy=None,
                              autoscaling_spot_fallback=None):
         spot = {"percentage": autoscaling_spot_percentage,
                 "type": "spot",
@@ -669,8 +673,7 @@ class ClusterInfoV22(object):
                                             " if spot instances aren't available")
         composition_group.add_argument("--min-spot-allocation-strategy",
                                        dest="min_spot_allocation_strategy",
-                                       choices=["lowestPrice", "capacityOptimized", 
-                                                 None],
+                                       choices=["lowestPrice", "capacityOptimized", None],
                                        default=None,
                                        help="allocation strategy for min spot nodes")
         composition_group.add_argument("--autoscaling-ondemand-percentage",
@@ -710,8 +713,7 @@ class ClusterInfoV22(object):
                                             " if spot instances aren't available")
         composition_group.add_argument("--autoscaling-spot-allocation-strategy",
                                        dest="autoscaling_spot_allocation_strategy",
-                                       choices=["lowestPrice", "capacityOptimized",
-                                                None],
+                                       choices=["lowestPrice", "capacityOptimized", None],
                                        default=None,
                                        help="allocation strategy for autoscaling" +
                                             " spot nodes")
