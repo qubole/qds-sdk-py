@@ -312,7 +312,8 @@ class ClusterInfoV22(object):
                     min_spot_block_percentage, min_spot_block_duration)
             if min_spot_percentage:
                 self.set_min_spot(min_spot_percentage, min_maximum_bid_price_percentage,
-                                  min_timeout_for_request, min_spot_allocation_strategy, min_spot_fallback)
+                                  min_timeout_for_request, min_spot_allocation_strategy,
+                                  min_spot_fallback)
 
     def set_autoscaling_config(self,
                                autoscaling_ondemand_percentage,
@@ -335,7 +336,8 @@ class ClusterInfoV22(object):
                                                 autoscaling_spot_block_duration)
             if autoscaling_spot_percentage:
                 self.set_autoscaling_spot(autoscaling_spot_percentage, autoscaling_maximum_bid_price_percentage,
-                                          autoscaling_timeout_for_request, autoscaling_spot_allocation_strategy, autoscaling_spot_fallback)
+                                          autoscaling_timeout_for_request, autoscaling_spot_allocation_strategy,
+                                          autoscaling_spot_fallback)
 
     def set_master_ondemand(self, master_ondemand_percentage=None):
         ondemand = {"percentage": master_ondemand_percentage, "type": "ondemand"}
@@ -368,7 +370,8 @@ class ClusterInfoV22(object):
         self.cluster_info["composition"]["min_nodes"]["nodes"].append(spot_block)
 
     def set_min_spot(self, min_spot_percentage=None, min_maximum_bid_price_percentage=100,
-                     min_timeout_for_request=1, min_spot_allocation_strategy=None, min_spot_fallback=None):
+                     min_timeout_for_request=1, min_spot_allocation_strategy=None,
+                     min_spot_fallback=None):
         spot = {"percentage": min_spot_percentage,
                 "type": "spot",
                 "maximum_bid_price_percentage": min_maximum_bid_price_percentage,
@@ -390,7 +393,8 @@ class ClusterInfoV22(object):
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
 
     def set_autoscaling_spot(self, autoscaling_spot_percentage=None, autoscaling_maximum_bid_price_percentage=100,
-                             autoscaling_timeout_for_request=1, autoscaling_spot_allocation_strategy=None, autoscaling_spot_fallback=None):
+                             autoscaling_timeout_for_request=1, autoscaling_spot_allocation_strategy=None,
+                             autoscaling_spot_fallback=None):
         spot = {"percentage": autoscaling_spot_percentage,
                 "type": "spot",
                 "maximum_bid_price_percentage": autoscaling_maximum_bid_price_percentage,
@@ -665,12 +669,9 @@ class ClusterInfoV22(object):
                                             " if spot instances aren't available")
         composition_group.add_argument("--min-spot-allocation-strategy",
                                        dest="min_spot_allocation_strategy",
-                                       choices=["lowestPrice", "capacityOptimized", None],
+                                       choices=["lowestPrice","capacityOptimized",None],
                                        default=None,
                                        help="allocation strategy for min spot nodes")
-
-
-
         composition_group.add_argument("--autoscaling-ondemand-percentage",
                                        dest="autoscaling_ondemand_percentage",
                                        type=int,
@@ -708,9 +709,10 @@ class ClusterInfoV22(object):
                                             " if spot instances aren't available")
         composition_group.add_argument("--autoscaling-spot-allocation-strategy",
                                        dest="autoscaling_spot_allocation_strategy",
-                                       choices=["lowestPrice", "capacityOptimized", None],
+                                       choices=["lowestPrice","capacityOptimized",None],
                                        default=None,
-                                       help="allocation strategy for autoscaling spot nodes")
+                                       help="allocation strategy for autoscaling" +
+                                            " spot nodes")
 
         # monitoring settings
         monitoring_group = argparser.add_argument_group("monitoring settings")
