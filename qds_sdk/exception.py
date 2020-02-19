@@ -85,3 +85,9 @@ class MethodNotAllowed(ClientError):
     """An error raised when a method is not allowed."""
     # 405 Method Not Allowed
     pass
+
+
+class ApiThrottledRetry(ClientError):
+    """An error raised when upstream requests are throttled."""
+    # 429 Too Many Requests
+    pass
