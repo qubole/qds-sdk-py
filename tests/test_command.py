@@ -141,6 +141,13 @@ class TestCommandCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
+    def test_jupyternotebookcmd(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'check', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
+
     def test_includequeryproperty(self):
         sys.argv = ['qds.py', 'hivecmd', 'check', '123', 'true']
         print_command()
@@ -218,6 +225,14 @@ class TestCommandCancel(QdsCliTestCase):
 
     def test_dbtapquerycmd(self):
         sys.argv = ['qds.py', 'dbtapquerycmd', 'cancel', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'kill_succeeded': True})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "commands/123",
+                {'status': 'kill'})
+
+    def test_jupyternotebookcmd(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'cancel', '123']
         print_command()
         Connection._api_call = Mock(return_value={'kill_succeeded': True})
         qds.main()
@@ -2028,6 +2043,31 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                      'name': None,
                                                      'command_type': 'DbTapQueryCommand',
                                                      'can_notify': False})
+
+class TestJupyterNotebookCommand(QdsCliTestCase):
+
+    def test_submit_none(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_no_path(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', '--label', 'demo-cluster']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_all(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', '--path', 'folder/file',
+                    '--cluster-label', 'demo-cluster', '--arguments', '{"key1": "value1", "key2": "value2"}']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'arguments': {"key1": "value1", "key2": "value2"},
+                 'path': 'folder/file',
+                 'label': 'demo-cluster'})
 
 class TestGetResultsCommand(QdsCliTestCase):
 
