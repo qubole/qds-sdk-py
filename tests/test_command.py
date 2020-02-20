@@ -2053,21 +2053,22 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
             qds.main()
 
     def test_submit_no_path(self):
-        sys.argv = ['qds.py', 'jupyternotebookcmd', '--label', 'demo-cluster']
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--cluster-label', 'demo-cluster']
         print_command()
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
     def test_submit_all(self):
-        sys.argv = ['qds.py', 'jupyternotebookcmd', '--path', 'folder/file',
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
                     '--cluster-label', 'demo-cluster', '--arguments', '{"key1": "value1", "key2": "value2"}']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'arguments': {"key1": "value1", "key2": "value2"},
-                 'path': 'folder/file',
-                 'label': 'demo-cluster'})
+                {'path': 'folder/file',
+                 'label': 'demo-cluster',
+                 'arguments': '{"key1": "value1", "key2": "value2"}',
+                 'command_type': 'JupyterNotebookCommand'})
 
 class TestGetResultsCommand(QdsCliTestCase):
 
