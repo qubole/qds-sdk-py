@@ -22,9 +22,9 @@ see http://stackoverflow.com/questions/14102416/python-requests-requests-excepti
 """
 
 
-class MyAdapter(HTTPAdapter):
+class RequestAdapter(HTTPAdapter):
     def __init__(self, *args, **kwargs):
-        super(MyAdapter, self).__init__(*args, **kwargs)
+        super(RequestAdapter, self).__init__(*args, **kwargs)
 
     def init_poolmanager(self, connections, maxsize,block=False):
         self.poolmanager = PoolManager(num_pools=connections,
@@ -49,11 +49,11 @@ class Connection:
         self.base_retry_delay = base_retry_delay
         if reuse:
             self.session = requests.Session()
-            self.session.mount('https://', MyAdapter())
+            self.session.mount('https://', RequestAdapter())
 
             # retries for get requests
             self.session_with_retries = requests.Session()
-            self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
+            self.session_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
     def retry(ExceptionToCheck, tries=5, delay=10, backoff=2):
         def deco_retry(f):
@@ -78,7 +78,7 @@ class Connection:
             return f_retry  # true decorator
         return deco_retry
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry, Error))
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
@@ -107,7 +107,7 @@ class Connection:
         else:
             x = requests
             x_with_retries = requests.Session()
-            x_with_retries.mount('https://', MyAdapter(max_retries=3))
+            x_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
         kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
 
@@ -131,12 +131,12 @@ class Connection:
         else:
             raise NotImplemented
 
-        self._validate_json(r)
         self._handle_error(r)
         return r
 
     def _api_call(self, req_type, path, data=None, params=None):
         response = self._api_call_raw(req_type, path, data=data, params=params)
+        self._validate_json(r)
         return response.json()
 
     @staticmethod
