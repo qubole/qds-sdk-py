@@ -26,7 +26,7 @@ class RequestAdapter(HTTPAdapter):
     def __init__(self, *args, **kwargs):
         super(RequestAdapter, self).__init__(*args, **kwargs)
 
-    def init_poolmanager(self, connections, maxsize,block=False):
+    def init_poolmanager(self, connections, maxsize, block=False):
         self.poolmanager = PoolManager(num_pools=connections,
                                        maxsize=maxsize,
                                        block=block,
@@ -55,6 +55,7 @@ class Connection:
             self.session_with_retries = requests.Session()
             self.session_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
+    @staticmethod
     def retry(ExceptionToCheck, tries=5, delay=10, backoff=2):
         def deco_retry(f):
             @wraps(f)

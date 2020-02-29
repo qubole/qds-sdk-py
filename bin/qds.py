@@ -12,7 +12,6 @@ from qds_sdk.role import RoleCmdLine
 from qds_sdk.group import GroupCmdLine
 from qds_sdk.account import AccountCmdLine
 from qds_sdk.app import AppCmdLine
-from qds_sdk.nezha import NezhaCmdLine
 from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import ClusterCmdLine
@@ -547,10 +546,6 @@ def groupmain(args):
 
 def appmain(args):
     result = AppCmdLine.run(args)
-    print(result)
-
-def nezhamain(args):
-    result = NezhaCmdLine.run(args)
     print(result)
 
 def templatemain(args):
