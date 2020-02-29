@@ -31,7 +31,7 @@ class QuestCmdLine:
         create.add_argument("--pipeline-name", dest="name", required=True,
                             help="Name of pipeline")
         create.add_argument("--description", dest="description", default=None,
-                            help="Pipeline description"),
+                            help="Pipeline description")
         create.add_argument("--cluster-label", dest="cluster_label",
                             default="default", help="Cluster label")
         create.add_argument("-c", "--code", dest="code", help="query string")

@@ -233,7 +233,7 @@ class TestCommandGetJobs(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id':123, 'status': 'running'})
         Connection._api_call_raw = Mock()
         qds.main()
-        Connection._api_call.assert_called_with('GET', 'commands/123', params=None),
+        Connection._api_call.assert_called_with('GET', 'commands/123', params=None)
         assert not Connection._api_call_raw.called
 
     def test_done(self):
@@ -243,8 +243,8 @@ class TestCommandGetJobs(QdsCliTestCase):
         jobs_response = Mock(text='[{"url":"https://blah","job_stats":{},"job_id":"job_blah"}]')
         Connection._api_call_raw = Mock(return_value=jobs_response)
         qds.main()
-        Connection._api_call.assert_called_with('GET', 'commands/123', params=None),
-        Connection._api_call_raw.assert_called_with('GET', 'commands/123/jobs', params=None),
+        Connection._api_call.assert_called_with('GET', 'commands/123', params=None)
+        Connection._api_call_raw.assert_called_with('GET', 'commands/123/jobs', params=None)
 
 
 class TestHiveCommand(QdsCliTestCase):
