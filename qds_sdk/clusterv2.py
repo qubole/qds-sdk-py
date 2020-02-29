@@ -104,10 +104,12 @@ class ClusterCmdLine:
 
         cluster_request = {}
         cloud_config = util._make_minimal(cloud_config.__dict__)
-        if bool(cloud_config): cluster_request['cloud_config'] = cloud_config
+        if bool(cloud_config):
+            cluster_request['cloud_config'] = cloud_config
 
         engine_config = util._make_minimal(engine_config.__dict__)
-        if bool(engine_config): cluster_request['engine_config'] = engine_config
+        if bool(engine_config):
+            cluster_request['engine_config'] = engine_config
 
         cluster_request.update(util._make_minimal(cluster_info.__dict__))
         return cluster_request
