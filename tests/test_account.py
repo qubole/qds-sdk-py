@@ -16,7 +16,8 @@ from test_base import QdsCliTestCase
 
 
 class TestAccountCreate(QdsCliTestCase):
-    def test_all(self):
+    @staticmethod
+    def test_all():
         sys.argv = ['qds.py', 'account', 'create',
                     '--name', 'new_account',
                     '--location', 's3://bucket/path',
@@ -156,7 +157,8 @@ class TestAccountCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
-    def test_default_previous_account_plan(self):
+    @staticmethod
+    def test_default_previous_account_plan():
         sys.argv = ['qds.py', 'account', 'create',
                     '--name', 'new_account',
                     '--location', 's3://bucket/path',
@@ -184,7 +186,8 @@ class TestAccountCreate(QdsCliTestCase):
 
 
 class TestAccountBranding(QdsCliTestCase):
-    def test_logo(self):
+    @staticmethod
+    def test_logo():
         sys.argv = ['qds.py', 'account', 'branding',
                     '--account-id', '4',
                     '--logo-uri', 'https://www.xyz.com/image.jpg']
@@ -195,7 +198,8 @@ class TestAccountBranding(QdsCliTestCase):
             'logo_uri' : 'https://www.xyz.com/image.jpg'},
             'account_id' : '4'})
 
-    def test_link(self):
+    @staticmethod
+    def test_link():
         sys.argv = ['qds.py', 'account', 'branding',
                     '--account-id', '4',
                     '--link-url', 'https://www.xyz.com',
@@ -208,7 +212,8 @@ class TestAccountBranding(QdsCliTestCase):
             'link_label' : 'Documentation'},
             'account_id' : '4'})
 
-    def test_logo_link(self):
+    @staticmethod
+    def test_logo_link():
         sys.argv = ['qds.py', 'account', 'branding',
                     '--account-id', '4',
                     '--logo-uri', 'https://www.xyz.com/image.jpg',
