@@ -31,14 +31,16 @@ def common_side_effect(*args, **kwargs):
 
 
 class TestActionCheck(QdsCliTestCase):
-    def test_list(self):
+    @staticmethod
+    def test_list():
         sys.argv = ['qds.py', 'action', 'list']
         print_command()
         Connection._api_call = Mock(return_value={"actions": []})
         qds.main()
         Connection._api_call.assert_called_with("GET", "actions", params={})
 
-    def test_list_pages(self):
+    @staticmethod
+    def test_list_pages():
         sys.argv = ['qds.py', 'action', 'list', '--per-page', '2']
         print_command()
         Connection._api_call = Mock(return_value={"actions": []})
@@ -46,7 +48,8 @@ class TestActionCheck(QdsCliTestCase):
         Connection._api_call.assert_called_with("GET", "actions",
                                                 params={'per_page': '2'})
 
-    def test_list_pages_fields(self):
+    @staticmethod
+    def test_list_pages_fields():
         sys.argv = ['qds.py', 'action', 'list', '--per-page', '2', '--fields',
                     'id', 'sequence_id']
         print_command()
@@ -55,7 +58,8 @@ class TestActionCheck(QdsCliTestCase):
         Connection._api_call.assert_called_with("GET", "actions",
                                                 params={'per_page': '2'})
 
-    def test_view(self):
+    @staticmethod
+    def test_view():
         sys.argv = ['qds.py', 'action', 'view', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -63,7 +67,8 @@ class TestActionCheck(QdsCliTestCase):
         Connection._api_call.assert_called_with("GET", "actions/123",
                                                 params=None)
 
-    def test_view_fields(self):
+    @staticmethod
+    def test_view_fields():
         sys.argv = ['qds.py', 'action', 'view', '123', '--fields', 'id',
                     'sequence_id']
         print_command()
@@ -72,7 +77,8 @@ class TestActionCheck(QdsCliTestCase):
         Connection._api_call.assert_called_with("GET", "actions/123",
                                                 params=None)
 
-    def test_rerun(self):
+    @staticmethod
+    def test_rerun():
         sys.argv = ['qds.py', 'action', 'rerun', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -80,14 +86,16 @@ class TestActionCheck(QdsCliTestCase):
         Connection._api_call.assert_called_with("POST", "actions/123/rerun",
                                                 None)
 
-    def test_kill(self):
+    @staticmethod
+    def test_kill():
         sys.argv = ['qds.py', 'action', 'kill', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
         Connection._api_call.assert_called_with("PUT", "actions/123/kill", None)
 
-    def test_logs(self):
+    @staticmethod
+    def test_logs():
         sys.argv = ['qds.py', 'action', 'logs', '123']
         print_command()
         Connection._api_call = Mock(return_value={
@@ -101,7 +109,8 @@ class TestActionCheck(QdsCliTestCase):
         Connection._api_call_raw.assert_called_with("GET", "commands/123/logs",
                                                     params=None)
 
-    def test_results(self):
+    @staticmethod
+    def test_results():
         sys.argv = ['qds.py', 'action', 'results', '123']
         print_command()
         Connection._api_call = Mock()

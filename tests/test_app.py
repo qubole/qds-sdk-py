@@ -16,7 +16,9 @@ from test_base import QdsCliTestCase
 
 
 class TestAppList(QdsCliTestCase):
-    def test_minimal(self):
+    
+    @staticmethod
+    def test_minimal():
         sys.argv = ['qds.py', 'app', 'list']
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -25,7 +27,9 @@ class TestAppList(QdsCliTestCase):
 
 
 class TestAppShow(QdsCliTestCase):
-    def test_minimal(self):
+    
+    @staticmethod
+    def test_minimal():
         sys.argv = ['qds.py', 'app', 'show', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -52,7 +56,8 @@ class TestAppCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
-    def test_minimal(self):
+    @staticmethod
+    def test_minimal():
         sys.argv = ['qds.py', 'app', 'create', '--name', 'appname']
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -62,7 +67,8 @@ class TestAppCreate(QdsCliTestCase):
                                                  'kind': 'spark',
                                                  'config': {}})
 
-    def test_with_kind(self):
+    @staticmethod
+    def test_with_kind():
         sys.argv = ['qds.py', 'app', 'create', '--name', 'appname',
                     '--kind', 'spark']
         print_command()
@@ -80,7 +86,8 @@ class TestAppCreate(QdsCliTestCase):
         with self.assertRaises(SystemExit):
             qds.main()
 
-    def test_with_config(self):
+    @staticmethod
+    def test_with_config():
         sys.argv = ['qds.py', 'app', 'create', '--name', 'appname', '--config',
                     'zeppelin.spark.concurrentSQL=true']
         print_command()
@@ -91,7 +98,8 @@ class TestAppCreate(QdsCliTestCase):
                              'config': {
                                  'zeppelin.spark.concurrentSQL': 'true'}})
 
-    def test_with_configs(self):
+    @staticmethod
+    def test_with_configs():
         sys.argv = ['qds.py', 'app', 'create', '--name', 'appname', '--config',
                     'spark.executor.memory=2g',
                     'zeppelin.spark.concurrentSQL=true']
@@ -127,7 +135,9 @@ class TestAppCreate(QdsCliTestCase):
 
 
 class TestAppStop(QdsCliTestCase):
-    def test_minimal(self):
+    
+    @staticmethod
+    def test_minimal():
         sys.argv = ['qds.py', 'app', 'stop', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -148,7 +158,9 @@ class TestAppStop(QdsCliTestCase):
 
 
 class TestAppDelete(QdsCliTestCase):
-    def test_minimal(self):
+    
+    @staticmethod
+    def test_minimal():
         sys.argv = ['qds.py', 'app', 'delete', '123']
         print_command()
         Connection._api_call = Mock(return_value={})
