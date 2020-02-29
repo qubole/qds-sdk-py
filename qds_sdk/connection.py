@@ -129,7 +129,7 @@ class Connection:
         elif req_type == 'DELETE':
             r = x.delete(url, timeout=300, **kwargs)
         else:
-            raise NotImplemented
+            raise NotImplementedError
 
         self._handle_error(r)
         return r
