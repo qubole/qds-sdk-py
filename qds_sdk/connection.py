@@ -32,6 +32,29 @@ class RequestAdapter(HTTPAdapter):
                                        block=block,
                                        ssl_version=ssl.PROTOCOL_SSLv23)
 
+# Retry Decorator
+def retry(exception_to_check, tries=5, delay=10, backoff=2):
+    def deco_retry(f):
+        @wraps(f)
+        def f_retry(self, *args, **kwargs):
+            if hasattr(self, 'max_retries'):
+                mtries, mdelay = self.max_retries, self.base_retry_delay
+            else:
+                mtries, mdelay = tries, delay
+            while mtries >= 1:
+                try:
+                    return f(self, *args, **kwargs)
+                except exception_to_check as e:
+                    logger = logging.getLogger("retry")
+                    msg = "%s, Retrying in %d seconds..." % (e.__class__.__name__,
+                                                                mdelay)
+                    logger.info(msg)
+                    time.sleep(mdelay)
+                    mtries -= 1
+                    mdelay *= backoff
+            return f(self, *args, **kwargs)
+        return f_retry  # true decorator
+    return deco_retry
 
 class Connection:
 
@@ -54,30 +77,6 @@ class Connection:
             # retries for get requests
             self.session_with_retries = requests.Session()
             self.session_with_retries.mount('https://', RequestAdapter(max_retries=3))
-
-    @staticmethod
-    def retry(ExceptionToCheck, tries=5, delay=10, backoff=2):
-        def deco_retry(f):
-            @wraps(f)
-            def f_retry(self, *args, **kwargs):
-                if hasattr(self, 'max_retries'):
-                    mtries, mdelay = self.max_retries, self.base_retry_delay
-                else:
-                    mtries, mdelay = tries, delay
-                while mtries >= 1:
-                    try:
-                        return f(self, *args, **kwargs)
-                    except ExceptionToCheck as e:
-                        logger = logging.getLogger("retry")
-                        msg = "%s, Retrying in %d seconds..." % (e.__class__.__name__,
-                                                                 mdelay)
-                        logger.info(msg)
-                        time.sleep(mdelay)
-                        mtries -= 1
-                        mdelay *= backoff
-                return f(self, *args, **kwargs)
-            return f_retry  # true decorator
-        return deco_retry
 
     @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry, Error))
     def get_raw(self, path, params=None):
