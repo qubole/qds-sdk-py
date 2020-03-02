@@ -1947,7 +1947,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                   'can_notify': False})
 
     def test_submit_with_macros(self):
-        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', "select * from table_1 limit  \$limit\$",
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', "select * from table_1 limit  $limit$",
                     '--db_tap_id', 1, '--macros', '[{"a": "1", "b" : "4", "limit":"a + b"}]']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
@@ -1955,7 +1955,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                                                 {'macros': [{"a": "1", "b" : "4", "limit":"a + b"}],
                                                  'db_tap_id': 1,
-                                                 'query': "select * from table_1 limit  \$limit\$",
+                                                 'query': "select * from table_1 limit  $limit$",
                                                  'tags': None,
                                                  'name': None,
                                                  'script_location': None,
@@ -1963,7 +1963,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                  'can_notify': False})
 
     def test_submit_with_tags(self):
-        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', "select * from table_1 limit  \$limit\$",
+        sys.argv = ['qds.py', 'dbtapquerycmd', 'submit', '--query', "select * from table_1 limit  $limit$",
                     '--db_tap_id', 1, '--tags', 'tag1,tag2']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
@@ -1971,7 +1971,7 @@ class TestDbTapQueryCommand(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'commands',
                                                 {'macros': None,
                                                  'db_tap_id': 1,
-                                                 'query': "select * from table_1 limit  \$limit\$",
+                                                 'query': "select * from table_1 limit  $limit$",
                                                  'tags': ["tag1", "tag2"],
                                                  'name': None,
                                                  'script_location': None,
