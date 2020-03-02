@@ -1373,7 +1373,7 @@ class JupyterNotebookCommand(Command):
             ParseError: when the arguments are not correct
         """
         try:
-            (options, args) = cls.optparser.parse_args(args)
+            options, args = cls.optparser.parse_args(args)
             if options.path is None:
                 raise ParseError("Notebook Path must be specified", cls.optparser.format_help())
         except OptionParsingError as e:
