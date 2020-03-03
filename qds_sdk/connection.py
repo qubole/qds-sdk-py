@@ -193,13 +193,10 @@ class Connection:
             raise RetryWithDelay(response)
         elif code == 449:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response, "Data requested is unavailable. Retrying...")
+            raise RetryWithDelay(response, self.get_error_message(code))
         elif code in (429, 503):
             sys.stderr.write(response.text + "\n")
-            if code == 429
-              raise ApiThrottledRetry(response, "Too many requests. Retrying...")
-            else
-              raise ApiThrottledRetry(response, "Service Unavailable. Retrying...")
+            raise ApiThrottledRetry(response, self.get_error_message(code))
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
@@ -217,3 +214,14 @@ class Connection:
         except Exception as e:
             sys.stderr.write("Error: {0}\nInvalid Response from Server, please contact Qubole Support".format(str(e)))
             raise ServerError(response)
+
+    @staticmethod
+    def get_error_message(code):
+        if code == 429:
+            return "Too many requests. Retrying..."
+        elif code == 502:
+            return "Service Unavailable. Retrying..."
+        elif code == 449:
+            return "Data requested is unavailable. Retrying..."
+        else:
+            return ''

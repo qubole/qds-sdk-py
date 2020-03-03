@@ -88,7 +88,7 @@ class MethodNotAllowed(ClientError):
 
 
 class ApiThrottledRetry(ClientError):
-    """An error raised when upstream requests are throttled. or Service Unavailable"""
+    """An error raised when upstream requests are throttled or Service Unavailable."""
     # 429 Too Many Requests
     # 503 Service Unavailable
     pass
