@@ -188,15 +188,18 @@ class Connection:
         elif code == 422:
             sys.stderr.write(response.text + "\n")
             raise ResourceInvalid(response)
-        elif code in (502, 503, 504):
+        elif code in (502, 504):
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response)
         elif code == 449:
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response, "Data requested is unavailable. Retrying...")
-        elif code == 429:
+        elif code in (429, 503):
             sys.stderr.write(response.text + "\n")
-            raise ApiThrottledRetry(response, "Too many requests. Retrying...")
+            if code == 429
+              raise ApiThrottledRetry(response, "Too many requests. Retrying...")
+            else
+              raise ApiThrottledRetry(response, "Service Unavailable. Retrying...")
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
