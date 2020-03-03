@@ -131,7 +131,7 @@ class Connection:
         else:
             raise NotImplemented
 
-        self._handle_error(r)
+        self._handle_error(self, r)
         return r
 
     def _api_call(self, req_type, path, data=None, params=None):
@@ -140,7 +140,7 @@ class Connection:
         return response.json()
 
     @staticmethod
-    def _handle_error(response):
+    def _handle_error(self, response):
         """Raise exceptions in response to any http errors
         Args:
             response: A Response object
