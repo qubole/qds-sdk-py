@@ -1379,7 +1379,7 @@ class JupyterNotebookCommand(Command):
             if options.arguments is not None:
                 try:
                     json.loads(options.arguments)
-                except JSONDecodeError:
+                except ValueError:
                     raise ParseError("Given Arguments is not valid JSON", cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
