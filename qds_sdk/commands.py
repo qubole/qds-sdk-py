@@ -1381,9 +1381,9 @@ class JupyterNotebookCommand(Command):
         except OptionParsingExit as e:
             return None
 
-        v = vars(options)
-        v["command_type"] = "JupyterNotebookCommand"
-        return v
+        params = vars(options)
+        params["command_type"] = "JupyterNotebookCommand"
+        return params
 
 class SignalHandler:
     """
