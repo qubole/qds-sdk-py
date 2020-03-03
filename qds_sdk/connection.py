@@ -219,7 +219,7 @@ class Connection:
     def get_error_message(code):
         if code == 429:
             return "Too many requests. Retrying..."
-        elif code == 502:
+        elif code == 503:
             return "Service Unavailable. Retrying..."
         elif code == 449:
             return "Data requested is unavailable. Retrying..."
