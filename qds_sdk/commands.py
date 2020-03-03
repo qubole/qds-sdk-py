@@ -1376,6 +1376,11 @@ class JupyterNotebookCommand(Command):
             options, args = cls.optparser.parse_args(args)
             if options.path is None:
                 raise ParseError("Notebook Path must be specified", cls.optparser.format_help())
+            if options.arguments is not None:
+                try:
+                    json.loads(options.arguments)
+                except JSONDecodeError:
+                    raise ParseError("Given Arguments is not valid JSON", cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
