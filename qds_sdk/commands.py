@@ -1357,6 +1357,8 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--macros", dest="macros", help="expressions to expand macros used in query")
     optparser.add_option("--name", dest="name", help="Assign a name to this query")
     optparser.add_option("--tags", dest="tags", help="comma-separated list of tags to be associated with the query ( e.g. tag1 tag1,tag2 )")
+    optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
+    optparser.add_option("--timeout", dest="timeout", type="int", help="Timeout for command execution in seconds")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs", default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live", default=False, help="Fetch logs and print them to stderr while command is running.")
 
