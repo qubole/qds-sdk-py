@@ -22,9 +22,9 @@ see http://stackoverflow.com/questions/14102416/python-requests-requests-excepti
 """
 
 
-class MyAdapter(HTTPAdapter):
+class RequestAdapter(HTTPAdapter):
     def __init__(self, *args, **kwargs):
-        super(MyAdapter, self).__init__(*args, **kwargs)
+        super(RequestAdapter, self).__init__(*args, **kwargs)
 
     def init_poolmanager(self, connections, maxsize,block=False):
         self.poolmanager = PoolManager(num_pools=connections,
@@ -49,11 +49,11 @@ class Connection:
         self.base_retry_delay = base_retry_delay
         if reuse:
             self.session = requests.Session()
-            self.session.mount('https://', MyAdapter())
+            self.session.mount('https://', RequestAdapter())
 
             # retries for get requests
             self.session_with_retries = requests.Session()
-            self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
+            self.session_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
     def retry(ExceptionToCheck, tries=5, delay=10, backoff=2):
         def deco_retry(f):
@@ -107,7 +107,7 @@ class Connection:
         else:
             x = requests
             x_with_retries = requests.Session()
-            x_with_retries.mount('https://', MyAdapter(max_retries=3))
+            x_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
         kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
 
