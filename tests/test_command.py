@@ -2087,7 +2087,8 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'timeout': None,
                  'path': 'folder/file',
                  'command_type': 'JupyterNotebookCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_macros(self):
         sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
@@ -2104,7 +2105,8 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'timeout': None,
                  'path': 'folder/file',
                  'command_type': 'JupyterNotebookCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_arguments(self):
         sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
@@ -2121,7 +2123,8 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'timeout': None,
                  'path': 'folder/file',
                  'command_type': 'JupyterNotebookCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_tags(self):
         sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
@@ -2138,7 +2141,8 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'timeout': None,
                  'path': 'folder/file',
                  'command_type': 'JupyterNotebookCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_name(self):
         sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
@@ -2155,7 +2159,8 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'timeout': None,
                  'path': 'folder/file',
                  'command_type': 'JupyterNotebookCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
 
     def test_submit_notify(self):
         sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
@@ -2172,7 +2177,8 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'timeout': None,
                  'path': 'folder/file',
                  'command_type': 'JupyterNotebookCommand',
-                 'can_notify': True})
+                 'can_notify': True,
+                 'pool': None})
 
     def test_submit_timeout(self):
         sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
@@ -2189,7 +2195,26 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'timeout': 10,
                  'path': 'folder/file',
                  'command_type': 'JupyterNotebookCommand',
-                 'can_notify': False})
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_pool(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--pool', 'batch']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'command_type': 'JupyterNotebookCommand',
+                 'can_notify': False,
+                 'pool': 'batch'})
 
 class TestGetResultsCommand(QdsCliTestCase):
 
