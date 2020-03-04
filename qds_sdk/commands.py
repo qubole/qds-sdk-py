@@ -1355,6 +1355,7 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--cluster-label", dest="label", help="Label of the cluster on which the this command should be run. If this parameter is not specified then label = 'default' is used.")
     optparser.add_option("--arguments", dest="arguments", help="Valid JSON to be sent to the notebook. Specify the parameters in notebooks and pass the parameter value using the JSON format. key is the parameter's name and value is the parameter's value. Supported types in parameters are string, integer, float and boolean.")
     optparser.add_option("--macros", dest="macros", help="expressions to expand macros used in query")
+    optparser.add_option("--name", dest="name", help="Assign a name to this query")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs", default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live", default=False, help="Fetch logs and print them to stderr while command is running.")
 
