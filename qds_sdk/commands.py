@@ -1360,7 +1360,7 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
     optparser.add_option("--timeout", dest="timeout", type="int", help="Timeout for command execution in seconds")
     optparser.add_option("--retry", dest="retry", choices=['1','2','3'], help="Number of retries for a job")
-    optparser.add_option("--retry-delay", dest="retry_delay", type="int", default=0, help="Time interval between the retries when a job fails.")
+    optparser.add_option("--retry-delay", dest="retry_delay", type="int", help="Time interval between the retries when a job fails.")
     optparser.add_option("--pool", dest="pool", help="Specify the Fairscheduler pool name for the command to use")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs", default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live", default=False, help="Fetch logs and print them to stderr while command is running.")

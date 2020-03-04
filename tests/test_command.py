@@ -2072,6 +2072,13 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         with self.assertRaises(qds_sdk.exception.ParseError):
             qds.main()
 
+    def test_submit_retry_more_than_3(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--retry', '4']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
     def test_submit_cluster_label(self):
         sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
                     '--cluster-label', 'demo-cluster']
@@ -2079,13 +2086,15 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': None,
+                {'retry': None,
+                 'name': None,
                  'tags': None,
                  'label': 'demo-cluster',
                  'macros': None,
                  'arguments': None,
                  'timeout': None,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': False,
                  'pool': None})
@@ -2097,13 +2106,15 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': None,
+                {'retry': None,
+                 'name': None,
                  'tags': None,
                  'label': None,
                  'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
                  'arguments': None,
                  'timeout': None,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': False,
                  'pool': None})
@@ -2115,13 +2126,15 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': None,
+                {'retry': None,
+                 'name': None,
                  'tags': None,
                  'label': None,
                  'macros': None,
                  'arguments': '{"key1":"val1", "key2":"val2"}',
                  'timeout': None,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': False,
                  'pool': None})
@@ -2133,13 +2146,15 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': None,
+                {'retry': None,
+                 'name': None,
                  'tags': ['abc', 'def'],
                  'label': None,
                  'macros': None,
                  'arguments': None,
                  'timeout': None,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': False,
                  'pool': None})
@@ -2151,13 +2166,15 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': 'demo',
+                {'retry': None,
+                 'name': 'demo',
                  'tags': None,
                  'label': None,
                  'macros': None,
                  'arguments': None,
                  'timeout': None,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': False,
                  'pool': None})
@@ -2169,13 +2186,15 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': None,
+                {'retry': None,
+                 'name': None,
                  'tags': None,
                  'label': None,
                  'macros': None,
                  'arguments': None,
                  'timeout': None,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': True,
                  'pool': None})
@@ -2187,13 +2206,15 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': None,
+                {'retry': None,
+                 'name': None,
                  'tags': None,
                  'label': None,
                  'macros': None,
                  'arguments': None,
                  'timeout': 10,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': False,
                  'pool': None})
@@ -2205,16 +2226,58 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'name': None,
+                {'retry': None,
+                 'name': None,
                  'tags': None,
                  'label': None,
                  'macros': None,
                  'arguments': None,
                  'timeout': None,
                  'path': 'folder/file',
+                 'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
                  'can_notify': False,
                  'pool': 'batch'})
+
+    def test_submit_retry(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--retry', '1']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': 1,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_retry_delay(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--retry-delay', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': 2,
+                 'command_type': 'JupyterNotebookCommand',
+                 'can_notify': False,
+                 'pool': None})
 
 class TestGetResultsCommand(QdsCliTestCase):
 
