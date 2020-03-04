@@ -1359,6 +1359,8 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--tags", dest="tags", help="comma-separated list of tags to be associated with the query ( e.g. tag1 tag1,tag2 )")
     optparser.add_option("--notify", action="store_true", dest="can_notify", default=False, help="sends an email on command completion")
     optparser.add_option("--timeout", dest="timeout", type="int", help="Timeout for command execution in seconds")
+    optparser.add_option("--retry", dest="retry", choices=['1','2','3'], help="Number of retries for a job")
+    optparser.add_option("--retry-delay", dest="retry_delay", type="int", default=0, help="Time interval between the retries when a job fails.")
     optparser.add_option("--pool", dest="pool", help="Specify the Fairscheduler pool name for the command to use")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs", default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live", default=False, help="Fetch logs and print them to stderr while command is running.")
@@ -1392,6 +1394,8 @@ class JupyterNotebookCommand(Command):
                     options.macros = json.loads(options.macros)
                 except ValueError as e:
                     raise ParseError("Given Macros is not valid JSON: %s" % str(e), cls.optparser.format_help())
+            if options.retry is not None:
+                options.retry = int(options.retry)
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
