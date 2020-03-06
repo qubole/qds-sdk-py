@@ -1352,7 +1352,7 @@ class JupyterNotebookCommand(Command):
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--path", dest="path", help="Path including name of the Jupyter notebook to be run with extension.")
-    optparser.add_option("--jupyter-notebook-id", dest="jupyter_notebook_id", type="int", help="ID of the Jupyter notebook to be run with extension.")
+    optparser.add_option("--uuid", dest="uuid", help="UUID of the Jupyter notebook to be run with extension.")
     optparser.add_option("--cluster-label", dest="label", help="Label of the cluster on which the this command should be run. If this parameter is not specified then label = 'default' is used.")
     optparser.add_option("--arguments", dest="arguments", help="Valid JSON to be sent to the notebook. Specify the parameters in notebooks and pass the parameter value using the JSON format. key is the parameter's name and value is the parameter's value. Supported types in parameters are string, integer, float and boolean.")
     optparser.add_option("--macros", dest="macros", help="expressions to expand macros used in query")
@@ -1383,8 +1383,8 @@ class JupyterNotebookCommand(Command):
         """
         try:
             options, args = cls.optparser.parse_args(args)
-            if options.path is None and options.jupyter_notebook_id is None:
-                raise ParseError("Atleast one of Notebook Path or ID must be specified", cls.optparser.format_help())
+            if options.path is None and options.uuid is None:
+                raise ParseError("Atleast one of Notebook Path or UUID must be specified", cls.optparser.format_help())
             if options.arguments is not None:
                 try:
                     json.loads(options.arguments)

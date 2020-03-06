@@ -2080,12 +2080,12 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
             qds.main()
 
     def test_submit_id_without_path(self):
-        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--jupyter-notebook-id', '100']
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--uuid', 'some-uuid']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': 100,
+                {'uuid': 'some-uuid',
                  'retry': None,
                  'name': None,
                  'tags': None,
@@ -2106,7 +2106,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': None,
@@ -2127,7 +2127,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': None,
@@ -2148,7 +2148,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': None,
@@ -2169,7 +2169,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': ['abc', 'def'],
@@ -2190,7 +2190,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': 'demo',
                  'tags': None,
@@ -2211,7 +2211,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': None,
@@ -2232,7 +2232,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': None,
@@ -2253,7 +2253,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': None,
@@ -2274,7 +2274,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': 1,
                  'name': None,
                  'tags': None,
@@ -2295,7 +2295,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
         Connection._api_call.assert_called_with('POST', 'commands',
-                {'jupyter_notebook_id': None,
+                {'uuid': None,
                  'retry': None,
                  'name': None,
                  'tags': None,
