@@ -131,7 +131,7 @@ class Connection:
         else:
             raise NotImplemented
 
-        self._handle_error(self, r)
+        self._handle_error(r)
         return r
 
     def _api_call(self, req_type, path, data=None, params=None):
@@ -140,7 +140,7 @@ class Connection:
         return response.json()
 
     @staticmethod
-    def _handle_error(self, response):
+    def _handle_error(response):
         """Raise exceptions in response to any http errors
         Args:
             response: A Response object
@@ -193,10 +193,10 @@ class Connection:
             raise RetryWithDelay(response)
         elif code == 449:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response, self.get_error_message(code))
+            raise RetryWithDelay(response, Connection.get_error_message(code))
         elif code in (429, 503):
             sys.stderr.write(response.text + "\n")
-            raise ApiThrottledRetry(response, self.get_error_message(code))
+            raise ApiThrottledRetry(response, Connection.get_error_message(code))
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
@@ -215,7 +215,6 @@ class Connection:
             sys.stderr.write("Error: {0}\nInvalid Response from Server, please contact Qubole Support".format(str(e)))
             raise ServerError(response)
 
-    @staticmethod
     def get_error_message(code):
         if code == 429:
             return "Too many requests. Retrying..."
