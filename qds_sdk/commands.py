@@ -1353,36 +1353,40 @@ class JupyterNotebookCommand(Command):
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--path", dest="path",
-        help="Path including name of the Jupyter notebook to be run with extension.")
+                         help="Path including name of the Jupyter notebook to \
+                         be run with extension.")
     optparser.add_option("--cluster-label", dest="label",
-        help="Label of the cluster on which the this command should be run. \
-        If this parameter is not specified then label = 'default' is used.")
+                         help="Label of the cluster on which the this command \
+                         should be run. If this parameter is not specified \
+                         then label = 'default' is used.")
     optparser.add_option("--arguments", dest="arguments",
-        help="Valid JSON to be sent to the notebook. Specify the parameters in \
-        notebooks and pass the parameter value using the JSON format. key is \
-        the parameter's name and value is the parameter's value. Supported \
-        types in parameters are string, integer, float and boolean.")
+                         help="Valid JSON to be sent to the notebook. Specify \
+                         the parameters in notebooks and pass the parameter value \
+                         using the JSON format. key is the parameter's name and \
+                         value is the parameter's value. Supported types in \
+                         parameters are string, integer, float and boolean.")
     optparser.add_option("--macros", dest="macros",
-        help="expressions to expand macros used in query")
+                         help="expressions to expand macros used in query")
     optparser.add_option("--name", dest="name", help="Assign a name to this query")
     optparser.add_option("--tags", dest="tags",
-        help="comma-separated list of tags to be associated with the query \
-        ( e.g. tag1 tag1,tag2 )")
+                         help="comma-separated list of tags to be associated with \
+                         the query ( e.g. tag1 tag1,tag2 )")
     optparser.add_option("--notify", action="store_true", dest="can_notify",
-        default=False, help="sends an email on command completion")
+                         default=False, help="sends an email on command completion")
     optparser.add_option("--timeout", dest="timeout", type="int",
-        help="Timeout for command execution in seconds")
+                         help="Timeout for command execution in seconds")
     optparser.add_option("--retry", dest="retry", choices=['1', '2', '3'],
-        help="Number of retries for a job")
+                         help="Number of retries for a job")
     optparser.add_option("--retry-delay", dest="retry_delay", type="int",
-        help="Time interval between the retries when a job fails.")
+                         help="Time interval between the retries when a job fails.")
     optparser.add_option("--pool", dest="pool",
-        help="Specify the Fairscheduler pool name for the command to use")
+                         help="Specify the Fairscheduler pool name for the \
+                         command to use")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
-        default=False, help="Fetch logs and print them to stderr.")
+                         default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true",
-        dest="print_logs_live", default=False,
-        help="Fetch logs and print them to stderr while command is running.")
+                         dest="print_logs_live", default=False, help="Fetch logs \
+                         and print them to stderr while command is running.")
 
     @classmethod
     def parse(cls, args):
@@ -1403,7 +1407,7 @@ class JupyterNotebookCommand(Command):
             options, args = cls.optparser.parse_args(args)
             if options.path is None:
                 raise ParseError("Notebook Path must be specified",
-                                cls.optparser.format_help())
+                                 cls.optparser.format_help())
             if options.arguments is not None:
                 validate_json_input(options.arguments, 'Arguments', cls)
             if options.macros is not None:
@@ -1441,11 +1445,14 @@ class SignalHandler:
 
 
 def validate_json_input(string, option_type, cls):
+    '''
+    Converts String to JSON and throws ParseError if string is not valid JSON
+    '''
     try:
         return json.loads(string)
     except ValueError as e:
         raise ParseError("Given %s is not valid JSON: %s" % (option_type, str(e)),
-                        cls.optparser.format_help())
+                         cls.optparser.format_help())
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
