@@ -118,7 +118,7 @@ class SchedulerCmdLine:
     def create(args):
         with open(args.data) as f:
             spec = json.load(f)
-        schedule = Scheduler(spec)
+        schedule = Scheduler.create(**spec)
         return json.dumps(schedule.attributes, sort_keys=True, indent=4)
 
     @staticmethod
