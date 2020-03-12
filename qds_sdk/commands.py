@@ -1385,15 +1385,9 @@ class JupyterNotebookCommand(Command):
             if options.path is None:
                 raise ParseError("Notebook Path must be specified", cls.optparser.format_help())
             if options.arguments is not None:
-                try:
-                    json.loads(options.arguments)
-                except ValueError as e:
-                    raise ParseError("Given Arguments is not valid JSON: %s" % str(e), cls.optparser.format_help())
+                validate_json_input(options.arguments, 'Arguments', cls)
             if options.macros is not None:
-                try:
-                    options.macros = json.loads(options.macros)
-                except ValueError as e:
-                    raise ParseError("Given Macros is not valid JSON: %s" % str(e), cls.optparser.format_help())
+                options.macros = validate_json_input(options.macros, 'Macros', cls)
             if options.retry is not None:
                 options.retry = int(options.retry)
         except OptionParsingError as e:
@@ -1424,6 +1418,12 @@ class SignalHandler:
         self.last_signal = signum
         if signum in self.term_signals:
             self.received_term_signal = True
+
+def validate_json_input(string, option_type, cls):
+    try:
+        return json.loads(string)
+    except ValueError as e:
+        raise ParseError("Given %s is not valid JSON: %s" % (option_type, str(e)), cls.optparser.format_help())
 
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
