@@ -195,7 +195,7 @@ class Connection:
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response, Connection._get_error_message(code))
         elif code in (429, 503):
-            sys.stderr.write("Got %s response." %(str(code))+ response.text + " Retrying..." + "\n")
+            sys.stderr.write(response.text + "\n")
             raise ApiThrottledRetry(response, Connection._get_error_message(code))
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
