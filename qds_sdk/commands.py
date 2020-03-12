@@ -1445,9 +1445,8 @@ class SignalHandler:
 
 
 def validate_json_input(string, option_type, cls):
-    '''
-    Converts String to JSON and throws ParseError if string is not valid JSON
-    '''
+    """Converts String to JSON and throws ParseError if string is not valid JSON"""
+
     try:
         return json.loads(string)
     except ValueError as e:
