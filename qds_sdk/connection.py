@@ -36,7 +36,7 @@ class RequestAdapter(HTTPAdapter):
 class Connection:
 
     def __init__(self, auth, rest_url, skip_ssl_cert_check,
-                 reuse=True, max_retries=5,
+                 reuse=True, max_retries=6,
                  base_retry_delay=10):
         self.auth = auth
         self.rest_url = rest_url
@@ -55,7 +55,7 @@ class Connection:
             self.session_with_retries = requests.Session()
             self.session_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
-    def retry(ExceptionToCheck, tries=5, delay=10, backoff=2):
+    def retry(ExceptionToCheck, tries=6, delay=10, backoff=2):
         def deco_retry(f):
             @wraps(f)
             def f_retry(self, *args, **kwargs):
@@ -63,7 +63,7 @@ class Connection:
                     mtries, mdelay = self.max_retries, self.base_retry_delay
                 else:
                     mtries, mdelay = tries, delay
-                while mtries >= 0:
+                while mtries >= 1:
                     try:
                         return f(self, *args, **kwargs)
                     except ExceptionToCheck as e:
