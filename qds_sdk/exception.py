@@ -46,7 +46,7 @@ class ResourceConflict(ClientError):
 
 
 class IdempotentRetry(ClientError):
-    """An error raised when a resource must be retried."""
+    """An error raised will be retryable for GET requests."""
     # 449 Retry With
     # 502 , 504
     pass
@@ -89,7 +89,7 @@ class MethodNotAllowed(ClientError):
 
 
 class AlwaysRetry(ClientError):
-    """An error raised when upstream requests are throttled or Service Unavailable."""
+    """An error will be retryable across all HTTP methods"""
     # 429 Too Many Requests
     # 503 Service Unavailable
     pass
