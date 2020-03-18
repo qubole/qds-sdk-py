@@ -45,9 +45,10 @@ class ResourceConflict(ClientError):
     pass
 
 
-class RetryWithDelay(ClientError):
+class IdempotentRetry(ClientError):
     """An error raised when a resource must be retried."""
     # 449 Retry With
+    # 502 , 504
     pass
 
 
@@ -87,7 +88,7 @@ class MethodNotAllowed(ClientError):
     pass
 
 
-class ApiThrottledRetry(ClientError):
+class AlwaysRetry(ClientError):
     """An error raised when upstream requests are throttled or Service Unavailable."""
     # 429 Too Many Requests
     # 503 Service Unavailable

@@ -63,7 +63,7 @@ class Connection:
                     mtries, mdelay = self.max_retries, self.base_retry_delay
                 else:
                     mtries, mdelay = tries, delay
-                while mtries >= 1:
+                while mtries >= 0:
                     try:
                         return f(self, *args, **kwargs)
                     except ExceptionToCheck as e:
@@ -78,23 +78,23 @@ class Connection:
             return f_retry  # true decorator
         return deco_retry
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry))
+    @retry((IdempotentRetry, requests.Timeout, ServerError, AlwaysRetry))
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry))
+    @retry((IdempotentRetry, requests.Timeout, ServerError, AlwaysRetry))
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
-    @retry(ApiThrottledRetry)
+    @retry(AlwaysRetry)
     def put(self, path, data=None):
         return self._api_call("PUT", path, data)
 
-    @retry(ApiThrottledRetry)
+    @retry(AlwaysRetry)
     def post(self, path, data=None):
         return self._api_call("POST", path, data)
 
-    @retry(ApiThrottledRetry)
+    @retry(AlwaysRetry)
     def delete(self, path, data=None):
         return self._api_call("DELETE", path, data)
 
@@ -190,13 +190,13 @@ class Connection:
             raise ResourceInvalid(response)
         elif code in (502, 504):
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response)
+            raise IdempotentRetry(response)
         elif code == 449:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response, Connection._get_error_message(code))
+            raise IdempotentRetry(response, Connection._get_error_message(code))
         elif code in (429, 503):
             sys.stderr.write(response.text + "\n")
-            raise ApiThrottledRetry(response, Connection._get_error_message(code))
+            raise AlwaysRetry(response, Connection._get_error_message(code))
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
