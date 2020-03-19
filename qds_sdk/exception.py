@@ -45,10 +45,9 @@ class ResourceConflict(ClientError):
     pass
 
 
-class IdempotentRetry(ClientError):
-    """An error raised will be retryable for GET requests."""
+class RetryWithDelay(ClientError):
+    """An error raised when a resource must be retried."""
     # 449 Retry With
-    # 502 , 504
     pass
 
 

@@ -78,11 +78,11 @@ class Connection:
             return f_retry  # true decorator
         return deco_retry
 
-    @retry((IdempotentRetry, requests.Timeout, ServerError, AlwaysRetry))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetry))
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((IdempotentRetry, requests.Timeout, ServerError, AlwaysRetry))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetry))
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
@@ -190,10 +190,10 @@ class Connection:
             raise ResourceInvalid(response)
         elif code in (502, 504):
             sys.stderr.write(response.text + "\n")
-            raise IdempotentRetry(response)
+            raise RetryWithDelay(response)
         elif code == 449:
             sys.stderr.write(response.text + "\n")
-            raise IdempotentRetry(response, Connection._get_error_message(code))
+            raise RetryWithDelay(response, Connection._get_error_message(code))
         elif code in (429, 503):
             sys.stderr.write(response.text + "\n")
             raise AlwaysRetry(response, Connection._get_error_message(code))
