@@ -78,23 +78,23 @@ class Connection:
             return f_retry  # true decorator
         return deco_retry
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetry))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetryWithDelay))
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetry))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetryWithDelay))
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
-    @retry(AlwaysRetry)
+    @retry(AlwaysRetryWithDelay)
     def put(self, path, data=None):
         return self._api_call("PUT", path, data)
 
-    @retry(AlwaysRetry)
+    @retry(AlwaysRetryWithDelay)
     def post(self, path, data=None):
         return self._api_call("POST", path, data)
 
-    @retry(AlwaysRetry)
+    @retry(AlwaysRetryWithDelay)
     def delete(self, path, data=None):
         return self._api_call("DELETE", path, data)
 
@@ -196,7 +196,7 @@ class Connection:
             raise RetryWithDelay(response, Connection._get_error_message(code))
         elif code in (429, 503):
             sys.stderr.write(response.text + "\n")
-            raise AlwaysRetry(response, Connection._get_error_message(code))
+            raise AlwaysRetryWithDelay(response, Connection._get_error_message(code))
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
