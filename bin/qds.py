@@ -35,7 +35,8 @@ CommandClasses = {
     "shellcmd": ShellCommand,
     "dbexportcmd": DbExportCommand,
     "dbimportcmd": DbImportCommand,
-    "prestocmd": PrestoCommand
+    "prestocmd": PrestoCommand,
+    "jupyternotebookcmd": JupyterNotebookCommand
 }
 
 SensorClasses = {
@@ -46,7 +47,7 @@ SensorClasses = {
 usage_str = (
     "Usage: qds.py [options] <subcommand>\n"
     "\nCommand subcommands:\n"
-    "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbimportcmd|dbtapquerycmd|sparkcmd> <action>\n"
+    "  <hivecmd|hadoopcmd|prestocmd|pigcmd|shellcmd|dbexportcmd|dbimportcmd|dbtapquerycmd|sparkcmd|jupyternotebookcmd> <action>\n"
     "    submit [cmd-specific-args .. ] : submit cmd & print id\n"
     "    run [cmd-specific-args .. ] : submit cmd & wait. print results\n"
     "    check <id> <include-query-properties> : id -> print the cmd object for this id\n"
