@@ -22,9 +22,9 @@ see http://stackoverflow.com/questions/14102416/python-requests-requests-excepti
 """
 
 
-class MyAdapter(HTTPAdapter):
+class RequestAdapter(HTTPAdapter):
     def __init__(self, *args, **kwargs):
-        super(MyAdapter, self).__init__(*args, **kwargs)
+        super(RequestAdapter, self).__init__(*args, **kwargs)
 
     def init_poolmanager(self, connections, maxsize,block=False):
         self.poolmanager = PoolManager(num_pools=connections,
@@ -36,7 +36,7 @@ class MyAdapter(HTTPAdapter):
 class Connection:
 
     def __init__(self, auth, rest_url, skip_ssl_cert_check,
-                 reuse=True, max_retries=5,
+                 reuse=True, max_retries=6,
                  base_retry_delay=10):
         self.auth = auth
         self.rest_url = rest_url
@@ -49,13 +49,13 @@ class Connection:
         self.base_retry_delay = base_retry_delay
         if reuse:
             self.session = requests.Session()
-            self.session.mount('https://', MyAdapter())
+            self.session.mount('https://', RequestAdapter())
 
             # retries for get requests
             self.session_with_retries = requests.Session()
-            self.session_with_retries.mount('https://', MyAdapter(max_retries=3))
+            self.session_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
-    def retry(ExceptionToCheck, tries=5, delay=10, backoff=2):
+    def retry(ExceptionToCheck, tries=6, delay=10, backoff=2):
         def deco_retry(f):
             @wraps(f)
             def f_retry(self, *args, **kwargs):
@@ -78,23 +78,23 @@ class Connection:
             return f_retry  # true decorator
         return deco_retry
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetryWithDelay))
     def get_raw(self, path, params=None):
         return self._api_call_raw("GET", path, params=params)
 
-    @retry((RetryWithDelay, requests.Timeout, ServerError, ApiThrottledRetry))
+    @retry((RetryWithDelay, requests.Timeout, ServerError, AlwaysRetryWithDelay))
     def get(self, path, params=None):
         return self._api_call("GET", path, params=params)
 
-    @retry(ApiThrottledRetry)
+    @retry(AlwaysRetryWithDelay)
     def put(self, path, data=None):
         return self._api_call("PUT", path, data)
 
-    @retry(ApiThrottledRetry)
+    @retry(AlwaysRetryWithDelay)
     def post(self, path, data=None):
         return self._api_call("POST", path, data)
 
-    @retry(ApiThrottledRetry)
+    @retry(AlwaysRetryWithDelay)
     def delete(self, path, data=None):
         return self._api_call("DELETE", path, data)
 
@@ -107,7 +107,7 @@ class Connection:
         else:
             x = requests
             x_with_retries = requests.Session()
-            x_with_retries.mount('https://', MyAdapter(max_retries=3))
+            x_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
         kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
 
@@ -188,15 +188,15 @@ class Connection:
         elif code == 422:
             sys.stderr.write(response.text + "\n")
             raise ResourceInvalid(response)
-        elif code in (502, 503, 504):
+        elif code in (502, 504):
             sys.stderr.write(response.text + "\n")
             raise RetryWithDelay(response)
         elif code == 449:
             sys.stderr.write(response.text + "\n")
-            raise RetryWithDelay(response, "Data requested is unavailable. Retrying...")
-        elif code == 429:
+            raise RetryWithDelay(response, Connection._get_error_message(code))
+        elif code in (429, 503):
             sys.stderr.write(response.text + "\n")
-            raise ApiThrottledRetry(response, "Too many requests. Retrying...")
+            raise AlwaysRetryWithDelay(response, Connection._get_error_message(code))
         elif 401 <= code < 500:
             sys.stderr.write(response.text + "\n")
             raise ClientError(response)
@@ -214,3 +214,14 @@ class Connection:
         except Exception as e:
             sys.stderr.write("Error: {0}\nInvalid Response from Server, please contact Qubole Support".format(str(e)))
             raise ServerError(response)
+    
+    @staticmethod
+    def _get_error_message(code):
+        if code == 429:
+            return "Too many requests. Retrying..."
+        elif code == 449:
+            return "Data requested is unavailable. Retrying..."
+        elif code == 503:
+            return "Service Unavailable. Retrying..."
+        else:
+            return ''

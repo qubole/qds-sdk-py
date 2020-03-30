@@ -40,7 +40,7 @@ class Qubole:
     def configure(cls, api_token,
                   api_url="https://api.qubole.com/api/", version="v1.2",
                   poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS",
-                  base_retry_delay=10, max_retries=5):
+                  base_retry_delay=10, max_retries=6):
         """
         Set parameters governing interaction with QDS
         Args:
