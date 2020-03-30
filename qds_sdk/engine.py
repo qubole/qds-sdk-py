@@ -78,11 +78,16 @@ class Engine:
                                  default_pool, enable_rubix)
         self.set_presto_settings(presto_version, custom_presto_config)
         self.set_spark_settings(spark_version, custom_spark_config)
-        # because of same config dbtap_id used in mlflow and airflow, configs are getting created for both cluster type
+        # because of same config dbtap_id used in mlflow and airflow,
+        # configs are getting created for both cluster type
         if mlflow_version:
             self.set_mlflow_settings(mlflow_version, dbtap_id)
         if airflow_version:
-            self.set_airflow_settings(dbtap_id, fernet_key, overrides, airflow_version, airflow_python_version)
+            self.set_airflow_settings(dbtap_id,
+                                      fernet_key,
+                                      overrides,
+                                      airflow_version,
+                                      airflow_python_version)
 
     def set_fairscheduler_settings(self,
                                    fairscheduler_config_xml=None,
@@ -259,7 +264,7 @@ class Engine:
                                            default=None,
                                            help="mlflow version for mlflow cluster", )
         mlflow_settings_group.add_argument("--mlflow-dbtap-id",
-                                            dest="dbtap_id",
-                                            default=None,
-                                            help="dbtap id for mlflow cluster", )
+                                           dest="dbtap_id",
+                                           default=None,
+                                           help="dbtap id for mlflow cluster", )
 
