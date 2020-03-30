@@ -567,14 +567,14 @@ class TestClusterCreate(QdsCliTestCase):
             temp.write("config.properties:\na=1\nb=2".encode("utf8"))
             temp.flush()
             sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
-                        '--flavour', 'hive',  '--overrides', 'hive_overrides', '--hive_version', '2.3']
+                        '--flavour', 'hadoop2',  '--overrides', 'hive_overrides', '--hive_version', '2.3']
             Qubole.cloud = None
             print_command()
             Connection._api_call = Mock(return_value={})
             qds.main()
             Connection._api_call.assert_called_with('POST', 'clusters',
                                                     {'engine_config':
-                                                         {'flavour': 'hive',
+                                                         {'flavour': 'hadoop2',
                                                           'hive_settings': {
                                                               'overrides': 'hive_overrides',
                                                               'version': '2.3'
