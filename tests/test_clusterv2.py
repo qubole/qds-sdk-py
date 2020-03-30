@@ -576,7 +576,7 @@ class TestClusterCreate(QdsCliTestCase):
                                                     {'engine_config':
                                                          {'flavour': 'hadoop2',
                                                           'hive_settings': {
-                                                              'version': '2.3'
+                                                              'hive_version': '2.3'
                                                           }},
                                                      'cluster_info': {'label': ['test_label'],}})
 
