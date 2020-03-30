@@ -548,7 +548,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_mlflow_engine_config(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
-                    '--flavour', 'mlflow', '--mlflow-version', '1.7', '--dbtap-id', '-1']
+                    '--flavour', 'mlflow', '--mlflow-version', '1.7', '--mlflow-dbtap-id', '-1']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
