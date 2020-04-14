@@ -1,7 +1,7 @@
 from __future__ import print_function
 from test_base import QdsCliTestCase
 from test_base import print_command
-from qds_sdk.quest import QuestCode
+from qds_sdk.pipelines import PipelinesCode
 from qds_sdk.connection import Connection
 import qds
 from mock import *
@@ -19,7 +19,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '../bin'))
 
 class TestQuestList(QdsCliTestCase):
     def test_list_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'list', '--pipeline-status', 'draft']
+        sys.argv = ['qds.py', 'pipelines', 'list', '--pipeline-status', 'draft']
         print_command()
         Connection._api_call = Mock(return_value={})
         params = {'filter': "draft"}
@@ -28,7 +28,7 @@ class TestQuestList(QdsCliTestCase):
             "GET", "pipelines", params=params)
 
     def test_pause_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'pause', '--pipeline-id', '153']
+        sys.argv = ['qds.py', 'pipelines', 'pause', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -36,7 +36,7 @@ class TestQuestList(QdsCliTestCase):
             "PUT", "pipelines/153/pause", None)
 
     def test_clone_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'clone', '--pipeline-id', '153']
+        sys.argv = ['qds.py', 'pipelines', 'clone', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -44,7 +44,7 @@ class TestQuestList(QdsCliTestCase):
             "POST", "pipelines/153/duplicate", None)
 
     def test_archive_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'archive', '--pipeline-id', '153']
+        sys.argv = ['qds.py', 'pipelines', 'archive', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -52,7 +52,7 @@ class TestQuestList(QdsCliTestCase):
             "PUT", "pipelines/153/archive", None)
 
     def test_delete_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'delete', '--pipeline-id', '153']
+        sys.argv = ['qds.py', 'pipelines', 'delete', '--pipeline-id', '153']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
@@ -60,7 +60,7 @@ class TestQuestList(QdsCliTestCase):
             "PUT", "pipelines/153/delete", None)
 
     def test_create_pipeline(self):
-        sys.argv = ['qds.py', 'quest', 'create', '--create-type', '3', '--pipeline-name', 'test_pipeline_name',
+        sys.argv = ['qds.py', 'pipelines', 'create', '--create-type', '3', '--pipeline-name', 'test_pipeline_name',
                     '--cluster-label', 'spark', '-c', 'print("hello")', '--language', 'python', '--user-arguments', 'users_argument']
         print_command()
         d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": 3},
@@ -79,9 +79,9 @@ class TestQuestList(QdsCliTestCase):
                                             "owner_name": "eam-airflow", "pipeline_instance_status": "draft",
                                             "create_type": 3, "health": "UNKNOWN"}}}
 
-        QuestCode.pipeline_id = '1'
-        QuestCode.pipeline_code = """print("helloworld")"""
-        QuestCode.pipeline_name = "test_pipeline_name"
+        PipelinesCode.pipeline_id = '1'
+        PipelinesCode.pipeline_code = """print("helloworld")"""
+        PipelinesCode.pipeline_name = "test_pipeline_name"
         d2 = {"data": {"attributes": {"cluster_label": "spark", "can_retry": True,
                                       "checkpoint_location": None,
                                       "trigger_interval": None, "output_mode": None,
