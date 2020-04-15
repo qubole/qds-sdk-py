@@ -17,7 +17,7 @@ from qds_sdk.user import UserCmdLine
 from qds_sdk.template import TemplateCmdLine
 from qds_sdk.clusterv2 import ClusterCmdLine
 from qds_sdk.sensors import *
-from qds_sdk.quest import QuestCmdLine
+from qds_sdk.pipelines import PipelinesCmdLine
 import os
 import sys
 import traceback
@@ -90,8 +90,8 @@ usage_str = (
     "  action --help\n"
     "\nScheduler subcommand:\n"
     "  scheduler --help\n"
-    "\nQuest subcommand:\n"
-    "  quest --help\n"
+    "\nPipelines subcommand:\n"
+    "  pipelines --help\n"
     "\nTemplate subcommand:\n"
     "  template --help\n"
     "\nAccount subcommand:\n"
@@ -559,7 +559,7 @@ def templatemain(args):
     print(result)
 
 def questmain(args):
-    result = QuestCmdLine.run(args)
+    result = PipelinesCmdLine.run(args)
     print(result)
 
 
@@ -706,13 +706,13 @@ def main():
         return usermain(args)
     if a0 == "template":
         return templatemain(args)
-    if a0 == "quest":
+    if a0 == "pipelines":
         return questmain(args)
 
     cmdset = set(CommandClasses.keys())
     sys.stderr.write("First command must be one of <%s>\n" %
                      "|".join(cmdset.union(["cluster", "action", "scheduler", "report",
-                       "dbtap", "role", "group", "app", "account", "nezha", "user", "template", "quest"])))
+                       "dbtap", "role", "group", "app", "account", "nezha", "user", "template", "pipelines"])))
     usage(optparser)
 
 
