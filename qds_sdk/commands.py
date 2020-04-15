@@ -1387,6 +1387,9 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--print-logs-live", action="store_true",
                          dest="print_logs_live", default=False, help="Fetch logs \
                          and print them to stderr while command is running.")
+    optparser.add_option("--skip-upload-to-source", action="store_false",
+                         dest="upload_to_source", default=True, help="Do not \
+                         upload notebook to source after completion of execution")
 
     @classmethod
     def parse(cls, args):
