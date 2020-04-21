@@ -33,7 +33,7 @@ class TestConnection(QdsCliTestCase):
         Connection.__init__ = Mock(return_value=None)
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection.__init__.assert_called_with(ANY, ANY, ANY, ANY, 5, 10)
+        Connection.__init__.assert_called_with(ANY, ANY, ANY, ANY, 7, 10)
 
     #Test with no values given should set default
     def test_connection_default(self):
@@ -42,7 +42,7 @@ class TestConnection(QdsCliTestCase):
         Connection.__init__ = Mock(return_value=None)
         Connection._api_call = Mock(return_value={})
         qds.main()
-        Connection.__init__.assert_called_with(ANY, ANY, ANY, ANY, 5, 10)
+        Connection.__init__.assert_called_with(ANY, ANY, ANY, ANY, 7, 10)
 
 if __name__ == '__main__':
     unittest.main()
