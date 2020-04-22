@@ -17,7 +17,7 @@ def read(fname):
 
 setup(
     name="qds_sdk",
-    version="1.15.1",
+    version="1.15.2",
     author="Qubole",
     author_email="dev@qubole.com",
     description=("Python SDK for coding to the Qubole Data Service API"),
