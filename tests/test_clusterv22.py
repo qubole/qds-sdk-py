@@ -112,8 +112,8 @@ class TestClusterCreate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
                     '--master-type', 'ondemand', '--min-ondemand-percentage', '100',
                     '--autoscaling-spot-block-percentage',
-                    '50', '--autoscaling-spot-block-duration', '60', '--autoscaling-spot-percentage', '50',
-                    '--autoscaling-maximum-bid-price-percentage', '50',
+                    '50', '--autoscaling-spot-block-duration', '60', '--autoscaling-spot-block-fallback', None,
+                    '--autoscaling-spot-percentage', '50', '--autoscaling-maximum-bid-price-percentage', '50',
                     '--autoscaling-timeout-for-request', '3', '--autoscaling-spot-fallback', None, '--autoscaling-spot-allocation-strategy', 'capacityOptimized']
         Qubole.cloud = None
         print_command()
@@ -122,7 +122,7 @@ class TestClusterCreate(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'clusters', {'cluster_info': {
             'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]},
                             'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {
-                    'nodes': [{'percentage': 50, 'type': 'spotblock', 'timeout': 60},
+                    'nodes': [{'percentage': 50, 'type': 'spotblock', 'timeout': 60, 'fallback': None},
                               {'timeout_for_request': 3, 'percentage': 50, 'type': 'spot', 'fallback': None,
                                'maximum_bid_price_percentage': 50, 'allocation_strategy': 'capacityOptimized'}]}}, 'label': ['test_label']}})
 
@@ -164,7 +164,7 @@ class TestClusterCreate(QdsCliTestCase):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
                     '--master-type', 'spotblock', '--master-spot-block-duration', '60', '--min-spot-block-percentage',
                     '100', '--min-spot-block-duration', '60', '--autoscaling-spot-block-percentage',
-                    '100', '--autoscaling-spot-block-duration', '60']
+                    '100', '--autoscaling-spot-block-duration', '60', '--autoscaling-spot-block-fallback', None]
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
@@ -172,7 +172,7 @@ class TestClusterCreate(QdsCliTestCase):
         Connection._api_call.assert_called_with('POST', 'clusters', {'cluster_info': {
             'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'spotblock', 'timeout': 60}]},
                             'master': {'nodes': [{'percentage': 100, 'type': 'spotblock', 'timeout': 60}]},
-                            'autoscaling_nodes': {'nodes': [{'percentage': 100, 'type': 'spotblock', 'timeout': 60}]}},
+                            'autoscaling_nodes': {'nodes': [{'percentage': 100, 'type': 'spotblock', 'timeout': 60, 'fallback': None}]}},
             'label': ['test_label']}})
 
     def test_spot_spot_spot(self):
