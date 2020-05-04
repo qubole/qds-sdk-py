@@ -393,7 +393,8 @@ class ClusterInfoV22(object):
             "percentage": autoscaling_ondemand_percentage, "type": "ondemand"}
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(ondemand)
 
-    def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None, autoscaling_spot_block_duration=120,
+    def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None,
+                                   autoscaling_spot_block_duration=120,
                                    autoscaling_spot_block_fallback=None):
         spot_block = {"percentage": autoscaling_spot_block_percentage,
                       "type": "spotblock",
@@ -704,8 +705,8 @@ class ClusterInfoV22(object):
                                        dest="autoscaling_spot_block_fallback",
                                        choices=["ondemand", None],
                                        default=None,
-                                       help="whether to fallback to on-demand instances for autoscaling nodes" +
-                                            " if spot block instances aren't available")
+                                       help="whether to fallback to on-demand instances for autoscaling" +
+                                            " nodes if spot block instances aren't available")
         composition_group.add_argument("--autoscaling-maximum-bid-price-percentage",
                                        dest="autoscaling_maximum_bid_price_percentage",
                                        type=int,
