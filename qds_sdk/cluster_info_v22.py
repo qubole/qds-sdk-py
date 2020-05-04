@@ -393,10 +393,11 @@ class ClusterInfoV22(object):
             "percentage": autoscaling_ondemand_percentage, "type": "ondemand"}
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(ondemand)
 
-    def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None, autoscaling_spot_block_duration=120,autoscaling_spot_block_fallback=None):
+    def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None, autoscaling_spot_block_duration=120,
+                                   autoscaling_spot_block_fallback=None):
         spot_block = {"percentage": autoscaling_spot_block_percentage,
                       "type": "spotblock",
-                      "timeout": autoscaling_spot_block_duration
+                      "timeout": autoscaling_spot_block_duration,
                       "fallback": autoscaling_spot_block_fallback}
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
 
