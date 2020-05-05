@@ -241,7 +241,7 @@ class Engine:
                                            dest="presto_custom_config_file",
                                            help="location of file containg custom" +
                                                 " presto configuration overrides")
-        hive_settings_group = argparser.add_argument_group("hive version settings")
+        hive_settings_group = argparser.add_argument_group("hive settings")
         hive_settings_group.add_argument("--hive_version",
                                          dest="hive_version",
                                          default=None,
