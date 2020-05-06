@@ -211,3 +211,22 @@ class TestClusterCreate(QdsCliTestCase):
                                                 'slave_instance_type': 'c1.xlarge',
                                                 'cluster_image_version': '1.latest',
                                                 'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {'nodes': [{'percentage': 50, 'type': 'ondemand'}, {'timeout_for_request': 1, 'percentage': 50, 'type': 'spot', 'fallback': 'ondemand', 'maximum_bid_price_percentage': 100, 'allocation_strategy': None}]}}, 'label': ['test_label']}})
+
+    def test_hive_settings(self):
+        sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
+                    '--is_hs2', 'true', '--hs2_thrift_port', '10001']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        print("Suraj")
+        print(Connection._api_call)
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'engine_config': {'hive_settings': {'is_hs2': 'true', 'hs2_thrift_port': '10001'}},
+                                                 'cluster_info': {'label': ['test_label'],
+                                                                  'composition': {'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]},
+                                                                                  'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]},
+                                                                                  'autoscaling_nodes': {'nodes': [{'percentage': 50, 'type': 'ondemand'},
+                                                                                                                  {'percentage': 50, 'type': 'spot', 'maximum_bid_price_percentage': 100, 'timeout_for_request': 1, 'allocation_strategy': None, 'fallback': 'ondemand'}]}}}})
+
+if __name__ == '__main__':
+    unittest.main()
