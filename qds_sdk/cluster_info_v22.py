@@ -77,7 +77,8 @@ class ClusterInfoV22(object):
                              autoscaling_maximum_bid_price_percentage=arguments.autoscaling_maximum_bid_price_percentage,
                              autoscaling_timeout_for_request=arguments.autoscaling_timeout_for_request,
                              autoscaling_spot_allocation_strategy=arguments.autoscaling_spot_allocation_strategy,
-                             autoscaling_spot_fallback=arguments.autoscaling_spot_fallback)
+                             autoscaling_spot_fallback=arguments.autoscaling_spot_fallback,
+                             autoscaling_spot_block_fallback=arguments.autoscaling_spot_block_fallback)
 
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
@@ -248,7 +249,8 @@ class ClusterInfoV22(object):
                         autoscaling_maximum_bid_price_percentage=None,
                         autoscaling_timeout_for_request=None,
                         autoscaling_spot_allocation_strategy=None,
-                        autoscaling_spot_fallback=None):
+                        autoscaling_spot_fallback=None,
+                        autoscaling_spot_block_fallback=None):
 
         self.cluster_info["composition"] = {}
 
@@ -274,7 +276,8 @@ class ClusterInfoV22(object):
                                     autoscaling_maximum_bid_price_percentage,
                                     autoscaling_timeout_for_request,
                                     autoscaling_spot_allocation_strategy,
-                                    autoscaling_spot_fallback)
+                                    autoscaling_spot_fallback,
+                                    autoscaling_spot_block_fallback)
 
     def set_master_config(self,
                           master_type,
@@ -323,7 +326,8 @@ class ClusterInfoV22(object):
                                autoscaling_maximum_bid_price_percentage,
                                autoscaling_timeout_for_request,
                                autoscaling_spot_allocation_strategy,
-                               autoscaling_spot_fallback):
+                               autoscaling_spot_fallback,
+                               autoscaling_spot_block_fallback):
         self.cluster_info["composition"]["autoscaling_nodes"] = {"nodes": []}
         if not autoscaling_ondemand_percentage and not autoscaling_spot_block_percentage and not autoscaling_spot_percentage:
             self.set_autoscaling_ondemand(50)
@@ -333,7 +337,8 @@ class ClusterInfoV22(object):
                 self.set_autoscaling_ondemand(autoscaling_ondemand_percentage)
             if autoscaling_spot_block_percentage:
                 self.set_autoscaling_spot_block(autoscaling_spot_block_percentage,
-                                                autoscaling_spot_block_duration)
+                                                autoscaling_spot_block_duration,
+                                                autoscaling_spot_block_fallback)
             if autoscaling_spot_percentage:
                 self.set_autoscaling_spot(autoscaling_spot_percentage,
                                           autoscaling_maximum_bid_price_percentage,
@@ -388,10 +393,13 @@ class ClusterInfoV22(object):
             "percentage": autoscaling_ondemand_percentage, "type": "ondemand"}
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(ondemand)
 
-    def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None, autoscaling_spot_block_duration=120):
+    def set_autoscaling_spot_block(self, autoscaling_spot_block_percentage=None,
+                                   autoscaling_spot_block_duration=120,
+                                   autoscaling_spot_block_fallback=None):
         spot_block = {"percentage": autoscaling_spot_block_percentage,
                       "type": "spotblock",
-                      "timeout": autoscaling_spot_block_duration}
+                      "timeout": autoscaling_spot_block_duration,
+                      "fallback": autoscaling_spot_block_fallback}
         self.cluster_info["composition"]["autoscaling_nodes"]["nodes"].append(spot_block)
 
     def set_autoscaling_spot(self, autoscaling_spot_percentage=None,
@@ -693,6 +701,12 @@ class ClusterInfoV22(object):
                                        type=int,
                                        default=120,
                                        help="spot block duration unit:  minutes")
+        composition_group.add_argument("--autoscaling-spot-block-fallback",
+                                       dest="autoscaling_spot_block_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for autoscaling" +
+                                            " nodes if spot block instances aren't available")
         composition_group.add_argument("--autoscaling-maximum-bid-price-percentage",
                                        dest="autoscaling_maximum_bid_price_percentage",
                                        type=int,
