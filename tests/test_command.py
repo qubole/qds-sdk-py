@@ -2247,9 +2247,8 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'can_notify': False,
                  'pool': 'batch'})
 
-    def test_submit_skip_upload_to_source(self):
-        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
-                    '--skip-upload-to-source']
+    def test_submit_no_upload_to_source(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file']
         print_command()
         Connection._api_call = Mock(return_value={'id': 1234})
         qds.main()
@@ -2264,7 +2263,7 @@ class TestJupyterNotebookCommand(QdsCliTestCase):
                  'path': 'folder/file',
                  'retry_delay': None,
                  'command_type': 'JupyterNotebookCommand',
-                 'upload_to_source': False,
+                 'upload_to_source': True,
                  'can_notify': False,
                  'pool': None})
 
