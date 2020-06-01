@@ -1390,6 +1390,8 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--skip-upload-to-source", action="store_false",
                          dest="upload_to_source", default=True, help="Do not \
                          upload notebook to source after completion of execution")
+    optparser.add_option("--upload-to-source", dest="upload_to_source", help="Do not \
+                         upload notebook to source after completion of execution")
 
     @classmethod
     def parse(cls, args):
@@ -1417,6 +1419,15 @@ class JupyterNotebookCommand(Command):
                 options.macros = validate_json_input(options.macros, 'Macros', cls)
             if options.retry is not None:
                 options.retry = int(options.retry)
+            if type(options.upload_to_source) == str:
+                options.upload_to_source = options.upload_to_source.lower()
+                if options.upload_to_source == 'true':
+                    options.upload_to_source = True
+                elif options.upload_to_source == 'false':
+                    options.upload_to_source = False
+                else:
+                    msg = 'Upload to Source parameter takes value of either True or False only.'
+                    raise ParseError(msg, cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
