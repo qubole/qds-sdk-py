@@ -1419,14 +1419,15 @@ class JupyterNotebookCommand(Command):
                 options.macros = validate_json_input(options.macros, 'Macros', cls)
             if options.retry is not None:
                 options.retry = int(options.retry)
-            if type(options.upload_to_source) == str:
+            if type(options.upload_to_source) is str:
                 options.upload_to_source = options.upload_to_source.lower()
                 if options.upload_to_source == 'true':
                     options.upload_to_source = True
                 elif options.upload_to_source == 'false':
                     options.upload_to_source = False
                 else:
-                    msg = 'Upload to Source parameter takes value of either True or False only.'
+                    msg = 'Upload to Source parameter takes value of either True \
+                    or False only.'
                     raise ParseError(msg, cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
