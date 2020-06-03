@@ -1389,8 +1389,8 @@ class JupyterNotebookCommand(Command):
                          and print them to stderr while command is running.")
     optparser.add_option("--upload-to-source", dest="upload_to_source", default='True',
                          help="Upload notebook to source after completion of \
-                         execution. Specify value as either True or False. Default \
-                         value is True.")
+                         execution. Specify the value as either'true' or 'false'. Default \
+                         value is 'true' ")
 
     @classmethod
     def parse(cls, args):
