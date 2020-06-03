@@ -1387,9 +1387,10 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--print-logs-live", action="store_true",
                          dest="print_logs_live", default=False, help="Fetch logs \
                          and print them to stderr while command is running.")
-    optparser.add_option("--skip-upload-to-source", action="store_false",
-                         dest="upload_to_source", default=True, help="Do not \
-                         upload notebook to source after completion of execution")
+    optparser.add_option("--upload-to-source", dest="upload_to_source", default='true',
+                         help="Upload notebook to source after completion of \
+                         execution. Specify the value as either 'true' or 'false'.\
+                         Default value is 'true'.")
 
     @classmethod
     def parse(cls, args):
@@ -1417,6 +1418,16 @@ class JupyterNotebookCommand(Command):
                 options.macros = validate_json_input(options.macros, 'Macros', cls)
             if options.retry is not None:
                 options.retry = int(options.retry)
+            if options.upload_to_source is not None:
+                options.upload_to_source = options.upload_to_source.lower()
+                if options.upload_to_source == 'true':
+                    options.upload_to_source = True
+                elif options.upload_to_source == 'false':
+                    options.upload_to_source = False
+                else:
+                    msg = "Upload to Source parameter takes a value of either 'true' \
+                    or 'false' only."
+                    raise ParseError(msg, cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
         except OptionParsingExit as e:
