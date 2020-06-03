@@ -1387,10 +1387,10 @@ class JupyterNotebookCommand(Command):
     optparser.add_option("--print-logs-live", action="store_true",
                          dest="print_logs_live", default=False, help="Fetch logs \
                          and print them to stderr while command is running.")
-    optparser.add_option("--upload-to-source", dest="upload_to_source", default='True',
+    optparser.add_option("--upload-to-source", dest="upload_to_source", default='true',
                          help="Upload notebook to source after completion of \
-                         execution. Specify the value as either'true' or 'false'. Default \
-                         value is 'true' ")
+                         execution. Specify the value as either 'true' or 'false'.\
+                         Default value is 'true'.")
 
     @classmethod
     def parse(cls, args):
