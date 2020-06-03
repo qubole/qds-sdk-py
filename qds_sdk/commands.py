@@ -1425,8 +1425,8 @@ class JupyterNotebookCommand(Command):
                 elif options.upload_to_source == 'false':
                     options.upload_to_source = False
                 else:
-                    msg = 'Upload to Source parameter takes value of either True \
-                    or False only.'
+                    msg = "Upload to Source parameter takes a value of either 'true' \
+                    or 'false' only."
                     raise ParseError(msg, cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
