@@ -83,7 +83,7 @@ class ClusterInfoV22(object):
                              autoscaling_spot_fallback=arguments.autoscaling_spot_fallback,
                              autoscaling_spot_block_fallback=arguments.autoscaling_spot_block_fallback)
         else:
-            self.set_composition_from_cloud(arguments)
+            self.set_composition_from_cloud_using_parser(arguments)
 
     def set_cluster_info(self,
                          disallow_cluster_termination=None,
@@ -233,10 +233,12 @@ class ClusterInfoV22(object):
         self.set_start_stop_settings(disable_cluster_pause, paused_cluster_timeout_mins,
                                      disable_autoscale_node_pause, paused_autoscale_node_timeout_mins)
 
-    def set_composition_from_cloud(self, arguments):
+    def set_composition_from_cloud_using_parser(self, arguments):
+        self.set_composition_for_cluster(**{k:v for k,v in arguments.__dict__.items() if v != None})
+
+    def set_composition_for_cluster(self, **kwargs):
         cloud = Qubole.get_cloud()
-        self.cluster_info["composition"] = cloud.get_composition(arguments)
-        
+        self.cluster_info["composition"] = cloud.get_composition(kwargs)
 
     def set_composition(self,
                         master_type="ondemand",

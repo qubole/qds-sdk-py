@@ -10,7 +10,6 @@ class AzureCloud(Cloud):
         self.location = {}
         self.network_config = {}
         self.storage_config = {}
-        self.cluster_composition = {}
 
     def set_cloud_config(self,
                          compute_client_id=None,
@@ -160,16 +159,16 @@ class AzureCloud(Cloud):
 
       composition_group.add_argument("--min-ondemand-percentage",
                               dest="min_ondemand_percentage",
-                              type=int, default =100,
+                              type=int, default =0,
                               help="Percentage of ondemand nodes in min config.")
       composition_group.add_argument("--min-spot-percentage",
                               dest="min_spot_percentage",
                               type=int, default = 0,
                               help="Percentage of spot nodes in min config.")
-      composition_group.add_argument("--min-max-price-percentage",
-                              dest="min_max_price_percentage",
+      composition_group.add_argument("--max-price-percentage",
+                              dest="max_price_percentage",
                               type=int, default = 100,
-                              help="Percentage of maximum price percentage for spot nodes in min config.")
+                              help="Percentage of maximum price percentage for spot nodes.")
       composition_group.add_argument("--min-spot-fallback",
                                      dest="min_spot_fallback",
                                      choices=["ondemand", None],
@@ -180,16 +179,12 @@ class AzureCloud(Cloud):
 
       composition_group.add_argument("--autoscaling-ondemand-percentage",
                               dest="autoscaling_ondemand_percentage",
-                              type=int, default=100,
+                              type=int, default=0,
                               help="Percentage of ondemand nodes in autoscaling config.")
       composition_group.add_argument("--autoscaling-spot-percentage",
                               dest="autoscaling_spot_percentage",
                               type=int, default=0,
                               help="Percentage of spot nodes in autoscaling config.")
-      composition_group.add_argument("--autoscaling-max-price-percentage",
-                              dest="autoscaling_max_price_percentage",
-                              type=int, default = 100,
-                              help="Percentage of maximum price percentage for spot nodes in autoscaling config.")
       composition_group.add_argument("--autoscaling-spot-fallback",
                                      dest="autoscaling_spot_fallback",
                                      choices=["ondemand", None],
@@ -197,27 +192,36 @@ class AzureCloud(Cloud):
                                      help="Whether to fallback to on-demand instances for autoscaling nodes" +
                                           " if spot instances aren't available.")
 
-    def get_composition(self, arguments):
+    #List all arguments you expect.
+    def get_composition(self,
+                        min_ondemand_percentage=0,
+                        min_spot_percentage=0,
+                        min_spot_fallback=None,
+                        autoscaling_ondemand_percentage=0,
+                        autoscaling_spot_percentage=0,
+                        autoscaling_spot_fallback=None,
+                        max_price_percentage=100,
+                        **kwargs):
       composition = {}
       composition["min_nodes"] = {"nodes": []}
-      if arguments.min_ondemand_percentage + arguments.min_spot_percentage != 100:
+      if min_ondemand_percentage + min_spot_percentage != 100:
           raise ValueError("Minimum nodes ondemand+spot percentage should be 100: Ondemand pct: %d Spot pct: %d"
-                          % (arguments.min_ondemand_percentage,arguments.min_spot_percentage))
-      if arguments.min_spot_percentage > 0:
-          composition["min_nodes"]["nodes"].append({"type":"spot", "percentage":arguments.min_spot_percentage,
-                                                 "fallback": arguments.min_spot_fallback, "max_price_percentage": arguments.min_max_price_percentage})
-      if arguments.min_ondemand_percentage > 0:
-          composition["min_nodes"]["nodes"].append({"type":"ondemand", "percentage":arguments.min_ondemand_percentage})
+                          % (min_ondemand_percentage,min_spot_percentage))
+      if min_ondemand_percentage > 0:
+          composition["min_nodes"]["nodes"].append({"type":"ondemand", "percentage":min_sondemand_percentage})
+      if min_spot_percentage > 0:
+          composition["min_nodes"]["nodes"].append({"type":"spot", "percentage":min_spot_percentage,
+                                                 "fallback": min_spot_fallback, "max_price_percentage": max_price_percentage})
 
       composition["autoscaling_nodes"] = {"nodes": []}
-      if arguments.autoscaling_ondemand_percentage + arguments.autoscaling_spot_percentage != 100:
+      if autoscaling_ondemand_percentage + autoscaling_spot_percentage != 100:
           raise ValueError("Autoscaling nodes ondemand+spot percentage should be 100: Ondemand pct: %d Spot pct: %d"
-                          % (arguments.autoscaling_ondemand_percentage,arguments.autoscaling_spot_percentage))
-      if arguments.min_spot_percentage > 0:
-          composition["autoscaling_nodes"]["nodes"].append({"type":"spot", "percentage":arguments.autoscaling_spot_percentage,
-                                                 "fallback": arguments.autoscaling_spot_fallback, "max_price_percentage": arguments.autoscaling_max_price_percentage})
-      if arguments.autoscaling_ondemand_percentage > 0:
-          composition["autoscaling_nodes"]["nodes"].append({"type":"ondemand", "percentage":arguments.autoscaling_ondemand_percentage})
+                          % (autoscaling_ondemand_percentage,autoscaling_spot_percentage))
+      if autoscaling_ondemand_percentage > 0:
+          composition["autoscaling_nodes"]["nodes"].append({"type":"ondemand", "percentage":autoscaling_ondemand_percentage})
+      if autoscaling_spot_percentage > 0:
+          composition["autoscaling_nodes"]["nodes"].append({"type":"spot", "percentage":autoscaling_spot_percentage,
+                                                 "fallback": autoscaling_spot_fallback, "max_price_percentage": max_price_percentage})
       return composition
 
     def create_parser(self, argparser):
