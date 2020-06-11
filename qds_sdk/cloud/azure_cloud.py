@@ -90,7 +90,6 @@ class AzureCloud(Cloud):
                                 disk_storage_account_resource_group_name)
         self.resource_group_name = resource_group_name
 
-
     def set_compute_config(self,
                            use_account_compute_creds=None,
                            compute_tenant_id=None,
@@ -192,7 +191,7 @@ class AzureCloud(Cloud):
                                      help="Whether to fallback to on-demand instances for autoscaling nodes" +
                                           " if spot instances aren't available.")
 
-    #List all arguments you expect.
+    #Ignore other key-value arguments.
     def get_composition(self,
                         min_ondemand_percentage=0,
                         min_spot_percentage=0,

@@ -262,8 +262,7 @@ class ClusterInfoV22(object):
                         autoscaling_timeout_for_request=None,
                         autoscaling_spot_allocation_strategy=None,
                         autoscaling_spot_fallback=None,
-                        autoscaling_spot_block_fallback=None,
-                        **kwargs):
+                        autoscaling_spot_block_fallback=None):
 
         self.cluster_info["composition"] = {}
 
