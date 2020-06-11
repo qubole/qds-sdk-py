@@ -90,7 +90,6 @@ class AzureCloud(Cloud):
                                 disk_storage_account_name,
                                 disk_storage_account_resource_group_name)
         self.resource_group_name = resource_group_name
-        self.set_cluster_composition()
 
 
     def set_compute_config(self,
@@ -185,14 +184,14 @@ class AzureCloud(Cloud):
                               help="Percentage of ondemand nodes in autoscaling config.")
       composition_group.add_argument("--autoscaling-spot-percentage",
                               dest="autoscaling_spot_percentage",
-                              type=int, default=0
+                              type=int, default=0,
                               help="Percentage of spot nodes in autoscaling config.")
       composition_group.add_argument("--autoscaling-max-price-percentage",
-                              dest="min_spot_percentage",
+                              dest="autoscaling_max_price_percentage",
                               type=int, default = 100,
                               help="Percentage of maximum price percentage for spot nodes in autoscaling config.")
       composition_group.add_argument("--autoscaling-spot-fallback",
-                                     dest="autoscaling_max_price_percentage",
+                                     dest="autoscaling_spot_fallback",
                                      choices=["ondemand", None],
                                      default=None,
                                      help="Whether to fallback to on-demand instances for autoscaling nodes" +

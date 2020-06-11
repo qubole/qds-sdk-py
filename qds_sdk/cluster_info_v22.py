@@ -1,6 +1,7 @@
 import json
 
 from qds_sdk import util
+from qds_sdk.qubole import Qubole
 
 
 def str2bool(v):
@@ -624,8 +625,8 @@ class ClusterInfoV22(object):
                                   dest="heterogeneous_config",
                                   help="heterogeneous config for the cluster")
 
-        composition_group = argparser.add_argument_group("cluster composition settings")
-        if Qubole.get_cloud_name == "aws":
+        composition_group = argparser.add_argument_group("Cluster composition settings")
+        if Qubole.get_cloud_name() == "aws":
             composition_group.add_argument("--master-type",
                                           dest="master_type",
                                           choices=["ondemand", "spot", "spotblock"],
