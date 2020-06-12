@@ -8,3 +8,6 @@ class Cloud:
 
     def set_composition_arguments(seld, set_composition_arguments):
     	pass
+
+    def get_composition():
+    	return {}
