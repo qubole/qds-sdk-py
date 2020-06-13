@@ -30,7 +30,7 @@ class Qubole:
     version = None
     poll_interval = None
     skip_ssl_cert_check = None
-    cloud_name = None
+    cloud_name = "aws"
     cached_agent = None
     cloud = None
     base_retry_delay = None
@@ -143,3 +143,7 @@ class Qubole:
         elif cloud_name.lower() == "gcp":
             import qds_sdk.cloud.gcp_cloud
             return qds_sdk.cloud.gcp_cloud.GcpCloud()
+
+    @classmethod
+    def get_cloud_name(cls):
+        return Qubole.cloud_name
