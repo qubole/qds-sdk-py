@@ -153,42 +153,40 @@ class AzureCloud(Cloud):
                               master_static_public_ip_name=arguments.master_static_public_ip_name,
                               resource_group_name=arguments.resource_group_name)
 
-    def set_composition_arguments(self, composition_group):
+    def set_composition_arguments(self, comp_group):
         #composition arguments we want to accept for azure
-        composition_group.add_argument("--min-ondemand-percentage",
-                                       dest="min_ondemand_percentage",
-                                       type=int, default =0,
-                                       help="Percentage of ondemand nodes in min config.")
-        composition_group.add_argument("--min-spot-percentage",
-                                       dest="min_spot_percentage",
-                                       type=int, default = 0,
-                                       help="Percentage of spot nodes in min config.")
-        composition_group.add_argument("--max-price-percentage",
-                                       dest="max_price_percentage",
-                                       type=int, default = 100,
-                                       help="Percentage of maximum price percentage for spot nodes.")
-        composition_group.add_argument("--min-spot-fallback",
-                                       dest="min_spot_fallback",
-                                       choices=["ondemand", None],
-                                       default=None,
-                                       help="Whether to fallback to on-demand instances for min nodes" +
-                                            " if spot instances aren't available.")
-
-
-        composition_group.add_argument("--autoscaling-ondemand-percentage",
-                                       dest="autoscaling_ondemand_percentage",
-                                       type=int, default=0,
-                                       help="Percentage of ondemand nodes in autoscaling config.")
-        composition_group.add_argument("--autoscaling-spot-percentage",
-                                       dest="autoscaling_spot_percentage",
-                                       type=int, default=0,
-                                       help="Percentage of spot nodes in autoscaling config.")
-        composition_group.add_argument("--autoscaling-spot-fallback",
-                                       dest="autoscaling_spot_fallback",
-                                       choices=["ondemand", None],
-                                       default=None,
-                                       help="Whether to fallback to on-demand instances for autoscaling nodes" +
-                                            " if spot instances aren't available.")
+        comp_group.add_argument("--min-ondemand-percentage",
+                                dest="min_ondemand_percentage",
+                                type=int, default =0,
+                                help="Percentage of ondemand nodes in min config.")
+        comp_group.add_argument("--min-spot-percentage",
+                                dest="min_spot_percentage",
+                                type=int, default = 0,
+                                help="Percentage of spot nodes in min config.")
+        comp_group.add_argument("--max-price-percentage",
+                                dest="max_price_percentage",
+                                type=int, default = 100,
+                                help="Percentage of maximum price percentage for spot nodes.")
+        comp_group.add_argument("--min-spot-fallback",
+                                dest="min_spot_fallback",
+                                choices=["ondemand", None],
+                                default=None,
+                                help="Whether to fallback to on-demand instances for min nodes" +
+                                      " if spot instances aren't available.")
+        comp_group.add_argument("--autoscaling-ondemand-percentage",
+                                dest="autoscaling_ondemand_percentage",
+                                type=int, default=0,
+                                help="Percentage of ondemand nodes in autoscaling config.")
+        comp_group.add_argument("--autoscaling-spot-percentage",
+                                dest="autoscaling_spot_percentage",
+                                type=int, default=0,
+                                help="Percentage of spot nodes in autoscaling config.")
+        comp_group.add_argument("--autoscaling-spot-fallback",
+                                dest="autoscaling_spot_fallback",
+                                choices=["ondemand", None],
+                                default=None,
+                                help="Whether to fallback to on-demand instances for autoscaling nodes" +
+                                     " if spot instances aren't available.")
 
     #Ignore other key-value arguments.
     def get_composition(self,

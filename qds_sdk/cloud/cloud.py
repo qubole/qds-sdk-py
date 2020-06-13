@@ -9,5 +9,5 @@ class Cloud:
     def set_composition_arguments(self, set_composition_arguments):
     	pass
 
-    def get_composition(*args, **kwargs):
+    def get_composition(self, *args, **kwargs):
     	return {}

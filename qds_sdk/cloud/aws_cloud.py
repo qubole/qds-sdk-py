@@ -107,12 +107,12 @@ class AwsCloud(Cloud):
                               bastion_node_public_dns=arguments.bastion_node_public_dns,
                               master_elastic_ip=arguments.master_elastic_ip)
 
-    def set_composition_arguments(self, composition_group)
+    def set_composition_arguments(self, composition_group):
         composition_group.add_argument("--master-type",
-                                      dest="master_type",
-                                      choices=["ondemand", "spot", "spotblock"],
-                                      default="ondemand",
-                                      help="type of master nodes. Valid values are: ('ondemand', 'spot', 'spotblock')" +
+                                       dest="master_type",
+                                       choices=["ondemand", "spot", "spotblock"],
+                                       default="ondemand",
+                                       help="type of master nodes. Valid values are: ('ondemand', 'spot', 'spotblock')" +
                                        "default: ondemand")
         composition_group.add_argument("--master-spot-block-duration",
                                        dest="master_spot_block_duration",
