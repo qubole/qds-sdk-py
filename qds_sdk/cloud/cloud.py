@@ -6,8 +6,8 @@ class Cloud:
     def set_cloud_config_from_arguments(self, arguments):
         return NotImplemented
 
-    def set_composition_arguments(self, set_composition_arguments):
+    def set_composition_arguments(self, comp_group):
         pass
 
-    def get_composition(self, *args, **kwargs):
+    def get_composition(self, **kwargs):
         pass

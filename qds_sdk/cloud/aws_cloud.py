@@ -204,9 +204,9 @@ class AwsCloud(Cloud):
                                 dest="autoscaling_maximum_bid_price_percentage",
                                 type=int,
                                 default=100,
-                                help="maximum value to bid for autoscaling spot instances" +
-                                     " expressed as a percentage of the base" +
-                                     " price for the master instance types")
+                                help="maximum value to bid for autoscaling spot" +
+                                     " instances expressed as a percentage of" +
+                                     " the base price for the master instance types")
         comp_group.add_argument("--autoscaling-timeout-for-request",
                                 dest="autoscaling_timeout_for_request",
                                 type=int,

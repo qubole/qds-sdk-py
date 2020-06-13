@@ -154,18 +154,18 @@ class AzureCloud(Cloud):
                               resource_group_name=arguments.resource_group_name)
 
     def set_composition_arguments(self, comp_group):
-        #composition arguments we want to accept for azure
+        # composition arguments we want to accept for azure
         comp_group.add_argument("--min-ondemand-percentage",
                                 dest="min_ondemand_percentage",
-                                type=int, default =0,
+                                type=int, default=0,
                                 help="Percentage of ondemand nodes in min config.")
         comp_group.add_argument("--min-spot-percentage",
                                 dest="min_spot_percentage",
-                                type=int, default = 0,
+                                type=int, default=0,
                                 help="Percentage of spot nodes in min config.")
         comp_group.add_argument("--max-price-percentage",
                                 dest="max_price_percentage",
-                                type=int, default = 100,
+                                type=int, default=100,
                                 help="Percentage of maximum price percentage"
                                      " for spot nodes.")
         comp_group.add_argument("--min-spot-fallback",
@@ -193,7 +193,7 @@ class AzureCloud(Cloud):
                                      " for autoscaling nodes if spot instances" +
                                      " aren't available.")
 
-    #Ignore other key-value arguments.
+    # Ignore other key-value arguments.
     def get_composition(self,
                         min_ondemand_percentage=0,
                         min_spot_percentage=0,
@@ -209,8 +209,8 @@ class AzureCloud(Cloud):
         if min_ondemand_percentage + min_spot_percentage != 100:
             raise ValueError("Minimum nodes ondemand+spot percentage"
                              " should be 100: Ondemand pct: %d Spot pct: %d"
-                             %(min_ondemand_percentage,
-                               min_spot_percentage))
+                             % (min_ondemand_percentage,
+                                min_spot_percentage))
         if min_ondemand_percentage > 0:
             min_nodes.append({"type": "ondemand",
                               "percentage": min_ondemand_percentage})
@@ -224,8 +224,8 @@ class AzureCloud(Cloud):
         if autoscaling_ondemand_percentage + autoscaling_spot_percentage != 100:
             raise ValueError("Autoscaling nodes ondemand+spot percentage" +
                              " should be 100: Ondemand pct: %d Spot pct: %d"
-                             %(autoscaling_ondemand_percentage,
-                               autoscaling_spot_percentage))
+                             % (autoscaling_ondemand_percentage,
+                                autoscaling_spot_percentage))
         if autoscaling_ondemand_percentage > 0:
             autoscaling_nodes.append({"type": "ondemand",
                                       "percentage": autoscaling_ondemand_percentage})

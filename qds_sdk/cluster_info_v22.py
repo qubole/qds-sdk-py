@@ -58,16 +58,12 @@ class ClusterInfoV22(object):
                               parent_cluster_id=arguments.parent_cluster_id,
                               image_version=arguments.image_version)
         if Qubole.get_cloud_name() == "aws":
-            #Need to move to aws cloud.
+            # Need to move to aws cloud.
             self.set_composition(master_type=arguments.master_type,
-                                 master_spot_block_duration=
-                                    arguments.master_spot_block_duration,
-                                 master_maximum_bid_price_percentage=
-                                    arguments.master_maximum_bid_price_percentage,
-                                 master_timeout_for_request=
-                                    arguments.master_timeout_for_request,
-                                 master_spot_fallback=
-                                    arguments.master_spot_fallback,
+                                 master_spot_block_duration=arguments.master_spot_block_duration,
+                                 master_maximum_bid_price_percentage=arguments.master_maximum_bid_price_percentage,
+                                 master_timeout_for_request=arguments.master_timeout_for_request,
+                                 master_spot_fallback=arguments.master_spot_fallback,
                                  min_ondemand_percentage=arguments.min_ondemand_percentage,
                                  min_spot_block_percentage=arguments.min_spot_block_percentage,
                                  min_spot_block_duration=arguments.min_spot_block_duration,
