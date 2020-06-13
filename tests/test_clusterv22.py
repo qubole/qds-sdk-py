@@ -227,6 +227,61 @@ class TestClusterCreate(QdsCliTestCase):
                                                                                   'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]},
                                                                                   'autoscaling_nodes': {'nodes': [{'percentage': 50, 'type': 'ondemand'},
                                                                                                                   {'percentage': 50, 'type': 'spot', 'maximum_bid_price_percentage': 100, 'timeout_for_request': 1, 'allocation_strategy': None, 'fallback': 'ondemand'}]}}}})
+class TestAzureClusterComposition(QdsCliTestCase):
+    def test_od_od(self):
+        sys.argv = ['qds.py', '--version', 'v2.2', '--cloud','AZURE', 'cluster',
+                    'create', '--label', 'test_label',
+                    '--min-ondemand-percentage', '100',
+                    '--autoscaling-ondemand-percentage', '100']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters', {'cluster_info': {
+            'composition': {'min_nodes': {'nodes': [{'type': 'ondemand', 'percentage': 100}]},
+                            'autoscaling_nodes': {'nodes': [{'type': 'ondemand', 'percentage': 100}]}},
+            'label': ['test_label']}})
+
+    def test_spot_spot(self):
+        sys.argv = ['qds.py', '--version', 'v2.2', '--cloud','AZURE',  'cluster', 'create',
+                    '--label', 'test_label',
+                    '--min-spot-percentage', '100', '--min-spot-fallback', 'ondemand',
+                    '--max-price-percentage', '50', 
+                    '--autoscaling-spot-percentage', '100', "--autoscaling-spot-fallback", 'ondemand']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters', {'cluster_info': {
+            'composition': {
+                'min_nodes': {'nodes': [{'percentage': 100, 'type': 'spot',
+                                          'fallback': "ondemand", 'max_price_percentage': 50}]}, 
+                'autoscaling_nodes': {'nodes': [{'percentage': 100, 'type': 'spot',
+                                                 'fallback': "ondemand", 'max_price_percentage': 50}]}},
+                'label': ['test_label']}})
+
+
+    def test_od_spot(self):
+        sys.argv = ['qds.py', '--version', 'v2.2', '--cloud','AZURE',  'cluster', 'create',
+                    '--label', 'test_label',
+                    '--min-ondemand-percentage', '50',
+                    '--min-spot-percentage', '50',  '--min-spot-fallback', 'ondemand',
+                    '--max-price-percentage', '50', 
+                    '--autoscaling-ondemand-percentage', '50',
+                    '--autoscaling-spot-percentage', '50', '--autoscaling-spot-fallback', 'ondemand']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters', {'cluster_info': {
+            'composition': {
+                'min_nodes': {'nodes': [{'type': 'ondemand', 'percentage': 50},
+                                        {'percentage': 50, 'type': 'spot',
+                                          'fallback': "ondemand", 'max_price_percentage': 50}]}, 
+                'autoscaling_nodes': {'nodes': [{'type': 'ondemand', 'percentage': 50},
+                                                {'percentage': 50, 'type': 'spot',
+                                                 'fallback': "ondemand", 'max_price_percentage': 50}]}},
+                'label': ['test_label']}})
 
 if __name__ == '__main__':
     unittest.main()

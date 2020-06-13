@@ -239,7 +239,7 @@ class ClusterInfoV22(object):
 
     def set_composition_for_cluster(self, **kwargs):
         cloud = Qubole.get_cloud()
-        composition = cloud.get_composition(kwargs)
+        composition = cloud.get_composition(**kwargs)
         if composition is not None:
             self.cluster_info["composition"] = composition
 
