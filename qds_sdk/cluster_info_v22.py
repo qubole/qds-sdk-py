@@ -59,28 +59,29 @@ class ClusterInfoV22(object):
                               image_version=arguments.image_version)
         if Qubole.get_cloud_name() == "aws":
             # Need to move to aws cloud.
-            self.set_composition(master_type=arguments.master_type,
-                                 master_spot_block_duration=arguments.master_spot_block_duration,
-                                 master_maximum_bid_price_percentage=arguments.master_maximum_bid_price_percentage,
-                                 master_timeout_for_request=arguments.master_timeout_for_request,
-                                 master_spot_fallback=arguments.master_spot_fallback,
-                                 min_ondemand_percentage=arguments.min_ondemand_percentage,
-                                 min_spot_block_percentage=arguments.min_spot_block_percentage,
-                                 min_spot_block_duration=arguments.min_spot_block_duration,
-                                 min_spot_percentage=arguments.min_spot_percentage,
-                                 min_maximum_bid_price_percentage=arguments.min_maximum_bid_price_percentage,
-                                 min_timeout_for_request=arguments.min_timeout_for_request,
-                                 min_spot_allocation_strategy=arguments.min_spot_allocation_strategy,
-                                 min_spot_fallback=arguments.min_spot_fallback,
-                                 autoscaling_ondemand_percentage=arguments.autoscaling_ondemand_percentage,
-                                 autoscaling_spot_block_percentage=arguments.autoscaling_spot_block_percentage,
-                                 autoscaling_spot_percentage=arguments.autoscaling_spot_percentage,
-                                 autoscaling_spot_block_duration=arguments.autoscaling_spot_block_duration,
-                                 autoscaling_maximum_bid_price_percentage=arguments.autoscaling_maximum_bid_price_percentage,
-                                 autoscaling_timeout_for_request=arguments.autoscaling_timeout_for_request,
-                                 autoscaling_spot_allocation_strategy=arguments.autoscaling_spot_allocation_strategy,
-                                 autoscaling_spot_fallback=arguments.autoscaling_spot_fallback,
-                                 autoscaling_spot_block_fallback=arguments.autoscaling_spot_block_fallback)
+            self.set_composition(
+                master_type=arguments.master_type,
+                master_spot_block_duration=arguments.master_spot_block_duration,
+                master_maximum_bid_price_percentage=arguments.master_maximum_bid_price_percentage,
+                master_timeout_for_request=arguments.master_timeout_for_request,
+                master_spot_fallback=arguments.master_spot_fallback,
+                min_ondemand_percentage=arguments.min_ondemand_percentage,
+                min_spot_block_percentage=arguments.min_spot_block_percentage,
+                min_spot_block_duration=arguments.min_spot_block_duration,
+                min_spot_percentage=arguments.min_spot_percentage,
+                min_maximum_bid_price_percentage=arguments.min_maximum_bid_price_percentage,
+                min_timeout_for_request=arguments.min_timeout_for_request,
+                min_spot_allocation_strategy=arguments.min_spot_allocation_strategy,
+                min_spot_fallback=arguments.min_spot_fallback,
+                autoscaling_ondemand_percentage=arguments.autoscaling_ondemand_percentage,
+                autoscaling_spot_block_percentage=arguments.autoscaling_spot_block_percentage,
+                autoscaling_spot_percentage=arguments.autoscaling_spot_percentage,
+                autoscaling_spot_block_duration=arguments.autoscaling_spot_block_duration,
+                autoscaling_maximum_bid_price_percentage=arguments.autoscaling_maximum_bid_price_percentage,
+                autoscaling_timeout_for_request=arguments.autoscaling_timeout_for_request,
+                autoscaling_spot_allocation_strategy=arguments.autoscaling_spot_allocation_strategy,
+                autoscaling_spot_fallback=arguments.autoscaling_spot_fallback,
+                autoscaling_spot_block_fallback=arguments.autoscaling_spot_block_fallback)
         else:
             self.set_composition_from_cloud_using_parser(arguments)
 
