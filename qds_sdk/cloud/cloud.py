@@ -7,7 +7,7 @@ class Cloud:
         return NotImplemented
 
     def set_composition_arguments(self, set_composition_arguments):
-    	pass
+        pass
 
     def get_composition(self, *args, **kwargs):
-    	return {}
+        return {}
