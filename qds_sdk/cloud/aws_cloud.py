@@ -107,6 +107,124 @@ class AwsCloud(Cloud):
                               bastion_node_public_dns=arguments.bastion_node_public_dns,
                               master_elastic_ip=arguments.master_elastic_ip)
 
+    def set_composition_arguments(self, composition_group)
+        composition_group.add_argument("--master-type",
+                                      dest="master_type",
+                                      choices=["ondemand", "spot", "spotblock"],
+                                      default="ondemand",
+                                      help="type of master nodes. Valid values are: ('ondemand', 'spot', 'spotblock')" +
+                                       "default: ondemand")
+        composition_group.add_argument("--master-spot-block-duration",
+                                       dest="master_spot_block_duration",
+                                       type=int,
+                                       default=120,
+                                       help="spot block duration unit: minutes")
+        composition_group.add_argument("--master-maximum-bid-price-percentage",
+                                       dest="master_maximum_bid_price_percentage",
+                                       type=int,
+                                       default=100,
+                                       help="maximum value to bid for master spot instances" +
+                                            " expressed as a percentage of the base" +
+                                            " price for the master instance types")
+        composition_group.add_argument("--master-timeout-for-request",
+                                       dest="master_timeout_for_request",
+                                       type=int,
+                                       default=1,
+                                       help="timeout for a master spot instance request, unit: minutes")
+        composition_group.add_argument("--master-spot-fallback",
+                                       dest="master_spot_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for master nodes" +
+                                            " if spot instances aren't available")
+        composition_group.add_argument("--min-ondemand-percentage",
+                                       dest="min_ondemand_percentage",
+                                       type=int,
+                                       help="percentage of ondemand nodes in min config")
+        composition_group.add_argument("--min-spot-block-percentage",
+                                       dest="min_spot_block_percentage",
+                                       type=int,
+                                       help="percentage of spot block nodes in min config")
+        composition_group.add_argument("--min-spot-percentage",
+                                       dest="min_spot_percentage",
+                                       type=int,
+                                       help="percentage of spot nodes in min config")
+        composition_group.add_argument("--min-spot-block-duration",
+                                       dest="min_spot_block_duration",
+                                       type=int,
+                                       default=120,
+                                       help="spot block duration unit: minutes")
+        composition_group.add_argument("--min-maximum-bid-price-percentage",
+                                       dest="min_maximum_bid_price_percentage",
+                                       type=int,
+                                       default=100,
+                                       help="maximum value to bid for min spot instances" +
+                                            " expressed as a percentage of the base" +
+                                            " price for the master instance types")
+        composition_group.add_argument("--min-timeout-for-request",
+                                       dest="min_timeout_for_request",
+                                       type=int,
+                                       default=1,
+                                       help="timeout for a min spot instance request, unit: minutes")
+        composition_group.add_argument("--min-spot-fallback",
+                                       dest="min_spot_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for min nodes" +
+                                            " if spot instances aren't available")
+        composition_group.add_argument("--min-spot-allocation-strategy",
+                                       dest="min_spot_allocation_strategy",
+                                       choices=["lowestPrice", "capacityOptimized", None],
+                                       default=None,
+                                       help="allocation strategy for min spot nodes")
+        composition_group.add_argument("--autoscaling-ondemand-percentage",
+                                       dest="autoscaling_ondemand_percentage",
+                                       type=int,
+                                       help="percentage of ondemand nodes in autoscaling config")
+        composition_group.add_argument("--autoscaling-spot-block-percentage",
+                                       dest="autoscaling_spot_block_percentage",
+                                       type=int,
+                                       help="percentage of spot block nodes in autoscaling config")
+        composition_group.add_argument("--autoscaling-spot-percentage",
+                                       dest="autoscaling_spot_percentage",
+                                       type=int,
+                                       help="percentage of spot nodes in autoscaling config")
+        composition_group.add_argument("--autoscaling-spot-block-duration",
+                                       dest="autoscaling_spot_block_duration",
+                                       type=int,
+                                       default=120,
+                                       help="spot block duration unit:  minutes")
+        composition_group.add_argument("--autoscaling-spot-block-fallback",
+                                       dest="autoscaling_spot_block_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for autoscaling" +
+                                            " nodes if spot block instances aren't available")
+        composition_group.add_argument("--autoscaling-maximum-bid-price-percentage",
+                                       dest="autoscaling_maximum_bid_price_percentage",
+                                       type=int,
+                                       default=100,
+                                       help="maximum value to bid for autoscaling spot instances" +
+                                            " expressed as a percentage of the base" +
+                                            " price for the master instance types")
+        composition_group.add_argument("--autoscaling-timeout-for-request",
+                                       dest="autoscaling_timeout_for_request",
+                                       type=int,
+                                       default=1,
+                                       help="timeout for a autoscaling spot instance request, unit: minutes")
+        composition_group.add_argument("--autoscaling-spot-fallback",
+                                       dest="autoscaling_spot_fallback",
+                                       choices=["ondemand", None],
+                                       default=None,
+                                       help="whether to fallback to on-demand instances for autoscaling nodes" +
+                                            " if spot instances aren't available")
+        composition_group.add_argument("--autoscaling-spot-allocation-strategy",
+                                       dest="autoscaling_spot_allocation_strategy",
+                                       choices=["lowestPrice", "capacityOptimized", None],
+                                       default=None,
+                                       help="allocation strategy for autoscaling" +
+                                            " spot nodes")
+
     def create_parser(self, argparser):
         # compute settings parser
         compute_config = argparser.add_argument_group("compute config settings")
