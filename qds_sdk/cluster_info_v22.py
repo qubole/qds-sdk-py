@@ -57,8 +57,7 @@ class ClusterInfoV22(object):
                               paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins,
                               parent_cluster_id=arguments.parent_cluster_id,
                               image_version=arguments.image_version)
-        
-        if Qubole.get_cloud_name == "aws":
+        if Qubole.get_cloud_name() == "aws":
             # TODO: Need to move to aws cloud.
             self.set_composition(master_type=arguments.master_type,
                              master_spot_block_duration=arguments.master_spot_block_duration,

@@ -588,7 +588,8 @@ def main():
 
     optparser.add_option("--cloud_name", dest="cloud_name",
                          default=os.getenv('CLOUD_PROVIDER'),
-                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC", "GCP"])
+                         help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC", "GCP"],
+                         default="AWS")
 
     optparser.add_option("--base_retry_delay", dest="base_retry_delay",
                          type=int,
