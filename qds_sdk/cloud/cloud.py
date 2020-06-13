@@ -10,4 +10,4 @@ class Cloud:
         pass
 
     def get_composition(self, *args, **kwargs):
-        return {}
+        pass

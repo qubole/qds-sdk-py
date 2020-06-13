@@ -208,22 +208,22 @@ class AwsCloud(Cloud):
                                      " expressed as a percentage of the base" +
                                      " price for the master instance types")
         comp_group.add_argument("--autoscaling-timeout-for-request",
-                               dest="autoscaling_timeout_for_request",
+                                dest="autoscaling_timeout_for_request",
                                 type=int,
                                 default=1,
                                 help="timeout for a autoscaling spot instance request, unit: minutes")
         comp_group.add_argument("--autoscaling-spot-fallback",
-                                 dest="autoscaling_spot_fallback",
-                                 choices=["ondemand", None],
-                                 default=None,
-                                 help="whether to fallback to on-demand instances for autoscaling nodes" +
+                                dest="autoscaling_spot_fallback",
+                                choices=["ondemand", None],
+                                default=None,
+                                help="whether to fallback to on-demand instances for autoscaling nodes" +
                                      " if spot instances aren't available")
         comp_group.add_argument("--autoscaling-spot-allocation-strategy",
-                                 dest="autoscaling_spot_allocation_strategy",
-                                 choices=["lowestPrice", "capacityOptimized", None],
-                                 default=None,
-                                 help="allocation strategy for autoscaling" +
-                                      " spot nodes")
+                                dest="autoscaling_spot_allocation_strategy",
+                                choices=["lowestPrice", "capacityOptimized", None],
+                                default=None,
+                                help="allocation strategy for autoscaling" +
+                                     " spot nodes")
 
     def create_parser(self, argparser):
         # compute settings parser

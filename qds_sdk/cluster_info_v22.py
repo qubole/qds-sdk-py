@@ -60,10 +60,14 @@ class ClusterInfoV22(object):
         if Qubole.get_cloud_name() == "aws":
             #Need to move to aws cloud.
             self.set_composition(master_type=arguments.master_type,
-                                 master_spot_block_duration=arguments.master_spot_block_duration,
-                                 master_maximum_bid_price_percentage=arguments.master_maximum_bid_price_percentage,
-                                 master_timeout_for_request=arguments.master_timeout_for_request,
-                                 master_spot_fallback=arguments.master_spot_fallback,
+                                 master_spot_block_duration=
+                                    arguments.master_spot_block_duration,
+                                 master_maximum_bid_price_percentage=
+                                    arguments.master_maximum_bid_price_percentage,
+                                 master_timeout_for_request=
+                                    arguments.master_timeout_for_request,
+                                 master_spot_fallback=
+                                    arguments.master_spot_fallback,
                                  min_ondemand_percentage=arguments.min_ondemand_percentage,
                                  min_spot_block_percentage=arguments.min_spot_block_percentage,
                                  min_spot_block_duration=arguments.min_spot_block_duration,
@@ -233,12 +237,14 @@ class ClusterInfoV22(object):
                                      disable_autoscale_node_pause, paused_autoscale_node_timeout_mins)
 
     def set_composition_from_cloud_using_parser(self, arguments):
-        self.set_composition_for_cluster(**{k:v for k,v in arguments.__dict__.items()
-                                            if v != None})
+        self.set_composition_for_cluster(**{k: v for k, v in arguments.__dict__.items()
+                                            if v is not None})
 
     def set_composition_for_cluster(self, **kwargs):
         cloud = Qubole.get_cloud()
-        self.cluster_info["composition"] = cloud.get_composition(kwargs)
+        composition = cloud.get_composition(kwargs)
+        if composition is not None:
+            self.cluster_info["composition"] = composition
 
     def set_composition(self,
                         master_type="ondemand",

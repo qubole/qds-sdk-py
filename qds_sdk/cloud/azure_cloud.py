@@ -173,8 +173,8 @@ class AzureCloud(Cloud):
                                 choices=["ondemand", None],
                                 default=None,
                                 help="Whether to fallback to on-demand instances" +
-                                      " for min nodes if spot instances" +
-                                      " aren't available.")
+                                     " for min nodes if spot instances" +
+                                     " aren't available.")
         comp_group.add_argument("--autoscaling-ondemand-percentage",
                                 dest="autoscaling_ondemand_percentage",
                                 type=int, default=0,
@@ -209,11 +209,13 @@ class AzureCloud(Cloud):
         if min_ondemand_percentage + min_spot_percentage != 100:
             raise ValueError("Minimum nodes ondemand+spot percentage"
                              " should be 100: Ondemand pct: %d Spot pct: %d"
-                             %(min_ondemand_percentage,min_spot_percentage))
+                             %(min_ondemand_percentage,
+                               min_spot_percentage))
         if min_ondemand_percentage > 0:
-            min_nodes.append({"type":"ondemand", "percentage":min_ondemand_percentage})
+            min_nodes.append({"type": "ondemand",
+                              "percentage": min_ondemand_percentage})
         if min_spot_percentage > 0:
-            min_nodes.append({"type":"spot", "percentage":min_spot_percentage,
+            min_nodes.append({"type": "spot", "percentage": min_spot_percentage,
                               "fallback": min_spot_fallback,
                               "max_price_percentage": max_price_percentage})
 
@@ -225,11 +227,11 @@ class AzureCloud(Cloud):
                              %(autoscaling_ondemand_percentage,
                                autoscaling_spot_percentage))
         if autoscaling_ondemand_percentage > 0:
-            autoscaling_nodes.append({"type":"ondemand",
-                                      "percentage":autoscaling_ondemand_percentage})
+            autoscaling_nodes.append({"type": "ondemand",
+                                      "percentage": autoscaling_ondemand_percentage})
         if autoscaling_spot_percentage > 0:
-            autoscaling_nodes.append({"type":"spot",
-                                      "percentage":autoscaling_spot_percentage,
+            autoscaling_nodes.append({"type": "spot",
+                                      "percentage": autoscaling_spot_percentage,
                                       "fallback": autoscaling_spot_fallback,
                                       "max_price_percentage": max_price_percentage})
         return composition
