@@ -224,7 +224,7 @@ class ClusterInfoV22(object):
         self.cluster_info['rootdisk']['size'] = root_disk_size
         self.cluster_info['parent_cluster_id'] = parent_cluster_id
         self.cluster_info['cluster_image_version'] = image_version
-        self.cluster_info['ebs_optimized'] = ebs_optimized
+        self.cluster_info['ebs_optimization'] = ebs_optimized
         self.set_data_disk(disk_size, disk_count, disk_type,
                            upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring,
