@@ -55,7 +55,8 @@ class ClusterInfoV22(object):
                               disable_autoscale_node_pause=arguments.disable_autoscale_node_pause,
                               paused_autoscale_node_timeout_mins=arguments.paused_autoscale_node_timeout_mins,
                               parent_cluster_id=arguments.parent_cluster_id,
-                              image_version=arguments.image_version)
+                              image_version=arguments.image_version,
+                              ebs_optimized=arguments.ebs_optimized)
 
         self.set_composition(master_type=arguments.master_type,
                              master_spot_block_duration=arguments.master_spot_block_duration,
@@ -113,7 +114,8 @@ class ClusterInfoV22(object):
                          disable_autoscale_node_pause=None,
                          paused_autoscale_node_timeout_mins=None,
                          parent_cluster_id=None,
-                         image_version=None):
+                         image_version=None,
+                         ebs_optimized=None):
         """
         Args:
 
@@ -191,6 +193,9 @@ class ClusterInfoV22(object):
 
             `image_version`: cluster image version
 
+            `ebs_optimized`: Specify EBS optimization to be disabled.
+             Default is enabled.
+
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
 
@@ -219,6 +224,7 @@ class ClusterInfoV22(object):
         self.cluster_info['rootdisk']['size'] = root_disk_size
         self.cluster_info['parent_cluster_id'] = parent_cluster_id
         self.cluster_info['cluster_image_version'] = image_version
+        self.cluster_info['ebs_optimization'] = ebs_optimized
         self.set_data_disk(disk_size, disk_count, disk_type,
                            upscaling_config, enable_encryption)
         self.set_monitoring(enable_ganglia_monitoring,
@@ -541,6 +547,9 @@ class ClusterInfoV22(object):
         cluster_info.add_argument("--image-version",
                                   dest="image_version",
                                   help="cluster image version")
+        cluster_info.add_argument("--ebs-optimized",
+                                  dest="ebs_optimized",
+                                  help="Enable EBS optimization for the instance")
         termination = cluster_info.add_mutually_exclusive_group()
         termination.add_argument("--disallow-cluster-termination",
                                  dest="disallow_cluster_termination",

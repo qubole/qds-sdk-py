@@ -212,6 +212,28 @@ class TestClusterCreate(QdsCliTestCase):
                                                 'cluster_image_version': '1.latest',
                                                 'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]}, 'autoscaling_nodes': {'nodes': [{'percentage': 50, 'type': 'ondemand'}, {'timeout_for_request': 1, 'percentage': 50, 'type': 'spot', 'fallback': 'ondemand', 'maximum_bid_price_percentage': 100, 'allocation_strategy': None}]}}, 'label': ['test_label']}})
 
+    def test_ebs_optimized_v22(self):
+        sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label',
+                     'test_label', '--flavour', 'hive', '--slave-instance-type', 'c1.xlarge', '--min-nodes', '1', '--ebs-optimized', False]
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'engine_config': {'flavour': 'hive'},
+                                                 'cluster_info': {'label': ['test_label'],
+                                                 'min_nodes': 1,
+                                                 'slave_instance_type': 'c1.xlarge',
+                                                 'ebs_optimized': False,
+                                                 'composition': {'min_nodes': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]},
+                                                                'master': {'nodes': [{'percentage': 100, 'type': 'ondemand'}]},
+                                                                'autoscaling_nodes': {'nodes': [{'percentage': 50, 'type': 'ondemand'},
+                                                                                                {'timeout_for_request': 1, 'percentage': 50,
+                                                                                                 'type': 'spot', 'fallback': 'ondemand',
+                                                                                                 'maximum_bid_price_percentage': 100,
+                                                                                                 'allocation_strategy': None}]}},
+                                                 'label': ['test_label']}})
+
     def test_hive_settings(self):
         sys.argv = ['qds.py', '--version', 'v2.2', 'cluster', 'create', '--label', 'test_label',
                     '--is_hs2', 'true', '--hs2_thrift_port', '10001']
