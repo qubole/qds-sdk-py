@@ -193,7 +193,8 @@ class ClusterInfoV22(object):
 
             `image_version`: cluster image version
 
-            `ebs_optimized`: Specify EBS optimization to be disabled - default is enabled.
+            `ebs_optimized`: Specify EBS optimization to be disabled.
+             Default is enabled.
 
         Doc: For getting details about arguments
         http://docs.qubole.com/en/latest/rest-api/cluster_api/create-new-cluster.html#parameters
