@@ -30,7 +30,7 @@ class Qubole:
     version = None
     poll_interval = None
     skip_ssl_cert_check = None
-    cloud_name = "aws"
+    cloud_name = None
     cached_agent = None
     cloud = None
     base_retry_delay = None
