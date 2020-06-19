@@ -368,7 +368,7 @@ class Pipelines(Resource):
                             "can_retry": True,
                             "command_line_options": "command_line_options",
                             "user_arguments": "optional-args",
-                            "code" : kwargs['code']",
+                            "code" : kwargs['code'],
                             "language": "scala"
                         }
                     }
