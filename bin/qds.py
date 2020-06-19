@@ -587,7 +587,7 @@ def main():
                          help="skip verification of server SSL certificate. Insecure: use with caution.")
 
     optparser.add_option("--cloud_name", dest="cloud_name",
-                         default=os.getenv('CLOUD_PROVIDER'),
+                         default=os.getenv('CLOUD_PROVIDER', "AWS"),
                          help="cloud", choices=["AWS", "AZURE", "ORACLE_BMC", "ORACLE_OPC", "GCP"])
 
     optparser.add_option("--base_retry_delay", dest="base_retry_delay",
