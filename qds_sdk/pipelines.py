@@ -348,8 +348,8 @@ class Pipelines(Resource):
         conn = Qubole.agent()
         url = Pipelines.rest_entity_path
         if create_type is None: 
-            raise ParseError("Provide create_type for Pipeline.")
-        if create_type == 1:
+            raise ParseError("Provide create_type for Pipeline.", None)
+        if not kwargs || create_type == 1:
             data = {"data": {
                 "attributes":
                     {"name": pipeline_name, 
