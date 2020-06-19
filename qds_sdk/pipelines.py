@@ -346,13 +346,35 @@ class Pipelines(Resource):
             response
         """
         conn = Qubole.agent()
-        data = {"data": {
-            "attributes":
-                {"name": pipeline_name, "status": "DRAFT",
-                 "create_type": create_type},
-            "type": "pipelines"}
-        }
-        url = Pipelines.rest_entity_path + "?mode=wizard"
+        url = Pipelines.rest_entity_path
+        if create_type == 1:
+            data = {"data": {
+                "attributes":
+                    {"name": pipeline_name, 
+                    "status": "DRAFT",
+                    "create_type": create_type},
+                "type": "pipeline"}
+            }
+            url = url + "?mode=wizard"
+        else:
+            data = {
+                "data": {
+                    "type": "pipeline",
+                    "attributes": {
+                        "name": pipeline_name,
+                        "create_type": create_type,
+                        "properties": {
+                            "cluster_label": kwargs['cluster_label'],
+                            "can_retry": True,
+                            "command_line_options": "command_line_options",
+                            "user_arguments": "optional-args",
+                            "code" : kwargs['code']",
+                            "language": "scala"
+                        }
+                    }
+                }
+            }
+        
         response = conn.post(url, data)
         cls.pipeline_id = Pipelines.get_pipline_id(response)
         cls.pipeline_name = pipeline_name
