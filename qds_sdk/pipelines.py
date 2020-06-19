@@ -339,7 +339,7 @@ class Pipelines(Resource):
 
         Args:
             pipeline_name: Name to be given.
-            create_type: 1->Assisted, 2->Code, 3->Jar
+            create_type: 1->Assisted, 2->Jar, 3->Code
             **kwargs: keyword arguments specific to create type
 
         Returns:
@@ -347,6 +347,8 @@ class Pipelines(Resource):
         """
         conn = Qubole.agent()
         url = Pipelines.rest_entity_path
+        if create_type is None: 
+            raise ParseError("Provide create_type for Pipeline.")
         if create_type == 1:
             data = {"data": {
                 "attributes":
@@ -365,11 +367,22 @@ class Pipelines(Resource):
                         "create_type": create_type,
                         "properties": {
                             "cluster_label": kwargs['cluster_label'],
-                            "can_retry": True,
-                            "command_line_options": "command_line_options",
-                            "user_arguments": "optional-args",
+                            "can_retry": kwargs['can_retry'],
+                            "command_line_options": kwargs['command_line_options'],
+                            "user_arguments": kwargs['user_arguments'],
                             "code" : kwargs['code'],
-                            "language": "scala"
+                            "language": kwargs['language']
+                        }
+                    }
+                },
+                "relationships": {
+                    "alerts": {
+                        "data": {
+                            "type": "pipeline/alerts",
+                            "attributes": {
+                                "can_notify": kwargs['can_notify'],
+                                "notification_channels": kwargs['channel_ids']
+                            }
                         }
                     }
                 }
