@@ -6,7 +6,7 @@ python:
   - "3.5"
 # command to install dependencies
 install:
-  - pip install urllib3==1.22 requests
+  - pip install -r requirements.txt
   - "python setup.py install"
   - pip install mock
   - pip install pytest==3.2.0 pytest-cov==2.6.0
