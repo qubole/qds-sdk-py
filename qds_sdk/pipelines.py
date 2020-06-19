@@ -347,13 +347,13 @@ class Pipelines(Resource):
         """
         conn = Qubole.agent()
         url = Pipelines.rest_entity_path
-        if create_type is None: 
+        if create_type is None:
             raise ParseError("Provide create_type for Pipeline.", None)
         if not kwargs or create_type == 1:
             data = {
                 "data": {
-                        "attributes":{
-                            "name": pipeline_name, 
+                        "attributes": {
+                            "name": pipeline_name,
                             "status": "DRAFT",
                             "create_type": create_type
                         },
@@ -389,11 +389,15 @@ class Pipelines(Resource):
                 }
             }
             if create_type == 2:
-                data['data']['attributes']['properties']['jar_path'] = kwargs['jar_path']
-                data['data']['attributes']['properties']['main_class_name'] = kwargs['main_class_name']
+                data['data']['attributes']['properties']['jar_path'] = \
+                    kwargs['jar_path']
+                data['data']['attributes']['properties']['main_class_name'] = \
+                    kwargs['main_class_name']
             elif create_type == 3:
-                data['data']['attributes']['properties']['code'] = kwargs['code']
-                data['data']['attributes']['properties']['language'] = kwargs['language']
+                data['data']['attributes']['properties']['code'] = \
+                    kwargs['code']
+                data['data']['attributes']['properties']['language'] = \
+                    kwargs['language']
 
         response = conn.post(url, data)
         cls.pipeline_id = Pipelines.get_pipline_id(response)
