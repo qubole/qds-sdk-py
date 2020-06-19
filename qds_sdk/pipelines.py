@@ -349,7 +349,7 @@ class Pipelines(Resource):
         url = Pipelines.rest_entity_path
         if create_type is None: 
             raise ParseError("Provide create_type for Pipeline.", None)
-        if not kwargs || create_type == 1:
+        if not kwargs or create_type == 1:
             data = {"data": {
                 "attributes":
                     {"name": pipeline_name, 
