@@ -373,15 +373,15 @@ class Pipelines(Resource):
                             "code" : kwargs['code'],
                             "language": kwargs['language']
                         }
-                    }
-                },
-                "relationships": {
-                    "alerts": {
-                        "data": {
-                            "type": "pipeline/alerts",
-                            "attributes": {
-                                "can_notify": kwargs['can_notify'],
-                                "notification_channels": kwargs['channel_ids']
+                    },
+                    "relationships": {
+                        "alerts": {
+                            "data": {
+                                "type": "pipeline/alerts",
+                                "attributes": {
+                                    "can_notify": kwargs['can_notify'],
+                                    "notification_channels": kwargs['channel_ids']
+                                }
                             }
                         }
                     }
