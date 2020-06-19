@@ -64,7 +64,7 @@ class TestQuestList(QdsCliTestCase):
                     '--cluster-label', 'spark', '-c', 'print("hello")', '--language', 'python', '--user-arguments', 'users_argument']
         print_command()
         d1 = {"data": {"attributes": {"name": "test_pipeline_name", "status": "DRAFT", "create_type": 3},
-                       "type": "pipelines"}}
+                       "type": "pipeline"}}
         response = {"relationships": {"nodes": [], "alerts": []}, "included": [],
                     "meta": {"command_details": {"code": "print(\"hello\")", "language": "python"},
                              "properties": {"checkpoint_location": None, "trigger_interval": None,
