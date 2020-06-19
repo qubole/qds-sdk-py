@@ -391,6 +391,7 @@ class Pipelines(Resource):
         response = conn.post(url, data)
         cls.pipeline_id = Pipelines.get_pipline_id(response)
         cls.pipeline_name = pipeline_name
+        return response
 
     @staticmethod
     def start(pipeline_id):
