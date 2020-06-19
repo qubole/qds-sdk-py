@@ -350,12 +350,15 @@ class Pipelines(Resource):
         if create_type is None: 
             raise ParseError("Provide create_type for Pipeline.", None)
         if not kwargs or create_type == 1:
-            data = {"data": {
-                "attributes":
-                    {"name": pipeline_name, 
-                    "status": "DRAFT",
-                    "create_type": create_type},
-                "type": "pipeline"}
+            data = {
+                "data": {
+                        "attributes":{
+                            "name": pipeline_name, 
+                            "status": "DRAFT",
+                            "create_type": create_type
+                        },
+                        "type": "pipeline"
+                    }
             }
             url = url + "?mode=wizard"
         else:
@@ -369,9 +372,7 @@ class Pipelines(Resource):
                             "cluster_label": kwargs['cluster_label'],
                             "can_retry": kwargs['can_retry'],
                             "command_line_options": kwargs['command_line_options'],
-                            "user_arguments": kwargs['user_arguments'],
-                            "code" : kwargs['code'],
-                            "language": kwargs['language']
+                            "user_arguments": kwargs['user_arguments']
                         }
                     },
                     "relationships": {
@@ -387,7 +388,13 @@ class Pipelines(Resource):
                     }
                 }
             }
-        
+            if create_type == 2:
+                data['data']['attributes']['properties']['jar_path'] = kwargs['jar_path']
+                data['data']['attributes']['properties']['main_class_name'] = kwargs['main_class_name']
+            elif create_type == 3:
+                data['data']['attributes']['properties']['code'] = kwargs['code']
+                data['data']['attributes']['properties']['language'] = kwargs['language']
+
         response = conn.post(url, data)
         cls.pipeline_id = Pipelines.get_pipline_id(response)
         cls.pipeline_name = pipeline_name
