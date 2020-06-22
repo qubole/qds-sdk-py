@@ -369,10 +369,10 @@ class Pipelines(Resource):
                         "name": pipeline_name,
                         "create_type": create_type,
                         "properties": {
-                            "cluster_label": kwargs['cluster_label'],
-                            "can_retry": kwargs['can_retry'],
-                            "command_line_options": kwargs['command_line_options'],
-                            "user_arguments": kwargs['user_arguments']
+                            "cluster_label": kwargs.get('cluster_label'),
+                            "can_retry": kwargs.get('can_retry'),
+                            "command_line_options": kwargs.get('command_line_options'),
+                            "user_arguments": kwargs.get('user_arguments')
                         }
                     },
                     "relationships": {
@@ -380,8 +380,8 @@ class Pipelines(Resource):
                             "data": {
                                 "type": "pipeline/alerts",
                                 "attributes": {
-                                    "can_notify": kwargs['can_notify'],
-                                    "notification_channels": kwargs['channel_ids']
+                                    "can_notify": kwargs.get('can_notify'),
+                                    "notification_channels": kwargs.get('channel_ids')
                                 }
                             }
                         }
@@ -390,14 +390,14 @@ class Pipelines(Resource):
             }
             if create_type == 2:
                 data['data']['attributes']['properties']['jar_path'] = \
-                    kwargs['jar_path']
+                    kwargs.get('jar_path')
                 data['data']['attributes']['properties']['main_class_name'] = \
-                    kwargs['main_class_name']
+                    kwargs.get('main_class_name')
             elif create_type == 3:
                 data['data']['attributes']['properties']['code'] = \
-                    kwargs['code']
+                    kwargs.get('code')
                 data['data']['attributes']['properties']['language'] = \
-                    kwargs['language']
+                    kwargs.get('language')
 
         response = conn.post(url, data)
         cls.pipeline_id = Pipelines.get_pipline_id(response)
