@@ -378,7 +378,8 @@ class ClusterInfoV2(object):
                                           stable_spot_fallback)
         self.set_spot_block_settings(spot_block_duration)
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
-        self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token, notifications)        self.set_internal(image_uri_overrides)
+        self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token, notifications)
+        self.set_internal(image_uri_overrides)
         self.set_env_settings(env_name, python_version, r_version)
         self.set_start_stop_settings(disable_cluster_pause, paused_cluster_timeout_mins,
                                      disable_autoscale_node_pause, paused_autoscale_node_timeout_mins)
