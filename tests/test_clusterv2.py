@@ -716,17 +716,14 @@ class TestClusterCreate(QdsCliTestCase):
             qds.main()
 
     def test_notifications_given(self):
-    sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
+        sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
                         '--notifications', '7']
-    print_command()
-    Connection._api_call = Mock(return_value={})
-    qds.main()
-    Connection._api_call.assert_called_with('POST', 'clusters',
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
                                                 {'cluster_info': {'label': ['test_label']},
                                                  'monitoring': {'notifications': {'all': [7]}}})
-
-
-
 
 class TestClusterUpdate(QdsCliTestCase):
     def test_minimal(self):
