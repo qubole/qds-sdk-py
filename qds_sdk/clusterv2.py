@@ -148,7 +148,7 @@ class ClusterInfoV2(object):
                               enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
                               datadog_api_token=arguments.datadog_api_token,
                               datadog_app_token=arguments.datadog_app_token,
-                              notifications=arguments.notifications,
+                              notification_channels=arguments.notifications,
                               node_bootstrap=arguments.node_bootstrap_file,
                               master_instance_type=arguments.master_instance_type,
                               slave_instance_type=arguments.slave_instance_type,
@@ -191,7 +191,7 @@ class ClusterInfoV2(object):
                          enable_ganglia_monitoring=None,
                          datadog_api_token=None,
                          datadog_app_token=None,
-                         notifications=None,
+                         notification_channels=None,
                          node_bootstrap=None,
                          master_instance_type=None,
                          slave_instance_type=None,
@@ -318,7 +318,7 @@ class ClusterInfoV2(object):
 
                 `datadog_app_token` : Specify the Datadog APP token to use the Datadog monitoring service
 
-                `notifications` : Specify the list of notification channels
+                `notification_channels` : Specify the list of notification channels
 
                 `image_uri_overrides` : Override the image name provided
 
@@ -378,7 +378,7 @@ class ClusterInfoV2(object):
                                           stable_spot_fallback)
         self.set_spot_block_settings(spot_block_duration)
         self.set_data_disk(disk_size, disk_count, disk_type, upscaling_config, enable_encryption)
-        self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token, notifications)
+        self.set_monitoring(enable_ganglia_monitoring, datadog_api_token, datadog_app_token, notification_channels)
         self.set_internal(image_uri_overrides)
         self.set_env_settings(env_name, python_version, r_version)
         self.set_start_stop_settings(disable_cluster_pause, paused_cluster_timeout_mins,
@@ -391,18 +391,18 @@ class ClusterInfoV2(object):
         self.monitoring['datadog']['datadog_api_token'] = datadog_api_token
         self.monitoring['datadog']['datadog_app_token'] = datadog_app_token
 
-    def set_notification_settings(self, notifications):
+    def set_notification_settings(self, notification_channels):
         self.monitoring["notifications"] = {}
-        self.monitoring["notifications"]["all"] = notifications
+        self.monitoring["notifications"]["all"] = notification_channels
 
     def set_monitoring(self,
                        enable_ganglia_monitoring=None,
                        datadog_api_token=None,
                        datadog_app_token=None,
-                       notifications=None):
+                       notification_channels=None):
         self.monitoring['ganglia'] = enable_ganglia_monitoring
         self.set_datadog_setting(datadog_api_token, datadog_app_token)
-        self.set_notification_settings(notifications)
+        self.set_notification_settings(notification_channels)
 
     def set_spot_instance_settings(self,
                                    maximum_bid_price_percentage=None,
@@ -704,12 +704,12 @@ class ClusterInfoV2(object):
                                    default=None,
                                    help="overrides for airflow cluster", )
         notifications_group = argparser.add_argument_group("notifications")
-        notifications_group.add_argument("--notifications",
+        notifications_group.add_argument("--notification_channels",
                                         nargs="*",
                                         type=int,
-                                        dest="notifications",
+                                        dest="notification_channels",
                                         default=None,
-                                        help="List of notification channels", )
+                                        help="List of notification channel ids", )
 
         internal_group = argparser.add_argument_group("internal settings")
         internal_group.add_argument("--image-overrides",
