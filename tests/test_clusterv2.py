@@ -717,7 +717,7 @@ class TestClusterCreate(QdsCliTestCase):
 
     def test_notifications_given(self):
         sys.argv = ['qds.py', '--version', 'v2', 'cluster', 'create', '--label', 'test_label',
-                        '--notifications', '7']
+                        '--notification_channels', '7']
         print_command()
         Connection._api_call = Mock(return_value={})
         qds.main()
