@@ -85,3 +85,10 @@ class MethodNotAllowed(ClientError):
     """An error raised when a method is not allowed."""
     # 405 Method Not Allowed
     pass
+
+
+class AlwaysRetryWithDelay(ClientError):
+    """An error will be retryable across all HTTP methods"""
+    # 429 Too Many Requests
+    # 503 Service Unavailable
+    pass

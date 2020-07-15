@@ -141,6 +141,13 @@ class TestCommandCheck(QdsCliTestCase):
         qds.main()
         Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
 
+    def test_jupyternotebookcmd(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'check', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with("GET", "commands/123", params={'include_query_properties': 'false'})
+
     def test_includequeryproperty(self):
         sys.argv = ['qds.py', 'hivecmd', 'check', '123', 'true']
         print_command()
@@ -218,6 +225,14 @@ class TestCommandCancel(QdsCliTestCase):
 
     def test_dbtapquerycmd(self):
         sys.argv = ['qds.py', 'dbtapquerycmd', 'cancel', '123']
+        print_command()
+        Connection._api_call = Mock(return_value={'kill_succeeded': True})
+        qds.main()
+        Connection._api_call.assert_called_with("PUT", "commands/123",
+                {'status': 'kill'})
+
+    def test_jupyternotebookcmd(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'cancel', '123']
         print_command()
         Connection._api_call = Mock(return_value={'kill_succeeded': True})
         qds.main()
@@ -2028,6 +2043,320 @@ class TestDbTapQueryCommand(QdsCliTestCase):
                                                      'name': None,
                                                      'command_type': 'DbTapQueryCommand',
                                                      'can_notify': False})
+
+class TestJupyterNotebookCommand(QdsCliTestCase):
+
+    def test_submit_none(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_no_path(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--cluster-label', 'demo-cluster']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_improper_macros(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--macros', '{"key1"}']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_improper_arguments(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--arguments', '{"key1"}']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_retry_more_than_3(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--retry', '4']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_cluster_label(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--cluster-label', 'demo-cluster']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': 'demo-cluster',
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_macros(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--macros', '[{"key1":"11","key2":"22"}, {"key3":"key1+key2"}]']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': [{"key1":"11","key2":"22"}, {"key3":"key1+key2"}],
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_arguments(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--arguments', '{"key1":"val1", "key2":"val2"}']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': '{"key1":"val1", "key2":"val2"}',
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_tags(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--tags', 'abc,def']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': ['abc', 'def'],
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_name(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--name', 'demo']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': 'demo',
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_notify(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--notify']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': True,
+                 'pool': None})
+
+    def test_submit_timeout(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--timeout', '10']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': 10,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_pool(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--pool', 'batch']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': 'batch'})
+
+    def test_submit_no_upload_to_source(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_upload_to_source(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--upload-to-source', 'True']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_upload_to_source_false(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--upload-to-source', 'False']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': False,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_upload_to_source_wrong_param(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--upload-to-source', 'wrong']
+        print_command()
+        with self.assertRaises(qds_sdk.exception.ParseError):
+            qds.main()
+
+    def test_submit_retry(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--retry', '1']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': 1,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': None,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
+
+    def test_submit_retry_delay(self):
+        sys.argv = ['qds.py', 'jupyternotebookcmd', 'submit', '--path', 'folder/file',
+                    '--retry-delay', '2']
+        print_command()
+        Connection._api_call = Mock(return_value={'id': 1234})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'commands',
+                {'retry': None,
+                 'name': None,
+                 'tags': None,
+                 'label': None,
+                 'macros': None,
+                 'arguments': None,
+                 'timeout': None,
+                 'path': 'folder/file',
+                 'retry_delay': 2,
+                 'command_type': 'JupyterNotebookCommand',
+                 'upload_to_source': True,
+                 'can_notify': False,
+                 'pool': None})
 
 class TestGetResultsCommand(QdsCliTestCase):
 
