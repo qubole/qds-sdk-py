@@ -148,7 +148,7 @@ class ClusterInfoV2(object):
                               enable_ganglia_monitoring=arguments.enable_ganglia_monitoring,
                               datadog_api_token=arguments.datadog_api_token,
                               datadog_app_token=arguments.datadog_app_token,
-                              notification_channels=arguments.notifications,
+                              notification_channels=arguments.notification_channels,
                               node_bootstrap=arguments.node_bootstrap_file,
                               master_instance_type=arguments.master_instance_type,
                               slave_instance_type=arguments.slave_instance_type,
@@ -710,7 +710,7 @@ class ClusterInfoV2(object):
                                    default=None,
                                    help="overrides for airflow cluster", )
         notifications_group = argparser.add_argument_group("notifications")
-        notifications_group.add_argument("--notification_channels",
+        notifications_group.add_argument("--notification-channels",
                                         nargs="*",
                                         type=int,
                                         dest="notification_channels",
