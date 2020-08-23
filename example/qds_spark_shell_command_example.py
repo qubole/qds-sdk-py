@@ -1,6 +1,7 @@
 """
 This is a sample code used for submitting a Shell script as a SparkCommand on a spark Cluster and getting the result.
 """
+import logging
 
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import SparkCommand
@@ -24,22 +25,20 @@ def execute_spark_shell_command(cluster_label, cmd_to_run):
     :return:
     """
     if cmd_to_run is None or cmd_to_run == "":
-        print("command to run cannot be None or empty")
-        return None
+        raise RuntimeError("command to be executed cannot be None or empty")
 
     # A Shell command needs to be invoked in this fashion
     cmd = SparkCommand.create(label=cluster_label, cmdline=cmd_to_run)
 
     while not SparkCommand.is_done(cmd.status):
-        print("Waiting for completion of command : {}".format(cmd.id))
+        logging.info("Waiting for completion of command : {}".format(cmd.id))
         cmd = SparkCommand.find(cmd.id)
         time.sleep(5)
 
     if SparkCommand.is_success(cmd.status):
-        print("\nCommand Executed: Completed successfully")
+        logging.info("\nCommand Executed: Completed successfully")
     else:
-        print("\nCommand Executed: Failed!!!. The status returned is: {}".format(cmd.status))
-        print(cmd.get_log())
+        raise RuntimeError("Command {} has failed. The following are the command logs {}".format(cmd.id, cmd.get_log()))
     return cmd
 
 
@@ -49,14 +48,14 @@ def get_results(command):
     :param command:
     :return:
     """
-    if command is None:
-        return None
+    if not command:
+        raise RuntimeError("command cannot be None. Please provide a valid SparkCommand object")
 
     results_file_name = get_results_filename(command.id)
     fp = open(results_file_name, 'w')
 
     command.get_results(fp, delim="\n")
-    print("results are written to {}".format(results_file_name))
+    logging.info("results are written to {}".format(results_file_name))
 
 
 if __name__ == '__main__':
@@ -64,8 +63,11 @@ if __name__ == '__main__':
     # as <env_url>/api
     Qubole.configure(api_token='<api_token>')
 
+    # the following are mandatory parameters while submitting the SparkCommand
+    cluster_label = "<your cluster label>"  # the label of the cluster on which the command will run
+
+    # the following are optional parameters that can be supplied to a SparCommand
     arguments = None  # spark configuration for your program for ex : "--conf spark.executor.memory=1024M"
-    cluster_label = "<your cluster label>"  # the cluster on which the command will run
 
     # Running a shell command
     script = "/usr/lib/spark/bin/spark-submit --class org.apache.spark.examples.SparkPi --master yarn " \
