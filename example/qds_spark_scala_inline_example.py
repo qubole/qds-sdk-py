@@ -69,12 +69,12 @@ def get_results(command):
 
 if __name__ == '__main__':
     # Set the API token. If you are using any other environment other then api.qubole.com then set api_url to that url
-    # as <env_url>/api
-    Qubole.configure(api_token='<api_token>')
+    # as http://<env_url>/api
+    Qubole.configure(api_token='<api_token>', api_url="<api_url if your environment is other than api.qubole.com>")
 
     # the following are mandatory parameters while submitting the SparkCommand
     cluster_label = "<your cluster label>"  # the label of the cluster on which the command will run
-    script_language = "scala"  # Script language.. Python, R or scala
+    script_language = "scala"  # Script language.. python, R or scala
 
     # the following are optional parameters that can be supplied to a SparCommand
     user_program_arguments = None  # arguments for your script
