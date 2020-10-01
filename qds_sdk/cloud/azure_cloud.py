@@ -22,6 +22,7 @@ class AzureCloud(Cloud):
                          storage_account_name=None,
                          disk_storage_account_name=None,
                          disk_storage_account_resource_group_name=None,
+                         managed_disk_account_type=None,
                          persistent_security_groups=None,
                          bastion_node_public_dns=None,
                          vnet_name=None,
@@ -56,6 +57,8 @@ class AzureCloud(Cloud):
             disk_storage_account_resource_group_name: Disk storage account resource group
                 namefor azure cluster
 
+            managed_disk_account_type:  Please select either Managed Disk Type or Disk Storage Account.
+
             persistent_security_groups: security group to associate with each node of the cluster.
                 Typically used to provide access to external hosts
 
@@ -87,7 +90,8 @@ class AzureCloud(Cloud):
                                 vnet_resource_group_name, master_static_nic_name, master_static_public_ip_name)
         self.set_storage_config(storage_access_key, storage_account_name,
                                 disk_storage_account_name,
-                                disk_storage_account_resource_group_name)
+                                disk_storage_account_resource_group_name,
+                                managed_disk_account_type)
         self.resource_group_name = resource_group_name
 
     def set_compute_config(self,
@@ -128,12 +132,14 @@ class AzureCloud(Cloud):
                            storage_access_key=None,
                            storage_account_name=None,
                            disk_storage_account_name=None,
-                           disk_storage_account_resource_group_name=None):
+                           disk_storage_account_resource_group_name=None,
+                           managed_disk_account_type=None):
         self.storage_config['storage_access_key'] = storage_access_key
         self.storage_config['storage_account_name'] = storage_account_name
         self.storage_config['disk_storage_account_name'] = disk_storage_account_name
         self.storage_config['disk_storage_account_resource_group_name'] \
             = disk_storage_account_resource_group_name
+        self.storage_config['managed_disk_account_type'] = managed_disk_account_type
 
     def set_cloud_config_from_arguments(self, arguments):
         self.set_cloud_config(compute_client_id=arguments.compute_client_id,
@@ -146,6 +152,7 @@ class AzureCloud(Cloud):
                               storage_account_name=arguments.storage_account_name,
                               disk_storage_account_name=arguments.disk_storage_account_name,
                               disk_storage_account_resource_group_name=arguments.disk_storage_account_resource_group_name,
+                              managed_disk_account_type=arguments.managed_disk_account_type,
                               vnet_name=arguments.vnet_name,
                               subnet_name=arguments.subnet_name,
                               vnet_resource_group_name=arguments.vnet_resource_group_name,
@@ -312,3 +319,7 @@ class AzureCloud(Cloud):
                                     dest="disk_storage_account_resource_group_name",
                                     default=None,
                                     help="disk storage account resource group for azure cluster")
+        storage_config.add_argument("--managed-disk-account-type",
+                                    dest="managed_disk_account_type",
+                                    default=None,
+                                    help="managed disk type for azure cluster")
