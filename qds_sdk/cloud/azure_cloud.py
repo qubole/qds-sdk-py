@@ -57,7 +57,7 @@ class AzureCloud(Cloud):
             disk_storage_account_resource_group_name: Disk storage account resource group
                 namefor azure cluster
 
-            managed_disk_account_type:  Please select either Managed Disk Type or Disk Storage Account.
+            managed_disk_account_type:  Managed Disk Type for azure cluster
 
             persistent_security_groups: security group to associate with each node of the cluster.
                 Typically used to provide access to external hosts
