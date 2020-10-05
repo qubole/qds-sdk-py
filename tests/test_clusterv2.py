@@ -219,6 +219,26 @@ class TestClusterCreate(QdsCliTestCase):
                                                       }
                                                  })
 
+    def test_azure_managed_disk_config(self):
+        sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
+                    '--storage-access-key', 'testkey', '--storage-account-name', 'test_account_name',
+                    '--managed-disk-account-type', 'test_managed_disk']
+        Qubole.cloud = None
+        print_command()
+        Connection._api_call = Mock(return_value={})
+        qds.main()
+        Connection._api_call.assert_called_with('POST', 'clusters',
+                                                {'cluster_info':
+                                                     {'label': ['test_label']},
+                                                 'cloud_config':
+                                                     {'storage_config':
+                                                          {'storage_access_key': 'testkey',
+                                                           'storage_account_name': 'test_account_name',
+                                                           'managed_disk_account_type': 'test_managed_disk'
+                                                           }
+                                                      }
+                                                 })
+
     def test_azure_network_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
                     '--vnet-name', 'testvnet', '--subnet-name', 'testsubnet',
