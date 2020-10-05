@@ -222,7 +222,7 @@ class TestClusterCreate(QdsCliTestCase):
     def test_azure_managed_disk_config(self):
         sys.argv = ['qds.py', '--version', 'v2', '--cloud', 'AZURE', 'cluster', 'create', '--label', 'test_label',
                     '--storage-access-key', 'testkey', '--storage-account-name', 'test_account_name',
-                    '--managed-disk-account-type' 'test_managed_disk']
+                    '--managed-disk-account-type', 'test_managed_disk']
         Qubole.cloud = None
         print_command()
         Connection._api_call = Mock(return_value={})
