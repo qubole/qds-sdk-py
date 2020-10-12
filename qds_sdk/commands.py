@@ -252,7 +252,7 @@ class Command(Resource):
         return r.text
 
 
-    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True, qlog=None, arguments=[]):
+    def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True, qlog=None, arguments=[], boto_args={}):
         """
         Fetches the result for the command represented by this object
 
@@ -307,7 +307,8 @@ class Command(Resource):
                 boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                             aws_secret_access_key=storage_credentials['storage_secret_key'],
                                             security_token=storage_credentials['session_token'],
-                                            host=host)
+                                            host=host,
+                                            **boto_args)
                 log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
                 # fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
