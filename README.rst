@@ -137,3 +137,8 @@ Reporting Bugs and Contributing Code
 
 * Want to report a bug or request a feature? Please open `an issue <https://github.com/qubole/qds-sdk-py/issues/new>`_.
 * Want to contribute? Fork the project and create a pull request with your changes against ``unreleased`` branch.
+
+Where are the maintainers ?
+---------------------------
+
+Qubole was acquired. All the maintainers of this repo have moved on. Some of the employees founded `ClearFeed <https://clearfeed.ai>`_. Others are at big data teams in Microsoft, Amazon et al.
