@@ -1121,7 +1121,7 @@ class DbExportCommand(Command):
                 raise ParseError("dbtap_id and db_table are required",
                                  cls.optparser.format_help())
 
-            if options.mode is "1":
+            if options.mode == "1":
                 if options.hive_table is None:
                     raise ParseError("hive_table is required for mode 1",
                                      cls.optparser.format_help())
@@ -1134,7 +1134,7 @@ class DbExportCommand(Command):
                     raise ParseError("db_update_mode should either be left blank for append "
                                      "mode or be 'updateonly' or 'allowinsert'",
                                      cls.optparser.format_help())
-                if options.db_update_mode is "updateonly":
+                if options.db_update_mode == "updateonly":
                     if options.db_update_keys is None:
                         raise ParseError("db_update_keys is required when db_update_mode "
                                          "is 'updateonly'",
@@ -1521,7 +1521,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
 
         `total`: Total file size to be downloaded (int)
         '''
-        if (total is 0) or (downloaded == total):
+        if (total == 0) or (downloaded == total):
             return
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
