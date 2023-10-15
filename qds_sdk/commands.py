@@ -1220,7 +1220,7 @@ class DbImportCommand(Command):
                 raise ParseError("dbtap_id and db_table are required",
                                  cls.optparser.format_help())
 
-            # TODO: Semantic checks for parameters in mode 1 and 2
+            # TODO: Semantic checks for parameters in mode 1 and 2 # skipcq PYL-W0511
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
