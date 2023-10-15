@@ -29,7 +29,6 @@ _URI_RE = re.compile(r's3://([^/]+)/?(.*)')
 
 
 class Command(Resource):
-
     """
     qds_sdk.Command is the base Qubole command class. Different types of Qubole
     commands can subclass this.
