@@ -10,14 +10,14 @@ from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
 from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser, OptionParsingError, OptionParsingExit, _is_cloud_url
-from optparse import SUPPRESS_HELP #skipcq: PYL-W0402
+from optparse import SUPPRESS_HELP  #skipcq: PYL-W0402
 
 import boto
 import time
 import logging
 import sys
 import re
-import pipes #skipcq: PYL-W0402
+import pipes  #skipcq: PYL-W0402
 import os
 import json
 import signal
@@ -144,7 +144,7 @@ class Command(Resource):
 
         # vars to keep track of actual logs bytes (err, tmp) and new bytes seen in each iteration
         err_pointer, tmp_pointer, new_bytes = 0, 0, 0
-        print_logs_live = kwargs.pop("print_logs_live", None) # We don't want to send this to the API.
+        print_logs_live = kwargs.pop("print_logs_live", None)  # We don't want to send this to the API.
 
         cmd = cls.create(**kwargs)
 
