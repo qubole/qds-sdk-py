@@ -401,7 +401,7 @@ class HiveCommand(Command): # skipcq PY-D0002
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -486,7 +486,7 @@ class SqlCommand(Command): # skipcq PY-D0002
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -609,7 +609,7 @@ class SparkCommand(Command): # skipcq PY-D0002
             elif fileExtension == ".sql":
                 options.language = "sql"
             else:
-                raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
+                raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension), # skipcq PYL-C0209
                                  cls.optparser.format_help())
 
             if not _is_cloud_url(options.script_location):
@@ -619,7 +619,7 @@ class SparkCommand(Command): # skipcq PY-D0002
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
 
@@ -734,7 +734,7 @@ class PrestoCommand(Command): # skipcq PY-D0002
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -749,7 +749,7 @@ class PrestoCommand(Command): # skipcq PY-D0002
 
 class HadoopCommand(Command): # skipcq PY-D0002
     subcmdlist = ["jar", "s3distcp", "streaming"]
-    usage = "hadoopcmd <submit|run> [options] <%s> <arg1> [arg2] ..." % "|".join(subcmdlist)
+    usage = "hadoopcmd <submit|run> [options] <%s> <arg1> [arg2] ..." % "|".join(subcmdlist) # skipcq PYL-C0209
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--cluster-label", dest="label",
@@ -813,7 +813,7 @@ class HadoopCommand(Command): # skipcq PY-D0002
 
         subcmd = args.pop(0)
         if subcmd not in cls.subcmdlist:
-            raise ParseError("First argument must be one of <%s>" %
+            raise ParseError("First argument must be one of <%s>" % # skipcq PYL-C0209
                              "|".join(cls.subcmdlist))
 
         parsed["sub_command"] = subcmd
@@ -896,7 +896,7 @@ class ShellCommand(Command): # skipcq PY-D0002
                 try:
                     s = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -993,7 +993,7 @@ class PigCommand(Command): # skipcq PY-D0002
                 try:
                     s = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -1310,7 +1310,7 @@ class DbTapQueryCommand(Command): # skipcq PY-D0002
                     try:
                         q = open(options.script_location).read()
                     except IOError as e:
-                        raise ParseError("Unable to open script location: %s" %
+                        raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                          str(e),
                                          cls.optparser.format_help())
                     options.script_location = None
@@ -1442,7 +1442,7 @@ def validate_json_input(string, option_type, cls):
     try:
         return json.loads(string)
     except ValueError as e:
-        raise ParseError("Given %s is not valid JSON: %s" % (option_type, str(e)),
+        raise ParseError("Given %s is not valid JSON: %s" % (option_type, str(e)), # skipcq PYL-C0209
                          cls.optparser.format_help())
 
 
@@ -1504,7 +1504,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         if total in (0, downloaded):
             return
         progress = downloaded*100/total
-        sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
+        sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress)) # skipcq PYL-C0209
         sys.stderr.flush()
 
     m = _URI_RE.match(s3_path)
