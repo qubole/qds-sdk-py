@@ -154,7 +154,7 @@ class Command(Resource):
             if sighandler.received_term_signal:
                 logging.warning("Received signal {}. Canceling Qubole Command ID: {}".format(sighandler.last_signal, cmd.id))
                 cls.cancel(cmd)
-                exit()
+                sys.exit()
             time.sleep(Qubole.poll_interval)
             cmd = cls.find(cmd.id)
             if print_logs_live is True:
