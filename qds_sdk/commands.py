@@ -120,7 +120,6 @@ class Command(Resource):
         Returns:
             Command object
         """
-
         conn = Qubole.agent()
         if kwargs.get('command_type') is None:
             kwargs['command_type'] = cls.__name__
@@ -141,7 +140,6 @@ class Command(Resource):
         Returns:
             Command object
         """
-
         # vars to keep track of actual logs bytes (err, tmp) and new bytes seen in each iteration
         err_pointer, tmp_pointer, new_bytes = 0, 0, 0
         print_logs_live = kwargs.pop("print_logs_live", None)  # We don't want to send this to the API.
@@ -380,7 +378,6 @@ class HiveCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.query is None and options.script_location is None:
@@ -466,7 +463,6 @@ class SqlCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.query is None and options.script_location is None:
@@ -716,7 +712,6 @@ class PrestoCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.query is None and options.script_location is None:
@@ -878,7 +873,6 @@ class ShellCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.inline is None and options.script_location is None:
@@ -976,7 +970,6 @@ class PigCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.latin_statements is None and options.script_location is None:
@@ -1102,7 +1095,6 @@ class DbExportCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.mode not in ["1", "2"]:
@@ -1207,7 +1199,6 @@ class DbImportCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.mode not in ["1", "2"]:
@@ -1298,7 +1289,6 @@ class DbTapQueryCommand(Command): # skipcq PY-D0002
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.db_tap_id is None:
@@ -1450,7 +1440,6 @@ class SignalHandler:
 
 def validate_json_input(string, option_type, cls):
     """Converts String to JSON and throws ParseError if string is not valid JSON"""
-
     try:
         return json.loads(string)
     except ValueError as e:
