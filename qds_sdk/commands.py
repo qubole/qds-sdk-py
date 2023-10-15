@@ -230,7 +230,7 @@ class Command(Resource):
         """
         log_path = self.meta_data['logs_resource']
         conn = Qubole.agent()
-        r = conn.get_raw(log_path, params={'err_file_processed':err_pointer, 'tmp_file_processed':tmp_pointer})
+        r = conn.get_raw(log_path, params={'err_file_processed': err_pointer, 'tmp_file_processed': tmp_pointer})
         if 'err_length' in r.headers.keys() and 'tmp_length' in r.headers.keys():
             return [r.text, r.headers['err_length'], r.headers['tmp_length']]
         return [r.text, 0, 0]
@@ -368,7 +368,7 @@ class HiveCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     @classmethod
     def parse(cls, args):
@@ -510,7 +510,7 @@ class SqlCommand(Command):
 class SparkCommand(Command):
 
     usage = ("sparkcmd <submit|run> [options]")
-    allowedlanglist = ["python", "scala","R"]
+    allowedlanglist = ["python", "scala", "R"]
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
