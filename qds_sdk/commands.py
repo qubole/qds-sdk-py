@@ -1511,7 +1511,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         `fp`: The file object where data is to be downloaded
     '''
     #Progress bar to display download progress
-    def _callback(downloaded, total):
+    def _callback(downloaded, total): #skipcq PTC-W0065
         '''
         Call function for upload.
 
