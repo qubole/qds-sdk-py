@@ -532,7 +532,7 @@ class SparkCommand(Command):
 
     optparser.add_option("--cluster-label", dest="label", help="the label of the cluster to run the command on")
 
-    optparser.add_option("--language", dest="language", choices = allowedlanglist, help=SUPPRESS_HELP)
+    optparser.add_option("--language", dest="language", choices=allowedlanglist, help=SUPPRESS_HELP)
 
     optparser.add_option("--app-id", dest="app_id", type=int, help="The Spark Job Server app id to submit this snippet to.")
 
@@ -543,9 +543,9 @@ class SparkCommand(Command):
     optparser.add_option("--pool", dest="pool",
                          help="Specify the Fairscheduler pool name for the command to use")
 
-    optparser.add_option("--arguments", dest = "arguments", help = "Spark Submit Command Line Options")
+    optparser.add_option("--arguments", dest="arguments", help="Spark Submit Command Line Options")
 
-    optparser.add_option("--user_program_arguments", dest = "user_program_arguments", help = "Arguments for User Program")
+    optparser.add_option("--user_program_arguments", dest="user_program_arguments", help="Arguments for User Program")
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
