@@ -422,6 +422,7 @@ class HiveCommand(Command):
         v["command_type"] = "HiveCommand"
         return v
 
+
 class SqlCommand(Command):
 
     usage = ("sqlcmd <submit|run> [options]")
@@ -506,6 +507,7 @@ class SqlCommand(Command):
         v = vars(options)
         v["command_type"] = "SqlCommand"
         return v
+
 
 class SparkCommand(Command):
 
@@ -1150,6 +1152,7 @@ class DbExportCommand(Command):
         v = vars(options)
         v["command_type"] = "DbExportCommand"
         return v
+
 
 class DbImportCommand(Command):
     usage = "dbimportcmd <submit|run> [options]"
