@@ -35,7 +35,7 @@ class Command(Resource):
     commands can subclass this.
     """
 
-    """all commands use the /commands endpoint"""
+    # all commands use the /commands endpoint
     rest_entity_path = "commands"
 
     listusage = "<subcommand> list [options]"
