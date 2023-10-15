@@ -1550,7 +1550,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
                 if (e.status == 403):
                     # SDK-191, boto gives an error while fetching the objects using versions which happens by default
                     # in the get_contents_to_file() api. So attempt one without specifying version.
-                    log.warn("Access denied while fetching the s3 object. Retrying without specifying the version....")
+                    log.warning("Access denied while fetching the s3 object. Retrying without specifying the version....")
                     key_instance.open()
                     fp.write(key_instance.read())
                     key_instance.close()
