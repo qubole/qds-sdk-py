@@ -1498,7 +1498,7 @@ def write_headers(qlog, fp):
 
 
 def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
-    '''
+    """
     Downloads the contents of all objects in s3_path into fp
 
     Args:
@@ -1507,16 +1507,16 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         `s3_path`: S3 path to be downloaded
 
         `fp`: The file object where data is to be downloaded
-    '''
+    """
     # Progress bar to display download progress
     def _callback(downloaded, total): # skipcq PTC-W0065
-        '''
+        """
         Call function for upload.
 
         `downloaded`: File size already downloaded (int)
 
         `total`: Total file size to be downloaded (int)
-        '''
+        """
         if total in (0, downloaded):
             return
         progress = downloaded*100/total
