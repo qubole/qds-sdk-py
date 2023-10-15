@@ -188,9 +188,7 @@ class Command(Resource):
         return conn.put(cls.element_path(id), data)
 
     def cancel(self):
-        """
-        Cancels command represented by this object
-        """
+        """Cancels command represented by this object"""
         self.__class__.cancel_id(self.id)
 
     @classmethod
@@ -1432,9 +1430,7 @@ class JupyterNotebookCommand(Command):
 
 
 class SignalHandler:
-    """
-    Catch terminate signals to allow graceful termination of run()
-    """
+    """Catch terminate signals to allow graceful termination of run()"""
 
     def __init__(self):
         self.last_signal = None
