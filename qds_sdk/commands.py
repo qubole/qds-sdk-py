@@ -1119,7 +1119,7 @@ class DbExportCommand(Command):
                 raise ParseError("dbtap_id and db_table are required",
                                  cls.optparser.format_help())
 
-            if options.mode is "1":
+            if options.mode == "1":
                 if options.hive_table is None:
                     raise ParseError("hive_table is required for mode 1",
                                      cls.optparser.format_help())
@@ -1132,7 +1132,7 @@ class DbExportCommand(Command):
                     raise ParseError("db_update_mode should either be left blank for append "
                                      "mode or be 'updateonly' or 'allowinsert'",
                                      cls.optparser.format_help())
-                if options.db_update_mode is "updateonly":
+                if options.db_update_mode == "updateonly":
                     if options.db_update_keys is None:
                         raise ParseError("db_update_keys is required when db_update_mode "
                                          "is 'updateonly'",
