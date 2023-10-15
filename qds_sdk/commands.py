@@ -67,7 +67,7 @@ class Command(Resource):
         return status in ("cancelled", "done", "error")
 
     @staticmethod
-    def is_success(status):
+    def is_success(status): # skipcq PY-D0003
         return status == "done"
 
     @classmethod
@@ -98,7 +98,7 @@ class Command(Resource):
         return conn.get(cls.rest_entity_path, params=params)
 
     @classmethod
-    def listparse(cls, args):
+    def listparse(cls, args): # skipcq PY-D0003
         try:
             (options, args) = cls.listparser.parse_args(args)
         except OptionParsingError as e:
@@ -551,7 +551,7 @@ class SparkCommand(Command):
     optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
-    def validate_program(cls, options):
+    def validate_program(cls, options): # skipcq PY-D0003
         bool_program = options.program is not None
         bool_other_options = options.script_location is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
@@ -563,7 +563,7 @@ class SparkCommand(Command):
             raise ParseError("Unspecified language for Program", cls.optparser.format_help())
 
     @classmethod
-    def validate_cmdline(cls, options):
+    def validate_cmdline(cls, options): # skipcq PY-D0003
         bool_cmdline = options.cmdline is not None
         bool_other_options = options.script_location is not None or options.program is not None or options.sql is not None or options.note_id is not None
 
@@ -578,7 +578,7 @@ class SparkCommand(Command):
                 raise ParseError("app_id cannot be specified with the commandline option", cls.optparser.format_help())
 
     @classmethod
-    def validate_sql(cls, options):
+    def validate_sql(cls, options): # skipcq PY-D0003
         bool_sql = options.sql is not None
         bool_other_options = options.script_location is not None or options.program is not None or options.cmdline is not None or options.note_id is not None
 
@@ -590,7 +590,7 @@ class SparkCommand(Command):
             raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
 
     @classmethod
-    def validate_script_location(cls, options):
+    def validate_script_location(cls, options): # skipcq PY-D0003
         bool_script_location = options.script_location is not None
         bool_other_options = options.program is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
@@ -1442,7 +1442,7 @@ class SignalHandler:
         for signum in self.term_signals:
             signal.signal(signum, self.handler)
 
-    def handler(self, signum, frame):
+    def handler(self, signum, frame): # skipcq PY-D0003
         self.last_signal = signum
         if signum in self.term_signals:
             self.received_term_signal = True
@@ -1458,7 +1458,7 @@ def validate_json_input(string, option_type, cls):
                          cls.optparser.format_help())
 
 
-def _read_iteratively(key_instance, fp, delim):
+def _read_iteratively(key_instance, fp, delim): # skipcq PY-D0003
     key_instance.open_read()
     while True:
         try:
@@ -1479,7 +1479,7 @@ def _read_iteratively(key_instance, fp, delim):
             return
 
 
-def write_headers(qlog, fp):
+def write_headers(qlog, fp): # skipcq PY-D0003
     col_names = []
     qlog = json.loads(qlog)
     if qlog["QBOL-QUERY-SCHEMA"] is not None:
