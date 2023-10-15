@@ -308,7 +308,7 @@ class Command(Resource):
                                             aws_secret_access_key=storage_credentials['storage_secret_key'],
                                             security_token=storage_credentials['session_token'],
                                             host=host)
-                log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
+                log.info("Starting download from result locations: [%s]", ",".join(r['result_location']))
                 # fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
 
@@ -1542,7 +1542,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             key_instance = bucket.get_key(key_name)
         if key_instance is None:
             raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
-        log.info("Downloading file from %s" % s3_path)
+        log.info("Downloading file from %s", s3_path)
         if delim is None:
             try:
                 key_instance.get_contents_to_file(fp)  # cb=_callback
@@ -1571,7 +1571,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             if name.endswith('$folder$'):
                 continue
 
-            log.info("Downloading file from %s" % name)
+            log.info("Downloading file from %s", name)
             if delim is None:
                 one_path.get_contents_to_file(fp)  # cb=_callback
             else:
