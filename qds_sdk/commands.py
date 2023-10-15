@@ -1438,6 +1438,7 @@ class JupyterNotebookCommand(Command):
         params["command_type"] = "JupyterNotebookCommand"
         return params
 
+
 class SignalHandler:
     """
     Catch terminate signals to allow graceful termination of run()
@@ -1468,6 +1469,7 @@ def validate_json_input(string, option_type, cls):
         raise ParseError("Given %s is not valid JSON: %s" % (option_type, str(e)),
                          cls.optparser.format_help())
 
+
 def _read_iteratively(key_instance, fp, delim):
     key_instance.open_read()
     while True:
@@ -1487,6 +1489,7 @@ def _read_iteratively(key_instance, fp, delim):
         except StopIteration:
             # Stream closes itself when the exception is raised
             return
+
 
 def write_headers(qlog, fp):
     col_names = []
