@@ -251,7 +251,6 @@ class Command(Resource):
         r = conn.get_raw(cls.element_path(id) + "/jobs")
         return r.text
 
-
     def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True, qlog=None, arguments=[]):
         """
         Fetches the result for the command represented by this object
@@ -277,7 +276,6 @@ class Command(Resource):
             include_header = arguments.pop(0)
             if include_header not in ('true', 'false'):
                 raise ParseError("incude_header can be either true or false")
-
 
         r = conn.get(result_path, {'inline': inline, 'include_headers': include_header})
         if r.get('inline'):
@@ -327,7 +325,6 @@ class Command(Resource):
                     _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
             else:
                 fp.write(",".join(r['result_location']))
-
 
 
 class HiveCommand(Command):
@@ -633,14 +630,12 @@ class SparkCommand(Command):
                                      str(e),
                                      cls.optparser.format_help())
 
-
                 options.script_location = None
                 if options.language == "sql":
                     options.sql = q
                     options.language = None
                 else:
                     options.program = q
-
 
     @classmethod
     def parse(cls, args):
@@ -675,7 +670,6 @@ class SparkCommand(Command):
         v = vars(options)
         v["command_type"] = "SparkCommand"
         return v
-
 
 
 class PrestoCommand(Command):
@@ -1199,7 +1193,6 @@ class DbImportCommand(Command):
                          default=False, help="Fetch logs and print them to stderr while command is running.")
     optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
     optparser.add_option("--partition_spec", dest="part_spec", default=None, help="Mode 1: (optional) Partition specification for Hive table")
-
 
 
     @classmethod
