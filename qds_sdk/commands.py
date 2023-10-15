@@ -64,7 +64,7 @@ class Command(Resource):
         Returns:
             True/False
         """
-        return status == "cancelled" or status == "done" or status == "error"
+        return status in ("cancelled", "done", "error")
 
     @staticmethod
     def is_success(status):
@@ -1521,7 +1521,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
 
         `total`: Total file size to be downloaded (int)
         '''
-        if (total is 0) or (downloaded == total):
+        if total in (0, downloaded):
             return
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
