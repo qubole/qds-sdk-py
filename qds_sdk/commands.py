@@ -955,7 +955,7 @@ class PigCommand(Command): # skipcq PY-D0002
     optparser.add_option("--retry", dest="retry", choices=[1, 2, 3], default=0, help="Number of retries for a job")
 
     @classmethod
-    def parse(cls, args):
+    def parse(cls, args): # skipcq PY-R1000
         """
         Parse command line arguments to construct a dictionary of command
         parameters that can be used to create a command
