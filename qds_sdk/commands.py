@@ -1189,7 +1189,7 @@ class DbImportCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
     optparser.add_option("--additional_options",
-                          help="Additional Sqoop options which are needed enclose options in double or single quotes")
+                         help="Additional Sqoop options which are needed enclose options in double or single quotes")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
