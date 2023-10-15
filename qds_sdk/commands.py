@@ -10,14 +10,14 @@ from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
 from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser, OptionParsingError, OptionParsingExit, _is_cloud_url
-from optparse import SUPPRESS_HELP
+from optparse import SUPPRESS_HELP  # skipcq: PYL-W0402
 
 import boto
 import time
 import logging
 import sys
 import re
-import pipes
+import pipes  # skipcq: PYL-W0402
 import os
 import json
 import signal
@@ -29,13 +29,12 @@ _URI_RE = re.compile(r's3://([^/]+)/?(.*)')
 
 
 class Command(Resource):
-
     """
     qds_sdk.Command is the base Qubole command class. Different types of Qubole
     commands can subclass this.
     """
 
-    """all commands use the /commands endpoint"""
+    # all commands use the /commands endpoint
     rest_entity_path = "commands"
 
     listusage = "<subcommand> list [options]"
@@ -64,10 +63,10 @@ class Command(Resource):
         Returns:
             True/False
         """
-        return status == "cancelled" or status == "done" or status == "error"
+        return status in ("cancelled", "done", "error")
 
     @staticmethod
-    def is_success(status):
+    def is_success(status): # skipcq PY-D0003
         return status == "done"
 
     @classmethod
@@ -98,12 +97,12 @@ class Command(Resource):
         return conn.get(cls.rest_entity_path, params=params)
 
     @classmethod
-    def listparse(cls, args):
+    def listparse(cls, args): # skipcq PY-D0003
         try:
             (options, args) = cls.listparser.parse_args(args)
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.listparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         return vars(options)
@@ -120,7 +119,6 @@ class Command(Resource):
         Returns:
             Command object
         """
-
         conn = Qubole.agent()
         if kwargs.get('command_type') is None:
             kwargs['command_type'] = cls.__name__
@@ -141,10 +139,9 @@ class Command(Resource):
         Returns:
             Command object
         """
-
         # vars to keep track of actual logs bytes (err, tmp) and new bytes seen in each iteration
         err_pointer, tmp_pointer, new_bytes = 0, 0, 0
-        print_logs_live = kwargs.pop("print_logs_live", None) # We don't want to send this to the API.
+        print_logs_live = kwargs.pop("print_logs_live", None)  # We don't want to send this to the API.
 
         cmd = cls.create(**kwargs)
 
@@ -152,9 +149,9 @@ class Command(Resource):
 
         while not Command.is_done(cmd.status):
             if sighandler.received_term_signal:
-                logging.warning("Received signal {}. Canceling Qubole Command ID: {}".format(sighandler.last_signal, cmd.id))
+                logging.warning("Received signal %s. Canceling Qubole Command ID: %s", sighandler.last_signal, cmd.id)
                 cls.cancel(cmd)
-                exit()
+                sys.exit()
             time.sleep(Qubole.poll_interval)
             cmd = cls.find(cmd.id)
             if print_logs_live is True:
@@ -188,9 +185,7 @@ class Command(Resource):
         return conn.put(cls.element_path(id), data)
 
     def cancel(self):
-        """
-        Cancels command represented by this object
-        """
+        """Cancels command represented by this object"""
         self.__class__.cancel_id(self.id)
 
     @classmethod
@@ -230,7 +225,7 @@ class Command(Resource):
         """
         log_path = self.meta_data['logs_resource']
         conn = Qubole.agent()
-        r = conn.get_raw(log_path, params={'err_file_processed':err_pointer, 'tmp_file_processed':tmp_pointer})
+        r = conn.get_raw(log_path, params={'err_file_processed': err_pointer, 'tmp_file_processed': tmp_pointer})
         if 'err_length' in r.headers.keys() and 'tmp_length' in r.headers.keys():
             return [r.text, r.headers['err_length'], r.headers['tmp_length']]
         return [r.text, 0, 0]
@@ -250,7 +245,6 @@ class Command(Resource):
         conn = Qubole.agent()
         r = conn.get_raw(cls.element_path(id) + "/jobs")
         return r.text
-
 
     def get_results(self, fp=sys.stdout, inline=True, delim=None, fetch=True, qlog=None, arguments=[]):
         """
@@ -277,7 +271,6 @@ class Command(Resource):
             include_header = arguments.pop(0)
             if include_header not in ('true', 'false'):
                 raise ParseError("incude_header can be either true or false")
-
 
         r = conn.get(result_path, {'inline': inline, 'include_headers': include_header})
         if r.get('inline'):
@@ -308,7 +301,7 @@ class Command(Resource):
                                             aws_secret_access_key=storage_credentials['storage_secret_key'],
                                             security_token=storage_credentials['session_token'],
                                             host=host)
-                log.info("Starting download from result locations: [%s]" % ",".join(r['result_location']))
+                log.info("Starting download from result locations: [%s]", ",".join(r['result_location']))
                 # fetch latest value of num_result_dir
                 num_result_dir = Command.find(self.id).num_result_dir
 
@@ -329,8 +322,7 @@ class Command(Resource):
                 fp.write(",".join(r['result_location']))
 
 
-
-class HiveCommand(Command):
+class HiveCommand(Command): # skipcq PY-D0002
 
     usage = ("hivecmd <submit|run> [options]")
 
@@ -368,7 +360,7 @@ class HiveCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     @classmethod
     def parse(cls, args):
@@ -385,7 +377,6 @@ class HiveCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.query is None and options.script_location is None:
@@ -394,7 +385,7 @@ class HiveCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -410,7 +401,7 @@ class HiveCommand(Command):
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -422,7 +413,8 @@ class HiveCommand(Command):
         v["command_type"] = "HiveCommand"
         return v
 
-class SqlCommand(Command):
+
+class SqlCommand(Command): # skipcq PY-D0002
 
     usage = ("sqlcmd <submit|run> [options]")
 
@@ -470,7 +462,6 @@ class SqlCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.query is None and options.script_location is None:
@@ -479,7 +470,7 @@ class SqlCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -495,7 +486,7 @@ class SqlCommand(Command):
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -507,13 +498,14 @@ class SqlCommand(Command):
         v["command_type"] = "SqlCommand"
         return v
 
-class SparkCommand(Command):
+
+class SparkCommand(Command): # skipcq PY-D0002
 
     usage = ("sparkcmd <submit|run> [options]")
-    allowedlanglist = ["python", "scala","R"]
+    allowedlanglist = ["python", "scala", "R"]
 
     optparser = GentleOptionParser(usage=usage)
-    optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
+    optparser.add_option("--program", dest="program", help=SUPPRESS_HELP)
 
     optparser.add_option("--cmdline", dest="cmdline", help="command line for Spark")
 
@@ -532,7 +524,7 @@ class SparkCommand(Command):
 
     optparser.add_option("--cluster-label", dest="label", help="the label of the cluster to run the command on")
 
-    optparser.add_option("--language", dest="language", choices = allowedlanglist, help=SUPPRESS_HELP)
+    optparser.add_option("--language", dest="language", choices=allowedlanglist, help=SUPPRESS_HELP)
 
     optparser.add_option("--app-id", dest="app_id", type=int, help="The Spark Job Server app id to submit this snippet to.")
 
@@ -543,9 +535,9 @@ class SparkCommand(Command):
     optparser.add_option("--pool", dest="pool",
                          help="Specify the Fairscheduler pool name for the command to use")
 
-    optparser.add_option("--arguments", dest = "arguments", help = "Spark Submit Command Line Options")
+    optparser.add_option("--arguments", dest="arguments", help="Spark Submit Command Line Options")
 
-    optparser.add_option("--user_program_arguments", dest = "user_program_arguments", help = "Arguments for User Program")
+    optparser.add_option("--user_program_arguments", dest="user_program_arguments", help="Arguments for User Program")
 
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
@@ -554,7 +546,7 @@ class SparkCommand(Command):
     optparser.add_option("--retry", dest="retry", default=0, help="Number of retries")
 
     @classmethod
-    def validate_program(cls, options):
+    def validate_program(cls, options): # skipcq PY-D0003
         bool_program = options.program is not None
         bool_other_options = options.script_location is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
@@ -562,12 +554,11 @@ class SparkCommand(Command):
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_program == bool_other_options:
             raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
-        if bool_program:
-            if options.language is None:
-                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+        if bool_program and options.language is None:
+            raise ParseError("Unspecified language for Program", cls.optparser.format_help())
 
     @classmethod
-    def validate_cmdline(cls, options):
+    def validate_cmdline(cls, options): # skipcq PY-D0003
         bool_cmdline = options.cmdline is not None
         bool_other_options = options.script_location is not None or options.program is not None or options.sql is not None or options.note_id is not None
 
@@ -582,7 +573,7 @@ class SparkCommand(Command):
                 raise ParseError("app_id cannot be specified with the commandline option", cls.optparser.format_help())
 
     @classmethod
-    def validate_sql(cls, options):
+    def validate_sql(cls, options): # skipcq PY-D0003
         bool_sql = options.sql is not None
         bool_other_options = options.script_location is not None or options.program is not None or options.cmdline is not None or options.note_id is not None
 
@@ -590,12 +581,11 @@ class SparkCommand(Command):
         # if both are true then atleast two option specified => raise ParseError
         if bool_sql == bool_other_options:
             raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
-        if bool_sql:
-            if options.language is not None:
-                raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
+        if bool_sql and options.language is not None:
+            raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
 
     @classmethod
-    def validate_script_location(cls, options):
+    def validate_script_location(cls, options): # skipcq PY-D0003
         bool_script_location = options.script_location is not None
         bool_other_options = options.program is not None or options.cmdline is not None or options.sql is not None or options.note_id is not None
 
@@ -619,7 +609,7 @@ class SparkCommand(Command):
             elif fileExtension == ".sql":
                 options.language = "sql"
             else:
-                raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension),
+                raise ParseError("Invalid program type %s. Please choose one from python, scala, R or sql." % str(fileExtension), # skipcq PYL-C0209
                                  cls.optparser.format_help())
 
             if not _is_cloud_url(options.script_location):
@@ -629,18 +619,16 @@ class SparkCommand(Command):
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
 
-            
                 options.script_location = None
                 if options.language == "sql":
                     options.sql = q
                     options.language = None
                 else:
                     options.program = q
-
 
     @classmethod
     def parse(cls, args):
@@ -661,7 +649,7 @@ class SparkCommand(Command):
             (options, args) = cls.optparser.parse_args(args)
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         SparkCommand.validate_program(options)
@@ -677,8 +665,7 @@ class SparkCommand(Command):
         return v
 
 
-
-class PrestoCommand(Command):
+class PrestoCommand(Command): # skipcq PY-D0002
 
     usage = ("prestocmd <submit|run> [options]")
 
@@ -707,7 +694,7 @@ class PrestoCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     @classmethod
     def parse(cls, args):
@@ -724,7 +711,6 @@ class PrestoCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.query is None and options.script_location is None:
@@ -733,7 +719,7 @@ class PrestoCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -748,7 +734,7 @@ class PrestoCommand(Command):
                 try:
                     q = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -761,9 +747,9 @@ class PrestoCommand(Command):
         return v
 
 
-class HadoopCommand(Command):
+class HadoopCommand(Command): # skipcq PY-D0002
     subcmdlist = ["jar", "s3distcp", "streaming"]
-    usage = "hadoopcmd <submit|run> [options] <%s> <arg1> [arg2] ..." % "|".join(subcmdlist)
+    usage = "hadoopcmd <submit|run> [options] <%s> <arg1> [arg2] ..." % "|".join(subcmdlist) # skipcq PYL-C0209
 
     optparser = GentleOptionParser(usage=usage)
     optparser.add_option("--cluster-label", dest="label",
@@ -785,7 +771,7 @@ class HadoopCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     optparser.disable_interspersed_args()
 
@@ -810,7 +796,7 @@ class HadoopCommand(Command):
             (options, args) = cls.optparser.parse_args(args)
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         parsed['label'] = options.label
@@ -827,7 +813,7 @@ class HadoopCommand(Command):
 
         subcmd = args.pop(0)
         if subcmd not in cls.subcmdlist:
-            raise ParseError("First argument must be one of <%s>" %
+            raise ParseError("First argument must be one of <%s>" % # skipcq PYL-C0209
                              "|".join(cls.subcmdlist))
 
         parsed["sub_command"] = subcmd
@@ -836,7 +822,7 @@ class HadoopCommand(Command):
         return parsed
 
 
-class ShellCommand(Command):
+class ShellCommand(Command): # skipcq PY-D0002
     usage = ("shellcmd <submit|run> [options] [arg1] [arg2] ...")
 
     optparser = GentleOptionParser(usage=usage)
@@ -886,7 +872,6 @@ class ShellCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.inline is None and options.script_location is None:
@@ -895,7 +880,7 @@ class ShellCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -911,7 +896,7 @@ class ShellCommand(Command):
                 try:
                     s = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -938,7 +923,7 @@ class ShellCommand(Command):
         return v
 
 
-class PigCommand(Command):
+class PigCommand(Command): # skipcq PY-D0002
     usage = ("pigcmd <submit|run> [options] [key1=value1] [key2=value2] ...")
 
     optparser = GentleOptionParser(usage=usage)
@@ -967,10 +952,10 @@ class PigCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", choices=[1,2,3], default=0, help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", choices=[1, 2, 3], default=0, help="Number of retries for a job")
 
     @classmethod
-    def parse(cls, args):
+    def parse(cls, args): # skipcq PY-R1000
         """
         Parse command line arguments to construct a dictionary of command
         parameters that can be used to create a command
@@ -984,7 +969,6 @@ class PigCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.latin_statements is None and options.script_location is None:
@@ -993,7 +977,7 @@ class PigCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -1009,7 +993,7 @@ class PigCommand(Command):
                 try:
                     s = open(options.script_location).read()
                 except IOError as e:
-                    raise ParseError("Unable to open script location: %s" %
+                    raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                      str(e),
                                      cls.optparser.format_help())
                 options.script_location = None
@@ -1041,7 +1025,7 @@ class PigCommand(Command):
         return v
 
 
-class DbExportCommand(Command):
+class DbExportCommand(Command): # skipcq PY-D0002
     usage = ("dbexportcmd <submit|run> [options]")
 
     optparser = GentleOptionParser(usage=usage)
@@ -1093,7 +1077,7 @@ class DbExportCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     @classmethod
     def parse(cls, args):
@@ -1110,7 +1094,6 @@ class DbExportCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.mode not in ["1", "2"]:
@@ -1121,7 +1104,7 @@ class DbExportCommand(Command):
                 raise ParseError("dbtap_id and db_table are required",
                                  cls.optparser.format_help())
 
-            if options.mode is "1":
+            if options.mode == "1":
                 if options.hive_table is None:
                     raise ParseError("hive_table is required for mode 1",
                                      cls.optparser.format_help())
@@ -1134,7 +1117,7 @@ class DbExportCommand(Command):
                     raise ParseError("db_update_mode should either be left blank for append "
                                      "mode or be 'updateonly' or 'allowinsert'",
                                      cls.optparser.format_help())
-                if options.db_update_mode is "updateonly":
+                if options.db_update_mode == "updateonly":
                     if options.db_update_keys is None:
                         raise ParseError("db_update_keys is required when db_update_mode "
                                          "is 'updateonly'",
@@ -1146,14 +1129,15 @@ class DbExportCommand(Command):
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         v = vars(options)
         v["command_type"] = "DbExportCommand"
         return v
 
-class DbImportCommand(Command):
+
+class DbImportCommand(Command): # skipcq PY-D0002
     usage = "dbimportcmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
@@ -1191,15 +1175,13 @@ class DbImportCommand(Command):
     optparser.add_option("--name", dest="name",
                          help="Assign a name to this command")
     optparser.add_option("--additional_options",
-                          help="Additional Sqoop options which are needed enclose options in double or single quotes")
+                         help="Additional Sqoop options which are needed enclose options in double or single quotes")
     optparser.add_option("--print-logs", action="store_true", dest="print_logs",
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
     optparser.add_option("--partition_spec", dest="part_spec", default=None, help="Mode 1: (optional) Partition specification for Hive table")
-
-
 
     @classmethod
     def parse(cls, args):
@@ -1216,7 +1198,6 @@ class DbImportCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.mode not in ["1", "2"]:
@@ -1227,11 +1208,11 @@ class DbImportCommand(Command):
                 raise ParseError("dbtap_id and db_table are required",
                                  cls.optparser.format_help())
 
-            # TODO: Semantic checks for parameters in mode 1 and 2
+            # TODO: Semantic checks for parameters in mode 1 and 2 # skipcq PYL-W0511
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         v = vars(options)
@@ -1239,7 +1220,7 @@ class DbImportCommand(Command):
         return v
 
 
-class CompositeCommand(Command):
+class CompositeCommand(Command): # skipcq PY-D0002
     @classmethod
     def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False, name=None, tags=None):
         """
@@ -1268,7 +1249,7 @@ class CompositeCommand(Command):
                }
 
 
-class DbTapQueryCommand(Command):
+class DbTapQueryCommand(Command): # skipcq PY-D0002
     usage = "dbtapquerycmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
@@ -1307,7 +1288,6 @@ class DbTapQueryCommand(Command):
         Raises:
             ParseError: when the arguments are not correct
         """
-
         try:
             (options, args) = cls.optparser.parse_args(args)
             if options.db_tap_id is None:
@@ -1330,7 +1310,7 @@ class DbTapQueryCommand(Command):
                     try:
                         q = open(options.script_location).read()
                     except IOError as e:
-                        raise ParseError("Unable to open script location: %s" %
+                        raise ParseError("Unable to open script location: %s" % # skipcq PYL-C0209
                                          str(e),
                                          cls.optparser.format_help())
                     options.script_location = None
@@ -1338,7 +1318,7 @@ class DbTapQueryCommand(Command):
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.macros is not None:
@@ -1348,7 +1328,7 @@ class DbTapQueryCommand(Command):
         return v
 
 
-class JupyterNotebookCommand(Command):
+class JupyterNotebookCommand(Command): # skipcq PY-D0002
     usage = "jupyternotebookcmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
@@ -1430,17 +1410,16 @@ class JupyterNotebookCommand(Command):
                     raise ParseError(msg, cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         params = vars(options)
         params["command_type"] = "JupyterNotebookCommand"
         return params
 
+
 class SignalHandler:
-    """
-    Catch terminate signals to allow graceful termination of run()
-    """
+    """Catch terminate signals to allow graceful termination of run()"""
 
     def __init__(self):
         self.last_signal = None
@@ -1452,7 +1431,7 @@ class SignalHandler:
         for signum in self.term_signals:
             signal.signal(signum, self.handler)
 
-    def handler(self, signum, frame):
+    def handler(self, signum, frame): # skipcq PY-D0003
         self.last_signal = signum
         if signum in self.term_signals:
             self.received_term_signal = True
@@ -1460,14 +1439,14 @@ class SignalHandler:
 
 def validate_json_input(string, option_type, cls):
     """Converts String to JSON and throws ParseError if string is not valid JSON"""
-
     try:
         return json.loads(string)
     except ValueError as e:
-        raise ParseError("Given %s is not valid JSON: %s" % (option_type, str(e)),
+        raise ParseError("Given %s is not valid JSON: %s" % (option_type, str(e)), # skipcq PYL-C0209
                          cls.optparser.format_help())
 
-def _read_iteratively(key_instance, fp, delim):
+
+def _read_iteratively(key_instance, fp, delim): # skipcq PY-D0003
     key_instance.open_read()
     while True:
         try:
@@ -1487,7 +1466,8 @@ def _read_iteratively(key_instance, fp, delim):
             # Stream closes itself when the exception is raised
             return
 
-def write_headers(qlog,fp):
+
+def write_headers(qlog, fp): # skipcq PY-D0003
     col_names = []
     qlog = json.loads(qlog)
     if qlog["QBOL-QUERY-SCHEMA"] is not None:
@@ -1502,7 +1482,7 @@ def write_headers(qlog,fp):
 
 
 def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
-    '''
+    """
     Downloads the contents of all objects in s3_path into fp
 
     Args:
@@ -1511,28 +1491,28 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         `s3_path`: S3 path to be downloaded
 
         `fp`: The file object where data is to be downloaded
-    '''
-    #Progress bar to display download progress
-    def _callback(downloaded, total):
-        '''
+    """
+    # Progress bar to display download progress
+    def _callback(downloaded, total): # skipcq PTC-W0065
+        """
         Call function for upload.
 
         `downloaded`: File size already downloaded (int)
 
         `total`: Total file size to be downloaded (int)
-        '''
-        if (total is 0) or (downloaded == total):
+        """
+        if total in (0, downloaded):
             return
         progress = downloaded*100/total
-        sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
+        sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress)) # skipcq PYL-C0209
         sys.stderr.flush()
-        
+
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
     retries = 6
     if s3_path.endswith('/') is False:
-        #It is a file
+        # It is a file
         key_name = m.group(2)
         key_instance = bucket.get_key(key_name)
         while key_instance is None and retries > 0:
@@ -1542,15 +1522,15 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             key_instance = bucket.get_key(key_name)
         if key_instance is None:
             raise Exception("Results file not available on s3 yet. This can be because of s3 eventual consistency issues.")
-        log.info("Downloading file from %s" % s3_path)
+        log.info("Downloading file from %s", s3_path)
         if delim is None:
             try:
                 key_instance.get_contents_to_file(fp)  # cb=_callback
             except boto.exception.S3ResponseError as e:
-                if (e.status == 403):
+                if e.status == 403:
                     # SDK-191, boto gives an error while fetching the objects using versions which happens by default
                     # in the get_contents_to_file() api. So attempt one without specifying version.
-                    log.warn("Access denied while fetching the s3 object. Retrying without specifying the version....")
+                    log.warning("Access denied while fetching the s3 object. Retrying without specifying the version....")
                     key_instance.open()
                     fp.write(key_instance.read())
                     key_instance.close()
@@ -1561,7 +1541,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             _read_iteratively(key_instance, fp, delim=delim)
 
     else:
-        #It is a folder
+        # It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
         for one_path in bucket_paths:
@@ -1571,7 +1551,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             if name.endswith('$folder$'):
                 continue
 
-            log.info("Downloading file from %s" % name)
+            log.info("Downloading file from %s", name)
             if delim is None:
                 one_path.get_contents_to_file(fp)  # cb=_callback
             else:
