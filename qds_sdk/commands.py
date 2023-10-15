@@ -1513,7 +1513,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
 
         `fp`: The file object where data is to be downloaded
     '''
-    #Progress bar to display download progress
+    # Progress bar to display download progress
     def _callback(downloaded, total): # skipcq PTC-W0065
         '''
         Call function for upload.
@@ -1533,7 +1533,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
     bucket = boto_conn.get_bucket(bucket_name)
     retries = 6
     if s3_path.endswith('/') is False:
-        #It is a file
+        # It is a file
         key_name = m.group(2)
         key_instance = bucket.get_key(key_name)
         while key_instance is None and retries > 0:
@@ -1562,7 +1562,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
             _read_iteratively(key_instance, fp, delim=delim)
 
     else:
-        #It is a folder
+        # It is a folder
         key_prefix = m.group(2)
         bucket_paths = bucket.list(key_prefix)
         for one_path in bucket_paths:
