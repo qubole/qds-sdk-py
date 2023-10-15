@@ -562,9 +562,8 @@ class SparkCommand(Command):
         # if both are true then atleast two option specified ==> raise ParseError
         if bool_program == bool_other_options:
             raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
-        if bool_program:
-            if options.language is None:
-                raise ParseError("Unspecified language for Program", cls.optparser.format_help())
+        if bool_program and options.language is None:
+            raise ParseError("Unspecified language for Program", cls.optparser.format_help())
 
     @classmethod
     def validate_cmdline(cls, options):
@@ -590,9 +589,8 @@ class SparkCommand(Command):
         # if both are true then atleast two option specified => raise ParseError
         if bool_sql == bool_other_options:
             raise ParseError("Exactly One of script location or program or cmdline or sql or note_id should be specified", cls.optparser.format_help())
-        if bool_sql:
-            if options.language is not None:
-                raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
+        if bool_sql and options.language is not None:
+            raise ParseError("Language cannot be specified with the 'sql' option", cls.optparser.format_help())
 
     @classmethod
     def validate_script_location(cls, options):
