@@ -325,7 +325,7 @@ class Command(Resource):
                 fp.write(",".join(r['result_location']))
 
 
-class HiveCommand(Command):
+class HiveCommand(Command): # skipcq PY-D0002
 
     usage = ("hivecmd <submit|run> [options]")
 
@@ -418,7 +418,7 @@ class HiveCommand(Command):
         return v
 
 
-class SqlCommand(Command):
+class SqlCommand(Command): # skipcq PY-D0002
 
     usage = ("sqlcmd <submit|run> [options]")
 
@@ -504,7 +504,7 @@ class SqlCommand(Command):
         return v
 
 
-class SparkCommand(Command):
+class SparkCommand(Command): # skipcq PY-D0002
 
     usage = ("sparkcmd <submit|run> [options]")
     allowedlanglist = ["python", "scala", "R"]
@@ -670,7 +670,7 @@ class SparkCommand(Command):
         return v
 
 
-class PrestoCommand(Command):
+class PrestoCommand(Command): # skipcq PY-D0002
 
     usage = ("prestocmd <submit|run> [options]")
 
@@ -753,7 +753,7 @@ class PrestoCommand(Command):
         return v
 
 
-class HadoopCommand(Command):
+class HadoopCommand(Command): # skipcq PY-D0002
     subcmdlist = ["jar", "s3distcp", "streaming"]
     usage = "hadoopcmd <submit|run> [options] <%s> <arg1> [arg2] ..." % "|".join(subcmdlist)
 
@@ -828,7 +828,7 @@ class HadoopCommand(Command):
         return parsed
 
 
-class ShellCommand(Command):
+class ShellCommand(Command): # skipcq PY-D0002
     usage = ("shellcmd <submit|run> [options] [arg1] [arg2] ...")
 
     optparser = GentleOptionParser(usage=usage)
@@ -930,7 +930,7 @@ class ShellCommand(Command):
         return v
 
 
-class PigCommand(Command):
+class PigCommand(Command): # skipcq PY-D0002
     usage = ("pigcmd <submit|run> [options] [key1=value1] [key2=value2] ...")
 
     optparser = GentleOptionParser(usage=usage)
@@ -1033,7 +1033,7 @@ class PigCommand(Command):
         return v
 
 
-class DbExportCommand(Command):
+class DbExportCommand(Command): # skipcq PY-D0002
     usage = ("dbexportcmd <submit|run> [options]")
 
     optparser = GentleOptionParser(usage=usage)
@@ -1146,7 +1146,7 @@ class DbExportCommand(Command):
         return v
 
 
-class DbImportCommand(Command):
+class DbImportCommand(Command): # skipcq PY-D0002
     usage = "dbimportcmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
@@ -1230,7 +1230,7 @@ class DbImportCommand(Command):
         return v
 
 
-class CompositeCommand(Command):
+class CompositeCommand(Command): # skipcq PY-D0002
     @classmethod
     def compose(cls, sub_commands, macros=None, cluster_label=None, notify=False, name=None, tags=None):
         """
@@ -1259,7 +1259,7 @@ class CompositeCommand(Command):
                }
 
 
-class DbTapQueryCommand(Command):
+class DbTapQueryCommand(Command): # skipcq PY-D0002
     usage = "dbtapquerycmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
@@ -1339,7 +1339,7 @@ class DbTapQueryCommand(Command):
         return v
 
 
-class JupyterNotebookCommand(Command):
+class JupyterNotebookCommand(Command): # skipcq PY-D0002
     usage = "jupyternotebookcmd <submit|run> [options]"
 
     optparser = GentleOptionParser(usage=usage)
