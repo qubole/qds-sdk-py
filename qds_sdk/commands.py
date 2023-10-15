@@ -149,7 +149,7 @@ class Command(Resource):
 
         while not Command.is_done(cmd.status):
             if sighandler.received_term_signal:
-                logging.warning("Received signal {}. Canceling Qubole Command ID: {}".format(sighandler.last_signal, cmd.id))
+                logging.warning("Received signal %s. Canceling Qubole Command ID: %s" sighandler.last_signal, cmd.id)
                 cls.cancel(cmd)
                 sys.exit()
             time.sleep(Qubole.poll_interval)
