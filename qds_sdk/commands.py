@@ -513,7 +513,7 @@ class SparkCommand(Command):
     allowedlanglist = ["python", "scala", "R"]
 
     optparser = GentleOptionParser(usage=usage)
-    optparser.add_option("--program", dest="program",help=SUPPRESS_HELP)
+    optparser.add_option("--program", dest="program", help=SUPPRESS_HELP)
 
     optparser.add_option("--cmdline", dest="cmdline", help="command line for Spark")
 
@@ -705,7 +705,7 @@ class PrestoCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     @classmethod
     def parse(cls, args):
@@ -783,7 +783,7 @@ class HadoopCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     optparser.disable_interspersed_args()
 
@@ -965,7 +965,7 @@ class PigCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", choices=[1,2,3], default=0, help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", choices=[1, 2, 3], default=0, help="Number of retries for a job")
 
     @classmethod
     def parse(cls, args):
@@ -1091,7 +1091,7 @@ class DbExportCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
 
     @classmethod
     def parse(cls, args):
@@ -1194,7 +1194,7 @@ class DbImportCommand(Command):
                          default=False, help="Fetch logs and print them to stderr.")
     optparser.add_option("--print-logs-live", action="store_true", dest="print_logs_live",
                          default=False, help="Fetch logs and print them to stderr while command is running.")
-    optparser.add_option("--retry", dest="retry", default=0, choices=[1,2,3], help="Number of retries for a job")
+    optparser.add_option("--retry", dest="retry", default=0, choices=[1, 2, 3], help="Number of retries for a job")
     optparser.add_option("--partition_spec", dest="part_spec", default=None, help="Mode 1: (optional) Partition specification for Hive table")
 
 
@@ -1485,7 +1485,7 @@ def _read_iteratively(key_instance, fp, delim):
             # Stream closes itself when the exception is raised
             return
 
-def write_headers(qlog,fp):
+def write_headers(qlog, fp):
     col_names = []
     qlog = json.loads(qlog)
     if qlog["QBOL-QUERY-SCHEMA"] is not None:
