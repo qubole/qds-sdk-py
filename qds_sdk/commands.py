@@ -103,7 +103,7 @@ class Command(Resource):
             (options, args) = cls.listparser.parse_args(args)
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.listparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         return vars(options)
@@ -394,7 +394,7 @@ class HiveCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -479,7 +479,7 @@ class SqlCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -633,7 +633,7 @@ class SparkCommand(Command):
                                      str(e),
                                      cls.optparser.format_help())
 
-            
+
                 options.script_location = None
                 if options.language == "sql":
                     options.sql = q
@@ -661,7 +661,7 @@ class SparkCommand(Command):
             (options, args) = cls.optparser.parse_args(args)
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         SparkCommand.validate_program(options)
@@ -733,7 +733,7 @@ class PrestoCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -810,7 +810,7 @@ class HadoopCommand(Command):
             (options, args) = cls.optparser.parse_args(args)
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         parsed['label'] = options.label
@@ -895,7 +895,7 @@ class ShellCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -993,7 +993,7 @@ class PigCommand(Command):
                                  cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.script_location is not None:
@@ -1146,7 +1146,7 @@ class DbExportCommand(Command):
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         v = vars(options)
@@ -1231,7 +1231,7 @@ class DbImportCommand(Command):
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         v = vars(options)
@@ -1338,7 +1338,7 @@ class DbTapQueryCommand(Command):
 
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         if options.macros is not None:
@@ -1430,7 +1430,7 @@ class JupyterNotebookCommand(Command):
                     raise ParseError(msg, cls.optparser.format_help())
         except OptionParsingError as e:
             raise ParseError(e.msg, cls.optparser.format_help())
-        except OptionParsingExit as e:
+        except OptionParsingExit:
             return None
 
         params = vars(options)
@@ -1526,7 +1526,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
         sys.stderr.flush()
-        
+
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
     bucket = boto_conn.get_bucket(bucket_name)
