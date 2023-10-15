@@ -10,14 +10,14 @@ from qds_sdk.resource import Resource
 from qds_sdk.exception import ParseError
 from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser, OptionParsingError, OptionParsingExit, _is_cloud_url
-from optparse import SUPPRESS_HELP
+from optparse import SUPPRESS_HELP #skipcq: PYL-W0402
 
 import boto
 import time
 import logging
 import sys
 import re
-import pipes
+import pipes #skipcq: PYL-W0402
 import os
 import json
 import signal
