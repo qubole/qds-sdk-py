@@ -9,7 +9,7 @@ import string
 from ConfigParser import SafeConfigParser
 from qds_sdk.qubole import Qubole
 from qds_sdk.commands import *
-import boto
+import boto3
 import time
 
 

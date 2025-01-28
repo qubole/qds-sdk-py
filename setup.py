@@ -2,7 +2,7 @@ import os
 import sys
 from setuptools import setup
 
-INSTALL_REQUIRES = ['requests >=2.21.0', 'boto >=2.45.0', 'six >=1.12.0',
+INSTALL_REQUIRES = ['requests >=2.21.0', 'boto3 >=1.15.0', 'six >=1.12.0',
                     'urllib3 >= 1.24.3']
 if sys.version_info < (2, 7, 0):
     INSTALL_REQUIRES.append('argparse>=1.1')
@@ -17,7 +17,7 @@ def read(fname):
 
 setup(
     name="qds_sdk",
-    version="1.13.2",
+    version="1.13.3",
     author="Qubole",
     author_email="dev@qubole.com",
     description=("Python SDK for coding to the Qubole Data Service API"),
@@ -38,6 +38,9 @@ setup(
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.3",
-        "Programming Language :: Python :: 3.4"
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12"
     ]
     )
