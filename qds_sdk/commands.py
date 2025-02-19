@@ -12,7 +12,7 @@ from qds_sdk.account import Account
 from qds_sdk.util import GentleOptionParser, OptionParsingError, OptionParsingExit, _is_cloud_url
 from optparse import SUPPRESS_HELP
 
-import boto
+import boto3
 import time
 import logging
 import sys
@@ -299,12 +299,12 @@ class Command(Resource):
                     pass
         else:
             if fetch:
-                if not boto.config.has_section('s3'):
-                    boto.config.add_section('s3')
-                boto.config.set('s3', 'use-sigv4', 'True')
+                if not boto3.config.has_section('s3'):
+                    boto3.config.add_section('s3')
+                boto3.config.set('s3', 'use-sigv4', 'True')
                 storage_credentials = conn.get(Account.credentials_rest_entity_path)
                 host = storage_credentials['region_endpoint'] if storage_credentials['region_endpoint'] else "s3.amazonaws.com"
-                boto_conn = boto.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
+                boto3_conn = boto3.connect_s3(aws_access_key_id=storage_credentials['storage_access_key'],
                                             aws_secret_access_key=storage_credentials['storage_secret_key'],
                                             security_token=storage_credentials['session_token'],
                                             host=host)
@@ -320,11 +320,11 @@ class Command(Resource):
 
                     # In Python 3,
                     # If the delim is None, fp should be in binary mode because
-                    # boto expects it to be.
+                    # boto3 expects it to be.
                     # If the delim is not None, then both text and binary modes
                     # work.
 
-                    _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=delim)
+                    _download_to_local(boto3_conn, s3_path, fp, num_result_dir, delim=delim)
             else:
                 fp.write(",".join(r['result_location']))
 
@@ -1121,7 +1121,7 @@ class DbExportCommand(Command):
                 raise ParseError("dbtap_id and db_table are required",
                                  cls.optparser.format_help())
 
-            if options.mode is "1":
+            if options.mode == "1":
                 if options.hive_table is None:
                     raise ParseError("hive_table is required for mode 1",
                                      cls.optparser.format_help())
@@ -1134,7 +1134,7 @@ class DbExportCommand(Command):
                     raise ParseError("db_update_mode should either be left blank for append "
                                      "mode or be 'updateonly' or 'allowinsert'",
                                      cls.optparser.format_help())
-                if options.db_update_mode is "updateonly":
+                if options.db_update_mode == "updateonly":
                     if options.db_update_keys is None:
                         raise ParseError("db_update_keys is required when db_update_mode "
                                          "is 'updateonly'",
@@ -1501,12 +1501,12 @@ def write_headers(qlog,fp):
     fp.write(col_names.encode())
 
 
-def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
+def _download_to_local(boto3_conn, s3_path, fp, num_result_dir, delim=None):
     '''
     Downloads the contents of all objects in s3_path into fp
 
     Args:
-        `boto_conn`: S3 connection object
+        `boto3_conn`: S3 connection object
 
         `s3_path`: S3 path to be downloaded
 
@@ -1521,7 +1521,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
 
         `total`: Total file size to be downloaded (int)
         '''
-        if (total is 0) or (downloaded == total):
+        if (total == 0) or (downloaded == total):
             return
         progress = downloaded*100/total
         sys.stderr.write('\r[{0}] {1}%'.format('#'*progress, progress))
@@ -1529,7 +1529,7 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         
     m = _URI_RE.match(s3_path)
     bucket_name = m.group(1)
-    bucket = boto_conn.get_bucket(bucket_name)
+    bucket = boto3_conn.get_bucket(bucket_name)
     retries = 6
     if s3_path.endswith('/') is False:
         #It is a file
@@ -1546,9 +1546,9 @@ def _download_to_local(boto_conn, s3_path, fp, num_result_dir, delim=None):
         if delim is None:
             try:
                 key_instance.get_contents_to_file(fp)  # cb=_callback
-            except boto.exception.S3ResponseError as e:
+            except boto3.exception.S3ResponseError as e:
                 if (e.status == 403):
-                    # SDK-191, boto gives an error while fetching the objects using versions which happens by default
+                    # SDK-191, boto3 gives an error while fetching the objects using versions which happens by default
                     # in the get_contents_to_file() api. So attempt one without specifying version.
                     log.warn("Access denied while fetching the s3 object. Retrying without specifying the version....")
                     key_instance.open()

@@ -20,7 +20,7 @@ class RoleCmdLine:
         create = subparsers.add_parser("create", help="Create a new Role")
         create.add_argument("--name", dest="name", required=True, help="Name of the new Role")
         create.add_argument("--policy", dest="policy", required=True,
-                            help="Policy Statement example '[{\"access\":\"deny\", \"resource\": \"all\", \"action\": \"[\"create\",\"update\",\"delete\"\]\"}]'")
+                            help="Policy Statement example '[{\"access\":\"deny\", \"resource\": \"all\", \"action\": \"[\"create\",\"update\",\"delete\"]\"}]'")
         create.set_defaults(func=RoleCmdLine.create)
 
         #List
@@ -39,7 +39,7 @@ class RoleCmdLine:
         update.add_argument("id", help="Numeric id of the Role")
         update.add_argument("--name", dest="name", help="New name of the Role")
         update.add_argument("--policy", dest="policy",
-                            help="Policy Statement example '[{\"access\":\"deny\", \"resource\": \"all\", \"action\": \"[\"create\",\"update\",\"delete\"\]\"}]'")
+                            help="Policy Statement example '[{\"access\":\"deny\", \"resource\": \"all\", \"action\": \"[\"create\",\"update\",\"delete\"]\"}]'")
         update.set_defaults(func=RoleCmdLine.update)
 
         #Delete
