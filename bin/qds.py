@@ -602,6 +602,11 @@ def main():
                          help="Number of re-attempts for an api-call in case of "
                               " retryable exceptions. Defaults to 7.")
 
+    optparser.add_option("--timeout", dest="timeout",
+                         type=int,
+                         default=os.getenv('QDS_TIMEOUT'),
+                         help="number of seconds to await response from QDS. defaults to 300s")
+
     optparser.add_option("-v", dest="verbose", action="store_true",
                          default=False,
                          help="verbose mode - info level logging")
@@ -639,6 +644,9 @@ def main():
     if options.base_retry_delay is None:
         options.base_retry_delay = 10
 
+    if options.timeout is None:
+        options.timeout = 300
+
     if options.cloud_name is None:
         options.cloud_name = "AWS"
 
@@ -654,7 +662,8 @@ def main():
                      skip_ssl_cert_check=options.skip_ssl_cert_check,
                      cloud_name=options.cloud_name,
                      base_retry_delay=options.base_retry_delay,
-                     max_retries=options.max_retries
+                     max_retries=options.max_retries,
+                     timeout=options.timeout
                      )
 
     if len(args) < 1:

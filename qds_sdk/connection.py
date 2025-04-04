@@ -37,7 +37,7 @@ class Connection:
 
     def __init__(self, auth, rest_url, skip_ssl_cert_check,
                  reuse=True, max_retries=7,
-                 base_retry_delay=10):
+                 base_retry_delay=10, timeout=300):
         self.auth = auth
         self.rest_url = rest_url
         self.skip_ssl_cert_check = skip_ssl_cert_check
@@ -47,6 +47,7 @@ class Connection:
         self.reuse = reuse
         self.max_retries = max_retries
         self.base_retry_delay = base_retry_delay
+        self.timeout = timeout
         if reuse:
             self.session = requests.Session()
             self.session.mount('https://', RequestAdapter())
@@ -109,7 +110,7 @@ class Connection:
             x_with_retries = requests.Session()
             x_with_retries.mount('https://', RequestAdapter(max_retries=3))
 
-        kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check}
+        kwargs = {'headers': self._headers, 'auth': self.auth, 'verify': not self.skip_ssl_cert_check, 'timeout': self.timeout}
 
         if data:
             kwargs['data'] = json.dumps(data)
@@ -121,13 +122,13 @@ class Connection:
         log.info("Params: %s" % params)
 
         if req_type == 'GET':
-            r = x_with_retries.get(url, timeout=300, **kwargs)
+            r = x_with_retries.get(url, **kwargs)
         elif req_type == 'POST':
-            r = x.post(url, timeout=300, **kwargs)
+            r = x.post(url, **kwargs)
         elif req_type == 'PUT':
-            r = x.put(url, timeout=300, **kwargs)
+            r = x.put(url, **kwargs)
         elif req_type == 'DELETE':
-            r = x.delete(url, timeout=300, **kwargs)
+            r = x.delete(url, **kwargs)
         else:
             raise NotImplemented
 

@@ -23,6 +23,7 @@ class Qubole:
     MIN_POLL_INTERVAL = 1
     RETRIES_CAP = 7
     MAX_RETRY_DELAY = 10
+    TIMEOUT = 300
 
     _auth = None
     api_token = None
@@ -40,7 +41,7 @@ class Qubole:
     def configure(cls, api_token,
                   api_url="https://api.qubole.com/api/", version="v1.2",
                   poll_interval=5, skip_ssl_cert_check=False, cloud_name="AWS",
-                  base_retry_delay=10, max_retries=7):
+                  base_retry_delay=10, max_retries=7, timeout=300):
         """
         Set parameters governing interaction with QDS
         Args:
@@ -51,6 +52,7 @@ class Qubole:
             `delay` : interval in secs to sleep in between successive retries
             `retries` : maximum number of time to retry an api call in case
                         of retryable exception.
+            `timeout` : maximum time in secs to wait for response from QDS
         """
 
         cls._auth = QuboleAuth(api_token)
@@ -81,6 +83,7 @@ class Qubole:
             cls.max_retries = Qubole.RETRIES_CAP
         else:
             cls.max_retries = max_retries
+        cls.timeout = timeout
 
     @classmethod
     def agent(cls, version=None):
@@ -105,12 +108,12 @@ class Qubole:
         if not reuse_cached_agent:
             uncached_agent = Connection(cls._auth, cls.rest_url,
                                         cls.skip_ssl_cert_check,
-                                        True, cls.max_retries, cls.base_retry_delay)
+                                        True, cls.max_retries, cls.base_retry_delay, cls.timeout)
             return uncached_agent
         if cls.cached_agent is None:
             cls.cached_agent = Connection(cls._auth, cls.rest_url,
                                           cls.skip_ssl_cert_check,
-                                          True, cls.max_retries, cls.base_retry_delay)
+                                          True, cls.max_retries, cls.base_retry_delay, cls.timeout)
 
         return cls.cached_agent
 
